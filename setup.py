@@ -5,7 +5,7 @@ pymagicc
 Thin Python wrapper around the reduced complexity climate model
 [MAGICC 6](http://magicc.org/).
 
-***Install*** using ::
+**Install** using ::
 
     pip install pymagicc
 
@@ -31,7 +31,7 @@ class PyTest(TestCommand):
 
 setup(
     name='pymagicc',
-    version='0.2',
+    version='0.3',
     description='Thin Python wrapper for the simple climate model  MAGICC',
     long_description=__doc__,
     author='Robert Gieseke',
@@ -48,6 +48,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],
+    packages=['pymagicc'],
     package_data={'pymagicc': ['MAGICC6']},
     include_package_data=True,
     zip_safe=False,
