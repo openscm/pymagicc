@@ -8,6 +8,9 @@ available on http://www.magicc.org/ can run on Linux and OS X as well.
 
 See http://www.magicc.org/ for further information about the MAGICC model.
 
+
+## Installation
+
 If not on Windows `wine` needs to be installed separately.
 
 On Debian/Ubuntu-based systems it can be installed with
