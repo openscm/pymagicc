@@ -19,14 +19,15 @@ from setuptools.command.test import test as TestCommand
 
 
 class PyTest(TestCommand):
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
+
     def run_tests(self):
         import pytest
         pytest.main(self.test_args)
-
 
 setup(
     name='pymagicc',
@@ -41,8 +42,8 @@ setup(
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4'
-        'Programming Language :: Python :: 3.5'
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],
     license='AGPL',
@@ -51,5 +52,5 @@ setup(
     zip_safe=False,
     install_requires=['pandas', 'f90nml'],
     tests_require=['pytest'],
-    cmdclass = {'test': PyTest}
+    cmdclass={'test': PyTest}
 )
