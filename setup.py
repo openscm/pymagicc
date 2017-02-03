@@ -31,7 +31,7 @@ class PyTest(TestCommand):
 
 setup(
     name='pymagicc',
-    version='0.3',
+    version='0.4',
     description='Thin Python wrapper for the simple climate model  MAGICC',
     long_description=__doc__,
     author='Robert Gieseke',
@@ -49,7 +49,15 @@ setup(
         'Programming Language :: Python :: 3.6'
     ],
     packages=['pymagicc'],
-    package_data={'pymagicc': ['MAGICC6']},
+    package_data={'pymagicc': [
+        'MAGICC6/*.txt',
+        'MAGICC6/MAGICC6_4Download/*.CFG',
+        'MAGICC6/MAGICC6_4Download/*.exe',
+        'MAGICC6/MAGICC6_4Download/*.IN',
+        'MAGICC6/MAGICC6_4Download/*.MON',
+        'MAGICC6/MAGICC6_4Download/*.prn',
+        'MAGICC6/MAGICC6_4Download/*.SCEN'
+    ]},
     include_package_data=True,
     zip_safe=False,
     install_requires=['pandas', 'f90nml'],

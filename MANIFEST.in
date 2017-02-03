@@ -1,4 +1,11 @@
 include README.md
 include LICENSE
 
-recursive-include pymagicc/MAGICC6 *
+recursive-include pymagicc/MAGICC6 *.CFG
+recursive-include pymagicc/MAGICC6 *.exe
+recursive-include pymagicc/MAGICC6 *.IN
+recursive-include pymagicc/MAGICC6 *.MON
+recursive-include pymagicc/MAGICC6 *.prn
+recursive-include pymagicc/MAGICC6 *.SCEN
+recursive-include pymagicc/MAGICC6 *.txt
+
