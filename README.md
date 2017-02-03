@@ -34,8 +34,10 @@ plt.legend(loc="best")
 
 ## Installation
 
-By using [Wine](https://www.winehq.org/) the original compiled Windows binary
-available on http://www.magicc.org/ can run on Linux and OS X as well.
+    pip install pymagicc
+
+On Linux and OS X the original compiled Windows binary available on
+http://www.magicc.org/ can run as well using [Wine](https://www.winehq.org/).
 
 On Debian/Ubuntu-based systems it can be installed with
 
