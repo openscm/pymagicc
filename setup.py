@@ -31,11 +31,13 @@ class PyTest(TestCommand):
 
 setup(
     name='pymagicc',
-    version='0.1.1',
+    version='0.2',
     description='Thin Python wrapper for the simple climate model  MAGICC',
+    long_description=__doc__,
     author='Robert Gieseke',
     author_email='robert.gieseke@pik-potsdam.de',
     url='https://github.com/openclimatedata/pymagicc',
+    license='GNU Affero General Public License v3',
     keywords=[],
         classifiers=[
         "Development Status :: 3 - Alpha",
@@ -46,7 +48,6 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],
-    license='AGPL',
     package_data={'pymagicc': ['MAGICC6']},
     include_package_data=True,
     zip_safe=False,
