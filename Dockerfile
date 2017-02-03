@@ -8,4 +8,4 @@ RUN apt-get update && \
 
 USER main
 
-RUN pip install pymagicc f90nml
+RUN  /home/main/anaconda/envs/python3/bin/pip install pymagicc
