@@ -101,7 +101,7 @@ Sarah Raper, and Malte Meinshausen included in this package is licensed under a 
 
 
 The `pymagicc` wrapper is free software under the GNU Affero General Public
-License v3, see <LICENSE.md>.
+License v3, see <LICENSE>.
 
 If you make any use of MAGICC, please cite:
 
