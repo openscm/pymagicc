@@ -1,0 +1,100 @@
+
+__RCP Historical Concentration File: SF6__
+
+Data: Global average mixing ratio 	
+Gas: SF6
+Unit: Parts per trillion (ppt) 	
+Description: Input with historical end-of-year mixing ratio data, from Montzka et al. (pers. communication) beginning of year 1961 - 2008, set equal to end-of-year 1960-2007, linearly interpolated to zero between 1950 and 1960	
+Source: SF6 is regularly measured at multiple NOAA sites and by different techniques. A record from firn air, flasks, and in situ instruments can be compiled from Butler et al., 1999, Geller et al., 1997, and from G. Dutton (S. Montzka, personal communication)	
+Compiled by: Malte Meinshausen, Steve Smith
+Date: 03-Aug-2009 15:47:39
+
+&THISFILE_SPECIFICATIONS 
+ THISFILE_DATACOLUMNS    =    1  ,
+ THISFILE_FIRSTYEAR      = 1930  ,
+ THISFILE_LASTYEAR       = 2007  ,
+ THISFILE_ANNUALSTEPS    =    1  ,
+ THISFILE_FIRSTDATAROW   =   23  ,
+ THISFILE_UNITS          = ppt  ,
+ THISFILE_DATTYPE        = STANDARD  ,
+/  
+
+    COLCODE               YEARS
+       1930     0.00000000e+000 
+       1931     0.00000000e+000 
+       1932     0.00000000e+000 
+       1933     0.00000000e+000 
+       1934     0.00000000e+000 
+       1935     0.00000000e+000 
+       1936     0.00000000e+000 
+       1937     0.00000000e+000 
+       1938     0.00000000e+000 
+       1939     0.00000000e+000 
+       1940     0.00000000e+000 
+       1941     0.00000000e+000 
+       1942     0.00000000e+000 
+       1943     0.00000000e+000 
+       1944     0.00000000e+000 
+       1945     0.00000000e+000 
+       1946     0.00000000e+000 
+       1947     0.00000000e+000 
+       1948     0.00000000e+000 
+       1949     0.00000000e+000 
+       1950     0.00000000e+000 
+       1951     1.00000000e-002 
+       1952     2.00000000e-002 
+       1953     3.00000000e-002 
+       1954     4.00000000e-002 
+       1955     5.00000000e-002 
+       1956     6.00000000e-002 
+       1957     7.00000000e-002 
+       1958     8.00000000e-002 
+       1959     9.00000000e-002 
+       1960     1.00000000e-001 
+       1961     1.20000000e-001 
+       1962     1.40000000e-001 
+       1963     1.70000000e-001 
+       1964     1.90000000e-001 
+       1965     2.10000000e-001 
+       1966     2.30000000e-001 
+       1967     2.50000000e-001 
+       1968     2.90000000e-001 
+       1969     3.10000000e-001 
+       1970     3.40000000e-001 
+       1971     3.70000000e-001 
+       1972     4.10000000e-001 
+       1973     4.40000000e-001 
+       1974     4.80000000e-001 
+       1975     5.20000000e-001 
+       1976     5.60000000e-001 
+       1977     6.20000000e-001 
+       1978     6.90000000e-001 
+       1979     7.80000000e-001 
+       1980     8.90000000e-001 
+       1981     1.01000000e+000 
+       1982     1.14000000e+000 
+       1983     1.28000000e+000 
+       1984     1.43000000e+000 
+       1985     1.58000000e+000 
+       1986     1.76000000e+000 
+       1987     1.95000000e+000 
+       1988     2.13000000e+000 
+       1989     2.32000000e+000 
+       1990     2.53000000e+000 
+       1991     2.74000000e+000 
+       1992     2.96000000e+000 
+       1993     3.18000000e+000 
+       1994     3.42000000e+000 
+       1995     3.61000000e+000 
+       1996     3.84000000e+000 
+       1997     4.07000000e+000 
+       1998     4.24000000e+000 
+       1999     4.42000000e+000 
+       2000     4.66000000e+000 
+       2001     4.87000000e+000 
+       2002     5.10000000e+000 
+       2003     5.33000000e+000 
+       2004     5.56000000e+000 
+       2005     5.79000000e+000 
+       2006     6.03000000e+000 
+       2007     6.32000000e+000 

@@ -1,0 +1,49 @@
+INSTALLATION AND USE INSTRUCTIONS MAGICC6 EXECUTABLE 
+8th August 2012 
+
+
+INTRODUCTION
+
+This text provides a short user manual for how to run the MAGICC6 Windows executable, which you can download from www.magicc.org/download. Note that probably the easiest way to do your own runs with MAGICC6 is the web-interface to the MAGICC version that we have running on our servers, accessible via live.magicc.org. For more information, see http://wiki.magicc.org/index.php?title=Manual_MAGICC6_Executable
+
+INSTALLATION
+
+1. Download the zipped MAGICC6 version from www.magicc.org/download.
+2. Unzip in a directory of your choice, e.g. into D:/MAGICC6/
+3. The executable "magicc6.exe", all its input data files (".IN") and configuration settings ("*.CFG") files are now in this MAGICC6 folder and ready to use. No further steps necessary.
+4. For Mac Systems, you will have to boot Windows or use Parallels, VMWare or another Windows emulator.
+
+QUICK USER GUIDE
+
+Suppose you wanted to run MAGICC6 for the RCP85 scenario and with default RCP climate and carbon cycle settings.
+
+1. The only file you need to change then is MAGTUNE_SIMPLE.CFG file.
+
+1a. Set FILE_EMISSIONSCENARIO = "RCP85". This defines the emission scenario that shall be run, like RCP85.SCEN in this case. See your MAGICC installation folder for all the scenarios that are available. Scenario files in MAGICC 6.0 always end with .SCEN.
+1b. Set FILE_TUNINGMODEL = "C4MIP_BERN". This defines the C4MIP carbon cycle emulation - it will cause MAGICC to read out the parameters in the file MAGTUNE_C4MIP_BERN.CFG and overwrite any carbon cycle parameter settings with these values. (These are the default values used in the RCP creation process).
+1c. Set FILE_TUNINGMODEL_2 = "FULLTUNE_MEDIUM_CMIP3_ECS3". This defines the emulated climate response of MAGICC6, which in this case is the average of the AOGCM CMIP3 tunings. This setting will cause MAGICC to read out the parameters in the file MAGTUNE_FULLTUNE_MEDIUM_CMIP3_ECS3.CFG and overwrite respective parameter settings in MAGCFG_USER.CFG.
+
+
+2. By default, MAGICC will produce a large bunch of output files, ending with .OUT (which takes some time..). If you want to restrict that, then change the OUT_XXXX parameters in the MAGCFG_USER.CFG file. Keep the OUT_PARAMETERS parameters set to 1, as this will produce a PARAMETERS.OUT file, which will tell you, what the exact model setting was for your run.
+
+3. The easiest way to view the output is probably if you import the ASCII output files (ending with *.OUT) into a spreadsheet program, like MS Excel.
+
+EXPERT USERS
+
+If you want, you can change any of the more than 400 input parameters to MAGICC. Please be advised though, that in most cases a non-sensible input will produce a non-sensible output. And sometimes, even sensible inputs bring the model to its knees... Anyway, you should know what you are doing or be in a very playful mood - and do not blame MAGICC6 for the outcome, if you choose to change any of these extra parameters.
+
+Simply go into the file MAGCFG_USER.CFG and change the values for any of the parameters in there... Some description of what the parameters are meant to be doing are in MAGICC_DEFAULTALL_69.CFG. It would be best, though, if you do not change that MAGICC_DEFAULTALL_69.CFG file.
+
+FEEDBACK
+
+We greatly appreciate your feedback. It helps us most, if you file a feedback via www.magicc.org/contactUs. Please note though, that we generally won't be able to provide user support as those people who pay us in our working time, generally prefer us to do other stuff... But be assured that we truly honor your feedback.
+
+
+Thanks. 
+The developer team
+tom wigley, sarah rapher & 
+malte meinshausen 
+
+
+
+

@@ -1,0 +1,14 @@
+MAGICC6 License Agreement
+
+The Creative Commons license for the MAGICC6 executable basically says that you should cite our work whenever you use it, that you strictly use MAGICC6 only for non-commercial purposes, and that you share any derivates alike. We do however request that any derivatives are fed back to the MAGICC developers, so that users of the future versions can have the benefit of making use of any alterations, enhancements etc. Furthermore, we would like you to provide feedback, bug reports and development suggestions.
+
+Creative Commons License
+Compiled MAGICC6 Windows Executable by Tom Wigley, Sarah Raper, & Malte Meinshausen is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
+If you make any use of this work, please cite:
+Meinshausen, M., S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I – Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456. doi:10.5194/acp-11-1417-2011
+
+Thanks. 
+The developer team, 
+tom wigley, sarah raper and 
+malte meinshausen 
