@@ -49,7 +49,7 @@ used for scenarios with multiple regions.
 import pandas as pd
 
 scenario = pd.DataFrame({
-    "FossilCO2": [30, 40, 50],
+    "FossilCO2": [8, 10, 9],
     "OtherCO2": [1.2, 1.1, 1.2],
     "CH4": [300, 250, 200]},
     index=[2010, 2020, 2030]
