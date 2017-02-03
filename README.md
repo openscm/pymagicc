@@ -2,6 +2,7 @@
 
 Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC 6](http://magicc.org/).
+
 By using [Wine](https://www.winehq.org/) the original compiled Windows binary
 available on http://www.magicc.org/ can run on Linux and OS X as well.
 
