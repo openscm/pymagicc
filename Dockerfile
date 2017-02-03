@@ -8,4 +8,4 @@ RUN apt-get update && \
 
 USER main
 
-RUN pip install pymagicc
+RUN pip install pymagicc f90nml
