@@ -4,19 +4,38 @@
 [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](http://mybinder.org/repo/openclimatedata/pymagicc)
 
-
 Pymagicc is a thin Python wrapper around the reduced complexity climate model
-[MAGICC 6](http://magicc.org/).
-
-By using [Wine](https://www.winehq.org/) the original compiled Windows binary
-available on http://www.magicc.org/ can run on Linux and OS X as well.
+[MAGICC 6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
+[MAGICC6 binary](http://www.magicc.org/download6).
 
 See http://www.magicc.org/ for further information about the MAGICC model.
+
+## Basic Usage
+
+```python
+import pymagicc
+from pymagicc import rcp3pd, rcp45, rcp6, rcp85
+
+import matplotlib.pyplot as plt
+
+for rcp in  [rcp3pd, rcp45, rcp6, rcp85]:
+    results, params = pymagicc.run(rcp)
+    temp = results.SURFACE_TEMP.GLOBAL.loc[1850:] - \
+        results.SURFACE_TEMP.GLOBAL.loc[1850:1900].mean()
+    temp.plot(label=rcp.name)
+
+plt.title("Global mean temperature")
+plt.ylabel("°C over pre-industrial (1850-1900 mean)")
+plt.legend(loc="best")
+```
+
+![](scripts/example-plot.png)
 
 
 ## Installation
 
-If not on Windows `wine` needs to be installed separately.
+By using [Wine](https://www.winehq.org/) the original compiled Windows binary
+available on http://www.magicc.org/ can run on Linux and OS X as well.
 
 On Debian/Ubuntu-based systems it can be installed with
 
@@ -27,7 +46,7 @@ On OS X `wine` is available in the Homebrew package manager:
     brew install wine
 
 
-## Usage
+## More Usage Examples
 
 ### Use an included scenario
 
