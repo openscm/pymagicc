@@ -31,7 +31,7 @@ class PyTest(TestCommand):
 
 setup(
     name='pymagicc',
-    version='0.1',
+    version='0.1.1',
     description='Thin Python wrapper for the simple climate model  MAGICC',
     author='Robert Gieseke',
     author_email='robert.gieseke@pik-potsdam.de',
