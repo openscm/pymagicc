@@ -1,10 +1,6 @@
 language: python
 dist: trusty
 sudo: required
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo add-apt-repository ppa:ubuntu-wine/ppa -y
