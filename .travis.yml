@@ -1,9 +1,9 @@
 language: python
-dist: trusty
+dist: xenial
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
-  - sudo apt-get install wine32
+  - sudo apt-get install wine:386
 python:
   - "2.7"
   - "3.4"
