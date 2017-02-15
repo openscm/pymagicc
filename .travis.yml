@@ -1,6 +1,8 @@
-language: python
+#language: python
+sudo: true
 dist: precise
 before_install:
+  - sudo dpkg --add-architecture i386
   - sudo apt-get update
   - sudo dpkg-query -l 'wine*'
   - sudo apt-get install wine:386
