@@ -42,3 +42,4 @@ pip-delete-this-directory.txt
 venv/
 ENV/
 
+.cache
