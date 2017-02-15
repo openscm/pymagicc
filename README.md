@@ -1,5 +1,6 @@
 # pymagicc
 
+[![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc)
 [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](http://mybinder.org/repo/openclimatedata/pymagicc)
@@ -39,9 +40,14 @@ plt.legend(loc="best")
 On Linux and OS X the original compiled Windows binary available on
 http://www.magicc.org/ can run as well using [Wine](https://www.winehq.org/).
 
-On Debian/Ubuntu-based systems it can be installed with
+On Debian/Ubuntu-based systems it can be installed with (on 32-bit systems)
 
     sudo apt-get install wine
+
+If you are on a 64-bit system you need to use the 32-bit version of Wine:
+
+    sudo dpkg --add-architecture i386
+    sudo apt-get install wine32
 
 On OS X `wine` is available in the Homebrew package manager:
 

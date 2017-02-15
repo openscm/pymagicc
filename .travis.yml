@@ -1,0 +1,19 @@
+language: python
+dist: trusty
+sudo: required
+before_install:
+  - sudo dpkg --add-architecture i386
+  - sudo add-apt-repository ppa:ubuntu-wine/ppa -y
+  - sudo apt-get update
+  - sudo apt-get install --no-install-recommends -y wine1.8
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+install:
+  - pip install .
+script:
+  - python setup.py test
+notifications:
+  slack: climate-models:LuGwA2dGrgZRL1O7AssggqyP

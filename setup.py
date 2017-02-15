@@ -2,18 +2,17 @@
 pymagicc
 --------
 
-Thin Python wrapper around the reduced complexity climate model
-[MAGICC 6](http://magicc.org/).
+Thin Python wrapper around the `reduced complexity climate model
+MAGICC 6<http://magicc.org/>`_.
 
 **Install** using ::
 
     pip install pymagicc
 
-Find **usage** instructions in the repository
-<https://github.com/openclimatedata/pymagicc>.
+Find **usage** instructions in the `repository
+<https://github.com/openclimatedata/pymagicc>`_.
 
 """
-
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
@@ -28,6 +27,7 @@ class PyTest(TestCommand):
     def run_tests(self):
         import pytest
         pytest.main(self.test_args)
+
 
 setup(
     name='pymagicc',
