@@ -1,4 +1,8 @@
-language: python
+#language: python
+language: node_js
+node_js:
+  - '6.3.0'
+  - 'node'
 dist: trusty
 sudo: true
 before_install:
