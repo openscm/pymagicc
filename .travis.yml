@@ -5,7 +5,7 @@ before_install:
   - sudo dpkg --add-architecture i386
   - sudo add-apt-repository -y ppa:ubuntu-wine/ppa
   - sudo apt-get update
-  - sudo apt-get install libgcc1:i386 libasound2:i386 libglib2.0-0:i386 libglu1:i386 libgphoto2-6:i386 libgphoto2-port10:i386 libgstreamer-plugins-base0.10-0:i386 libgstreamer0.10-0:i386 liblcms2-2:i386 libldap-2.4-2:i386 libmpg123-0:i386 libopenal1:i386 libopencl-1.1-1:i386 libpulse0:i386 libx11-6:i386 libxext6:i386 libxml2:i386 libopencl1:i386 zlib1g:i386 libncurses5:i386
+  - sudo dpkg-query -l 'wine*'
 
 python:
   - "2.7"
