@@ -1,5 +1,5 @@
 language: python
-sudo: false
+dist: trusty
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
