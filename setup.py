@@ -13,6 +13,8 @@ Find **usage** instructions in the `repository
 <https://github.com/openclimatedata/pymagicc>`_.
 
 """
+import versioneer
+
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
@@ -29,9 +31,12 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
+cmdclass = versioneer.get_cmdclass()
+cmdclass.update({"test": PyTest})
+
 setup(
     name='pymagicc',
-    version='0.4',
+    version=versioneer.get_version(),
     description='Thin Python wrapper for the simple climate model  MAGICC',
     long_description=__doc__,
     author='Robert Gieseke',
