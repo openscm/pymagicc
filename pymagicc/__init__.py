@@ -24,6 +24,11 @@ from distutils import dir_util
 import f90nml
 import pandas as pd
 
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
+
+
 _WINDOWS = platform.system() == "Windows"
 
 _magiccpath = os.path.join(

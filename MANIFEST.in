@@ -9,3 +9,5 @@ recursive-include pymagicc/MAGICC6 *.prn
 recursive-include pymagicc/MAGICC6 *.SCEN
 recursive-include pymagicc/MAGICC6 *.txt
 
+include versioneer.py
+include pymagicc/_version.py
