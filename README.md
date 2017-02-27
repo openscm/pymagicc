@@ -20,7 +20,7 @@ from pymagicc import rcp3pd, rcp45, rcp6, rcp85
 import matplotlib.pyplot as plt
 
 for rcp in  [rcp3pd, rcp45, rcp6, rcp85]:
-    results, params = pymagicc.run(rcp)
+    results = pymagicc.run(rcp)
     temp = results.SURFACE_TEMP.GLOBAL.loc[1850:] - \
         results.SURFACE_TEMP.GLOBAL.loc[1850:1900].mean()
     temp.plot(label=rcp.name)
@@ -92,7 +92,7 @@ scenario = pd.DataFrame({
 ### Run MAGICC for a scenario
 
 ```python
-output, params = pymagicc.run(scenario)
+output = pymagicc.run(scenario)
 
 # Projected temperature adjusted to pre-industrial mean
 temp = output.SURFACE_TEMP.GLOBAL - \

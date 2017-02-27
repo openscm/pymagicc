@@ -263,6 +263,7 @@ def write_scen_file(scenario,
 def run(scenario, output_dir=None,
         file_tuningmodel="C4MIP_DEFAULT",
         file_tuningmodel_2="FULLTUNE_DEFAULT",
+        return_config=False,
         **kwargs
         ):
     """
@@ -277,6 +278,8 @@ def run(scenario, output_dir=None,
         Default Tuningmodel configuration.
     file_tuningmodel_2:
         Default Tuningmodel 2 configuration.
+    return_config:
+        Additionaly return the full list of parameters used. default False
     kwargs:
         Parameters overwriting default parameters.
 
@@ -285,7 +288,8 @@ def run(scenario, output_dir=None,
     output: Panel
         Pandas Panel with all data from MAGICC output files.
     parameters: dict
-        Parameters used in the MAGICC run.
+        Parameters used in the MAGICC run. Only returned when
+        ``return_config`` is set to True
     """
 
     # Create a temporary directory.
@@ -352,4 +356,9 @@ def run(scenario, output_dir=None,
     if not output_dir:
         shutil.rmtree(tempdir)
 
-    return pd.Panel(output), parameters
+    results = pd.Panel(output)
+
+    if return_config:
+        return results, parameters
+    else:
+        return results
