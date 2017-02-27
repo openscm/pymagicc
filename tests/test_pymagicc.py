@@ -66,7 +66,7 @@ def test_write_scen_file_world_only(tmpdir):
 
 
 def test_run_rcp3pd():
-    results, params = run(rcp3pd)
+    results = run(rcp3pd)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -80,7 +80,7 @@ def test_run_rcp3pd():
 
 
 def test_run_rcp45():
-    results, params = run(rcp45)
+    results = run(rcp45)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -94,7 +94,7 @@ def test_run_rcp45():
 
 
 def test_run_rcp6():
-    results, params = run(rcp6)
+    results = run(rcp6)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -108,7 +108,7 @@ def test_run_rcp6():
 
 
 def test_run_rcp85():
-    results, params = run(rcp85)
+    results = run(rcp85)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -122,7 +122,7 @@ def test_run_rcp85():
 
 
 def test_parameters():
-    _, params = run(rcp3pd, core_climatesensitivity=1.5)
+    _, params = run(rcp3pd, return_config=True, core_climatesensitivity=1.5)
     assert params["core_climatesensitivity"] == 1.5
     # Test removal of newlines in PARAMETERS.out
     assert 'H\nFC134a' not in params["fgas_names"]
