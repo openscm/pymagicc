@@ -64,7 +64,6 @@ setup(
         'MAGICC6/MAGICC6_4Download/*.SCEN'
     ]},
     include_package_data=True,
-    zip_safe=False,
     install_requires=['pandas', 'f90nml'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest}
