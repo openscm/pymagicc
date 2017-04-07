@@ -1,5 +1,6 @@
 include README.md
 include LICENSE
+include CHANGELOG.rst
 
 recursive-include pymagicc/MAGICC6 *.CFG
 recursive-include pymagicc/MAGICC6 *.exe
