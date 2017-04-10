@@ -66,5 +66,5 @@ setup(
     include_package_data=True,
     install_requires=['pandas', 'f90nml'],
     tests_require=['pytest'],
-    cmdclass={'test': PyTest}
+    cmdclass=cmdclass
 )
