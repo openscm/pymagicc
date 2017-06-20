@@ -1,3 +1,8 @@
+Unreleased (Master)
+===================
+
+- switch to Dictionaries as results object as Pandas `panel` is being deprecated.
+
 0.6.4
 =====
 

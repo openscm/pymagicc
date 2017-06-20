@@ -76,7 +76,7 @@ def test_run_rcp3pd():
         index_col=0
     )
 
-    assert surface_temp.GLOBAL.equals(results.SURFACE_TEMP.GLOBAL)
+    assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
 def test_run_rcp45():
@@ -90,7 +90,7 @@ def test_run_rcp45():
         index_col=0
     )
 
-    assert surface_temp.GLOBAL.equals(results.SURFACE_TEMP.GLOBAL)
+    assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
 def test_run_rcp6():
@@ -104,7 +104,7 @@ def test_run_rcp6():
         index_col=0
     )
 
-    assert surface_temp.GLOBAL.equals(results.SURFACE_TEMP.GLOBAL)
+    assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
 def test_run_rcp85():
@@ -118,7 +118,7 @@ def test_run_rcp85():
         index_col=0
     )
 
-    assert surface_temp.GLOBAL.equals(results.SURFACE_TEMP.GLOBAL)
+    assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
 def test_parameters():

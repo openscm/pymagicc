@@ -329,14 +329,14 @@ def run(scenario, output_dir=None,
 
     subprocess.check_call(command, cwd=tempdir)
 
-    output = {}
+    results = {}
 
     outfiles = [f for f in os.listdir(tempdir)
                 if f.startswith("DAT_") and f.endswith(".OUT")]
 
     for filename in outfiles:
         name = filename.replace("DAT_", "").replace(".OUT", "")
-        output[name] = pd.read_csv(
+        results[name] = pd.read_csv(
             os.path.join(tempdir, filename),
             delim_whitespace=True,
             skiprows=19,
@@ -355,8 +355,6 @@ def run(scenario, output_dir=None,
 
     if not output_dir:
         shutil.rmtree(tempdir)
-
-    results = pd.Panel(output)
 
     if return_config:
         return results, parameters
