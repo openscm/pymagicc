@@ -285,8 +285,8 @@ def run(scenario, output_dir=None,
 
     Returns
     -------
-    output: Panel
-        Pandas Panel with all data from MAGICC output files.
+    output: dict
+        Dictionary with all data from MAGICC output files.
     parameters: dict
         Parameters used in the MAGICC run. Only returned when
         ``return_config`` is set to True
