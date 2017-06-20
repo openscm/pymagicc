@@ -1,3 +1,8 @@
+venv: dev-requirements.txt
+	[ -d ./venv ] || python3 -m venv venv
+	./venv/bin/pip install --upgrade pip
+	./venv/bin/pip install -Ur dev-requirements.txt
+
 publish-on-testpypi:
 	python setup.py register -r https://testpypi.python.org/pypi
 	python setup.py sdist upload -r https://testpypi.python.org/pypi
