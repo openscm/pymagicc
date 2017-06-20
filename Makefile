@@ -11,10 +11,13 @@ test-testpypi-install:
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
+	# Install dependencies not on testpypi registry
 	$(TEMPVENV)/bin/pip install pandas f90nml
+	# Install pymagicc without dependencies.
 	$(TEMPVENV)/bin/pip install \
 		-i https://testpypi.python.org/pypi pymagicc \
 		--no-dependencies
+	# Remove local directory from path to get actual installed version.
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
 publish-on-pypi:
@@ -27,6 +30,5 @@ test-pypi-install:
 	$(TEMPVENV)/bin/pip install pip --upgrade
 	$(TEMPVENV)/bin/pip install pymagicc
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
-
 
 .PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install
