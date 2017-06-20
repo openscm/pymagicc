@@ -267,7 +267,7 @@ def run(scenario, output_dir=None,
         **kwargs
         ):
     """
-    Return output data and used parameters from a MAGICC run.
+    Return output data and (optionally) used parameters from a MAGICC run.
 
     Parameters
     ----------
