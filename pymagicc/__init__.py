@@ -103,7 +103,7 @@ def _get_region_code(scen_file):
 def read_scen_file(scen_file):
     """
     Reads a MAGICC .SCEN file and returns a
-    a Pandas panel or, for World Only scenarios, a DataFrame.
+    a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
     """
     num_datapoints = _get_number_of_datapoints(scen_file)
 
@@ -126,13 +126,11 @@ def read_scen_file(scen_file):
             index_col=0
         )
         output[region].name = region
+
     if region_code == 11:
         return output["WORLD"]
     else:
-        panel = pd.Panel(output)
-        panel.name = os.path.splitext(os.path.basename(scen_file))[0]
-        return panel
-
+        return  output
 
 rcp3pd = read_scen_file(os.path.join(_magiccpath, "RCP3PD.SCEN"))
 rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
@@ -152,12 +150,13 @@ def write_scen_file(scenario,
                     description2=None,
                     comment=None):
     """
-    Write a Pandas Panel or DataFrame to a MAGICC .SCEN-file.
+    Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
 
     Parameters
     ----------
-    scenario: DataFrame or Panel
-        DataFrame (for scenarios with only the World region) or Panel
+    scenario: DataFrame or Dict of DataFrames
+        DataFrame (for scenarios with only the World region) or Dictionary with
+        regions.
     path_or_buf:
         Pathname or file-like object to write the scenario to.
     description_1:
@@ -169,8 +168,8 @@ def write_scen_file(scenario,
 
     """
 
-    if isinstance(scenario, pd.DataFrame):
-        scenario = pd.Panel({"WORLD": scenario})
+    if not isinstance(scenario, dict):
+        scenario = dict({"WORLD": scenario})
 
     delim = "\n"
 
@@ -182,7 +181,7 @@ def write_scen_file(scenario,
     out.append(" " + str(num_datapoints))
 
     # Regions.
-    num_regions = len(scenario.items)
+    num_regions = len(scenario)
     for region_code, regions in region_codes.items():
         if len(regions) == num_regions:
             out.append(" " + str(region_code))
@@ -219,24 +218,24 @@ def write_scen_file(scenario,
         header_line = [with_padding.format(_columns[0])]
 
         for column in _columns:
-            if column in scenario.minor_axis:
+            if column in scenario[region].columns:
                 header_line.append(with_padding.format(column))
         out.append("".join(header_line))
 
         # Unit line.
         units_line = [with_padding.format(units[_columns[0]])]
         for column in _columns[1:]:
-            if column in scenario.minor_axis:
+            if column in scenario[region].columns:
                 units_line.append(with_padding.format(units[column]))
         out.append("".join(units_line))
 
         # Data lines for each year.
-        for year in scenario.major_axis:
+        for year in scenario[region].index:
             data = [with_padding.format(year)]
             for column in _columns[1:]:
-                if column in scenario.minor_axis:
+                if column in scenario[region].columns:
                     data.append(with_digits.format(
-                        scenario.loc[region, year, column])
+                        scenario[region].loc[year][column])
                     )
             out.append("".join(data))
 

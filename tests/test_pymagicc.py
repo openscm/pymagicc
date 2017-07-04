@@ -32,10 +32,9 @@ def test_region_code():
 
 
 def test_read_scen_file():
-    assert len(rcp3pd.items) == 7
-    assert len(rcp3pd.WORLD.index) == 20
-    assert len(rcp3pd.WORLD.columns) == 23
-    assert rcp3pd.name == "RCP3PD"
+    assert len(rcp3pd) == 7
+    assert len(rcp3pd["WORLD"].index) == 20
+    assert len(rcp3pd["WORLD"].columns) == 23
 
 
 def test_read_world_only_scenario():
@@ -49,10 +48,10 @@ def test_write_scen_file(tmpdir):
     outfile = tmpdir.join("SCENARIO.SCEN")
     write_scen_file(rcp3pd, outfile)
     output = read_scen_file(os.path.join(outfile.dirname, outfile.basename))
-    assert len(rcp3pd.items) == len(output.items)
-    assert len(rcp3pd.WORLD.index) == len(output.WORLD.index)
-    assert len(rcp3pd.WORLD.columns) == len(output.WORLD.columns)
-    assert rcp3pd.WORLD.equals(output.WORLD)
+    assert len(rcp3pd) == len(output)
+    assert len(rcp3pd["WORLD"].index) == len(output["WORLD"].index)
+    assert len(rcp3pd["WORLD"].columns) == len(output["WORLD"].columns)
+    assert rcp3pd["WORLD"].equals(output["WORLD"])
 
 
 def test_write_scen_file_world_only(tmpdir):
