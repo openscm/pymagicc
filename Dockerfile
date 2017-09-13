@@ -10,6 +10,6 @@ RUN apt-get update && \
     apt-get install -y wine && \
     apt-get clean
 
-USER main
+USER jovyan
 
 RUN  pip install pymagicc
