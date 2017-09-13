@@ -14,7 +14,7 @@ python:
 before_install:
   - pip install pytest pytest-cov codecov
 install:
-  - pip install .
+  - pip install -e .
 script:
   - pytest --cov
 after_success:
