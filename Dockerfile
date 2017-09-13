@@ -12,4 +12,4 @@ RUN apt-get update && \
 
 USER main
 
-RUN  /home/main/anaconda/envs/python3/bin/pip install pymagicc
+RUN  pip install pymagicc
