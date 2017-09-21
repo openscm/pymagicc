@@ -1,1 +1,1 @@
-wine32
+wine
