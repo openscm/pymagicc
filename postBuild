@@ -1,4 +1,5 @@
 #!/bin/bash
-apt install wine-development
-dpkg --add-architecture i386 && apt update
-apt install wine32-development
+sudp apt-get install wine-development
+sudp dpkg --add-architecture i386
+sudo apt-get update
+sudo apt-get install wine32-development
