@@ -137,6 +137,12 @@ rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
 rcp6 = read_scen_file(os.path.join(_magiccpath, "RCP6.SCEN"))
 rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"))
 
+scenarios = {
+    "RCP3PD": rcp3pd,
+    "RCP45": rcp45,
+    "RCP6": rcp6,
+    "RCP85": rcp85
+}
 
 def _get_date_time_string():
     """Return a timestamp with current date and time."""
