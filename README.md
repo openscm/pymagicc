@@ -15,19 +15,15 @@ See http://www.magicc.org/ for further information about the MAGICC model.
 
 ```python
 import pymagicc
-from pymagicc import rcp3pd, rcp45, rcp6, rcp85
+from pymagicc import scenarios
 
-import matplotlib.pyplot as plt
-
-for rcp in  [rcp3pd, rcp45, rcp6, rcp85]:
-    results = pymagicc.run(rcp)
-    temp = results["SURFACE_TEMP"].GLOBAL.loc[1850:] - \
-        results["SURFACE_TEMP"].GLOBAL.loc[1850:1900].mean()
-    temp.plot(label=rcp.name)
-
-plt.title("Global mean temperature")
-plt.ylabel("°C over pre-industrial (1850-1900 mean)")
-plt.legend(loc="best")
+for name, scen in scenarios.items():
+    results, params = pymagicc.run(scen, return_config=True)
+    temp = results["SURFACE_TEMP"].GLOBAL.loc[1850:] - results["SURFACE_TEMP"].GLOBAL.loc[1850:1900].mean()
+    temp.plot(label=name)
+plt.legend()
+plt.title("Global Mean Temperature Projection")
+plt.ylabel(u"°C over pre-industrial (1850-1900 mean)")
 ```
 
 ![](scripts/example-plot.png)
