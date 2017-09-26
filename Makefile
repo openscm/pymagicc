@@ -2,12 +2,19 @@ venv: dev-requirements.txt
 	[ -d ./venv ] || python3 -m venv venv
 	./venv/bin/pip install --upgrade pip
 	./venv/bin/pip install -Ur dev-requirements.txt
+	touch venv
 
-publish-on-testpypi:
-	python setup.py register -r https://testpypi.python.org/pypi
-	python setup.py sdist upload -r https://testpypi.python.org/pypi
+publish-on-testpypi: venv
+	-rm -rf build dist
+	@status=$$(git status --porcelain); \
+	if test "x$${status}" = x; then \
+		./venv/bin/python setup.py bdist_wheel --universal; \
+		./venv/bin/twine upload -r testpypi dist/*; \
+	else \
+		echo Working directory is dirty >&2; \
+	fi;
 
-test-testpypi-install:
+test-testpypi-install: venv
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
@@ -20,11 +27,17 @@ test-testpypi-install:
 	# Remove local directory from path to get actual installed version.
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
-publish-on-pypi:
-	python setup.py register -r https://pypi.python.org/pypi
-	python setup.py sdist upload -r https://pypi.python.org/pypi
+publish-on-pypi: venv
+	-rm -rf build dist
+	@status=$$(git status --porcelain); \
+	if test "x$${status}" = x; then \
+		./venv/bin/python setup.py bdist_wheel --universal; \
+		./venv/bin/twine upload dist/*; \
+	else \
+		echo Working directory is dirty >&2; \
+	fi;
 
-test-pypi-install:
+test-pypi-install: venv
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
