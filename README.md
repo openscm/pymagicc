@@ -71,7 +71,7 @@ scenario = read_scen_file("PATHWAY.SCEN")
 
 ### Create a new scenario
 
-Pymagicc uses Pandas DataFrames or Panels to represent scenarios. Panels are
+Pymagicc uses Pandas DataFrames to represent scenarios. Dictionaries are
 used for scenarios with multiple regions.
 
 ```python
