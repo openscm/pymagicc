@@ -58,7 +58,7 @@ On OS X `wine` is available in the Homebrew package manager:
 ```python
 from pymagicc import rcp3pd
 
-rcp3pd.WORLD.head()
+rcp3pd["WORLD"].head()
 ```
 
 ### Read a MAGICC scenario file
