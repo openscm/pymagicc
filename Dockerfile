@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get clean
 RUN pip install pymagicc
 
-COPY ./index.ipynb ${HOME}
+COPY . ${HOME}
 USER root
 RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
