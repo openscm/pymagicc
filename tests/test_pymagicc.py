@@ -124,12 +124,12 @@ def test_parameters():
     _, params = run(rcp3pd,
                     return_config=True,
                     core_climatesensitivity=1.5)
-    assert params['nml_allcfgs']["core_climatesensitivity"] == 1.5
+    assert params['allcfgs']["core_climatesensitivity"] == 1.5
     # Test removal of newlines in PARAMETERS.out
-    assert 'H\nFC134a' not in params['nml_allcfgs']["fgas_names"]
+    assert 'H\nFC134a' not in params['allcfgs']["fgas_names"]
 
 
 def test_default_config():
     _, conf = run(rcp3pd, return_config=True)
-    assert conf["nml_allcfgs"]["core_climatesensitivity"] == 3
-    assert conf["nml_years"]["startyear"] == 1765
+    assert conf["allcfgs"]["core_climatesensitivity"] == 3
+    assert conf["years"]["startyear"] == 1765

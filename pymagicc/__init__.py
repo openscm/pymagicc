@@ -25,7 +25,7 @@ import f90nml
 import pandas as pd
 
 from ._version import get_versions
-__version__ = get_versions()['version']
+__version__ = get_versions()["version"]
 del get_versions
 
 
@@ -47,9 +47,6 @@ if not _WINDOWS:
 _config_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
 default_config = f90nml.read(_config_path)
-
-
-config_groups = ['nml_years', 'nml_allcfgs', 'nml_outputcfgs']
 
 
 # MAGICC's scenario files encode the used regions as follows.
@@ -358,9 +355,10 @@ def run(scenario, output_dir=None,
         )
 
     if return_config:
-        with open(os.path.join(tempdir, 'PARAMETERS.OUT')) as nml_file:
-            parameters = f90nml.read(nml_file)
-            for group in ['nml_years', 'nml_allcfgs', 'nml_outputcfgs']:
+        with open(os.path.join(tempdir, "PARAMETERS.OUT")) as nml_file:
+            parameters = dict(f90nml.read(nml_file))
+            for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
+                parameters[group] = dict(parameters[group])
                 for k, v in parameters[group].items():
                     if isinstance(v, str):
                         parameters[group][k] = v.strip()
@@ -368,6 +366,8 @@ def run(scenario, output_dir=None,
                         if isinstance(v[0], str):
                             parameters[group][k] = [
                                 i.strip().replace("\n", "") for i in v]
+                parameters[group.replace("nml_", "")] = parameters.pop(group)
+
 
     if not output_dir:
         shutil.rmtree(tempdir)
