@@ -44,6 +44,14 @@ if not _WINDOWS:
         logging.warning("Wine is not installed")
 
 
+_config_path = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
+default_config = f90nml.read(_config_path)
+
+
+config_groups = ['nml_years', 'nml_allcfgs', 'nml_outputcfgs']
+
+
 # MAGICC's scenario files encode the used regions as follows.
 region_codes = {
     11: ['WORLD'],
@@ -130,7 +138,7 @@ def read_scen_file(scen_file):
     if region_code == 11:
         return output["WORLD"]
     else:
-        return  output
+        return output
 
 rcp3pd = read_scen_file(os.path.join(_magiccpath, "RCP3PD.SCEN"))
 rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
@@ -143,6 +151,7 @@ scenarios = {
     "RCP6": rcp6,
     "RCP85": rcp85
 }
+
 
 def _get_date_time_string():
     """Return a timestamp with current date and time."""
@@ -266,8 +275,6 @@ def write_scen_file(scenario,
 
 
 def run(scenario, output_dir=None,
-        file_tuningmodel="C4MIP_DEFAULT",
-        file_tuningmodel_2="FULLTUNE_DEFAULT",
         return_config=False,
         **kwargs
         ):
@@ -279,10 +286,6 @@ def run(scenario, output_dir=None,
     output_dir:
         Path for MAGICC data and binary, if None a temp file which will be
         deleted automatically.
-    file_tuningmodel:
-        Default Tuningmodel configuration.
-    file_tuningmodel_2:
-        Default Tuningmodel 2 configuration.
     return_config:
         Additionaly return the full list of parameters used. default False
     kwargs:
@@ -310,22 +313,28 @@ def run(scenario, output_dir=None,
     # Write out the `Scenario` as a .SCEN-file.
     write_scen_file(scenario, os.path.join(tempdir, "SCENARIO.SCEN"))
 
-    # Generate MAGICC simple config.
-    magtune_simple_cfg = os.path.join(_magiccpath, "MAGTUNE_SIMPLE.CFG")
-    magtune_simple = f90nml.read(magtune_simple_cfg)
+    all_cfgs = {}
+    years = {
+        "startyear": 1765,
+        "endyear": 2100,
+        "stepsperyear": 12
+    }
 
-    # Update user config.
-    magtune_simple['nml_allcfgs']["file_emissionscenario"] = "SCENARIO.SCEN"
-    magtune_simple['nml_allcfgs']["file_tuningmodel"] = file_tuningmodel
-    magtune_simple['nml_allcfgs']["file_tuningmodel_2"] = file_tuningmodel_2
-    magtune_simple['nml_allcfgs']["rundate"] = _get_date_time_string()
+    for k, v in kwargs.items():
+        if k in years.keys():
+            years[k] = v
+        else:
+            all_cfgs[k] = v
 
-    for key, value in kwargs.items():
-        magtune_simple['nml_allcfgs'][key] = value
+    all_cfgs["file_emissionscenario"] = "SCENARIO.SCEN"
+    all_cfgs["rundate"] = _get_date_time_string()
 
-    # Write simple config.
+    # Write simple config file.
     outpath = os.path.join(tempdir, "MAGTUNE_SIMPLE.CFG")
-    f90nml.write(magtune_simple, outpath, force=True)
+    f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
+    # Write years config.
+    outpath_years = os.path.join(tempdir, "MAGCFG_NMLYEARS.CFG")
+    f90nml.write({"nml_years": years}, outpath_years, force=True)
 
     command = ['magicc6.exe']
 
@@ -351,13 +360,14 @@ def run(scenario, output_dir=None,
     if return_config:
         with open(os.path.join(tempdir, 'PARAMETERS.OUT')) as nml_file:
             parameters = f90nml.read(nml_file)
-            parameters = dict(parameters["nml_allcfgs"])
-            for k, v in parameters.items():
-                if isinstance(v, str):
-                    parameters[k] = v.strip()
-                elif isinstance(v, list):
-                    if isinstance(v[0], str):
-                        parameters[k] = [i.strip().replace("\n", "") for i in v]
+            for group in ['nml_years', 'nml_allcfgs', 'nml_outputcfgs']:
+                for k, v in parameters[group].items():
+                    if isinstance(v, str):
+                        parameters[group][k] = v.strip()
+                    elif isinstance(v, list):
+                        if isinstance(v[0], str):
+                            parameters[group][k] = [
+                                i.strip().replace("\n", "") for i in v]
 
     if not output_dir:
         shutil.rmtree(tempdir)

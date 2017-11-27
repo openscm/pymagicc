@@ -121,7 +121,9 @@ def test_run_rcp85():
 
 
 def test_parameters():
-    _, params = run(rcp3pd, return_config=True, core_climatesensitivity=1.5)
-    assert params["core_climatesensitivity"] == 1.5
+    _, params = run(rcp3pd,
+                    return_config=True,
+                    core_climatesensitivity=1.5)
+    assert params['nml_allcfgs']["core_climatesensitivity"] == 1.5
     # Test removal of newlines in PARAMETERS.out
-    assert 'H\nFC134a' not in params["fgas_names"]
+    assert 'H\nFC134a' not in params['nml_allcfgs']["fgas_names"]
