@@ -1,0 +1,563 @@
+&nml_years
+    startyear = 1765
+    endyear = 2100
+    stepsperyear = 12
+/
+
+&nml_allcfgs
+    magiccversion = '6.8.01 BETA, 7th July 2012 - live.magicc.org'
+    pathname_infiles = ''
+    pathname_outfiles = ''
+    path_staticcfg_frominfilepath = 1
+    rundate = 'No date specified.'
+    runname = 'MAGICC6RCP_SingleRun_Template'
+    run_id = 1
+    file_emissionscenario = 'SCENARIO.SCEN'
+    file_tuningmodel = 'C4MIP_DEFAULT'
+    file_tuningmodel_2 = 'FULLTUNE_DEFAULT'
+    file_tuningmodel_3 = 'SIMPLE'
+    sector_include = 'NOSECTOR'
+    file_sector_emis = ''
+    bulkrunmodus = 'SINGLERUN'
+    co2_tempfeedback_switch = 1.0
+    co2_feedbackfactor_gpp = 0.01070037
+    co2_feedbackfactor_respiration = 0.06845893
+    co2_feedbackfactor_detritus = -0.1357817
+    co2_feedbackfactor_soil = 0.1540879
+    co2_fertilization_factor = 0.6485981
+    co2_fertilization_method = 1.100486
+    co2_tempfeedback_yrstart = 1900
+    co2_fertilization_yrstart = 1900
+    co2_switchfromconc2emis_year = 2008
+    oceancc_model = '3D-GFDL'
+    oceancc_scale_impulseresponse = 0.9492864
+    oceancc_scale_gasxchange = 1.833492
+    oceancc_tempfeedback = 0.03717879
+    oceancc_convltn2int_yrsago = 10
+    co2_plantpool_initial = 884.8584
+    co2_detrituspool_initial = 92.7738
+    co2_soilpool_initial = 1681.525
+    co2_gpp_initial = 66.2716
+    co2_respiration_initial = 12.26025
+    co2_fraction_plant_2_detritus = 0.9989021
+    co2_fraction_detritus_2_soil = 0.00100763
+    co2_fraction_gpp_2_plant = 0.4482615
+    co2_fraction_gpp_2_detritus = 0.3998165
+    co2_fraction_deforest_plant = 0.7
+    co2_fraction_deforest_detritus = 0.05
+    co2_gifford_conc_for_zeronpp = 80.0
+    co2_norgrwth_frac_defo = 0.5
+    co2_preindco2conc = 278.0
+    co2_preindco2conc_apply = 0
+    co2_gwp = 1.0
+    ch4_lastbudgetyear = 2005
+    ch4_incl_ch4ox = 1
+    ch4_tauinit = 9.6
+    ch4_tausoil = 160.0
+    ch4_taustrat = 120.0
+    ch4_include_tempfeedback = 1
+    ch4_tautempsensitivity = 0.0316
+    ch4_ppb2tgch4 = 2.78
+    ch4_s = -0.32
+    ch4_scaleohsens = 1.0
+    ch4_anox = 0.0042
+    ch4_aco = -0.000105
+    ch4_avoc = -0.000315
+    ch4_taufeedback_bynoxvocco = 1
+    ch4_feed_yrstart = 1990
+    ch4_switchfromconc2emis_year = 2005
+    ch4_applyfossfuelfraction = 0
+    ch4_fossfuelfraction = 0.18
+    ch4_addedstrath2o_percent = 0.15
+    ch4_radeff_wm2perppb = 0.036
+    ch4n2o_budget_avgyears = 10
+    ch4_gwp = 21.0
+    ch4_clathratefeed_yrstart = 2010
+    ch4_clathratefeed_apply = 0
+    ch4_clathratefeed_alpha = 0.001
+    ch4_clathratefeed_inipool = 5000.0
+    n2o_lastbudgetyear = 2005
+    n2o_tauinit = 120.0
+    n2o_radeff_wm2perppb = 0.12
+    n2o_ppb2tgn = 4.81
+    n2o_s = -0.05
+    n2o_stratmixdelay = 3
+    n2o_feed_yrstart = 1930
+    n2o_switchfromconc2emis_year = 2005
+    n2o_gwp = 310.0
+    tropoz_radeff_wm2perdu = 0.0335
+    tropoz_ozch4 = 5.0
+    tropoz_oznox = 0.125
+    tropoz_ozco = 0.0011
+    tropoz_ozvoc = 0.0033
+    stratoz_clexpon = 1.7
+    stratoz_o3scale = -0.0009
+    stratoz_threshold_year = 1979
+    air_tropoz_noxair_scale = 4.073
+    air_ch4_noxair_scale = 4.283
+    air_sox_scale = 1.0
+    air_bc_scale = 1.0
+    rf_air_h2o_wm2 = 0.002
+    rf_air_contrail_wm2 = 0.01
+    rf_air_cirrus_wm2 = 0.03
+    rf_air_cirrus_yr = 2000
+    rf_air_cirrus_applysaturation = 1
+    rf_air_cirrus_scaleyr2max = 10.0
+    rf_air_contrail_yr = 2000
+    rf_air_h2o_yr = 2000
+    air_tropoz_refyr = 2005
+    air_ch4_refyr = 2005
+    sox_natural_emissions = 14.0
+    file_soxnb_ot = 'GISS_SOXNB_OT.IN'
+    file_soxi_ot = 'GISS_SOXI_OT.IN'
+    file_soxt_rf = 'GISS_SOX_RF.IN'
+    file_coi_emis = 'HISTRCP_COI_EMIS.IN'
+    file_cob_emis = 'HISTRCP_COB_EMIS.IN'
+    ratiofactor_bcoc_co_ratio = 0.4
+    ratiofactor_bcoc_co_year = 2100
+    bcoc_switchfromrf2emis_year = 2000
+    file_bci_emis = 'HISTRCP_BCI_EMIS.IN'
+    file_bcb_emis = 'HISTRCP_BCB_EMIS.IN'
+    file_ocb_emis = 'HISTRCP_OCB_EMIS.IN'
+    file_oci_emis = 'HISTRCP_OCI_EMIS.IN'
+    file_bcb_ot = 'GISS_BCB_OT.IN'
+    file_bci_ot = 'GISS_BCI_OT.IN'
+    file_ocb_ot = 'GISS_OCB_OT.IN'
+    file_oci_ot = 'GISS_OCI_OT.IN'
+    file_ocn_ot = 'GISS_OCN_OT.IN'
+    file_bcsnow_rf = 'GISS_BCSNOW_RF.IN'
+    file_bcb_rf = 'GISS_BCB_RF.IN'
+    file_bci_rf = 'GISS_BCI_RF.IN'
+    file_ocb_rf = 'GISS_OCB_RF.IN'
+    file_oci_rf = 'GISS_OCI_RF.IN'
+    core_climatesensitivity = 3.0
+    core_feedback_qsensitivity = 7.842035e-09
+    core_verticaldiffusivity = 1.103595
+    core_verticaldiffusivity_min = 0.1
+    core_verticaldiff_top_dkdt = -0.1910108
+    core_adjust_sst2ocnatm = 1.25
+    core_delq2xco2 = 3.71
+    core_use_default_delq2xco2 = 0
+    core_rlo = 1.317229
+    core_dependence_rlo_on_dt2x = 0
+    core_mixedlayer_depth = 60.0
+    core_polarsinkwater_tempratio = 0.2
+    core_initial_upwelling_rate = 4.0
+    core_upwelling_variable_part = 0.7
+    core_upwell_thresh_temp_nh = 8.0
+    core_upwell_thresh_temp_sh = 8.0
+    core_upwell_thresh_oneglobal = 1
+    core_heatxchange_landocean = 1.442816
+    core_heatxchange_northsouth = 0.3115475
+    core_amplify_ocn2land_heatxchng = 1.124688
+    core_switch_ocn_tempprofile = 1
+    core_upwelling_scaling_method = 'GLOBE'
+    core_hemisfraction_nh_land = 0.496914
+    core_hemisfraction_sh_land = 0.248617
+    core_heat_depths = 300.0, 700.0, 3000.0
+    core_heat_trendperiod = 1957, 1996
+    core_ocn_nlevels = 50
+    core_ocn_depthdependent = 1.0
+    file_upwelling_rate = ''
+    slr_gsic_added_temperature = 0.0
+    slr_gsic_initial_volume_mm = 300.0
+    slr_gsic_sens_mmpyrdeg = 0.625
+    slr_gsic_volume_exponent = 0.82
+    slr_grnlnd_precip_mmpyrlocdeg = 0.12
+    slr_grnlnd_ablation_mmpyrlocdeg = 0.1584
+    slr_grnlnd_added_temp = 0.0
+    slr_grnlnd_globe2localtemp = 1.5
+    slr_grnlnd_alpha_ablation = 0.001308
+    slr_grnlnd_exponent_ablation = 3.497
+    slr_grnlnd_initial_volume_mm = 7200.0
+    slr_grnlnd_volume_exponent = 0.5
+    slr_antrctc_precip_mmpyrlocdeg = 0.4
+    slr_antrctc_ablat_mmpyrlocdeg = 0.0
+    slr_antrctc_added_temp = 0.0
+    slr_antrctc_globe2localtemp = 1.1
+    slr_antrctc_alpha_ablation = 0.0005006
+    slr_antrctc_exponent_ablation = 3.849
+    slr_antrctc_initial_volume_mm = 7200.0
+    slr_antrctc_volume_exponent = 0.5
+    slr_meltsincelgm_mmperyear = 0.25
+    slr_permafrost_mmperyear = 0.1136
+    slr_sediment_tecton_mmpyear = 0.025
+    slr_expansion_scaling = 1.0
+    file_slr_historic = ''
+    slr_switch_calc2hist = -10000
+    slr_semiempi_zeroratetemp = -0.5
+    slr_semiempi_rate_sens = 0.3353
+    slr_semiempi_tempbaseperiod = 1980, 1999
+    slr_semiempi_switchfromobs2calc = 0
+    out_emissions = 0
+    out_gwpemissions = 0
+    out_sum_gwpemissions = 0
+    out_concentrations = 0
+    out_carboncycle = 0
+    out_forcing = 0
+    out_surfaceforcing = 0
+    out_permafrost = 0
+    out_temperature = 0
+    out_sealevel = 0
+    out_parameters = 1
+    out_misc = 0
+    out_timeseriesmix = 0
+    out_rcpdata = 1
+    out_summaryidx = 1
+    out_inverseemis = 0
+    out_tempoceanlayers = 0
+    out_heatuptake = 0
+    out_ascii_binary = 'ASCII'
+    out_warnings = 0
+    out_precipinput = 1
+    out_aogcmtuning = 0
+    out_ccycletuning = 0
+    out_observationaltuning = 0
+    out_zero_temp_period = 1961, 1990
+    out_zero_heat_period = 1961, 1990
+    out_climsenseff_baseperiod = 1950, 2000
+    out_climsenseff_futureperiod = 2050, 2100
+    out_keydata_1 = 0
+    out_keydata_2 = 1
+    rf_preind_referenceyr = 1750
+    rf_initialization_method = 'JUMPSTART'
+    rf_extra_read = 0
+    rf_extra_offset = 0.0
+    rf_extra_factor = 1.0
+    rf_total_runmodus = 'ALL'
+    rf_total_constantafteryr = 2100
+    rf_tropoz_constantafteryr = 2100
+    rf_stratoz_constantafteryr = 2100
+    rf_mineraldust_constantafteryr = 2005
+    rf_landuse_constantafteryr = 2100
+    rf_mhalo_constantafteryr = 2100
+    rf_fgas_constantafteryr = 2100
+    rf_volcanic_scale = 0.7
+    rf_volcanic_historic_meanzero = 0
+    rf_solar_scale = 1.0
+    rf_solar_future_meanlastxyears = 11
+    rf_volc_futr_meanlastxyears = 0
+    rf_fgassum_scale = 1.0
+    rf_mhalosum_scale = 1.0
+    rf_soxi_dir_yr = 2004
+    rf_soxi_dir_wm2 = -0.4
+    rf_noxi_dir_yr = 2004
+    rf_noxi_dir_wm2 = -0.1
+    rf_bbaer_dir_yr = 2004
+    rf_bbaer_dir_wm2 = 0.03
+    rf_bbaer_dir_minscale = 0.2
+    rf_bci_dir_yr = 2004
+    rf_bci_dir_wm2 = 0.2
+    rf_oci_dir_yr = 2004
+    rf_oci_dir_wm2 = -0.05
+    rf_mineraldust_dir_yr = 2004
+    rf_mineraldust_dir_wm2 = -0.1
+    rf_landuse_albedo_yr = 2004
+    rf_landuse_albedo_wm2 = -0.2
+    rf_bcsnow_albedo_yr = 2004
+    rf_bcsnow_albedo_wm2 = 0.1
+    rf_cloud_albedo_aer_yr = 2004
+    rf_cloud_albedo_aer_wm2 = -0.7
+    rf_cloud_cover_aer_yr = 2004
+    rf_cloud_cover_aer_wm2 = 0.0
+    rf_bcb_dir_yr = 2004
+    rf_bcb_dir_wm2 = 0.38
+    rf_ocb_dir_yr = 2004
+    rf_ocb_dir_wm2 = -0.15
+    rf_noxb_dir_yr = 2004
+    rf_noxb_dir_wm2 = -0.1
+    rf_soxb_dir_yr = 2004
+    rf_soxb_dir_wm2 = -0.1
+    rf_bbaer_dir_apply = 1
+    rf_noxb_dir_apply = 1
+    rf_soxb_dir_apply = 1
+    rf_efficacy_ch4 = 1.0
+    rf_efficacy_ch4oxstrath2o = 1.0
+    rf_efficacy_n2o = 1.0
+    rf_efficacy_stratoz = 1.25
+    rf_efficacy_tropoz = 0.85
+    rf_efficacy_aer_dir = 0.9
+    rf_efficacy_cloud_cover = 0.9
+    rf_efficacy_cloud_albedo = 1.5
+    rf_efficacy_solar = 0.85
+    rf_efficacy_volc = 0.95
+    rf_efficacy_landuse = 1.0
+    rf_efficacy_bcsnow = 1.7
+    rf_efficacy_fgas = 1.0
+    rf_efficacy_mhalo = 1.0
+    rf_efficacy_qxtra = 1.0
+    rf_efficacy_apply = 2
+    rf_efficacy_airh2o = 1.0
+    rf_efficacy_contrail = 0.6
+    rf_efficacy_cirrus = 0.6
+    precip_efficacy_co2 = 0.8
+    precip_efficacy_ch4 = 0.5
+    precip_efficacy_n2o = 0.8
+    precip_efficacy_mhalosum = 0.8
+    precip_efficacy_fgassum = 0.8
+    precip_efficacy_tropoz = 0.4
+    precip_regemis_bc = 1.01, 1.26, 0.12, 0.88, 3.98, 4.44, 1.84
+    precip_regemis_sox = 17.57, 11.6, 24.51, 12.55
+    srf_factor_co2 = 0.2
+    srf_factor_ch4 = 0.5
+    srf_factor_ch4oxstrath2o = 0.0
+    srf_factor_n2o = 0.2
+    srf_factor_stratoz = -0.5
+    srf_factor_tropoz = 0.6
+    srf_factor_sox = 1.0
+    srf_factor_nox = 1.0
+    srf_factor_oc = 1.0
+    srf_factor_bc = -1.9
+    srf_factor_dust = 2.0
+    srf_factor_cloud_albedo = 0.8
+    srf_factor_cloud_cover = 0.9
+    srf_factor_solar = 1.0
+    srf_factor_volc = 0.7
+    srf_factor_landuse = 1.5
+    srf_factor_bcsnow = 1.0
+    srf_factor_fgas = 0.2
+    srf_factor_mhalo = 1.0
+    srf_factor_qxtra = 1.0
+    srf_factor_airh2o = 0.0
+    srf_factor_contrail = 0.0
+    srf_factor_cirrus = 0.0
+    scen_histadjust_0no1scale2shift = 1
+    file_co2i_emis = 'HISTRCP_CO2I_EMIS.IN'
+    file_co2b_emis = 'HISTRCP_CO2B_EMIS.IN'
+    file_ch4i_emis = 'HISTRCP_CH4I_EMIS.IN'
+    file_ch4b_emis = 'HISTRCP_CH4B_EMIS.IN'
+    file_ch4n_emis = ''
+    file_n2oi_emis = 'HISTRCP_N2OI_EMIS.IN'
+    file_n2ob_emis = 'HISTRCP_N2OB_EMIS.IN'
+    file_n2on_emis = ''
+    file_noxi_emis = 'HISTRCP_NOXI_EMIS.IN'
+    file_noxb_emis = 'HISTRCP_NOXB_EMIS.IN'
+    file_nh3i_emis = 'EDGAR_NOX_EMIS_FOSSIL&IND.IN'
+    file_nh3b_emis = 'EDGAR_NOX_EMIS_LANDUSE.IN'
+    file_nmvoci_emis = 'HISTRCP_NMVOCI_EMIS.IN'
+    file_nmvocb_emis = 'HISTRCP_NMVOCB_EMIS.IN'
+    file_soxi_emis = 'HISTRCP_SOXI_EMIS.IN'
+    file_soxb_emis = 'HISTRCP_SOXB_EMIS.IN'
+    file_soxn_emis = 'HIST_SOXN_EMIS.IN'
+    file_mineraldust_rf = 'GISS_LANDUSE_RF.IN'
+    file_noxb_ot = 'MIXED_NOXB_OT.IN'
+    file_noxi_ot = 'MIXED_NOXI_OT.IN'
+    file_ss_ot = 'GISS_SS_OT.IN'
+    file_co2_conc = 'HISTRCP_CO2_CONC.IN'
+    file_ch4_conc = 'HISTRCP_CH4_CONC.IN'
+    file_n2o_conc = 'HISTRCP_N2O_CONC.IN'
+    file_volcanic_rf = 'HIST_VOLCANIC_RF.MON'
+    file_solar_rf = 'HISTRCP2009_SOLAR_RF.IN'
+    file_extra_rf = ''
+    file_landuse_rf = 'GISS_LANDUSE_RF.IN'
+    file_noxt_rf = 'GISS_NOX_RF.IN'
+    rf_regions_co2 = 1.4089, 1.37045, 1.43333, 1.33257
+    rf_regions_ch4 = 0.53741, 0.43504, 0.60019, 0.40456
+    rf_regions_ch4oxstrath2o = 0.0395, 0.0491, 0.08721, 0.04262
+    rf_regions_n2o = 0.1524, 0.14035, 0.1623, 0.13128
+    rf_regions_mhalo = 0.16695, 0.16218, 0.15508, 0.1463
+    rf_regions_tropoz = 0.46565, 0.51646, 0.17687, 0.23793
+    rf_regions_stratoz = -0.01189, -0.02267, -0.06251, -0.24036
+    rf_regions_dust = -0.81381, -1.51715, -0.32766, -0.63206
+    rf_regions_seasalt = -1.17535, -0.20376, -1.82532, -0.20207
+    rf_regions_fgas = 0.16695, 0.16218, 0.15508, 0.1463
+    rf_regions_cloud_cover = -1.33278, -1.5806, -0.52942, -0.81127
+    rf_regions_cloud_albedo = -0.96563, -1.39945, -0.34211, -0.62846
+    rf_regions_normyear = 2000
+    rf_regions_airh2o = 0.46565, 0.51646, 0.17687, 0.23793
+    rf_regions_contrail = 0.46565, 0.51646, 0.17687, 0.23793
+    rf_regions_cirrus = 0.46565, 0.51646, 0.17687, 0.23793
+    cloud_weight_nox = 0.163265306122449
+    cloud_weight_bc = 0.04081632653061225
+    cloud_weight_oc = 0.26530612244898
+    cloud_weight_sox = 0.26530612244898
+    cloud_bci2bcb_soluble_ratio = 0.75
+    cloud_weight_ss = 0.26530612244898
+    cloud_apply_limit_max = 0
+    cloud_limit_max = 0.0
+    fgas_names = 'CF4', 'C2F6', 'C6F14', 'HFC23', 'HFC32', 'HFC43_10', 'HFC125',
+                 'HFC134a', 'HFC143a', 'HFC227ea', 'HFC245fa', 'SF6'
+    file_fgas_emis = 'HISTRCP_CF4_EMIS.IN', 'HISTRCP_C2F6_EMIS.IN', 'HISTRCP_C6F14_EMIS.IN',
+                     'HISTRCP_HFC23_EMIS.IN', 'HISTRCP_HFC32_EMIS.IN', '',
+                     'HISTRCP_HFC125_EMIS.IN', 'HISTRCP_HFC134a_EMIS.IN',
+                     'HISTRCP_HFC143a_EMIS.IN', 'HISTRCP_HFC227EA_EMIS.IN',
+                     'HISTRCP_HFC245fa_EMIS.IN', 'HISTRCP_SF6_EMIS.IN',
+    file_fgas_conc = 'HISTRCP_CF4_CONC.IN', 'HISTRCP_C2F6_CONC.IN', 'HISTRCP_C6F14_CONC.IN',
+                     'HISTRCP_HFC23_CONC.IN', 'HISTRCP_HFC32_CONC.IN', 'HISTRCP_HFC43-10_CONC.IN',
+                     'HISTRCP_HFC125_CONC.IN', 'HISTRCP_HFC134a_CONC.IN',
+                     'HISTRCP_HFC143a_CONC.IN', 'HISTRCP_HFC227EA_CONC.IN',
+                     'HISTRCP_HFC245fa_CONC.IN', 'HISTRCP_SF6_CONC.IN',
+    fgas_formula = '(CF4)', '(C2F6)', '(C6F14)', '(CHF3)', '(CH2F2)', '(C5H2F10)',
+                   '(CHF2CF3)', '(CH2FCF3)', '(CH3CF3)', '(C3HF7)', '(C3H3F5)',
+                   '(SF6)'
+    fgas_cl_atoms = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    fgas_br_atoms = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    fgas_f_atoms = 4, 6, 14, 3, 2, 10, 5, 4, 3, 7, 5, 6
+    fgas_h_atoms = 0, 0, 0, 1, 1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 1, 1, 3, 3,
+                   0, 0
+    fgas_c_atoms = 1, 2, 6, 1, 1, 5, 5, 2, 2, 2, 3, 3, 0, 0
+    fgas_s_atoms = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+                   1, 1, 1, 1
+    fgas_tau_tot = 50000.0, 10000.0, 3200.0, 270.0, 4.9, 15.9, 29.0, 14.0,
+                   52.0, 34.2, 7.6, 3200.0
+    fgas_tau_oh = 50000.0, 0.0, 0.0, 270.0, 270.0, 4.9, 4.9, 15.9, 15.9,
+                  29.0, 29.0, 14.0, 14.0, 52.0, 52.0, 34.2, 34.2, 7.6, 7.6,
+                  0.0, 0.0
+    fgas_tau_strat = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                     0.0
+    fgas_eff_mixboxsize = 0.969, 0.969, 0.968, 0.968, 0.949, 0.949, 0.949,
+                          0.949, 0.949, 0.949, 0.949, 0.949, 0.968, 0.968,
+                          0.968, 0.968, 0.968, 0.968, 0.968, 0.968
+    fgas_radiative_efficiency = 0.1, 0.26, 0.49, 0.19, 0.11, 0.4, 0.23,
+                                0.16, 0.13, 0.26, 0.28, 0.52
+    fgas_fract_releasefactor = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                               0.0, 0.0, 0.0
+    fgas_gwp = 6500.0, 9200.0, 7400.0, 11700.0, 650.0, 1300.0, 2800.0, 1300.0,
+               3800.0, 2900.0, 1030.0, 23900.0
+    fgas_use_tauoh_var = 1
+    fgas_use_taustrat_var = 1
+    fgas_switchfromconc2emis_year = 2009
+    fgas_rf_regionscaling_lowertau = 1.0
+    fgas_rf_regionscaling_uppertau = 8.0
+    mhalo_names = 'CFC_11', 'CFC_12', 'CFC_113', 'CFC_114', 'CFC_115', 'CARB_TET',
+                  'MCF', 'HCFC_22', 'HCFC_141B', 'HCFC_142B', 'HALON1211',
+                  'HALON1202', 'HALON1301', 'HALON2402', 'CH3BR', 'CH3CL',
+    mhalo_formula = '(CCL3F)', '(CCL2F2)', '(C2CL3F3)', '(C2CL2F4)', '(C2CLF5)',
+                    '(CCL4)', '(CH3CCL3)', '(CHCLF2)', '(CH3CCL2F)', '(CH3CCLF2)',
+                    '(CF2CLBR)', '(CBR2F2)', '(CF3BR)', '((CF2BR)2)', '(CH3BR)',
+                    '(CH3CL)'
+    mhalo_cl_atoms = 3, 2, 3, 2, 1, 4, 3, 1, 2, 1, 1, 0, 0, 0, 0, 1, 1,
+                     1, 1
+    mhalo_br_atoms = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
+                     1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1,
+                     1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0
+    mhalo_f_atoms = 1, 2, 3, 4, 5, 0, 0, 2, 2, 1, 1, 2, 2, 2, 3, 3, 3, 4,
+                    4, 4, 0, 0
+    mhalo_h_atoms = 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1,
+                    3, 3, 0, 0, 0, 0, 3, 3
+    mhalo_c_atoms = 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1,
+                    1, 2, 2, 2, 1, 1
+    mhalo_s_atoms = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    mhalo_fract_releasefactor = 1.0, 0.6, 0.75, 0.75, 0.75, 1.06, 1.06,
+                                1.06, 1.08, 1.08, 1.08, 0.35, 0.35, 0.35,
+                                0.72, 0.72, 0.72, 0.36, 0.36, 0.36, 1.1,
+                                1.1, 1.1, 0.8, 0.8, 0.8, 1.08, 1.08
+    mhalo_gwp = 3800.0, 8100.0, 4800.0, 10000.0, 7370.0, 1400.0, 146.0,
+                1500.0, 725.0, 1800.0, 1890.0, 0.0, 5400.0, 1640.0, 5.0,
+                13.0
+    mhalo_tau_tot = 45.0, 100.0, 85.0, 300.0, 1700.0, 26.0, 5.0, 12.0, 9.3,
+                    17.9, 16.0, 2.9, 65.0, 20.0, 0.7, 1.3
+    mhalo_tau_oh = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 5.7, 5.7, 5.7, 5.7, 5.7,
+                   5.7, 12.0, 12.0, 12.0, 12.0, 12.0, 12.0, 9.3, 9.3, 9.3,
+                   9.3, 9.3, 9.3, 17.9, 17.9, 17.9, 17.9, 17.9, 17.9, 0.0,
+                   0.0, 0.0, 0.0, 1.7, 1.7, 1.7, 1.7, 0.0, 0.0, 0.0, 0.0,
+    mhalo_tau_strat = 45.0, 100.0, 85.0, 300.0, 1700.0, 26.0, 0.0, 0.0,
+                      0.0, 0.0, 52.57, 52.57, 52.57, 52.57, 0.0, 0.0, 0.0,
+                      0.0, 65.0, 65.0, 65.0, 65.0, 48.57143, 48.57143, 48.57143,
+                      48.57143, 1.83, 1.83, 1.83, 1.83, 0.0, 0.0, 0.0, 0.0,
+    mhalo_radiat_efficiency = 0.25, 0.32, 0.3, 0.31, 0.18, 0.13, 0.06, 0.2,
+                              0.14, 0.2, 0.3, 0.0, 0.32, 0.33, 0.01, 0.01,
+    mhalo_eff_mixboxsize = 0.969, 0.969, 0.969, 0.969, 0.969, 0.969, 0.949,
+                           0.949, 0.949, 0.949, 0.969, 0.969, 0.969, 0.969,
+                           0.949, 0.949, 0.949, 0.949, 0.969, 0.969, 0.969,
+                           0.969, 0.967, 0.967, 0.967, 0.967, 0.949, 0.949,
+    mhalo_use_tauoh_var = 1
+    mhalo_use_taustrat_var = 1
+    mhalo_co2ipattern_apply = 0
+    mhalo_switch_conc2emis_yr = 2008
+    file_mhalo_conc = 'RCPODS_WMO2006_MixingRatios_A1.prn'
+    file_mhalo_emis = 'RCPODS_WMO2006_Emissions_A1.prn'
+    mhalo_rf_boxscale_lowertau = 1.0
+    mhalo_rf_boxscale_uppertau = 8.0
+    pf_apply = 0
+    pf_nbands = 50
+    pf_meltingtemp_max = 12.0
+    pf_meltingtemp_min = 1.0
+    pf_ms_thawfreeze_percperk_rate = 0.01
+    pf_peat_thawfreeze_percperk_rate = 0.005
+    pf_ms_thawfreeze_exp_temp = 1.0
+    pf_peat_thawfreeze_exp_temp = 1.0
+    pf_arctic_amplification = 2.5
+    pf_tsoilannualcycle_ampl = 5.0
+    pf_ms_aerob_decomp_turnovertime = 45.0
+    pf_q10_ms_aerob_alpha = 308.56
+    pf_q10_ms_anaerob_alpha = 308.56
+    pf_q10_peat_aerob_alpha = 308.56
+    pf_q10_peat_anaerob_alpha = 308.56
+    pf_q10_temp1 = 56.02
+    pf_q10_temp2 = 46.02
+    pf_soilwater_m = 0.04
+    pf_soilwater_offset = 0.2
+    pf_soilwater_minw = 0.2
+    pf_decomprate_peat_over_ms_ratio = 0.5
+    pf_decomprate_anaerob_over_aerob_ratio = 0.1
+    pf_ms_anaerob_initial_areafraction = 0.05
+    pf_ms_anaerob_max_areafraction = 0.35
+    pf_ms_anaerob_moistsens = 0.0
+    pf_peat_anaerob_initial_areafraction = 0.8
+    pf_peat_anaerob_max_areafraction = 0.9
+    pf_peat_anaerob_moistsens = 0.0
+    pf_ms_ch4oxidisation_fraction = 0.15
+    pf_peat_ch4oxidisation_fraction = 0.15
+    pf_co2fromch4oxinatm_fraction = 1.0
+    pf_tot_pool = 800.0
+    pf_minsoil_southern_poolfraction = 0.8
+    pf_minsoil_northern_poolfraction = 0.8
+    pf_zonal_pooldistr = 0.0
+    gen_air_grammpromol = 28.984
+    gen_atm_totmass_1e21gramm = 5.133
+    gen_meridflux_chngperdeg = 0.15
+    gen_change_meridionalflux_yr = 1980
+    mhalo_releasefactorc11 = 0.75
+    stratoz_br_vs_cl_scale = 45.0
+    gen_eesc_stratmixdelay = 3
+    gen_sresregions2nh = 0.95, 1.0, 1.0, 0.4, 0.4
+    gen_rcpregions2nh = 0.9, 1.0, 0.8, 0.6, 0.3
+    gen_rcpplusregions2nh = 0.9, 1.0, 0.8, 0.6, 0.3, 0.9
+/
+
+&nml_outputcfgs
+    output_oceanvolume = 0.0
+    rf_intefficacy_co2 = 0.999998857368455
+    rf_intefficacy_ch4 = 0.987766458278542
+    rf_intefficacy_ch4oxstrath2o = 0.969340546066962
+    rf_intefficacy_n2o = 0.995528283086127
+    rf_intefficacy_stratoz = 0.947330170036296
+    rf_intefficacy_tropoz = 1.05565066270755
+    rf_intefficacy_aer_dir = 1.10715645412222
+    rf_intefficacy_cloud_cover = 1.05594730060223
+    rf_intefficacy_cloud_albedo = 1.07011738108639
+    rf_intefficacy_solar = 1.0018851390685
+    rf_intefficacy_volc = 1.00313658098493
+    rf_intefficacy_landuse = 1.12306339206871
+    rf_intefficacy_dust = 1.07795368094367
+    rf_intefficacy_bcsnow = 1.1736050685356
+    rf_intefficacy_fgas = 1.00497082304104
+    rf_intefficacy_mhalo = 1.00497082304104
+    rf_intefficacy_qxtra = 1.0
+    rf_regions_qxtra = 0.0, 0.0, 0.0, 0.0
+    rf_regions_aer_dir = -0.819497642538182, -0.804446767198558, -0.0271857338179945,
+                         -0.01260873055223082
+    rf_soxi_dir_applwm2 = -0.4
+    rf_noxi_dir_applwm2 = -0.1
+    rf_bbaer_dir_applwm2 = 0.03000000000000003
+    rf_bci_dir_applwm2 = 0.2
+    rf_oci_dir_applwm2 = -0.05
+    rf_mineraldust_dir_applwm2 = -0.1
+    rf_landuse_albedo_applwm2 = -0.2
+    rf_bcsnow_albedo_applwm2 = 0.1
+    rf_cloud_albedo_aer_applwm2 = -0.7
+    rf_cloud_cover_aer_applwm2 = 0.0
+    rf_bcb_dir_applwm2 = 0.38
+    rf_ocb_dir_applwm2 = -0.15
+    rf_noxb_dir_applwm2 = -0.1
+    rf_soxb_dir_applwm2 = -0.1
+    rf_bbaer_scale_coolants = 1.0
+    rfsub_regions_tropoz = 0.0, 0.0, 0.0, 0.0
+    rfsub_regions_cloud_cover = 0.0, 0.0, 0.0, 0.0
+    rfsub_regions_cloud_albedo = 0.0, 0.0, 0.0, 0.0
+    rfsub_regions_dust = 0.0, 0.0, 0.0, 0.0
+    errorlog = ''
+/
