@@ -348,15 +348,16 @@ def run(scenario, output_dir=None,
             index_col=0
         )
 
-    with open(os.path.join(tempdir, 'PARAMETERS.OUT')) as nml_file:
-        parameters = f90nml.read(nml_file)
-        parameters = dict(parameters["nml_allcfgs"])
-        for k, v in parameters.items():
-            if isinstance(v, str):
-                parameters[k] = v.strip()
-            elif isinstance(v, list):
-                if isinstance(v[0], str):
-                    parameters[k] = [i.strip().replace("\n", "") for i in v]
+    if return_config:
+        with open(os.path.join(tempdir, 'PARAMETERS.OUT')) as nml_file:
+            parameters = f90nml.read(nml_file)
+            parameters = dict(parameters["nml_allcfgs"])
+            for k, v in parameters.items():
+                if isinstance(v, str):
+                    parameters[k] = v.strip()
+                elif isinstance(v, list):
+                    if isinstance(v[0], str):
+                        parameters[k] = [i.strip().replace("\n", "") for i in v]
 
     if not output_dir:
         shutil.rmtree(tempdir)
