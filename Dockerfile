@@ -10,6 +10,9 @@ RUN apt-get update && \
     apt-get install -y wine && \
     apt-get clean
 RUN pip install ipywidgets appmode bokeh
+RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
+RUN jupyter nbextension     enable --py --sys-prefix appmode
+RUN jupyter serverextension enable --py --sys-prefix appmode
 RUN pip install pymagicc
 
 COPY . ${HOME}
