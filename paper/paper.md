@@ -39,7 +39,7 @@ scientific Python system and facilitating comparisons with other recently
 published simple climate models written in Python, such as
 @Gasser2017, @Willner17, and @Millar2017.
 The emissions scenarios used as input to Pymagicc
-use DataFrames from the Pandas library [@McKinney2010] to for creating and
+use DataFrames from the Pandas library [@McKinney2010] for creating and
 modifying of scenarios.
 All MAGICC model parameters can be modified when running the model.
 
