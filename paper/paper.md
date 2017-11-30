@@ -12,9 +12,9 @@ authors:
    orcid: 0000-0001-6798-6247
    affiliation: 1, 2
 affiliations:
- - name: Potsdam Institute for Climate Impact Research
+ - name: Potsdam Institute for Climate Impact Research, 14473 Potsdam, Germany
    index: 1
- - name: University of Potsdam
+ - name: University of Potsdam, 14476 Potsdam, Germany
    index: 2
 date: 01 December 2017
 bibliography: paper.bib
