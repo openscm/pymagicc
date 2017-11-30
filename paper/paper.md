@@ -32,8 +32,10 @@ Model Intercomparison Projects^[https://cmip.llnl.gov/].
 It is also widely used as the climate component in Integrated Assessment Models (IAMs) and in the assessment of future emissions pathways in climate policy analyses.
 
 The Pymagicc tool simplifies usage of the model by integrating it into the
-scientific Python system.
-The emissions scenarios used as input to the model
+scientific Python system and facilitates intercomparison with other recently
+published simple climate models written in Python, such as
+@Gasser2017, @Willner17, and @Millar2017.
+The emissions scenarios used as input to Pymagicc
 use DataFrames from the Pandas [@McKinney2010] library to for creating and
 modifying of scenarios.
 All MAGICC model parameters can be modified when running the model.
