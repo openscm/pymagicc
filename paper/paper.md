@@ -36,7 +36,7 @@ scientific Python system and facilitates intercomparison with other recently
 published simple climate models written in Python, such as
 @Gasser2017, @Willner17, and @Millar2017.
 The emissions scenarios used as input to Pymagicc
-use DataFrames from the Pandas [@McKinney2010] library to for creating and
+use DataFrames from the Pandas library [@McKinney2010] to for creating and
 modifying of scenarios.
 All MAGICC model parameters can be modified when running the model.
 
@@ -45,7 +45,7 @@ The MAGICC binary, released under a
 Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
 License^[https://creativecommons.org/licenses/by-nc-sa/3.0/], has been compiled
 for the Windows operating system. To enable it to run under Linux and macOS the
-Wine^[https://www.winehq.org/] compatibility layer is used.
+Wine^[https://www.winehq.org/] compatibility layer is used in Pymagicc.
 
 Source code, usage documentation and issue tracker are available in Pymagicc's GitHub
 repository^[<https://github.com/openclimatedata/pymagicc>].
