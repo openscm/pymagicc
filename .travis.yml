@@ -1,17 +1,24 @@
 language: python
 dist: trusty
 sudo: required
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      python: 2.7
+    - os: linux
+      sudo: required
+      python: 3.4
+    - os: linux
+      sudo: required
+      python: 3.5
+    - os: linux
+      sudo: required
+      python: 3.6
+    - os: osx
+      python: 3.6
 before_install:
-  - sudo dpkg --add-architecture i386
-  - sudo add-apt-repository ppa:ubuntu-wine/ppa -y
-  - sudo apt-get update
-  - sudo apt-get install --no-install-recommends -y wine1.8
-  - pip install pytest pytest-cov codecov
+  - ./.travis/before_install.sh
 install:
   - pip install -e .
 script:
