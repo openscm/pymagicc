@@ -11,7 +11,9 @@ authors:
   - name: Sven N Willner
     orcid: 0000-0001-6798-6247
     affiliation: 1, 2
-  - name: ...
+  - name: Matthias Mengel
+    orcid: 0000-0001-6724-9685
+    affiliation: 1
 affiliations:
   - name: Potsdam Institute for Climate Impact Research, 14473 Potsdam, Germany
     index: 1
@@ -30,24 +32,25 @@ climate carbon cycle model MAGICC [@Meinshausen2011].
 MAGICC^[http://magicc.org] (Model for the Assessment of Greenhouse Gas Induced Climate Change)
 is widely used in the assessment of future emissions pathways in climate policy analyses,
 for example in the Fifth Assessment Report of the
-Intergovernmental Panel on Climate Change [@IPCC2014] and
-as the climate component in Integrated Assessment Models (IAMs).
+Intergovernmental Panel on Climate Change [@IPCC2014]. Integrated Assessment Models (IAMs) utilize
+MAGICC to model the physical aspects of climate change.
 It has also been used to emulate complex
-atmosphere-ocean general circulation models (AOGCM) runs from the Coupled
+atmosphere-ocean general circulation models (AOGCM) from the Coupled
 Model Intercomparison Projects^[https://cmip.llnl.gov/].
 
 MAGICC has
 been under development since the late 1980s and has a hemispherically averaged upwelling-diffusion ocean coupled to an atmosphere layer and a globally averaged carbon cycle model.
 
-The Pymagicc tool simplifies usage of the model by integrating it into the
-scientific Python system and by facilitating comparisons with other recently
+Aiming at broadening the user base of the MAGICC model, the Pymagicc tool simplifies usage of the model by integrating it into the
+scientific Python system.
+Pymagicc facilitates comparisons with other recently
 published simple climate models written in Python, such as
 @Gasser2017, @Willner17, and @Millar2017.
 The emissions scenarios used as input to Pymagicc
 use DataFrames from the Pandas library [@McKinney2010] for creating and
-modifying of scenarios.
-To read and write MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library.
-All MAGICC model parameters can be modified when running the model.
+modifying greenhouse gas scenarios.
+Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library to read and write MAGICC configuration and output files in the Fortran Namelist format.
+All MAGICC model parameters can be modified through pymagicc.
 
 Pymagicc can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
 The MAGICC binary, released under a
