@@ -27,13 +27,17 @@ output: pdf_document
 Pymagicc is a Python wrapper for the Fortran-based reduced-complexity
 climate carbon cycle model MAGICC [@Meinshausen2011].
 
-MAGICC (Model for the Assessment of Greenhouse Gas Induced Climate Change) has
-been under development since the late 1980s and has a hemispherically averaged upwelling-diffusion ocean coupled to an atmosphere layer and a globally averaged carbon cycle model.
-
-The MAGICC^[http://magicc.org] model has been used to emulate complex
+MAGICC^[http://magicc.org] (Model for the Assessment of Greenhouse Gas Induced Climate Change)
+is widely used in the assessment of future emissions pathways in climate policy analyses,
+for example in the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change [@IPCC2014] and
+as the climate component in Integrated Assessment Models (IAMs).
+It has been used to emulate complex
 atmosphere-ocean general circulation models (AOGCM) runs from the Coupled
 Model Intercomparison Projects^[https://cmip.llnl.gov/].
-It is also widely used as the climate component in Integrated Assessment Models (IAMs) and in the assessment of future emissions pathways in climate policy analyses.
+
+MAGICC has
+been under development since the late 1980s and has a hemispherically averaged upwelling-diffusion ocean coupled to an atmosphere layer and a globally averaged carbon cycle model.
 
 The Pymagicc tool simplifies usage of the model by integrating it into the
 scientific Python system and by facilitating comparisons with other recently
