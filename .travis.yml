@@ -16,7 +16,7 @@ matrix:
       sudo: required
       python: 3.6
     - os: osx
-      python: 3.6
+      python: 3.5
 before_install:
   - ./.travis/before_install.sh
 install:
