@@ -32,7 +32,7 @@ is widely used in the assessment of future emissions pathways in climate policy 
 for example in the Fifth Assessment Report of the
 Intergovernmental Panel on Climate Change [@IPCC2014] and
 as the climate component in Integrated Assessment Models (IAMs).
-It has been used to emulate complex
+It has also been used to emulate complex
 atmosphere-ocean general circulation models (AOGCM) runs from the Coupled
 Model Intercomparison Projects^[https://cmip.llnl.gov/].
 
