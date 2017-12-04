@@ -50,7 +50,7 @@ The emissions scenarios used as input to Pymagicc
 use DataFrames from the Pandas library [@McKinney2010] for creating and
 modifying greenhouse gas scenarios.
 Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library to read and write MAGICC configuration and output files in the Fortran Namelist format.
-All MAGICC model parameters can be modified through pymagicc.
+All MAGICC model parameters can be modified through Pymagicc.
 
 Pymagicc can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
 The MAGICC binary, released under a
