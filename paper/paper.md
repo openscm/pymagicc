@@ -31,8 +31,8 @@ climate carbon cycle model MAGICC [@Meinshausen2011].
 
 MAGICC^[http://magicc.org] (Model for the Assessment of Greenhouse Gas Induced Climate Change)
 is widely used in the assessment of future emissions pathways in climate policy analyses,
-for example in the Fifth Assessment Report of the
-Intergovernmental Panel on Climate Change [@IPCC2014]. Integrated Assessment Models (IAMs) utilize
+e.g. in the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change [@IPCC2014]. Many Integrated Assessment Models (IAMs) utilize
 MAGICC to model the physical aspects of climate change.
 It has also been used to emulate complex
 atmosphere-ocean general circulation models (AOGCM) from the Coupled
@@ -61,6 +61,6 @@ Pymagicc can be installed using `pip` from the Python Package Index ^[<https://p
 Source code, usage documentation and issue tracker are available in Pymagicc's GitHub
 repository^[<https://github.com/openclimatedata/pymagicc>].
 Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<https://mybinder.org/>], the example
-Notebook can also be run interactively and explored without having to locally install Pymagicc.
+notebook can also be run interactively and explored without the need to install Pymagicc locally.
 
 # References
