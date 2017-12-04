@@ -12,3 +12,4 @@ recursive-include pymagicc/MAGICC6 *.txt
 
 include versioneer.py
 include pymagicc/_version.py
+include pymagicc/default_config.nml
