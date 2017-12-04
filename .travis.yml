@@ -19,7 +19,7 @@ matrix:
 before_install:
   - ./.travis/before_install.sh
 install:
-  - pip install -e .
+  - pip install .
 script:
   - pytest --cov
 after_success:
