@@ -35,12 +35,13 @@ Model Intercomparison Projects^[https://cmip.llnl.gov/].
 It is also widely used as the climate component in Integrated Assessment Models (IAMs) and in the assessment of future emissions pathways in climate policy analyses.
 
 The Pymagicc tool simplifies usage of the model by integrating it into the
-scientific Python system and facilitating comparisons with other recently
+scientific Python system and by facilitating comparisons with other recently
 published simple climate models written in Python, such as
 @Gasser2017, @Willner17, and @Millar2017.
 The emissions scenarios used as input to Pymagicc
 use DataFrames from the Pandas library [@McKinney2010] for creating and
 modifying of scenarios.
+To read and write MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml[^https://github.com/marshallward/f90nml] library.
 All MAGICC model parameters can be modified when running the model.
 
 Pymagicc can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
@@ -52,7 +53,7 @@ Wine^[https://www.winehq.org/] compatibility layer is used in Pymagicc.
 
 Source code, usage documentation and issue tracker are available in Pymagicc's GitHub
 repository^[<https://github.com/openclimatedata/pymagicc>].
-Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<http://mybinder.org/>], the example
+Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<https://mybinder.org/>], the example
 Notebook can also be used and explored without having to locally install Pymagicc.
 
 # References
