@@ -41,27 +41,26 @@ Model Intercomparison Projects^[https://cmip.llnl.gov/].
 MAGICC has
 been under development since the late 1980s and has a hemispherically averaged upwelling-diffusion ocean coupled to an atmosphere layer and a globally averaged carbon cycle model.
 
-Aiming at broadening the user base of the MAGICC model, the Pymagicc tool simplifies usage of the model by integrating it into the
-scientific Python system.
+Aiming at broadening the user base of the MAGICC model, the Pymagicc tool simplifies usage of the model by integrating it into the scientific Python system.
+It provides a wrapper to the MAGICC binary, released under a
+Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
+License^[https://creativecommons.org/licenses/by-nc-sa/3.0/], compiled
+for the Windows operating system. To enable it to run under Linux and macOS the
+Wine^[https://www.winehq.org/] compatibility layer is used in Pymagicc.
+
 Pymagicc facilitates comparisons with other recently
 published simple climate models written in Python, such as
 @Gasser2017, @Willner17, and @Millar2017.
 The emissions scenarios used as input to Pymagicc
-use DataFrames from the Pandas library [@McKinney2010] for creating and
-modifying greenhouse gas scenarios.
+use DataFrames from the Pandas library [@McKinney2010] as a data structure to enable
+quick creation and modification of scenarios.
 Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library to read and write MAGICC configuration and output files in the Fortran Namelist format.
 All MAGICC model parameters can be modified through Pymagicc.
 
 Pymagicc can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
-The MAGICC binary, released under a
-Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
-License^[https://creativecommons.org/licenses/by-nc-sa/3.0/], has been compiled
-for the Windows operating system. To enable it to run under Linux and macOS the
-Wine^[https://www.winehq.org/] compatibility layer is used in Pymagicc.
-
 Source code, usage documentation and issue tracker are available in Pymagicc's GitHub
 repository^[<https://github.com/openclimatedata/pymagicc>].
 Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<https://mybinder.org/>], the example
-Notebook can also be used and explored without having to locally install Pymagicc.
+Notebook can also be run interactively and explored without having to locally install Pymagicc.
 
 # References
