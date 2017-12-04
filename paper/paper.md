@@ -42,7 +42,7 @@ published simple climate models written in Python, such as
 The emissions scenarios used as input to Pymagicc
 use DataFrames from the Pandas library [@McKinney2010] for creating and
 modifying of scenarios.
-To read and write MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml[^https://github.com/marshallward/f90nml] library.
+To read and write MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library.
 All MAGICC model parameters can be modified when running the model.
 
 Pymagicc can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
