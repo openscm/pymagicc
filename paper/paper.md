@@ -5,17 +5,18 @@ tags:
   - simple climate model
   - python-wrapper
 authors:
- - name: Robert Gieseke
-   orcid: 0000-0002-1236-5109
-   affiliation: 1
- - name: Sven N Willner
-   orcid: 0000-0001-6798-6247
-   affiliation: 1, 2
+  - name: Robert Gieseke
+    orcid: 0000-0002-1236-5109
+    affiliation: 1
+  - name: Sven N Willner
+    orcid: 0000-0001-6798-6247
+    affiliation: 1, 2
+  - name: ...
 affiliations:
- - name: Potsdam Institute for Climate Impact Research, 14473 Potsdam, Germany
-   index: 1
- - name: University of Potsdam, 14476 Potsdam, Germany
-   index: 2
+  - name: Potsdam Institute for Climate Impact Research, 14473 Potsdam, Germany
+    index: 1
+  - name: University of Potsdam, 14476 Potsdam, Germany
+    index: 2
 date: 01 December 2017
 bibliography: paper.bib
 output: pdf_document
