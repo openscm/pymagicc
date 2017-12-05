@@ -1,17 +1,18 @@
 """
 pymagicc
---------
 
-Thin Python wrapper around the `reduced complexity climate model
-MAGICC 6<http://magicc.org/>`_.
+Thin Python wrapper around the
+reduced complexity climate model MAGICC6 (http://magicc.org/).
 
-**Install** using ::
+Install using
 
     pip install pymagicc
 
-Find **usage** instructions in the `repository
-<https://github.com/openclimatedata/pymagicc>`_.
+On Linux and macOS Wine (https://www.winehq.org) needs to be installed (usually
+available with your package manager).
 
+Find usage instructions in the
+GitHub repository at https://github.com/openclimatedata/pymagicc.
 """
 import versioneer
 
@@ -37,7 +38,7 @@ cmdclass.update({"test": PyTest})
 setup(
     name='pymagicc',
     version=versioneer.get_version(),
-    description='Thin Python wrapper for the simple climate model  MAGICC',
+    description='Python wrapper for the simple climate model  MAGICC',
     long_description=__doc__,
     author='Robert Gieseke',
     author_email='robert.gieseke@pik-potsdam.de',
@@ -45,7 +46,7 @@ setup(
     license='GNU Affero General Public License v3',
     keywords=[],
         classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         'Programming Language :: Python :: 2.7',
