@@ -38,7 +38,7 @@ cmdclass.update({"test": PyTest})
 setup(
     name='pymagicc',
     version=versioneer.get_version(),
-    description='Python wrapper for the simple climate model  MAGICC',
+    description='Python wrapper for the simple climate model MAGICC',
     long_description=__doc__,
     author='Robert Gieseke',
     author_email='robert.gieseke@pik-potsdam.de',
