@@ -1,7 +1,7 @@
 # pymagicc
 
 [![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc)
-[![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)]()
+[![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc)
 [![Codecov](https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg)](https://codecov.io/gh/openclimatedata/pymagicc)
 [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
