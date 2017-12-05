@@ -338,7 +338,8 @@ def run(scenario, output_dir=None,
     if not _WINDOWS:
         command.insert(0, 'wine')
 
-    subprocess.check_call(command, cwd=tempdir)
+    # On Windows shell=True is required.
+    subprocess.check_call(command, cwd=tempdir, shell=_WINDOWS)
 
     results = {}
 
