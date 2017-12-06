@@ -7,3 +7,4 @@ wheel
 ipywidgets
 bokeh
 appmode
+pydoc-markdown
