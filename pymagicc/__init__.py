@@ -35,6 +35,7 @@ _magiccpath = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "MAGICC6/MAGICC6_4Download"
 )
+_magiccbinary = "magicc6.exe"
 
 if not _WINDOWS:
     wine_installed = subprocess.call("type wine", shell=True,
@@ -333,9 +334,9 @@ def run(scenario, output_dir=None,
     outpath_years = os.path.join(tempdir, "MAGCFG_NMLYEARS.CFG")
     f90nml.write({"nml_years": years}, outpath_years, force=True)
 
-    command = ['magicc6.exe']
+    command = [_magiccbinary]
 
-    if not _WINDOWS:
+    if not _WINDOWS and _magiccbinary.endswith(".exe"):
         command.insert(0, 'wine')
 
     # On Windows shell=True is required.
@@ -368,7 +369,6 @@ def run(scenario, output_dir=None,
                             parameters[group][k] = [
                                 i.strip().replace("\n", "") for i in v]
                 parameters[group.replace("nml_", "")] = parameters.pop(group)
-
 
     if not output_dir:
         shutil.rmtree(tempdir)
