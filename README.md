@@ -18,6 +18,7 @@ See http://www.magicc.org/ for further information about the MAGICC model.
 ```python
 import pymagicc
 from pymagicc import scenarios
+import matplotlib.pyplot as plt
 
 for name, scen in scenarios.items():
     results, params = pymagicc.run(scen, return_config=True)
