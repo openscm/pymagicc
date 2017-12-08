@@ -51,4 +51,10 @@ repository^[<https://github.com/openclimatedata/pymagicc>].
 Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<https://mybinder.org/>], the example
 notebook can also be run interactively and explored without the need to install Pymagicc locally.
 
+## Acknowledgements
+
+We thank the authors of MAGICC for making it available under a Creative Commons
+license and to Johannes Gütschow and Louise Jeffery for helpful comments on earlier
+versions of Pymagicc and the manuscript.
+
 # References
