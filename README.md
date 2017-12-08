@@ -54,10 +54,12 @@ On OS X `wine` is available in the Homebrew package manager:
 
     brew install wine
 
-To run an example session using Jupyter Notebook or to develop locally using
-Python 3 run the following commands:
+To run an example session using Jupyter Notebook and Python 3 you can run the
+following commands to create a virtual environment `venv` and install an
+editable version for local development:
 
     git clone https://github.com/openclimatedata/pymagicc.git
+
     cd pymagicc
     make venv
     ./venv/bin/pip install -e .
