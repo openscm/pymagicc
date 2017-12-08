@@ -353,7 +353,8 @@ def run(scenario, output_dir=None,
             os.path.join(tempdir, filename),
             delim_whitespace=True,
             skiprows=19,
-            index_col=0
+            index_col=0,
+            engine="python"
         )
 
     if return_config:
