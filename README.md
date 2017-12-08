@@ -111,6 +111,16 @@ temp = output["SURFACE_TEMP"].GLOBAL - \
        output["SURFACE_TEMP"].loc[1850:2100].GLOBAL.mean()
 ```
 
+### Using a different MAGICC version
+
+The `_magiccpath` and `_magiccbinary` can be changed to point to different MAGICC
+development versions.
+
+```python
+pymagicc._magiccpath = "/home/robert/openclimatedata/pymagicc/MAGICC_test/"
+pymagicc._magiccbinary = "./magicc"
+```
+
 
 ## API
 
