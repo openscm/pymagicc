@@ -54,7 +54,7 @@ notebook can also be run interactively and explored without the need to install 
 ## Acknowledgements
 
 We thank the authors of MAGICC for making it available under a Creative Commons
-license and to Johannes Gütschow and Louise Jeffery for helpful comments on earlier
+license and Johannes Gütschow and Louise Jeffery for helpful comments on earlier
 versions of Pymagicc and the manuscript.
 
 # References
