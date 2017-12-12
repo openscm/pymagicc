@@ -6,6 +6,8 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
 [![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1111815
+.svg)](https://zenodo.org/record/1111815)
 
 Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
