@@ -1,11 +1,11 @@
 # pymagicc
 
-| Travis CI (Linux) | [![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc) |
-| AppVeyor CI (Windows) | [![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc) |
-| Code Coverage | [![Codecov](https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg)](https://codecov.io/gh/openclimatedata/pymagicc) |
-| Python Versions | [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc) |
-| Package Version | [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc) |
-| Interactive Example Notebook | [![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb) |
+[![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc)
+[![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc)
+[![Codecov](https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg)](https://codecov.io/gh/openclimatedata/pymagicc)
+[![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
+[![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.python.org/pypi/pymagicc)
+[![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb)
 
 Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
