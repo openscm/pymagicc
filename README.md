@@ -11,6 +11,8 @@ Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
 [MAGICC6 binary](http://www.magicc.org/download6).
 
+Pymagicc makes the MAGICC model easily installable and usable from Python and can for example be used in the analysis of mitigation scenarios, in integrated assessment models, complex climate model emulation, and uncertainty analyses.
+
 See http://www.magicc.org/ for further information about the MAGICC model.
 
 ## Basic Usage
