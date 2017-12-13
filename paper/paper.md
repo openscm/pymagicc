@@ -19,7 +19,7 @@ affiliations:
     index: 1
   - name: University of Potsdam, 14476 Potsdam, Germany
     index: 2
-date: 07 December 2017
+date: 13 December 2017
 bibliography: paper.bib
 output: pdf_document
 ---
