@@ -29,7 +29,7 @@ output: pdf_document
 Pymagicc is a Python wrapper for the Fortran-based reduced-complexity climate carbon cycle model MAGICC [@Meinshausen2011].
 Aiming at broadening the user base of MAGICC^[http://magicc.org], Pymagicc provides a wrapper around the MAGICC binary^[http://magicc.org/download6], which runs on Windows and has been published under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License^[https://creativecommons.org/licenses/by-nc-sa/3.0/].
 Pymagicc runs on Windows, macOS and Linux and simplifies usage of the model by utilising DataFrames from the Pandas library [@McKinney2010] as a data structure for emissions scenarios.
-To read and write the text-based MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml^[https://github.com/marshallward/f90nml] library.
+To read and write the text-based MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml [@Ward2017] library.
 All MAGICC model parameters and emissions scenarios can thus easily be modified through Pymagicc from Python.
 
 MAGICC (Model for the Assessment of Greenhouse Gas Induced Climate Change)
