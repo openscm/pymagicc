@@ -1,6 +1,11 @@
 Unreleased (Master)
 ===================
 
+1.0.1
+====
+
+- Un-pin `f90nml` dependency, 0.23 is working with Pymagicc again
+
 1.0.0
 =====
 
