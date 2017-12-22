@@ -114,8 +114,8 @@ scenario = pd.DataFrame({
 output = pymagicc.run(scenario)
 
 # Projected temperature adjusted to pre-industrial mean
-temp = output["SURFACE_TEMP"].GLOBAL - \
-       output["SURFACE_TEMP"].loc[1850:2100].GLOBAL.mean()
+temp = (output["SURFACE_TEMP"].GLOBAL -
+        output["SURFACE_TEMP"].loc[1850:2100].GLOBAL.mean())
 ```
 
 ### Using a different MAGICC version
