@@ -57,6 +57,10 @@ On OS X `wine` is available in the Homebrew package manager:
 
     brew install wine
 
+Note that after the first install the first run of Pymagicc might be slow due
+to setting up of the `wine` configuration and be accompanied by pop-ups or
+debug output.
+
 To run an example session using Jupyter Notebook and Python 3 you can run the
 following commands to create a virtual environment `venv` and install an
 editable version for local development:
