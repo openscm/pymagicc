@@ -29,6 +29,8 @@ for name, scen in scenarios.items():
 plt.legend()
 plt.title("Global Mean Temperature Projection")
 plt.ylabel(u"°C over pre-industrial (1850-1900 mean)")
+# Run `plt.show()` to display the plot when running this example
+# interactively or add `%matplotlib inline` on top when in a Jupyter Notebook.
 ```
 
 ![](scripts/example-plot.png)
