@@ -42,14 +42,14 @@ On Linux and OS X the original compiled Windows binary available on
 http://www.magicc.org/ and included in Pymagicc
 can run using [Wine](https://www.winehq.org/).
 
-On 32-bit systems Debian/Ubuntu-based systems `wine` can be installed with
-
-    sudo apt-get install wine
-
-On 64-bit systems one needs to use the 32-bit version of Wine:
+On modern 64-bit systems one needs to use the 32-bit version of Wine
 
     sudo dpkg --add-architecture i386
     sudo apt-get install wine32
+
+On 32-bit systems Debian/Ubuntu-based systems `wine` can be installed with
+
+    sudo apt-get install wine
 
 On OS X `wine` is available in the Homebrew package manager:
 
