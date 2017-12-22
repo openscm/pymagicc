@@ -81,7 +81,7 @@ For local development run
     ./venv/bin/pip install --editable .
 
 inside of a clone or download of the Pymagicc repository
-to install dependencies and and an editable version of Pymagicc.
+to install dependencies and an editable version of Pymagicc.
 
 To run the tests run
 
