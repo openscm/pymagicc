@@ -73,6 +73,25 @@ editable version for local development:
     ./venv/bin/jupyter-notebook notebooks/Example.ipynb
 
 
+## Development
+
+For local development run
+
+    make venv
+    ./venv/bin/pip install --editable .
+
+inside of a clone or download of the Pymagicc repository
+to install dependencies and and an editable version of Pymagicc.
+
+To run the tests run
+
+    ./venv/bin/pytest tests --verbose
+
+To get a test coverage report, run
+
+    ./venv/bin/pytest --cov
+
+
 ## More Usage Examples
 
 ### Use an included scenario
