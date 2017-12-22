@@ -216,6 +216,15 @@ comment:
     Optional comment at end of scenario file.
 ```
 
+## Contributing
+
+Please report issues or discuss feature requests on Pymagicc's
+[issue tracker](https://github.com/openclimatedata/pymagicc/issues).
+
+You can also contact the `pymagicc` authors via email
+<robert.gieseke@pik-potsdam.de>.
+
+
 ## License
 
 The [compiled MAGICC binary](http://www.magicc.org/download6) by Tom Wigley,
