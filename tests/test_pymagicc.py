@@ -47,11 +47,15 @@ def test_read_world_only_scenario():
 def test_write_scen_file(tmpdir):
     outfile = tmpdir.join("SCENARIO.SCEN")
     write_scen_file(rcp3pd, outfile)
-    output = read_scen_file(os.path.join(outfile.dirname, outfile.basename))
+    outfile_path = os.path.join(outfile.dirname, outfile.basename)
+    output = read_scen_file(outfile_path)
     assert len(rcp3pd) == len(output)
     assert len(rcp3pd["WORLD"].index) == len(output["WORLD"].index)
     assert len(rcp3pd["WORLD"].columns) == len(output["WORLD"].columns)
     assert rcp3pd["WORLD"].equals(output["WORLD"])
+    # Test without writing to file
+    with open(outfile_path, "r") as f:
+        assert f.read() == write_scen_file(rcp3pd)
 
 
 def test_write_scen_file_world_only(tmpdir):
@@ -133,3 +137,14 @@ def test_default_config():
     _, conf = run(rcp3pd, return_config=True)
     assert conf["allcfgs"]["core_climatesensitivity"] == 3
     assert conf["years"]["startyear"] == 1765
+
+
+def test_set_years():
+    results, conf = run(rcp3pd,
+        return_config=True,
+        startyear=1900,
+        endyear=2000)
+    assert conf["years"]["startyear"] == 1900
+    assert conf["years"]["endyear"] == 2000
+    assert results["SURFACE_TEMP"].GLOBAL.index[0] == 1900
+    assert results["SURFACE_TEMP"].GLOBAL.index[-1] == 2000
