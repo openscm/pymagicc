@@ -53,9 +53,6 @@ def test_write_scen_file(tmpdir):
     assert len(rcp3pd["WORLD"].index) == len(output["WORLD"].index)
     assert len(rcp3pd["WORLD"].columns) == len(output["WORLD"].columns)
     assert rcp3pd["WORLD"].equals(output["WORLD"])
-    # Test without writing to file
-    with open(outfile_path, "r") as f:
-        assert f.read() == write_scen_file(rcp3pd)
 
 
 def test_write_scen_file_world_only(tmpdir):
