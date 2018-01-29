@@ -5,6 +5,5 @@ matplotlib
 twine
 wheel
 ipywidgets
-bokeh
 appmode
 pydoc-markdown
