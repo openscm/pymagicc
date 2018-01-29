@@ -16,7 +16,7 @@ To explore Pymagicc an
 [example notebook](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb)
 and small
 [demo app](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb)
-are available.
+are available thanks to the [Binder project](https://mybinder.org).
 
 See http://www.magicc.org/ for further information about the MAGICC model.
 
