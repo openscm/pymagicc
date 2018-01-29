@@ -1,4 +1,4 @@
-# pymagicc
+# Pymagicc
 
 | [![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc) | [![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc) |
 | :--- | :--- |
@@ -11,6 +11,12 @@ Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC6 binary](http://www.magicc.org/download6).
 
 Pymagicc makes the MAGICC model easily installable and usable from Python and can for example be used in the analysis of mitigation scenarios, in integrated assessment models, complex climate model emulation, and uncertainty analyses.
+
+To explore Pymagicc an
+[example notebook](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb)
+and small
+[demo app](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb)
+are available.
 
 See http://www.magicc.org/ for further information about the MAGICC model.
 
