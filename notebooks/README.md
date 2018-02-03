@@ -13,3 +13,6 @@ needs to run:
     jupyter nbextension enable --py --sys-prefix widgetsnbextension
     jupyter nbextension     enable --py --sys-prefix appmode
     jupyter serverextension enable --py --sys-prefix appmode
+
+The Demo notebook will not display properly in the GitHub preview and needs
+to be run locally or on Binder.
