@@ -4,7 +4,7 @@ Unreleased (Master)
 1.0.2
 =====
 
-- interactive demo Notebook using Jupyter Notebook's 'appmode extension
+- interactive demo Notebook using Jupyter Notebook's `appmode` extension
 - documentation improvements
 
 1.0.1
