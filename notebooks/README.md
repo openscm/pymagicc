@@ -2,9 +2,9 @@
 
 This directory contains [Jupyter](http://jupyter.org/) example Notebooks.
 
-[./Example.ipynb] shows some examples on how to use and run Pymagicc.
+[Example.ipynb](./Example.ipynb) shows some examples on how to use and run Pymagicc.
 
-[./Demo.ipynb] is an interactive demo app, built using the
+[Demo.ipynb](./Demo.ipynb) is an interactive demo app, built using the
 [appmode](https://github.com/oschuett/appmode/) extension.
 To install its dependencies beyond the usual `notebook` and `matplotlib` one
 needs to run:
