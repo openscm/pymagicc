@@ -8,17 +8,18 @@
 
 Pymagicc is a thin Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
-[MAGICC6 binary](http://www.magicc.org/download6).
+[MAGICC6 binary](http://www.magicc.org/download6). Pymagicc itself is AGPL licensed.
 
-Pymagicc makes the MAGICC model easily installable and usable from Python and can for example be used in the analysis of mitigation scenarios, in integrated assessment models, complex climate model emulation, and uncertainty analyses.
+MAGICC (Model for the Assessment of Greenhouse Gas Induced Climate Change)
+is widely used in the assessment of future emissions pathways in climate policy analyses,
+e.g. in the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change or to model the physical aspects of climate change in Integrated Assessment Models (IAMs).
 
-To explore Pymagicc an
-[example notebook](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb)
-and small
-[demo app](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb)
-are available thanks to the [Binder project](https://mybinder.org).
+Pymagicc makes the MAGICC model easily installable and usable from Python and allows for the easy modification of all MAGICC model parameters and emissions scenarios directly from Python.
+In climate research it can, for example, be used in the analysis of mitigation scenarios, in Integrated Assessment Models, complex climate model emulation, and uncertainty analyses, as well as in climate science education and communication.
 
-See http://www.magicc.org/ for further information about the MAGICC model.
+
+See [www.magicc.org](http://www.magicc.org/) for further information about the MAGICC model.
 
 ## Basic Usage
 
@@ -41,6 +42,9 @@ plt.ylabel(u"°C over pre-industrial (1850-1900 mean)")
 
 ![](scripts/example-plot.png)
 
+For more example usage see this [Jupyter Notebook](https://github.com/openclimatedata/pymagicc/blob/master/notebooks/Example.ipynb).
+Thanks to the [Binder project](https://mybinder.org) the [Notebook](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb) can be run and modified without installing anything locally. A small interactive [demo app](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb) using Jupyter Notebook's [appmode extension](https://github.com/oschuett/appmode/)
+is also available.
 
 ## Installation
 
@@ -62,6 +66,8 @@ On 32-bit systems Debian/Ubuntu-based systems `wine` can be installed with
 On OS X `wine` is available in the Homebrew package manager:
 
     brew install wine
+
+It should also be available in other package managers, as well as directly from the [Wine project](https://wiki.winehq.org/Download).
 
 Note that after the first install the first run of Pymagicc might be slow due
 to setting up of the `wine` configuration and be accompanied by pop-ups or

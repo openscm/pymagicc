@@ -26,8 +26,9 @@ output: pdf_document
 
 # Summary
 
-Pymagicc is a Python wrapper for the Fortran-based reduced-complexity climate carbon cycle model MAGICC [@Meinshausen2011].
-Aiming at broadening the user base of MAGICC^[http://magicc.org], Pymagicc provides a wrapper around the MAGICC binary^[http://magicc.org/download6], which runs on Windows and has been published under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License^[https://creativecommons.org/licenses/by-nc-sa/3.0/].
+Pymagicc is a Python interface for the Fortran-based reduced-complexity climate carbon cycle model MAGICC [@Meinshausen2011].
+Aiming at broadening the user base of MAGICC^[http://magicc.org], Pymagicc provides a wrapper around the MAGICC binary^[http://magicc.org/download6], which runs on Windows and has been published under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License^[https://creativecommons.org/licenses/by-nc-sa/3.0/]. Pymagicc itself is licensed under the GNU Affero General Public License v3.0^[https://www.gnu.org/licenses/#AGPL].
+
 Pymagicc runs on Windows, macOS and Linux and simplifies usage of the model by utilising DataFrames from the Pandas library [@McKinney2010] as a data structure for emissions scenarios.
 To read and write the text-based MAGICC configuration and output files in the Fortran Namelist format Pymagicc utilizes the f90nml library [@Ward2017].
 All MAGICC model parameters and emissions scenarios can thus easily be modified through Pymagicc from Python.
@@ -41,7 +42,7 @@ It has also been used to emulate complex
 atmosphere-ocean general circulation models (AOGCM) from the Coupled
 Model Intercomparison Projects^[https://cmip.llnl.gov/].
 
-Pymagicc also facilitates comparisons with other recently published simple climate models available from or written in Python, such as OSCAR^[https://github.com/tgasser/OSCAR] (@Gasser2017), Pyhector^[https://github.com/openclimatedata/pyhector] (@Willner17, @Hartin2015), and FAIR^[https://github.com/OMS-NetZero/FAIR-pro] (@Millar2017.)
+Pymagicc also facilitates comparisons with other recently published simple climate models available from or written in Python, such as OSCAR^[https://github.com/tgasser/OSCAR] (@Gasser2017), Pyhector^[https://github.com/openclimatedata/pyhector] (@Willner17, @Hartin2015), and FAIR^[https://github.com/OMS-NetZero/FAIR] (@Millar2017.)
 
 It can be installed using `pip` from the Python Package Index ^[<https://pypi.python.org/pypi/pymagicc>].
 To enable Pymagicc to run under Linux and macOS the Wine^[https://www.winehq.org/] compatibility layer is used, usually being available from package managers.
