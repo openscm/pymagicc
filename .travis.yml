@@ -8,9 +8,8 @@ python:
   - "3.6"
 before_install:
   - sudo dpkg --add-architecture i386
-  - sudo add-apt-repository ppa:ubuntu-wine/ppa -y
   - sudo apt-get update
-  - sudo apt-get install --no-install-recommends -y wine1.8
+  - sudo apt-get install --no-install-recommends -y wine
   - pip install pytest pytest-cov codecov
 install:
   - pip install -e .
