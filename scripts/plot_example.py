@@ -13,7 +13,7 @@ plt.rcParams["font.size"] = 12
 path = os.path.join(os.path.dirname(__file__),
                     './example-plot.png')
 
-for name, scen in scenarios.items():
+for name, scen in sorted(scenarios.items(), reverse=True):
     results, params = pymagicc.run(scen, return_config=True)
     temp = (results["SURFACE_TEMP"].GLOBAL.loc[1850:] -
             results["SURFACE_TEMP"].GLOBAL.loc[1850:1900].mean())
