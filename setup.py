@@ -16,8 +16,11 @@ GitHub repository at https://github.com/openclimatedata/pymagicc.
 """
 import versioneer
 
+import os
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
+
+path = os.path.abspath(os.path.dirname(__file__))
 
 
 class PyTest(TestCommand):
@@ -32,6 +35,10 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
+with open(os.path.join(path, 'README.md'), "r") as f:
+    readme = f.read()
+
+
 cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
@@ -39,7 +46,8 @@ setup(
     name='pymagicc',
     version=versioneer.get_version(),
     description='Python wrapper for the simple climate model MAGICC',
-    long_description=__doc__,
+    long_description=readme,
+    long_description_content_type="text/markdown",
     author='Robert Gieseke',
     author_email='robert.gieseke@pik-potsdam.de',
     url='https://github.com/openclimatedata/pymagicc',
