@@ -29,13 +29,20 @@ __version__ = get_versions()["version"]
 del get_versions
 
 
+def get_paths():
+    default_executable = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "MAGICC6/MAGICC6_4Download/magicc6.exe"
+    )
+    
+    executable = os.environ.get('MAGICC_EXECUTABLE', default_executable)
+    return os.path.dirname(executable), os.path.basename(executable)
+
+
+_magiccpath, _magiccbinary = get_paths()
+
 _WINDOWS = platform.system() == "Windows"
 
-_magiccpath = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "MAGICC6/MAGICC6_4Download"
-)
-_magiccbinary = "magicc6.exe"
 
 if not _WINDOWS:
     wine_installed = subprocess.call("type wine", shell=True,
