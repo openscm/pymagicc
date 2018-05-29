@@ -159,6 +159,22 @@ pymagicc._magiccpath = "/home/robert/openclimatedata/pymagicc/MAGICC_test/"
 pymagicc._magiccbinary = "./magicc"
 ```
 
+If an environment variable `MAGICC_EXECUTABLE` pointing to a MAGICC binary is
+set, `_magiccpath` and `_magiccbinary` will use the values set there, making it
+easy to point to different set of MAGICC files e.g. for testing.
+
+Example usage in Bash:
+```bash
+MAGICC_EXECUTABLE=/tmp/magicc/magicc.exe python run_tests.py
+```
+
+Or in a script:
+```bash
+#!/bin/bash
+export MAGICC_EXECUTABLE=/tmp/magicc/magicc.exe
+python run_tests.py
+python generate_plots.py
+```
 
 ## API
 
