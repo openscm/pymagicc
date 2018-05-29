@@ -5,7 +5,7 @@ import pandas as pd
 
 from pymagicc import (
     _magiccpath,
-    get_paths,
+    _get_magicc_paths,
     _get_number_of_datapoints,
     _get_region_code,
     read_scen_file,
@@ -150,7 +150,7 @@ def test_set_years():
 
 def test_custom_magicc():
     os.environ['MAGICC_EXECUTABLE'] = '/tmp/magicc'
-    path, binary = get_paths()
+    path, binary = _get_magicc_paths()
     # reset the key
     del os.environ['MAGICC_EXECUTABLE']
 
