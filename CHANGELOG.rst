@@ -1,6 +1,9 @@
 Unreleased (Master)
 ===================
 
+- add reading of `MAGICC_EXECUTABLE` environment variable to simplify setting
+  path of MAGICC package for testing and CI
+
 1.0.2
 =====
 
