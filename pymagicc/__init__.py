@@ -145,13 +145,13 @@ def read_scen_file(scen_file):
     else:
         return output
 
-rcp3pd = read_scen_file(os.path.join(_magiccpath, "RCP3PD.SCEN"))
+rcp26 = read_scen_file(os.path.join(_magiccpath, "RCP26.SCEN"))
 rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
 rcp6 = read_scen_file(os.path.join(_magiccpath, "RCP6.SCEN"))
 rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"))
 
 scenarios = {
-    "RCP3PD": rcp3pd,
+    "RCP26": rcp26,
     "RCP45": rcp45,
     "RCP6": rcp6,
     "RCP85": rcp85

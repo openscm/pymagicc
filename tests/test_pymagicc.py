@@ -10,7 +10,7 @@ from pymagicc import (
     _get_region_code,
     read_scen_file,
     write_scen_file,
-    rcp3pd,
+    rcp26,
     rcp45,
     rcp6,
     rcp85,
@@ -18,24 +18,24 @@ from pymagicc import (
 )
 
 
-rcp3pd_scen_file = os.path.join(_magiccpath, "RCP3PD.SCEN")
+rcp26_scen_file = os.path.join(_magiccpath, "RCP26.SCEN")
 rcp85_scen_file = os.path.join(_magiccpath, "RCP85.SCEN")
 world_only = read_scen_file(os.path.join(os.path.dirname(__file__),
                             "./test_data/WORLD_ONLY.SCEN"))
 
 
 def test_count():
-    assert _get_number_of_datapoints(rcp3pd_scen_file) == 20
+    assert _get_number_of_datapoints(rcp26_scen_file) == 20
 
 
 def test_region_code():
-    assert _get_region_code(rcp3pd_scen_file) == 41
+    assert _get_region_code(rcp26_scen_file) == 41
 
 
 def test_read_scen_file():
-    assert len(rcp3pd) == 7
-    assert len(rcp3pd["WORLD"].index) == 20
-    assert len(rcp3pd["WORLD"].columns) == 23
+    assert len(rcp26) == 7
+    assert len(rcp26["WORLD"].index) == 20
+    assert len(rcp26["WORLD"].columns) == 23
 
 
 def test_read_world_only_scenario():
@@ -47,13 +47,13 @@ def test_read_world_only_scenario():
 
 def test_write_scen_file(tmpdir):
     outfile = tmpdir.join("SCENARIO.SCEN")
-    write_scen_file(rcp3pd, outfile)
+    write_scen_file(rcp26, outfile)
     outfile_path = os.path.join(outfile.dirname, outfile.basename)
     output = read_scen_file(outfile_path)
-    assert len(rcp3pd) == len(output)
-    assert len(rcp3pd["WORLD"].index) == len(output["WORLD"].index)
-    assert len(rcp3pd["WORLD"].columns) == len(output["WORLD"].columns)
-    assert rcp3pd["WORLD"].equals(output["WORLD"])
+    assert len(rcp26) == len(output)
+    assert len(rcp26["WORLD"].index) == len(output["WORLD"].index)
+    assert len(rcp26["WORLD"].columns) == len(output["WORLD"].columns)
+    assert rcp26["WORLD"].equals(output["WORLD"])
 
 
 def test_write_scen_file_world_only(tmpdir):
@@ -66,8 +66,8 @@ def test_write_scen_file_world_only(tmpdir):
     assert world_only.equals(output)
 
 
-def test_run_rcp3pd():
-    results = run(rcp3pd)
+def test_run_rcp26():
+    results = run(rcp26)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
@@ -123,7 +123,7 @@ def test_run_rcp85():
 
 
 def test_parameters():
-    _, params = run(rcp3pd,
+    _, params = run(rcp26,
                     return_config=True,
                     core_climatesensitivity=1.5)
     assert params['allcfgs']["core_climatesensitivity"] == 1.5
@@ -132,13 +132,13 @@ def test_parameters():
 
 
 def test_default_config():
-    _, conf = run(rcp3pd, return_config=True)
+    _, conf = run(rcp26, return_config=True)
     assert conf["allcfgs"]["core_climatesensitivity"] == 3
     assert conf["years"]["startyear"] == 1765
 
 
 def test_set_years():
-    results, conf = run(rcp3pd,
+    results, conf = run(rcp26,
         return_config=True,
         startyear=1900,
         endyear=2000)
