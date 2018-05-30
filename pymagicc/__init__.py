@@ -27,7 +27,7 @@ import pandas as pd
 from ._version import get_versions
 __version__ = get_versions()["version"]
 del get_versions
-
+from .compat import get_param
 
 def _get_magicc_paths():
     default_executable = os.path.join(
@@ -113,6 +113,16 @@ def _get_region_code(scen_file):
     return int(linecache.getline(scen_file, 2))
 
 
+def _get_output_dir(temp_dir):
+    """
+    Get the appropriate directories for where to copy the magicc binary/configuration and where to store the output.
+
+    For MAGICC6, these directories are the same, while for MAGICC7 the output is stored in a folder '../out' relative to the location of the binary.
+    """
+    out_dir = os.path.join(temp_dir, get_param('out_dir'))
+    run_dir = os.path.join(temp_dir, get_param('run_dir'))
+    return out_dir, run_dir
+
 def read_scen_file(scen_file):
     """
     Reads a MAGICC .SCEN file and returns a
@@ -145,10 +155,10 @@ def read_scen_file(scen_file):
     else:
         return output
 
-rcp26 = read_scen_file(os.path.join(_magiccpath, "RCP26.SCEN"))
-rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
-rcp6 = read_scen_file(os.path.join(_magiccpath, "RCP6.SCEN"))
-rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"))
+rcp26 = read_scen_file(os.path.join(_magiccpath, get_param('RCP26_scen')))
+rcp45 = read_scen_file(os.path.join(_magiccpath, get_param('RCP45_scen')))
+rcp6 = read_scen_file(os.path.join(_magiccpath, get_param('RCP60_scen')))
+rcp85 = read_scen_file(os.path.join(_magiccpath,get_param('RCP85_scen')))
 
 scenarios = {
     "RCP26": rcp26,
@@ -313,10 +323,15 @@ def run(scenario, output_dir=None,
     else:
         tempdir = tempfile.mkdtemp(prefix="pymagicc-")
 
-    dir_util.copy_tree(_magiccpath, tempdir)
+    out_dir, run_dir = _get_output_dir(tempdir)
+
+    # Copy the MAGICC run directory into the appropriate location
+    dir_util.copy_tree(_magiccpath, run_dir)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
 
     # Write out the `Scenario` as a .SCEN-file.
-    write_scen_file(scenario, os.path.join(tempdir, "SCENARIO.SCEN"))
+    write_scen_file(scenario, os.path.join(run_dir, "SCENARIO.SCEN"))
 
     all_cfgs = {}
     years = {
@@ -331,41 +346,41 @@ def run(scenario, output_dir=None,
         else:
             all_cfgs[k] = v
 
-    all_cfgs["file_emissionscenario"] = "SCENARIO.SCEN"
+    all_cfgs[get_param('emission_scenario_key')] = "SCENARIO.SCEN"
     all_cfgs["rundate"] = _get_date_time_string()
 
     # Write simple config file.
-    outpath = os.path.join(tempdir, "MAGTUNE_SIMPLE.CFG")
+    outpath = os.path.join(run_dir, "MAGTUNE_SIMPLE.CFG")
     f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
     # Write years config.
-    outpath_years = os.path.join(tempdir, "MAGCFG_NMLYEARS.CFG")
+    outpath_years = os.path.join(run_dir, "MAGCFG_NMLYEARS.CFG")
     f90nml.write({"nml_years": years}, outpath_years, force=True)
 
-    command = [_magiccbinary]
+    command = [os.path.join(run_dir, _magiccbinary)]
 
     if not _WINDOWS and _magiccbinary.endswith(".exe"):
         command.insert(0, 'wine')
 
     # On Windows shell=True is required.
-    subprocess.check_call(command, cwd=tempdir, shell=_WINDOWS)
+    subprocess.check_call(command, cwd=run_dir, shell=_WINDOWS)
 
     results = {}
 
-    outfiles = [f for f in os.listdir(tempdir)
+    outfiles = [f for f in os.listdir(out_dir)
                 if f.startswith("DAT_") and f.endswith(".OUT")]
 
     for filename in outfiles:
         name = filename.replace("DAT_", "").replace(".OUT", "")
         results[name] = pd.read_csv(
-            os.path.join(tempdir, filename),
+            os.path.join(out_dir, filename),
             delim_whitespace=True,
-            skiprows=19,
+            skiprows=get_param('num_output_headers'),
             index_col=0,
             engine="python"
         )
 
     if return_config:
-        with open(os.path.join(tempdir, "PARAMETERS.OUT")) as nml_file:
+        with open(os.path.join(out_dir, "PARAMETERS.OUT")) as nml_file:
             parameters = dict(f90nml.read(nml_file))
             for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
                 parameters[group] = dict(parameters[group])
