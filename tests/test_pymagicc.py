@@ -16,11 +16,10 @@ from pymagicc import (
     rcp85,
     run
 )
-from pymagicc.compat import get_param
 
 
-rcp26_scen_file = os.path.join(_magiccpath, get_param("RCP26_scen"))
-rcp85_scen_file = os.path.join(_magiccpath, get_param("RCP85_scen"))
+rcp26_scen_file = os.path.join(_magiccpath, "RCP26.SCEN")
+rcp85_scen_file = os.path.join(_magiccpath, "RCP85.SCEN")
 world_only = read_scen_file(os.path.join(os.path.dirname(__file__),
                             "./test_data/WORLD_ONLY.SCEN"))
 

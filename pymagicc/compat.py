@@ -5,21 +5,13 @@ compat = {
         'run_dir': '',
         'out_dir': '',
         'emission_scenario_key': 'file_emissionscenario',
-        'num_output_headers': 19,
-        'RCP26_scen': 'RCP26.SCEN',
-        'RCP45_scen': 'RCP45.SCEN',
-        'RCP60_scen': 'RCP60.SCEN',
-        'RCP85_scen': 'RCP85.SCEN'
+        'num_output_headers': 19
     },
     '7': {
         'run_dir': 'run',
         'out_dir': 'out',
         'emission_scenario_key': 'FILE_EMISSCEN',
-        'num_output_headers': 21,
-        'RCP26_scen': 'RCP26.SCEN',
-        'RCP45_scen': 'RCP45.SCEN',
-        'RCP60_scen': 'RCP60.SCEN',
-        'RCP85_scen': 'RCP85.SCEN'
+        'num_output_headers': 21
     }
 }
 
