@@ -1,4 +1,7 @@
 import os
+import f90nml
+
+from .paths import _get_magicc_paths
 
 compat = {
     '6': {
@@ -11,11 +14,36 @@ compat = {
     }
 }
 
+_version_cache = {}
+
+
+def _determine_version(magicc_dir):
+    user_cfg = f90nml.read(os.path.join(magicc_dir, 'MAGCFG_USER.CFG'))
+
+    if 'FILE_EMISSIONSCENARIO' in user_cfg['nml_allcfgs'] and 'FILE_EMISSCEN_2' in user_cfg['nml_allcfgs']:
+        raise ValueError('Invalid MAGCFG_USER.CFG. Should not contain both FILE_EMISSIONSCENARIO and FILE_EMISSCEN_2 keys')
+
+    if 'FILE_EMISSIONSCENARIO' in user_cfg['nml_allcfgs']:
+        return '6'
+    elif 'FILE_EMISSCEN_2' in user_cfg['nml_allcfgs']:
+        return '7'
+    raise ValueError('Could not determine the version of MAGICC used')
+
 
 def determine_version():
-    version = os.environ.get('MAGICC_VERSION', '6')
-    if version not in compat:
-        raise ValueError('Could not determine the version of MAGICC used: {}'.format(version))
+    """
+    Determine the version of the target MAGICC executable
+
+    Uses expected parameters in the MAGCFG_USER.CFG configuration file. The result is cached as it can be expensive to calculate
+    """
+    magicc_dir, _ = _get_magicc_paths()
+    if magicc_dir in _version_cache:
+        return _version_cache[magicc_dir]
+
+    # Determine the version from a directory
+    version = _determine_version(magicc_dir)
+
+    _version_cache[magicc_dir] = version
     return version
 
 
