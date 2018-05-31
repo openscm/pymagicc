@@ -9,3 +9,6 @@ def _get_magicc_paths():
 
     executable = os.environ.get('MAGICC_EXECUTABLE', default_executable)
     return os.path.dirname(executable), os.path.basename(executable)
+
+
+_magiccpath, _magiccbinary = _get_magicc_paths()

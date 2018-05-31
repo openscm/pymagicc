@@ -15,11 +15,7 @@ import linecache
 import logging
 import os
 import platform
-import shutil
 import subprocess
-import tempfile
-
-from distutils import dir_util
 
 import f90nml
 import pandas as pd
@@ -29,6 +25,7 @@ __version__ = get_versions()["version"]
 del get_versions
 from .compat import get_param
 from .paths import _get_magicc_paths
+from .run import ModelRun
 
 _magiccpath, _magiccbinary = _get_magicc_paths()
 
@@ -296,25 +293,10 @@ def run(scenario, output_dir=None,
         ``return_config`` is set to True
     """
 
-    # Create a temporary directory.
-    if output_dir:
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        tempdir = output_dir
-    else:
-        tempdir = tempfile.mkdtemp(prefix="pymagicc-")
-
-    # Get the appropriate directories for where to copy the magicc binary/configuration and where to store the output.
-    out_dir = os.path.join(tempdir, 'out')
-    run_dir = os.path.join(tempdir, 'run')
-
-    # Copy the MAGICC run directory into the appropriate location
-    dir_util.copy_tree(_magiccpath, run_dir)
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    model_run = ModelRun(output_dir)
 
     # Write out the `Scenario` as a .SCEN-file.
-    write_scen_file(scenario, os.path.join(run_dir, "SCENARIO.SCEN"))
+    write_scen_file(scenario, os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
 
     all_cfgs = {}
     years = {
@@ -333,53 +315,15 @@ def run(scenario, output_dir=None,
     all_cfgs["rundate"] = _get_date_time_string()
 
     # Write simple config file.
-    outpath = os.path.join(run_dir, "MAGTUNE_SIMPLE.CFG")
+    outpath = os.path.join(model_run.run_dir, "MAGTUNE_SIMPLE.CFG")
     f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
     # Write years config.
-    outpath_years = os.path.join(run_dir, "MAGCFG_NMLYEARS.CFG")
+    outpath_years = os.path.join(model_run.run_dir, "MAGCFG_NMLYEARS.CFG")
     f90nml.write({"nml_years": years}, outpath_years, force=True)
 
-    command = [os.path.join(run_dir, _magiccbinary)]
-
-    if not _WINDOWS and _magiccbinary.endswith(".exe"):
-        command.insert(0, 'wine')
-
-    # On Windows shell=True is required.
-    subprocess.check_call(command, cwd=run_dir, shell=_WINDOWS)
-
-    results = {}
-
-    outfiles = [f for f in os.listdir(out_dir)
-                if f.startswith("DAT_") and f.endswith(".OUT")]
-
-    for filename in outfiles:
-        name = filename.replace("DAT_", "").replace(".OUT", "")
-        results[name] = pd.read_csv(
-            os.path.join(out_dir, filename),
-            delim_whitespace=True,
-            skiprows=get_param('num_output_headers'),
-            index_col=0,
-            engine="python"
-        )
+    results = model_run.run()
 
     if return_config:
-        with open(os.path.join(out_dir, "PARAMETERS.OUT")) as nml_file:
-            parameters = dict(f90nml.read(nml_file))
-            for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
-                parameters[group] = dict(parameters[group])
-                for k, v in parameters[group].items():
-                    if isinstance(v, str):
-                        parameters[group][k] = v.strip()
-                    elif isinstance(v, list):
-                        if isinstance(v[0], str):
-                            parameters[group][k] = [
-                                i.strip().replace("\n", "") for i in v]
-                parameters[group.replace("nml_", "")] = parameters.pop(group)
-
-    if not output_dir:
-        shutil.rmtree(tempdir)
-
-    if return_config:
-        return results, parameters
+        return results, model_run.config
     else:
         return results
