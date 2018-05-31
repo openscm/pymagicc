@@ -47,7 +47,13 @@ class ModelRun(object):
     def out_dir(self):
         return join(self.root_dir, 'out')
 
-    def run(self):
+    def run(self, only=None):
+        """
+        Run MAGICC
+
+        :param only: If not None, only extract variables in this list
+        :return:
+        """
         command = [join(self.run_dir, _magiccbinary)]
 
         if not _WINDOWS and _magiccbinary.endswith(".exe"):
@@ -63,13 +69,14 @@ class ModelRun(object):
 
         for filename in outfiles:
             name = filename.replace("DAT_", "").replace(".OUT", "")
-            results[name] = pd.read_csv(
-                join(self.out_dir, filename),
-                delim_whitespace=True,
-                skiprows=get_param('num_output_headers'),
-                index_col=0,
-                engine="python"
-            )
+            if only is None or name in only:
+                results[name] = pd.read_csv(
+                    join(self.out_dir, filename),
+                    delim_whitespace=True,
+                    skiprows=get_param('num_output_headers'),
+                    index_col=0,
+                    engine="python"
+                )
 
         with open(join(self.out_dir, "PARAMETERS.OUT")) as nml_file:
             parameters = dict(f90nml.read(nml_file))
