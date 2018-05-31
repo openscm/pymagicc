@@ -71,7 +71,7 @@ def test_run_rcp26():
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "original_data/RCP3PD/DAT_SURFACE_TEMP.OUT"),
+            "original_data/RCP26/DAT_SURFACE_TEMP.OUT"),
         delim_whitespace=True,
         skiprows=19,
         index_col=0
@@ -99,7 +99,7 @@ def test_run_rcp60():
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
-            "original_data/RCP6/DAT_SURFACE_TEMP.OUT"),
+            "original_data/RCP60/DAT_SURFACE_TEMP.OUT"),
         delim_whitespace=True,
         skiprows=19,
         index_col=0
