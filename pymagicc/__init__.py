@@ -113,16 +113,6 @@ def _get_region_code(scen_file):
     return int(linecache.getline(scen_file, 2))
 
 
-def _get_output_dir(temp_dir):
-    """
-    Get the appropriate directories for where to copy the magicc binary/configuration and where to store the output.
-
-    For MAGICC6, these directories are the same, while for MAGICC7 the output is stored in a folder '../out' relative to the location of the binary.
-    """
-    out_dir = os.path.join(temp_dir, get_param('out_dir'))
-    run_dir = os.path.join(temp_dir, get_param('run_dir'))
-    return out_dir, run_dir
-
 def read_scen_file(scen_file):
     """
     Reads a MAGICC .SCEN file and returns a
@@ -323,7 +313,9 @@ def run(scenario, output_dir=None,
     else:
         tempdir = tempfile.mkdtemp(prefix="pymagicc-")
 
-    out_dir, run_dir = _get_output_dir(tempdir)
+    # Get the appropriate directories for where to copy the magicc binary/configuration and where to store the output.
+    out_dir = os.path.join(tempdir, 'out')
+    run_dir = os.path.join(tempdir, 'run')
 
     # Copy the MAGICC run directory into the appropriate location
     dir_util.copy_tree(_magiccpath, run_dir)

@@ -2,14 +2,10 @@ import os
 
 compat = {
     '6': {
-        'run_dir': '',
-        'out_dir': '',
         'emission_scenario_key': 'file_emissionscenario',
         'num_output_headers': 19
     },
     '7': {
-        'run_dir': 'run',
-        'out_dir': 'out',
         'emission_scenario_key': 'FILE_EMISSCEN',
         'num_output_headers': 21
     }

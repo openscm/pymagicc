@@ -7,7 +7,7 @@
 &nml_allcfgs
     magiccversion = '6.8.01 BETA, 7th July 2012 - live.magicc.org'
     pathname_infiles = ''
-    pathname_outfiles = ''
+    pathname_outfiles = '../out/'
     path_staticcfg_frominfilepath = 1
     rundate = 'No date specified.'
     runname = 'MAGICC6RCP_SingleRun_Template'
