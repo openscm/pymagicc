@@ -6,9 +6,9 @@ compat = {
         'out_dir': '',
         'emission_scenario_key': 'file_emissionscenario',
         'num_output_headers': 19,
-        'RCP26_scen': 'RCP3PD.SCEN',
+        'RCP26_scen': 'RCP26.SCEN',
         'RCP45_scen': 'RCP45.SCEN',
-        'RCP60_scen': 'RCP6.SCEN',
+        'RCP60_scen': 'RCP60.SCEN',
         'RCP85_scen': 'RCP85.SCEN'
     },
     '7': {
