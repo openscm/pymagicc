@@ -12,7 +12,7 @@ from pymagicc import (
     write_scen_file,
     rcp26,
     rcp45,
-    rcp6,
+    rcp60,
     rcp85,
     run
 )
@@ -94,8 +94,8 @@ def test_run_rcp45():
     assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
-def test_run_rcp6():
-    results = run(rcp6)
+def test_run_rcp60():
+    results = run(rcp60)
     surface_temp = pd.read_csv(
         os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
