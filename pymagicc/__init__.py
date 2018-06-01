@@ -25,7 +25,7 @@ __version__ = get_versions()["version"]
 del get_versions
 from .compat import get_param
 from .paths import _get_magicc_paths
-from .run import Package
+from .run import MAGICC
 
 _magiccpath, _magiccbinary = _get_magicc_paths()
 
@@ -293,9 +293,9 @@ def run(scenario, output_dir=None,
         ``return_config`` is set to True
     """
 
-    model_run = Package(output_dir)
+    model_run = MAGICC(output_dir)
     try:
-        model_run.initialise()
+        model_run.init()
 
         # Write out the `Scenario` as a .SCEN-file.
         write_scen_file(scenario, os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
@@ -331,4 +331,4 @@ def run(scenario, output_dir=None,
             return results
     finally:
         # This is always called (even after a return statement)
-        model_run.clean()
+        model_run.close()

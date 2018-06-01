@@ -15,17 +15,17 @@ from .paths import _magiccbinary, _magiccpath
 _WINDOWS = platform.system() == "Windows"
 
 
-class Package(object):
+class MAGICC(object):
     """
     A working copy of the MAGICC binary and configuration
 
     To enable multiple MAGICC 'Packages' to be configured independently, the MAGICC run directory containing the input files, configuration and binary
-    is copied to a new folder. The configuration in this Package can then be edited without impacting other instances of MAGICC.
+    is copied to a new folder. The configuration in this MAGICC can then be edited without impacting other instances of MAGICC.
 
-    A `Package` first has to be initialised by calling `initialise` to perform this copy.
+    A `MAGICC` first has to be initialised by calling `init` to perform this copy.
     If many model runs are being performed this step only has to be performed once. `run` can be called many times with the configuration files being
-    updated between each call. Many independent instances of Package with the same `root_dir` can be created/destroyed as long as `initialise` is only
-    called once or any changes to the Package will be lost.
+    updated between each call. Many independent instances of MAGICC with the same `root_dir` can be created/destroyed as long as `init` is only
+    called once or any changes to the MAGICC will be lost.
     """
 
     def __init__(self, root_dir=None):
@@ -41,7 +41,7 @@ class Package(object):
             self.is_temp = True
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
-    def initialise(self):
+    def init(self):
         """
         Initialise the directory structure and copy in MAGICC configuration and binary
 
@@ -107,11 +107,11 @@ class Package(object):
 
         return results
 
-    def clean(self):
+    def close(self):
         """
         Cleans up the package's root directory
 
-        If no root_dir was provided, than the temporary Package directory is deleted
+        If no root_dir was provided, than the temporary MAGICC directory is deleted
         """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
