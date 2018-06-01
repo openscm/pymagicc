@@ -32,14 +32,6 @@ class Package(object):
         self.root_dir = root_dir
         self.config = {}
 
-    def initialise(self):
-        """
-        Initialise the directory structure and copy in MAGICC configuration and binary
-
-        This overwrites any configuration changes in the run directory
-        """
-        root_dir = self.root_dir
-
         if root_dir is not None:
             self.is_temp = False
             if not exists(root_dir):
@@ -49,6 +41,12 @@ class Package(object):
             self.is_temp = True
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
+    def initialise(self):
+        """
+        Initialise the directory structure and copy in MAGICC configuration and binary
+
+        This overwrites any configuration changes in the run directory
+        """
         # Copy the MAGICC run directory into the appropriate location
         dir_util.copy_tree(_magiccpath, self.run_dir)
         if not exists(self.out_dir):

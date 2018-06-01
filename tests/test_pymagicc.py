@@ -149,10 +149,13 @@ def test_set_years():
 
 
 def test_custom_magicc():
+    # Track the previous value of MAGICC_EXECUTABLE
+    prev_val = os.environ.get('MAGICC_EXECUTABLE')
     os.environ['MAGICC_EXECUTABLE'] = '/tmp/magicc'
     path, binary = _get_magicc_paths()
     # reset the key
     del os.environ['MAGICC_EXECUTABLE']
-
+    if prev_val:
+        os.environ['MAGICC_EXECUTABLE'] = prev_val
     assert path == '/tmp'
     assert binary == 'magicc'
