@@ -10,6 +10,10 @@
 
 # -*- coding: utf-8 -*-
 
+from .compat import get_param
+from .paths import _get_magicc_paths
+from .run import MAGICC
+
 import datetime
 import linecache
 import logging
@@ -23,9 +27,6 @@ import pandas as pd
 from ._version import get_versions
 __version__ = get_versions()["version"]
 del get_versions
-from .compat import get_param
-from .paths import _get_magicc_paths
-from .run import MAGICC
 
 _magiccpath, _magiccbinary = _get_magicc_paths()
 
@@ -132,6 +133,7 @@ def read_scen_file(scen_file):
         return output["WORLD"]
     else:
         return output
+
 
 rcp26 = read_scen_file(os.path.join(_magiccpath, "RCP26.SCEN"))
 rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
@@ -298,7 +300,8 @@ def run(scenario, output_dir=None,
         model_run.init()
 
         # Write out the `Scenario` as a .SCEN-file.
-        write_scen_file(scenario, os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
+        write_scen_file(scenario,
+                        os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
 
         all_cfgs = {}
         years = {
