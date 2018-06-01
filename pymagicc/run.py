@@ -15,16 +15,31 @@ from .paths import _magiccbinary, _magiccpath
 _WINDOWS = platform.system() == "Windows"
 
 
-class ModelRun(object):
+class Package(object):
+    """
+    A working copy of the MAGICC binary and configuration
+
+    To enable multiple MAGICC 'Packages' to be configured independently, the MAGICC run directory containing the input files, configuration and binary
+    is copied to a new folder. The configuration in this Package can then be edited without impacting other instances of MAGICC.
+
+    A `Package` first has to be initialised by calling `initialise` to perform this copy.
+    If many model runs are being performed this step only has to be performed once. `run` can be called many times with the configuration files being
+    updated between each call. Many independent instances of Package with the same `root_dir` can be created/destroyed as long as `initialise` is only
+    called once or any changes to the Package will be lost.
+    """
+
     def __init__(self, root_dir=None):
         self.root_dir = root_dir
         self.config = {}
-        self.init_root(self.root_dir)
 
-    def init_root(self, root_dir):
+    def initialise(self):
         """
-        Initialise the directory structure and copy in MAGICC
+        Initialise the directory structure and copy in MAGICC configuration and binary
+
+        This overwrites any configuration changes in the run directory
         """
+        root_dir = self.root_dir
+
         if root_dir is not None:
             self.is_temp = False
             if not exists(root_dir):
@@ -49,10 +64,10 @@ class ModelRun(object):
 
     def run(self, only=None):
         """
-        Run MAGICC
+        Run MAGICC and parse the output
 
         :param only: If not None, only extract variables in this list
-        :return:
+        :return: Dict containing DataFrames for each of the extracted variables
         """
         command = [join(self.run_dir, _magiccbinary)]
 
@@ -92,7 +107,13 @@ class ModelRun(object):
                 parameters[group.replace("nml_", "")] = parameters.pop(group)
             self.config = parameters
 
+        return results
+
+    def clean(self):
+        """
+        Cleans up the package's root directory
+
+        If no root_dir was provided, than the temporary Package directory is deleted
+        """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
-
-        return results
