@@ -1,5 +1,10 @@
+Unreleased
+==========
+
+- RCP3PD and RCP6 to RCP26 and RCP60 for consistency and MAGICC7 compatibility
+
 1.1.0
-===================
+=====
 
 - add reading of `MAGICC_EXECUTABLE` environment variable to simplify setting
   path of MAGICC package for testing and CI (thanks @lewisjared)
