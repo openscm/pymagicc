@@ -25,7 +25,7 @@ __version__ = get_versions()["version"]
 del get_versions
 from .compat import get_param
 from .paths import _get_magicc_paths
-from .run import ModelRun
+from .run import Package
 
 _magiccpath, _magiccbinary = _get_magicc_paths()
 
@@ -293,37 +293,42 @@ def run(scenario, output_dir=None,
         ``return_config`` is set to True
     """
 
-    model_run = ModelRun(output_dir)
+    model_run = Package(output_dir)
+    try:
+        model_run.initialise()
 
-    # Write out the `Scenario` as a .SCEN-file.
-    write_scen_file(scenario, os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
+        # Write out the `Scenario` as a .SCEN-file.
+        write_scen_file(scenario, os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
 
-    all_cfgs = {}
-    years = {
-        "startyear": 1765,
-        "endyear": 2100,
-        "stepsperyear": 12
-    }
+        all_cfgs = {}
+        years = {
+            "startyear": 1765,
+            "endyear": 2100,
+            "stepsperyear": 12
+        }
 
-    for k, v in kwargs.items():
-        if k in years.keys():
-            years[k] = v
+        for k, v in kwargs.items():
+            if k in years.keys():
+                years[k] = v
+            else:
+                all_cfgs[k] = v
+
+        all_cfgs[get_param('emission_scenario_key')] = "SCENARIO.SCEN"
+        all_cfgs["rundate"] = _get_date_time_string()
+
+        # Write simple config file.
+        outpath = os.path.join(model_run.run_dir, "MAGTUNE_SIMPLE.CFG")
+        f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
+        # Write years config.
+        outpath_years = os.path.join(model_run.run_dir, "MAGCFG_NMLYEARS.CFG")
+        f90nml.write({"nml_years": years}, outpath_years, force=True)
+
+        results = model_run.run()
+
+        if return_config:
+            return results, model_run.config
         else:
-            all_cfgs[k] = v
-
-    all_cfgs[get_param('emission_scenario_key')] = "SCENARIO.SCEN"
-    all_cfgs["rundate"] = _get_date_time_string()
-
-    # Write simple config file.
-    outpath = os.path.join(model_run.run_dir, "MAGTUNE_SIMPLE.CFG")
-    f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
-    # Write years config.
-    outpath_years = os.path.join(model_run.run_dir, "MAGCFG_NMLYEARS.CFG")
-    f90nml.write({"nml_years": years}, outpath_years, force=True)
-
-    results = model_run.run()
-
-    if return_config:
-        return results, model_run.config
-    else:
-        return results
+            return results
+    finally:
+        # This is always called (even after a return statement)
+        model_run.clean()
