@@ -6,16 +6,16 @@ import f90nml
 import pytest
 from pymagicc.compat import get_param
 
-from pymagicc.run import Package
+from pymagicc.run import MAGICC
 
 
 @pytest.fixture(scope="module")
 def package():
-    p = Package()
-    p.initialise()
+    p = MAGICC()
+    p.init()
     yield p
     # Perform cleanup after tests are complete
-    p.clean()
+    p.close()
     assert not exists(p.root_dir)
 
 
@@ -35,7 +35,7 @@ def write_config(p):
 
 
 def test_not_initalise():
-    p = Package()
+    p = MAGICC()
     assert exists(p.root_dir)
     assert not exists(p.run_dir)
 
