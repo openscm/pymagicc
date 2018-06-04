@@ -99,6 +99,10 @@ To run the tests run
 
     ./venv/bin/pytest tests --verbose
 
+To skip tests which run MAGICC and take longer use
+
+    ./venv/bin/pytest tests --skip-slow
+
 To get a test coverage report, run
 
     ./venv/bin/pytest --cov
