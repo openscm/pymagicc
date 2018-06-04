@@ -86,17 +86,28 @@ class ConfigStore(object):
     find the item return None
     This list is in decending order of priority
     """
-    config_lookups = [
-        lookup_env,
-        lookup_file(user_config_file()),
-        lookup_defaults
-    ]
+
+    def __init__(self):
+        self.overrides = {}
+
+        self.config_lookups = [
+            lookup_env,
+            lookup_file(user_config_file()),
+            lookup_defaults
+        ]
 
     def __getitem__(self, item):
+        item = item.upper()
+        if item in self.overrides:
+            return self.overrides[item]
+
         for lookup in self.config_lookups:
             c = lookup(item)
             if c is not None:
                 return c
+
+    def __setitem__(self, key, value):
+        self.overrides[key.upper()] = value
 
 
 config = ConfigStore()

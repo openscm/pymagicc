@@ -2,8 +2,8 @@ from os import environ
 
 import pytest
 from mock import patch
-from pymagicc.config import config, default_config, lookup_defaults, \
-    lookup_env, lookup_file
+from pymagicc.config import config, ConfigStore, default_config, \
+    lookup_defaults, lookup_env, lookup_file
 
 
 @pytest.fixture(scope="function")
@@ -91,3 +91,11 @@ def test_precendence(mock_config, env_var):
 
     env_var('MAGICC_EXECUTABLE', '/foo/bar/magicc')
     assert config['EXECUTABLE'] == '/foo/bar/magicc'
+
+
+def test_overrides():
+    c = ConfigStore()
+    assert c['EXECUTABLE'] == default_config['EXECUTABLE']
+
+    c['executable'] = 'testing'
+    assert c['EXECUTABLE'] == 'testing'
