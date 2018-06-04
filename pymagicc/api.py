@@ -1,18 +1,16 @@
-import platform
 import shutil
 import subprocess
 from distutils import dir_util
 from os import listdir, makedirs
-from os.path import join, exists
+from os.path import basename, dirname, exists, join
 from tempfile import mkdtemp
 
 import f90nml
 import pandas as pd
 
-from .compat import get_param
-from .paths import _magiccbinary, _magiccpath
+from .config import config
 
-_WINDOWS = platform.system() == "Windows"
+IS_WINDOWS = config['windows']
 
 
 class MAGICC(object):
@@ -32,6 +30,9 @@ class MAGICC(object):
     Alternatively, an existing MAGICC directory structure can be used by
     setting `root_dir`.
     """
+
+    version = 6
+    executable = config['executable']
 
     def __init__(self, root_dir=None):
         self.root_dir = root_dir
@@ -68,6 +69,14 @@ class MAGICC(object):
         self.set_years()
         self.set_config()
 
+    @classmethod
+    def binary_name(cls):
+        return basename(cls.executable)
+
+    @classmethod
+    def original_dir(cls):
+        return dirname(cls.executable)
+
     @property
     def run_dir(self):
         return join(self.root_dir, 'run')
@@ -83,13 +92,13 @@ class MAGICC(object):
         :param only: If not None, only extract variables in this list
         :return: Dict containing DataFrames for each of the extracted variables
         """
-        command = [join(self.run_dir, _magiccbinary)]
+        command = [join(self.run_dir, self.binary_name())]
 
-        if not _WINDOWS and _magiccbinary.endswith(".exe"):  # pragma: no cover
+        if not IS_WINDOWS and self.binary_name().endswith(".exe"):  # pragma: no cover
             command.insert(0, 'wine')
 
         # On Windows shell=True is required.
-        subprocess.check_call(command, cwd=self.run_dir, shell=_WINDOWS)
+        subprocess.check_call(command, cwd=self.run_dir, shell=IS_WINDOWS)
 
         results = {}
 
@@ -102,7 +111,7 @@ class MAGICC(object):
                 results[name] = pd.read_csv(
                     join(self.out_dir, filename),
                     delim_whitespace=True,
-                    skiprows=get_param('num_output_headers'),
+                    skiprows=19 if self.version == 6 else 21,
                     index_col=0,
                     engine="python"
                 )
@@ -163,3 +172,12 @@ class MAGICC(object):
         return self.set_config('MAGCFG_NMLYEARS.CFG', 'nml_years',
                                endyear=endyear, startyear=startyear,
                                stepsperyear=12)
+
+
+class MAGICC6(MAGICC):
+    pass
+
+
+class MAGICC7(MAGICC):
+    version = 7
+    executable = config['executable_7']

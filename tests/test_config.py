@@ -2,7 +2,8 @@ from os import environ
 
 import pytest
 from mock import patch
-from pymagicc.config import config, lookup_defaults, lookup_env, lookup_file
+from pymagicc.config import config, default_config, lookup_defaults, \
+    lookup_env, lookup_file
 
 
 @pytest.fixture(scope="function")
@@ -25,8 +26,8 @@ def env_var():
 
 
 def test_lookup_default():
-    assert lookup_defaults('EXECUTABLE') == 'MAGICC6/magicc6.exe'
-    assert lookup_defaults('execUTable') == 'MAGICC6/magicc6.exe'
+    assert lookup_defaults('EXECUTABLE') == default_config['EXECUTABLE']
+    assert lookup_defaults('execUTable') == default_config['EXECUTABLE']
     assert lookup_defaults('SOMETHING') is None
 
 
@@ -70,7 +71,7 @@ def test_lookup_file_missing(mock_exists):
 
 
 def test_simple_config():
-    assert config['EXECUTABLE'] == 'MAGICC6/magicc6.exe'
+    assert config['EXECUTABLE'] == default_config['EXECUTABLE']
 
 
 @patch('pymagicc.config.parse_config_file')
@@ -79,7 +80,7 @@ def test_precendence(mock_config, env_var):
     mock_config.return_value = None
     config.config_lookups[1] = lookup_file('/foo/test.yml')
 
-    assert config['EXECUTABLE'] == 'MAGICC6/magicc6.exe'
+    assert config['EXECUTABLE'] == default_config['EXECUTABLE']
 
     # replace the default lookup with a mocked one
     mock_config.return_value = {

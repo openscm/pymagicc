@@ -5,20 +5,23 @@ The order of preference is:
 Environment variable > User configuration file > Defaults
 """
 
-import sys
+import platform
 from os import environ
-from os.path import exists, expanduser, join
+from os.path import abspath, dirname, exists, expanduser, join
 
 import yaml
 
 __all__ = ['config']
 
+_is_windows = platform.system() == "Windows"
 # Default configuration parameters for pymagicc
 default_config = {
-    'EXECUTABLE': 'MAGICC6/magicc6.exe'
+    'EXECUTABLE': join(dirname(abspath(__file__)),
+                       "MAGICC6/run/magicc6.exe"
+                       ),
+    'WINDOWS': _is_windows
 }
 
-_is_windows = sys.platform == 'win32'
 _xdg_home = environ.get('XDG_CONFIG_HOME', expanduser('~/.config/'))
 
 
