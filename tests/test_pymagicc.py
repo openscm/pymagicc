@@ -1,8 +1,7 @@
 import os
 
 import pandas as pd
-
-
+import pytest
 from pymagicc import (
     _magiccpath,
     _get_magicc_paths,
@@ -17,11 +16,10 @@ from pymagicc import (
     run
 )
 
-
 rcp26_scen_file = os.path.join(_magiccpath, "RCP26.SCEN")
 rcp85_scen_file = os.path.join(_magiccpath, "RCP85.SCEN")
 world_only = read_scen_file(os.path.join(os.path.dirname(__file__),
-                            "./test_data/WORLD_ONLY.SCEN"))
+                                         "./test_data/WORLD_ONLY.SCEN"))
 
 
 def test_count():
@@ -40,7 +38,7 @@ def test_read_scen_file():
 
 def test_read_world_only_scenario():
     world_only = read_scen_file(os.path.join(os.path.dirname(__file__),
-                                "./test_data/WORLD_ONLY.SCEN"))
+                                             "./test_data/WORLD_ONLY.SCEN"))
     assert isinstance(world_only, pd.DataFrame)
     assert len(world_only) == 5
 
@@ -66,6 +64,7 @@ def test_write_scen_file_world_only(tmpdir):
     assert world_only.equals(output)
 
 
+@pytest.mark.slow
 def test_run_rcp26():
     results = run(rcp26)
     surface_temp = pd.read_csv(
@@ -80,6 +79,7 @@ def test_run_rcp26():
     assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
+@pytest.mark.slow
 def test_run_rcp45():
     results = run(rcp45)
     surface_temp = pd.read_csv(
@@ -94,6 +94,7 @@ def test_run_rcp45():
     assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
+@pytest.mark.slow
 def test_run_rcp60():
     results = run(rcp60)
     surface_temp = pd.read_csv(
@@ -108,6 +109,7 @@ def test_run_rcp60():
     assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
+@pytest.mark.slow
 def test_run_rcp85():
     results = run(rcp85)
     surface_temp = pd.read_csv(
@@ -122,6 +124,7 @@ def test_run_rcp85():
     assert surface_temp.GLOBAL.equals(results["SURFACE_TEMP"].GLOBAL)
 
 
+@pytest.mark.slow
 def test_parameters():
     _, params = run(rcp26,
                     return_config=True,
@@ -131,17 +134,19 @@ def test_parameters():
     assert 'H\nFC134a' not in params['allcfgs']["fgas_names"]
 
 
+@pytest.mark.slow
 def test_default_config():
     _, conf = run(rcp26, return_config=True)
     assert conf["allcfgs"]["core_climatesensitivity"] == 3
     assert conf["years"]["startyear"] == 1765
 
 
+@pytest.mark.slow
 def test_set_years():
     results, conf = run(rcp26,
-        return_config=True,
-        startyear=1900,
-        endyear=2000)
+                        return_config=True,
+                        startyear=1900,
+                        endyear=2000)
     assert conf["years"]["startyear"] == 1900
     assert conf["years"]["endyear"] == 2000
     assert results["SURFACE_TEMP"].GLOBAL.index[0] == 1900
