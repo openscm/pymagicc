@@ -13,7 +13,7 @@ before_install:
 install:
   - pip install -e .
 script:
-  - flake8 pymagicc
+  - flake8 --exit-zero
   - pytest --cov
 after_success:
   - codecov
