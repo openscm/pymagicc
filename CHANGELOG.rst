@@ -2,6 +2,7 @@ Unreleased
 ==========
 
 - RCP3PD and RCP6 to RCP26 and RCP60 for consistency and MAGICC7 compatibility
+- add `--skip-slow` option to tests
 
 1.1.0
 =====
