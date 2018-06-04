@@ -7,3 +7,4 @@ wheel
 ipywidgets
 appmode
 pydoc-markdown
+mock
