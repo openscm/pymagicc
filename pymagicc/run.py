@@ -47,7 +47,8 @@ class MAGICC(object):
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
     def __enter__(self):
-        self.init()
+        if not self.is_initialised():
+            self.init()
         return self
 
     def __exit__(self, *args, **kwargs):
@@ -64,6 +65,12 @@ class MAGICC(object):
         dir_util.copy_tree(_magiccpath, self.run_dir)
         if not exists(self.out_dir):
             makedirs(self.out_dir)
+
+    def is_initialised(self):
+        """
+        Checks to see if the run directory has been previously initialised
+        """
+        return exists(self.run_dir) and exists(self.out_dir)
 
     @property
     def run_dir(self):
