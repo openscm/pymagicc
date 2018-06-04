@@ -1,9 +1,8 @@
 from os import environ
 
 import pytest
-from mock import patch
 from pymagicc.config import config, ConfigStore, default_config, \
-    lookup_defaults, lookup_env, lookup_file
+    lookup_defaults, lookup_env
 
 
 @pytest.fixture(scope="function")
@@ -44,53 +43,19 @@ def test_lookup_env(env_var):
     assert lookup_env('SOMETHING') is None
 
 
-@patch('pymagicc.config.parse_config_file')
-def test_lookup_file(mock_config):
-    mock_config.return_value = {
-        'EXECUTABLE': '/foo/bar/magicc'
-    }
-    looker = lookup_file('/foo/test.yml')
-
-    assert looker('EXECUTABLE') == '/foo/bar/magicc'
-    assert looker('executable') == '/foo/bar/magicc'
-
-    # Check the the file was only loaded once no matter how many function calls
-    mock_config.assert_called_once()
-    mock_config.assert_called_with('/foo/test.yml')
-
-
-@patch('pymagicc.config.exists')
-def test_lookup_file_missing(mock_exists):
-    mock_exists.return_value = False
-
-    looker = lookup_file('/foo/test.yml')
-
-    assert looker('EXECUTABLE') is None
-
-    mock_exists.assert_called_with('/foo/test.yml')
-
-
 def test_simple_config():
     assert config['EXECUTABLE'] == default_config['EXECUTABLE']
 
 
-@patch('pymagicc.config.parse_config_file')
-def test_precendence(mock_config, env_var):
-    # replace the default lookup with a mocked one
-    mock_config.return_value = None
-    config.config_lookups[1] = lookup_file('/foo/test.yml')
-
-    assert config['EXECUTABLE'] == default_config['EXECUTABLE']
-
-    # replace the default lookup with a mocked one
-    mock_config.return_value = {
-        'EXECUTABLE': '/foo/file/magicc'
-    }
-    config.config_lookups[1] = lookup_file('/foo/test.yml')
-    assert config['EXECUTABLE'] == '/foo/file/magicc'
+def test_precendence(env_var):
+    c = ConfigStore()
+    assert c['EXECUTABLE'] == default_config['EXECUTABLE']
 
     env_var('MAGICC_EXECUTABLE', '/foo/bar/magicc')
-    assert config['EXECUTABLE'] == '/foo/bar/magicc'
+    assert c['EXECUTABLE'] == '/foo/bar/magicc'
+
+    c['executable'] = 'testing'
+    assert c['EXECUTABLE'] == 'testing'
 
 
 def test_overrides():
