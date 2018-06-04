@@ -46,6 +46,13 @@ class MAGICC(object):
             self.is_temp = True
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
+    def __enter__(self):
+        self.init()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.close()
+
     def init(self):
         """
         Initialise the directory structure and copy in MAGICC configuration

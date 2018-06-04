@@ -5,7 +5,6 @@ from subprocess import CalledProcessError
 import f90nml
 import pytest
 from pymagicc.compat import get_param
-
 from pymagicc.run import MAGICC
 
 
@@ -74,3 +73,15 @@ def test_run_only(package):
 
     assert len(results.keys()) == 1
     assert 'SURFACE_TEMP' in results
+
+
+def test_with():
+    with MAGICC() as p:
+        write_config(p)
+        p.run()
+
+        # keep track of run dir
+        run_dir = p.run_dir
+
+    # Check that run dir was automatically cleaned up
+    assert not exists(run_dir)
