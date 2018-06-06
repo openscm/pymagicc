@@ -86,29 +86,3 @@ def test_with():
 
     # Check that run dir was automatically cleaned up
     assert not exists(run_dir)
-
-
-@patch.object(MAGICC, 'is_initialised')
-def test_with_init_once(mock_is_initialised):
-    with patch.object(MAGICC, 'create_copy') as mock_init:
-        # Check that init not called if is_initialised is true
-        mock_is_initialised.return_value = True
-        with MAGICC():
-            pass
-        mock_init.assert_not_called()
-
-        mock_is_initialised.return_value = False
-        with MAGICC():
-            pass
-        mock_init.assert_called_once()
-
-
-def test_is_initalised():
-    p = MAGICC()
-    assert not p.is_initialised()
-    p.create_copy()
-    assert p.is_initialised()
-
-    # test a duplicated object
-    p2 = MAGICC(p.root_dir)
-    assert p2.is_initialised()
