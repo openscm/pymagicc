@@ -15,7 +15,7 @@ def package():
     p.create_copy()
     yield p
     # Perform cleanup after tests are complete
-    p.close()
+    p.remove_temp_copy()
     assert not exists(p.root_dir)
 
 
