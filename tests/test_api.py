@@ -6,7 +6,7 @@ import f90nml
 import pytest
 from mock import patch
 from pymagicc.compat import get_param
-from pymagicc.run import MAGICC
+from pymagicc.api import MAGICC
 
 
 @pytest.fixture(scope="module")
