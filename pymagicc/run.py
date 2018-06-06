@@ -17,20 +17,20 @@ _WINDOWS = platform.system() == "Windows"
 
 class MAGICC(object):
     """
-    A working copy of the MAGICC binary and configuration.
+    Provides access to the MAGICC binary and configuration.
 
-    To enable multiple MAGICC 'Packages' to be configured independently,
-    the MAGICC run directory containing the input files, configuration
+    To enable multiple MAGICC 'packages' to be configured independently,
+    the MAGICC directory containing the input files, configuration
     and binary is copied to a new folder. The configuration in this
-    MAGICC can then be edited without impacting other instances of MAGICC.
+    MAGICC copy can then be edited without impacting other instances.
 
-    A `MAGICC` first has to be initialised by calling `init` to perform
-    this copy. If many model runs are being performed this step only has
+    A `MAGICC` instance first has to be setup by calling
+    `create_copy`. If many model runs are being performed this step only has
     to be performed once. `run` can be called many times with the
-    configuration files being updated between each call. Many independent
-    instances of MAGICC with the same `root_dir` can be created/destroyed
-    as long as `init` is only called once or any changes to the
-    MAGICC will be lost.
+    configuration files being updated between each call.
+
+    Alternatively, an existing MAGICC directory structure can be used by
+    setting `root_dir`.
     """
 
     def __init__(self, root_dir=None):
@@ -47,7 +47,7 @@ class MAGICC(object):
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
     def __enter__(self):
-        if not self.is_initialised():
+        if self.is_temp and not exists(self.run_dir):
             self.create_copy()
         return self
 
@@ -56,15 +56,16 @@ class MAGICC(object):
 
     def create_copy(self):
         """
-        Initialise the directory structure and copy in MAGICC configuration
-        and binary.
-
-        This overwrites any configuration changes in the run directory.
+        Initialises a temporary directory structure and copy of MAGICC
+        configuration files and binary.
         """
-        # Copy the MAGICC run directory into the appropriate location
-        dir_util.copy_tree(_magiccpath, self.run_dir)
-        if not exists(self.out_dir):
-            makedirs(self.out_dir)
+        if not exists(self.run_dir):
+            # Copy the MAGICC run directory into the appropriate location
+            dir_util.copy_tree(_magiccpath, self.run_dir)
+            if not exists(self.out_dir):
+                makedirs(self.out_dir)
+        else:
+            raise FileExistsError("A copy of MAGICC has already been created.")
 
     def is_initialised(self):
         """
