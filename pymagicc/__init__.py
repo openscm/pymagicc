@@ -269,18 +269,12 @@ def write_scen_file(scenario,
         return scenfile_content
 
 
-def run(scenario, output_dir=None,
-        return_config=False,
-        **kwargs
-        ):
+def run(scenario, return_config=False, **kwargs):
     """
     Return output data and (optionally) used parameters from a MAGICC run.
 
     Parameters
     ----------
-    output_dir:
-        Path for MAGICC data and binary, if None a temp file which will be
-        deleted automatically.
     return_config:
         Additionaly return the full list of parameters used. default False
     kwargs:
@@ -295,7 +289,7 @@ def run(scenario, output_dir=None,
         ``return_config`` is set to True
     """
 
-    model_run = MAGICC(output_dir)
+    model_run = MAGICC()
     try:
         model_run.create_copy()
 

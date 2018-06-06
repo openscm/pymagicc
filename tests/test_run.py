@@ -95,3 +95,14 @@ def test_create_copy_only_once():
         m.create_copy()
         # Don't overwrite it, this should raise an exception.
         m.create_copy()
+
+
+def test_root_dir(tmpdir):
+    m = MAGICC(root_dir=tmpdir)
+    assert m.is_temp == False
+    # Check if directory given as `root_dir` is not deleted.
+    m.remove_temp_copy()  # Does nothing because not a temp copy.
+    assert exists(tmpdir)
+    # Check running with context manager
+    with MAGICC(root_dir=tmpdir) as magicc:
+        assert magicc
