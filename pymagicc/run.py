@@ -39,8 +39,6 @@ class MAGICC(object):
 
         if root_dir is not None:
             self.is_temp = False
-            if not exists(root_dir):
-                makedirs(root_dir)
         else:
             # Create a temp directory
             self.is_temp = True
@@ -52,26 +50,20 @@ class MAGICC(object):
         return self
 
     def __exit__(self, *args, **kwargs):
-        self.remove_temp_copy()
+        if self.is_temp:
+            self.remove_temp_copy()
 
     def create_copy(self):
         """
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
         """
-        if not exists(self.run_dir):
-            # Copy the MAGICC run directory into the appropriate location
-            dir_util.copy_tree(_magiccpath, self.run_dir)
-            if not exists(self.out_dir):
-                makedirs(self.out_dir)
-        else:
+        if exists(self.run_dir):
             raise FileExistsError("A copy of MAGICC has already been created.")
-
-    def is_initialised(self):
-        """
-        Checks to see if the run directory has been previously initialised
-        """
-        return exists(self.run_dir) and exists(self.out_dir)
+        elif not exists(self.root_dir):
+            makedirs(self.root_dir)
+        # Copy the MAGICC run directory into the appropriate location
+        dir_util.copy_tree(join(_magiccpath, ".."), self.root_dir)
 
     @property
     def run_dir(self):
@@ -90,7 +82,7 @@ class MAGICC(object):
         """
         command = [join(self.run_dir, _magiccbinary)]
 
-        if not _WINDOWS and _magiccbinary.endswith(".exe"):
+        if not _WINDOWS and _magiccbinary.endswith(".exe"):  # pragma: no cover
             command.insert(0, 'wine')
 
         # On Windows shell=True is required.

@@ -64,12 +64,13 @@ setup(
     packages=['pymagicc'],
     package_data={'pymagicc': [
         'MAGICC6/*.txt',
-        'MAGICC6/MAGICC6_4Download/*.CFG',
-        'MAGICC6/MAGICC6_4Download/*.exe',
-        'MAGICC6/MAGICC6_4Download/*.IN',
-        'MAGICC6/MAGICC6_4Download/*.MON',
-        'MAGICC6/MAGICC6_4Download/*.prn',
-        'MAGICC6/MAGICC6_4Download/*.SCEN'
+        'MAGICC6/out/.gitkeep',
+        'MAGICC6/run/*.CFG',
+        'MAGICC6/run/*.exe',
+        'MAGICC6/run/*.IN',
+        'MAGICC6/run/*.MON',
+        'MAGICC6/run/*.prn',
+        'MAGICC6/run/*.SCEN'
     ]},
     include_package_data=True,
     install_requires=['pandas', 'f90nml'],
