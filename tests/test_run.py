@@ -86,3 +86,12 @@ def test_with():
 
     # Check that run dir was automatically cleaned up
     assert not exists(run_dir)
+
+
+def test_create_copy_only_once():
+    with pytest.raises(FileExistsError):
+        m = MAGICC()
+        # Create copy.
+        m.create_copy()
+        # Don't overwrite it, this should raise an exception.
+        m.create_copy()
