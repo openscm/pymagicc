@@ -12,7 +12,7 @@
 
 from .compat import get_param
 from .paths import _get_magicc_paths
-from .run import MAGICC
+from .api import MAGICC
 
 import datetime
 import linecache
