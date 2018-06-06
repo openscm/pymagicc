@@ -289,13 +289,13 @@ def run(scenario, return_config=False, **kwargs):
         ``return_config`` is set to True
     """
 
-    model_run = MAGICC()
+    magicc = MAGICC()
     try:
-        model_run.create_copy()
+        magicc.create_copy()
 
         # Write out the `Scenario` as a .SCEN-file.
         write_scen_file(scenario,
-                        os.path.join(model_run.run_dir, "SCENARIO.SCEN"))
+                        os.path.join(magicc.run_dir, "SCENARIO.SCEN"))
 
         all_cfgs = {}
         years = {
@@ -314,18 +314,18 @@ def run(scenario, return_config=False, **kwargs):
         all_cfgs["rundate"] = _get_date_time_string()
 
         # Write simple config file.
-        outpath = os.path.join(model_run.run_dir, "MAGTUNE_SIMPLE.CFG")
+        outpath = os.path.join(magicc.run_dir, "MAGTUNE_SIMPLE.CFG")
         f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
         # Write years config.
-        outpath_years = os.path.join(model_run.run_dir, "MAGCFG_NMLYEARS.CFG")
+        outpath_years = os.path.join(magicc.run_dir, "MAGCFG_NMLYEARS.CFG")
         f90nml.write({"nml_years": years}, outpath_years, force=True)
 
-        results = model_run.run()
+        results = magicc.run()
 
         if return_config:
-            return results, model_run.config
+            return results, magicc.config
         else:
             return results
     finally:
         # This is always called (even after a return statement)
-        model_run.remove_temp_copy()
+        magicc.remove_temp_copy()
