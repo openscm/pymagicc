@@ -60,7 +60,7 @@ class MAGICC(object):
         """
         if exists(self.run_dir):
             raise Exception("A copy of MAGICC has already been created.")
-        elif not exists(self.root_dir):
+        if not exists(self.root_dir):
             makedirs(self.root_dir)
         # Copy the MAGICC run directory into the appropriate location
         dir_util.copy_tree(join(_magiccpath, ".."), self.root_dir)

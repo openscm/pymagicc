@@ -289,9 +289,7 @@ def run(scenario, return_config=False, **kwargs):
         ``return_config`` is set to True
     """
 
-    magicc = MAGICC()
-    try:
-        magicc.create_copy()
+    with MAGICC() as magicc:
 
         # Write out the `Scenario` as a .SCEN-file.
         write_scen_file(scenario,
@@ -326,6 +324,3 @@ def run(scenario, return_config=False, **kwargs):
             return results, magicc.config
         else:
             return results
-    finally:
-        # This is always called (even after a return statement)
-        magicc.remove_temp_copy()
