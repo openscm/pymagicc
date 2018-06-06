@@ -59,7 +59,7 @@ class MAGICC(object):
         configuration files and binary.
         """
         if exists(self.run_dir):
-            raise FileExistsError("A copy of MAGICC has already been created.")
+            raise Exception("A copy of MAGICC has already been created.")
         elif not exists(self.root_dir):
             makedirs(self.root_dir)
         # Copy the MAGICC run directory into the appropriate location
