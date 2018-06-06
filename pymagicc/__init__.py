@@ -334,4 +334,4 @@ def run(scenario, output_dir=None,
             return results
     finally:
         # This is always called (even after a return statement)
-        model_run.close()
+        model_run.remove_temp_copy()

@@ -52,7 +52,7 @@ class MAGICC(object):
         return self
 
     def __exit__(self, *args, **kwargs):
-        self.close()
+        self.remove_temp_copy()
 
     def create_copy(self):
         """
@@ -127,12 +127,9 @@ class MAGICC(object):
 
         return results
 
-    def close(self):
+    def remove_temp_copy(self):
         """
-        Cleans up the package's root directory.
-
-        If no root_dir was provided, than the temporary MAGICC directory
-        is deleted.
+        Removes a temporary copy of the MAGICC version shipped with Pymagicc.
         """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
