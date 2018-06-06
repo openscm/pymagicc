@@ -48,13 +48,13 @@ class MAGICC(object):
 
     def __enter__(self):
         if not self.is_initialised():
-            self.init()
+            self.create_copy()
         return self
 
     def __exit__(self, *args, **kwargs):
         self.close()
 
-    def init(self):
+    def create_copy(self):
         """
         Initialise the directory structure and copy in MAGICC configuration
         and binary.

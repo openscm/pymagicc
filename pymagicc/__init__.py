@@ -297,7 +297,7 @@ def run(scenario, output_dir=None,
 
     model_run = MAGICC(output_dir)
     try:
-        model_run.init()
+        model_run.create_copy()
 
         # Write out the `Scenario` as a .SCEN-file.
         write_scen_file(scenario,

@@ -12,7 +12,7 @@ from pymagicc.run import MAGICC
 @pytest.fixture(scope="module")
 def package():
     p = MAGICC()
-    p.init()
+    p.create_copy()
     yield p
     # Perform cleanup after tests are complete
     p.close()
@@ -90,7 +90,7 @@ def test_with():
 
 @patch.object(MAGICC, 'is_initialised')
 def test_with_init_once(mock_is_initialised):
-    with patch.object(MAGICC, 'init') as mock_init:
+    with patch.object(MAGICC, 'create_copy') as mock_init:
         # Check that init not called if is_initialised is true
         mock_is_initialised.return_value = True
         with MAGICC():
@@ -106,7 +106,7 @@ def test_with_init_once(mock_is_initialised):
 def test_is_initalised():
     p = MAGICC()
     assert not p.is_initialised()
-    p.init()
+    p.create_copy()
     assert p.is_initialised()
 
     # test a duplicated object
