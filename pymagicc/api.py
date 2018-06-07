@@ -50,8 +50,7 @@ class MAGICC(object):
         return self
 
     def __exit__(self, *args, **kwargs):
-        if self.is_temp:
-            self.remove_temp_copy()
+        self.remove_temp_copy()
 
     def create_copy(self):
         """
