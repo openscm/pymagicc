@@ -295,28 +295,16 @@ def run(scenario, return_config=False, **kwargs):
         write_scen_file(scenario,
                         os.path.join(magicc.run_dir, "SCENARIO.SCEN"))
 
-        all_cfgs = {}
-        years = {
-            "startyear": 1765,
-            "endyear": 2100,
-            "stepsperyear": 12
-        }
+        year_cfg = {}
+        if 'startyear' in kwargs:
+            year_cfg['startyear'] = kwargs.pop('startyear')
+        if 'endyear' in kwargs:
+            year_cfg['endyear'] = kwargs.pop('endyear')
+            magicc.set_years(**year_cfg)
 
-        for k, v in kwargs.items():
-            if k in years.keys():
-                years[k] = v
-            else:
-                all_cfgs[k] = v
-
-        all_cfgs[get_param('emission_scenario_key')] = "SCENARIO.SCEN"
-        all_cfgs["rundate"] = _get_date_time_string()
-
-        # Write simple config file.
-        outpath = os.path.join(magicc.run_dir, "MAGTUNE_SIMPLE.CFG")
-        f90nml.write({"nml_allcfgs": all_cfgs}, outpath, force=True)
-        # Write years config.
-        outpath_years = os.path.join(magicc.run_dir, "MAGCFG_NMLYEARS.CFG")
-        f90nml.write({"nml_years": years}, outpath_years, force=True)
+        kwargs.setdefault(get_param('emission_scenario_key'), "SCENARIO.SCEN")
+        kwargs.setdefault("rundate", _get_date_time_string())
+        magicc.set_config(**kwargs)
 
         results = magicc.run()
 
