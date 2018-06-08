@@ -113,9 +113,9 @@ To get a test coverage report, run
 ### Use an included scenario
 
 ```python
-from pymagicc import rcp3pd
+from pymagicc import rcp26
 
-rcp3pd["WORLD"].head()
+rcp26["WORLD"].head()
 ```
 
 ### Read a MAGICC scenario file
