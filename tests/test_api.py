@@ -4,7 +4,6 @@ from subprocess import CalledProcessError
 
 import f90nml
 import pytest
-from mock import patch
 from pymagicc.compat import get_param
 from pymagicc.api import MAGICC
 
@@ -99,10 +98,39 @@ def test_create_copy_only_once():
 
 def test_root_dir(tmpdir):
     m = MAGICC(root_dir=tmpdir)
-    assert m.is_temp == False
+    assert m.is_temp is False
     # Check if directory given as `root_dir` is not deleted.
     m.remove_temp_copy()  # Does nothing because not a temp copy.
     assert exists(str(tmpdir))
     # Check running with context manager
     with MAGICC(root_dir=tmpdir) as magicc:
         assert magicc
+
+
+def test_write_namelist(package):
+    res = package.set_config('MAGTUNE_TEST.cfg', test_parameter=True)
+
+    assert res == {'nml_allcfgs': {'test_parameter': True}}
+    assert exists(join(package.run_dir, 'MAGTUNE_TEST.cfg'))
+
+    res = package.set_config('MAGTUNE_TEST.cfg', 'nml', test_parameter=True)
+    assert res == {'nml': {'test_parameter': True}}
+
+
+def test_years(package):
+    res = package.set_years()
+
+    assert res == {'nml_years': {'startyear': 1765, 'endyear': 2100,
+                                 'stepsperyear': 12}}
+    assert exists(join(package.run_dir, 'MAGCFG_NMLYEARS.CFG'))
+
+    res = package.set_years(startyear=2000, endyear=2050)
+    assert res == {'nml_years': {'startyear': 2000, 'endyear': 2050,
+                                 'stepsperyear': 12}}
+
+
+@pytest.mark.slow
+def test_simple_run():
+    with MAGICC() as magicc:
+        results = magicc.run()
+    assert results is not None

@@ -64,6 +64,10 @@ class MAGICC(object):
         # Copy the MAGICC run directory into the appropriate location
         dir_util.copy_tree(join(_magiccpath, ".."), self.root_dir)
 
+        # Create basic configuration files so magicc can run
+        self.set_years()
+        self.set_config()
+
     @property
     def run_dir(self):
         return join(self.root_dir, 'run')
@@ -125,3 +129,37 @@ class MAGICC(object):
         """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
+
+    def set_config(self, filename='MAGTUNE_SIMPLE.CFG',
+                   top_level_key='nml_allcfgs', **kwargs):
+        """
+        Create a configuration file for MAGICC
+
+        Writes a fortran namelist in run_dir.
+        :param filename:
+        :param top_level_key:
+        :param kwargs: Other parameters to pass to the configuration file. No
+            validation on the parameters is performed.
+        :return: A dict containing the contents of the namelist which was
+            written to file
+        """
+        fname = join(self.run_dir, filename)
+        data = {
+            top_level_key: kwargs
+        }
+        f90nml.write(data, fname, force=True)
+
+        return data
+
+    def set_years(self, startyear=1765, endyear=2100):
+        """
+        Set the start and end dates of the simulations
+
+        :param startyear: Start year of the simulation
+        :param endyear: End year of the simulation
+        :return: The contents of the namelist
+        """
+        # stepsperyear is required and should never be overridden
+        return self.set_config('MAGCFG_NMLYEARS.CFG', 'nml_years',
+                               endyear=endyear, startyear=startyear,
+                               stepsperyear=12)
