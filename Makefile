@@ -50,4 +50,7 @@ test-pypi-install: venv
 	$(TEMPVENV)/bin/pip install pymagicc
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
-.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install
+flake8: venv
+	./venv/bin/flake8 pymagicc
+
+.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8
