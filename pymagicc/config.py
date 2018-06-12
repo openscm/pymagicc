@@ -17,7 +17,7 @@ default_config = {
     'EXECUTABLE': join(dirname(abspath(__file__)),
                        "MAGICC6/run/magicc6.exe"
                        ),
-    'WINDOWS': _is_windows
+    'IS_WINDOWS': _is_windows
 }
 
 

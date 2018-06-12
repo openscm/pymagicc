@@ -10,7 +10,7 @@ import pandas as pd
 
 from .config import config
 
-IS_WINDOWS = config['windows']
+IS_WINDOWS = config['is_windows']
 
 
 class MAGICC(object):
@@ -31,12 +31,12 @@ class MAGICC(object):
     setting `root_dir`.
     """
 
-    version = 6
-    executable = config['executable']
+    version = None
 
     def __init__(self, root_dir=None):
         self.root_dir = root_dir
         self.config = {}
+        self.executable = self.get_executable()
 
         if root_dir is not None:
             self.is_temp = False
@@ -63,19 +63,19 @@ class MAGICC(object):
         if not exists(self.root_dir):
             makedirs(self.root_dir)
         # Copy the MAGICC run directory into the appropriate location
-        dir_util.copy_tree(join(_magiccpath, ".."), self.root_dir)
+        dir_util.copy_tree(join(self.original_dir, ".."), self.root_dir)
 
         # Create basic configuration files so magicc can run
         self.set_years()
         self.set_config()
 
-    @classmethod
-    def binary_name(cls):
-        return basename(cls.executable)
+    @property
+    def binary_name(self):
+        return basename(self.executable)
 
-    @classmethod
-    def original_dir(cls):
-        return dirname(cls.executable)
+    @property
+    def original_dir(self):
+        return dirname(self.executable)
 
     @property
     def run_dir(self):
@@ -92,9 +92,10 @@ class MAGICC(object):
         :param only: If not None, only extract variables in this list
         :return: Dict containing DataFrames for each of the extracted variables
         """
-        command = [join(self.run_dir, self.binary_name())]
+        command = [join(self.run_dir, self.binary_name)]
 
-        if not IS_WINDOWS and self.binary_name().endswith(".exe"):  # pragma: no cover
+        if not IS_WINDOWS \
+                and self.binary_name.endswith(".exe"):  # pragma: no cover
             command.insert(0, 'wine')
 
         # On Windows shell=True is required.
@@ -175,9 +176,14 @@ class MAGICC(object):
 
 
 class MAGICC6(MAGICC):
-    pass
+    version = 6
+
+    def get_executable(cls):
+        return config['executable']
 
 
 class MAGICC7(MAGICC):
     version = 7
-    executable = config['executable_7']
+
+    def get_executable(cls):
+        return config['executable_7']

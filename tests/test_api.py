@@ -4,7 +4,7 @@ from subprocess import CalledProcessError
 
 import f90nml
 import pytest
-from pymagicc.api import MAGICC6, MAGICC7
+from pymagicc.api import MAGICC6, MAGICC7, config
 
 
 @pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
@@ -12,12 +12,12 @@ def package(request):
     MAGICC_cls = request.param
     p = MAGICC_cls()
 
-    if not p.is_original_valid():
+    if p.executable is None or not exists(p.original_dir):
         pytest.skip('MAGICC {} is not available'.format(p.version))
-    p.init()
+    p.create_copy()
     yield p
     # Perform cleanup after tests are complete
-    p.close()
+    p.remove_temp_copy()
     assert not exists(p.root_dir)
 
 
@@ -78,3 +78,12 @@ def test_run_only(package):
 
     assert len(results.keys()) == 1
     assert 'SURFACE_TEMP' in results
+
+
+def test_override_config():
+    config['EXECUTABLE'] = '/tmp/magicc'
+    magicc = MAGICC6()
+
+    # Stop this override impacting other tests
+    del config.overrides['EXECUTABLE']
+    assert magicc.executable == '/tmp/magicc'
