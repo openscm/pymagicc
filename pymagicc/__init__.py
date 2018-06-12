@@ -10,41 +10,35 @@
 
 # -*- coding: utf-8 -*-
 
-from .compat import get_param
-from .paths import _get_magicc_paths
-from .api import MAGICC
-
 import datetime
 import linecache
 import logging
 import os
-import platform
 import subprocess
 
 import f90nml
 import pandas as pd
 
 from ._version import get_versions
+from .config import config as _config
+from .api import MAGICC6, MAGICC7  # noqa
+
 __version__ = get_versions()["version"]
 del get_versions
 
-_magiccpath, _magiccbinary = _get_magicc_paths()
+# default parameters and cannot be changed after module load
+_magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
-_WINDOWS = platform.system() == "Windows"
-
-
-if not _WINDOWS:
+if not _config['is_windows']:
     wine_installed = subprocess.call("type wine", shell=True,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE) == 0
     if not wine_installed:
         logging.warning("Wine is not installed")
 
-
 _config_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
 default_config = f90nml.read(_config_path)
-
 
 # MAGICC's scenario files encode the used regions as follows.
 region_codes = {
@@ -115,7 +109,6 @@ def read_scen_file(scen_file):
     output = {}
 
     for idx, region in enumerate(regions):
-
         skip = num_datapoints * idx + 5 * idx
         skiprows = list(range(7 + skip)) + [8 + skip]
 
@@ -289,7 +282,7 @@ def run(scenario, return_config=False, **kwargs):
         ``return_config`` is set to True
     """
 
-    with MAGICC() as magicc:
+    with MAGICC6() as magicc:
 
         # Write out the `Scenario` as a .SCEN-file.
         write_scen_file(scenario,
@@ -301,8 +294,7 @@ def run(scenario, return_config=False, **kwargs):
         if 'endyear' in kwargs:
             year_cfg['endyear'] = kwargs.pop('endyear')
             magicc.set_years(**year_cfg)
-
-        kwargs.setdefault(get_param('emission_scenario_key'), "SCENARIO.SCEN")
+        kwargs.setdefault("file_emissionscenario", "SCENARIO.SCEN")
         kwargs.setdefault("rundate", _get_date_time_string())
         magicc.set_config(**kwargs)
 

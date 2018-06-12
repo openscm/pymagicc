@@ -4,13 +4,16 @@ from subprocess import CalledProcessError
 
 import f90nml
 import pytest
-from pymagicc.compat import get_param
-from pymagicc.api import MAGICC
+from pymagicc.api import MAGICC6, MAGICC7, config
 
 
-@pytest.fixture(scope="module")
-def package():
-    p = MAGICC()
+@pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
+def package(request):
+    MAGICC_cls = request.param
+    p = MAGICC_cls()
+
+    if p.executable is None or not exists(p.original_dir):
+        pytest.skip('MAGICC {} is not available'.format(p.version))
     p.create_copy()
     yield p
     # Perform cleanup after tests are complete
@@ -19,9 +22,11 @@ def package():
 
 
 def write_config(p):
+    emis_key = "file_emissionscenario" if p.version == 6 \
+        else "FILE_EMISSCEN"
     outpath = join(p.run_dir, "MAGTUNE_SIMPLE.CFG")
     f90nml.write({"nml_allcfgs": {
-        get_param('emission_scenario_key'): 'RCP26.SCEN'
+        emis_key: 'RCP26.SCEN'
     }}, outpath, force=True)
 
     # Write years config.
@@ -34,7 +39,7 @@ def write_config(p):
 
 
 def test_not_initalise():
-    p = MAGICC()
+    p = MAGICC6()
     assert exists(p.root_dir)
     assert not exists(p.run_dir)
 
@@ -75,62 +80,10 @@ def test_run_only(package):
     assert 'SURFACE_TEMP' in results
 
 
-def test_with():
-    with MAGICC() as p:
-        write_config(p)
-        p.run()
+def test_override_config():
+    config['EXECUTABLE'] = '/tmp/magicc'
+    magicc = MAGICC6()
 
-        # keep track of run dir
-        run_dir = p.run_dir
-
-    # Check that run dir was automatically cleaned up
-    assert not exists(run_dir)
-
-
-def test_create_copy_only_once():
-    with pytest.raises(Exception):
-        m = MAGICC()
-        # Create copy.
-        m.create_copy()
-        # Don't overwrite it, this should raise an exception.
-        m.create_copy()
-
-
-def test_root_dir(tmpdir):
-    m = MAGICC(root_dir=tmpdir)
-    assert m.is_temp is False
-    # Check if directory given as `root_dir` is not deleted.
-    m.remove_temp_copy()  # Does nothing because not a temp copy.
-    assert exists(str(tmpdir))
-    # Check running with context manager
-    with MAGICC(root_dir=tmpdir) as magicc:
-        assert magicc
-
-
-def test_write_namelist(package):
-    res = package.set_config('MAGTUNE_TEST.cfg', test_parameter=True)
-
-    assert res == {'nml_allcfgs': {'test_parameter': True}}
-    assert exists(join(package.run_dir, 'MAGTUNE_TEST.cfg'))
-
-    res = package.set_config('MAGTUNE_TEST.cfg', 'nml', test_parameter=True)
-    assert res == {'nml': {'test_parameter': True}}
-
-
-def test_years(package):
-    res = package.set_years()
-
-    assert res == {'nml_years': {'startyear': 1765, 'endyear': 2100,
-                                 'stepsperyear': 12}}
-    assert exists(join(package.run_dir, 'MAGCFG_NMLYEARS.CFG'))
-
-    res = package.set_years(startyear=2000, endyear=2050)
-    assert res == {'nml_years': {'startyear': 2000, 'endyear': 2050,
-                                 'stepsperyear': 12}}
-
-
-@pytest.mark.slow
-def test_simple_run():
-    with MAGICC() as magicc:
-        results = magicc.run()
-    assert results is not None
+    # Stop this override impacting other tests
+    del config.overrides['EXECUTABLE']
+    assert magicc.executable == '/tmp/magicc'
