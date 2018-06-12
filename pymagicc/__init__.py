@@ -29,9 +29,7 @@ del get_versions
 # default parameters and cannot be changed after module load
 _magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
-_WINDOWS = _config['is_windows']
-
-if not _WINDOWS:
+if not _config['is_windows']:
     wine_installed = subprocess.call("type wine", shell=True,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.PIPE) == 0
@@ -296,9 +294,7 @@ def run(scenario, return_config=False, **kwargs):
         if 'endyear' in kwargs:
             year_cfg['endyear'] = kwargs.pop('endyear')
             magicc.set_years(**year_cfg)
-        emis_key = "file_emissionscenario" if magicc.version == 6 \
-            else "FILE_EMISSCEN"
-        kwargs.setdefault(emis_key, "SCENARIO.SCEN")
+        kwargs.setdefault("file_emissionscenario", "SCENARIO.SCEN")
         kwargs.setdefault("rundate", _get_date_time_string())
         magicc.set_config(**kwargs)
 
