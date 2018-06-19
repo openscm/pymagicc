@@ -13,8 +13,8 @@ class InputReader(object):
     def read(self):
         nml_end, nml_start = self._find_nml()
 
-        notes = "".join(self.lines[:nml_start])
         metadata = self.process_metadata(self.lines[nml_start:nml_end + 1])
+        metadata['header'] = "".join(self.lines[:nml_start])
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
@@ -25,7 +25,7 @@ class InputReader(object):
 
         df, units = self.process_data(stream, metadata)
         metadata['units'] = units
-        return metadata, df, notes
+        return metadata, df
 
     def _find_nml(self):
         """
@@ -174,7 +174,6 @@ class MAGICCInput(object):
          file, i.e. 'HISTRCP_CO2I_EMIS.IN'
         """
         self.df = None
-        self.notes = ""
         self.metadata = {}
         self.name = file_name
 
@@ -202,7 +201,6 @@ class MAGICCInput(object):
     def is_loaded(self):
         return self.df is not None
 
-
     def read(self, directory, file_name=None):
         """
         Read the Input file from disk
@@ -217,10 +215,10 @@ class MAGICCInput(object):
         assert self.name is not None
         fname = join(directory, self.name)
         if not exists(fname):
-            raise Exception('Cannot find {}'.format(fname))
+            raise ValueError('Cannot find {}'.format(fname))
 
         reader = get_reader(fname)
-        self.metadata, self.df, self.notes = reader.read()
+        self.metadata, self.df = reader.read()
 
     def write(self, fname):
         # TODO: Implement writing to disk

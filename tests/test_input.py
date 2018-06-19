@@ -1,7 +1,8 @@
 from os.path import dirname, join
 
-import pkg_resources
 import pandas as pd
+import pkg_resources
+import pytest
 
 from pymagicc.api import MAGICC6
 from pymagicc.input import MAGICCInput
@@ -18,7 +19,7 @@ def test_load_magicc6_emis():
 
     assert mdata.metadata['units']['CO2I'] == 'GtC'
     assert mdata.metadata['dattype'] == 'REGIONDATA'
-    assert isinstance(mdata.notes, str)
+    assert isinstance(mdata.metadata['header'], str)
     assert isinstance(mdata.df, pd.DataFrame)
     assert mdata.df['CO2I']['R5ASIA'][2000] == 1.76820270e+000
 
@@ -55,6 +56,7 @@ def test_direct_access():
 
     assert (mdata['CO2I']['R5LAM'] == mdata.df['CO2I']['R5LAM']).all()
 
+
 def test_lazy_load():
     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
     # I don't know where the file is yet..
@@ -63,6 +65,7 @@ def test_lazy_load():
         mdata.read(magicc.run_dir)
         assert mdata.df is not None
 
+
 def test_proxy():
     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
     mdata.read(MAGICC6_DIR)
@@ -70,3 +73,23 @@ def test_proxy():
     # Get an attribute from the pandas DataFrame
     plot = mdata.plot
     assert plot.__module__ == 'pandas.plotting._core'
+
+
+def test_early_call():
+    mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
+
+    with pytest.raises(ValueError):
+        mdata['CO2I']['R5LAM']
+
+    with pytest.raises(ValueError):
+        mdata.plot()
+
+def test_no_name():
+    mdata = MAGICCInput()
+    with pytest.raises(AssertionError):
+        mdata.read('/tmp')
+
+def test_invalid_name():
+    mdata = MAGICCInput()
+    with pytest.raises(ValueError):
+        mdata.read('/tmp', 'MYNONEXISTANT.IN')
