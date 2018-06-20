@@ -3,11 +3,12 @@ from os.path import basename, exists, join
 import f90nml
 import pandas as pd
 from six import StringIO
+from pymagicc import MAGICC6
 
 
 class InputReader(object):
-    def __init__(self, fname, lines):
-        self.fname = fname
+    def __init__(self, filename, lines):
+        self.filename = filename
         self.lines = lines
 
     def read(self):
@@ -41,11 +42,11 @@ class InputReader(object):
             if self.lines[i].strip().startswith('/'):
                 nml_end = i
         assert nml_start is not None and nml_end is not None, \
-            'Could not find namelist within {}'.format(self.fname)
+            'Could not find namelist within {}'.format(self.filename)
         return nml_end, nml_start
 
     def process_metadata(self, lines):
-        # TODO: replace with f90nml.reads when released
+        # TODO: replace with f90nml.reads when released (>1.0.2)
         parser = f90nml.Parser()
         nml = parser._readstream(lines, {})
         metadata = {
@@ -70,7 +71,7 @@ class InputReader(object):
 
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
-        gas = basename(self.fname).split('_')[1]
+        gas = basename(self.filename).split('_')[1]
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -91,13 +92,16 @@ class MAGICC6Reader(InputReader):
 
 
 class MAGICC7Reader(InputReader):
+    def _read_line(self, stream, expected_header):
+        tokens = stream.readline().split()
+        assert tokens[0] == expected_header
+        return tokens[1:]
+
     def process_data(self, stream, metadata):
-        gases = stream.readline().split()
-        assert gases[0] == 'GAS'
-        gases = gases[1:]
-        stream.readline()  # Unused line
-        units = stream.readline().split()[1:]
-        regions = stream.readline().split()[1:]
+        gases = self._read_line(stream, 'GAS')
+        self._read_line(stream, 'TODO')
+        units = self._read_line(stream, 'UNITS')
+        regions = self._read_line(stream, 'YEARS')  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
         index = pd.MultiIndex.from_arrays([gases, regions], names=['GAS', 'REGION'])
         df = pd.read_csv(
             stream,
@@ -119,7 +123,7 @@ class MAGICC7Reader(InputReader):
                 result[v] = u
             else:
                 # this isn't expected to happen, but should check anyway
-                raise ValueError('Different units for {} in {}'.format(v, self.fname))
+                raise ValueError('Different units for {} in {}'.format(v, self.filename))
 
         return result
 
@@ -151,7 +155,7 @@ class MAGICCInput(object):
     MAGICCInput can read input files from both MAGICC6 and MAGICC7. These
     include files with extensions .IN and .SCEN7.
 
-    The MAGICCInput, once the target input file has been loaded it can be
+    The MAGICCInput, once the target input file has been loaded, can be
      treated as a pandas DataFrame. All the methods available to a DataFrame
      can be called on the MAGICCInput.
 
@@ -162,20 +166,20 @@ class MAGICCInput(object):
     >>>     mdata.plot()
     """
 
-    def __init__(self, file_name=None):
+    def __init__(self, filename=None):
         """
-        Initialise a Input file object.
+        Initialise an Input file object.
 
         Optionally you can specify the filename of the target file. The file is
         not read until the search directory is provided in `read`. This allows
         for MAGICCInput files to be lazy-loaded once the appropriate MAGICC run
         directory is known.
-        :param file_name: Optional file name, including extension for the target
+        :param filename: Optional file name, including extension for the target
          file, i.e. 'HISTRCP_CO2I_EMIS.IN'
         """
         self.df = None
         self.metadata = {}
-        self.name = file_name
+        self.name = filename
 
     def __getitem__(self, item):
         """
@@ -201,25 +205,28 @@ class MAGICCInput(object):
     def is_loaded(self):
         return self.df is not None
 
-    def read(self, directory, file_name=None):
+    def read(self, filepath=None, filename=None):
         """
         Read the Input file from disk
 
-        :param directory: The directory to file the file from. This is often the
-            run directory for a magicc instance.
-        :param file_name: The filename to read. Overrides the filename provided
+        :param filepath: The directory to file the file from. This is often the
+            run directory for a magicc instance. If None is passed,
+            the run directory for the bundled version of MAGICC6 is used.
+        :param filename: The filename to read. Overrides the filename provided
          in the constructor.
         """
-        if file_name is not None:
-            self.name = file_name
+        if filepath is None:
+            filepath = MAGICC6().original_dir
+        if filename is not None:
+            self.name = filename
         assert self.name is not None
-        fname = join(directory, self.name)
-        if not exists(fname):
-            raise ValueError('Cannot find {}'.format(fname))
+        filename = join(filepath, self.name)
+        if not exists(filename):
+            raise ValueError('Cannot find {}'.format(filename))
 
-        reader = get_reader(fname)
+        reader = get_reader(filename)
         self.metadata, self.df = reader.read()
 
-    def write(self, fname):
+    def write(self, filename):
         # TODO: Implement writing to disk
         raise NotImplementedError()
