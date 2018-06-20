@@ -93,3 +93,7 @@ def test_invalid_name():
     mdata = MAGICCInput()
     with pytest.raises(ValueError):
         mdata.read('/tmp', 'MYNONEXISTANT.IN')
+
+def test_default_path():
+    mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
+    mdata.read()
