@@ -1,4 +1,4 @@
-from os.path import basename, exists, join
+from os.path import basename, exists, join, splitext
 
 import f90nml
 import pandas as pd
@@ -38,8 +38,8 @@ class InputReader(object):
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
-        df, units = self.process_data(stream, metadata)
-        metadata['units'] = units
+        df, metadata = self.process_data(stream, metadata)
+
         return metadata, df
 
     def _find_nml(self):
@@ -89,6 +89,7 @@ class InputReader(object):
         """
         raise NotImplementedError()
 
+
     def process_header(self, header):
         """
         Parse the header for additional metadata
@@ -106,41 +107,52 @@ class InputReader(object):
                     metadata[tag] = l[len(tag_text) + 1:].strip()
         return metadata
 
-
-class MAGICC6Reader(InputReader):
-    def process_data(self, stream, metadata):
-        gas = basename(self.filename).split('_')[1]
-        df = pd.read_csv(
-            stream,
-            skip_blank_lines=True,
-            delim_whitespace=True,
-            index_col=0,
-            engine="python")
-        # Convert columns to a MultiIndex
-        df.columns = [
-            [gas] * len(df.columns),
-            df.columns
-        ]
-        df.index.name = 'YEAR'
-
-        units = {
-            gas: metadata['units']
-        }
-        return df, units
-
-
-class MAGICC7Reader(InputReader):
-    def _read_line(self, stream, expected_header):
+    def _read_data_header_line(self, stream, expected_header):
         tokens = stream.readline().split()
         assert tokens[0] == expected_header
         return tokens[1:]
 
+
+class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
-        gases = self._read_line(stream, 'GAS')
-        self._read_line(stream, 'TODO')
+        # regions line starts with 'COLCODE' instead of 'REGIONS'
+        regions = self._read_data_header_line(stream, 'COLCODE')
+        df = pd.read_csv(
+            stream,
+            skip_blank_lines=True,
+            delim_whitespace=True,
+            engine="python")
+
+        df.rename(columns={'COLCODE': 'YEAR'}, inplace=True)
+
+        df = pd.melt(df, id_vars='YEAR', var_name='REGION', )
+
+        df['UNITS'] = metadata['units']
+        metadata.pop('units')
+
+        df['TODO'] = 'SET'
+
+        filename_only = splitext(basename(self.filename))[0]
+        df['VARIABLE'] = '_'.join(filename_only.split('_')[1:])
+
+        df.set_index(
+            ['VARIABLE', 'TODO', 'REGION', 'YEAR', 'UNITS'],
+            inplace=True
+        )
+
+        return df, metadata
+
+
+class MAGICC7Reader(InputReader):
+    def process_data(self, stream, metadata):
+        variables = self._read_line(stream, 'GAS')
+        todo = self._read_line(stream, 'TODO')
         units = self._read_line(stream, 'UNITS')
         regions = self._read_line(stream, 'YEARS')  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
-        index = pd.MultiIndex.from_arrays([gases, regions], names=['GAS', 'REGION'])
+        index = pd.MultiIndex.from_arrays(
+            [variables, todo, regions, units],
+            names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
+        )
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -150,8 +162,9 @@ class MAGICC7Reader(InputReader):
             index_col=0)
         df.index.name = 'YEAR'
         df.columns = index
+        df = df.T.stack()
 
-        return df, self._extract_units(gases, units)
+        return df, metadata
 
     def _extract_units(self, gases, units):
         combos = set(zip(gases, units))

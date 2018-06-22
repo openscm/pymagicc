@@ -10,6 +10,8 @@ from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
 
+# TODO:
+# - write tests for SCEN and SCEN7 files
 
 def test_load_magicc6_emis():
     mdata = MAGICCInput()
@@ -17,46 +19,49 @@ def test_load_magicc6_emis():
     mdata.read(MAGICC6_DIR, 'HISTRCP_CO2I_EMIS.IN')
     assert mdata.is_loaded == True
 
-    assert mdata.metadata['units']['CO2I'] == 'GtC'
+    with pytest.raises(KeyError):
+        mdata.metadata['units']
     assert mdata.metadata['dattype'] == 'REGIONDATA'
     assert isinstance(mdata.metadata['header'], str)
     assert isinstance(mdata.df, pd.DataFrame)
-    assert mdata.df['CO2I']['R5ASIA'][2000] == 1.76820270e+000
+    assert mdata.df.index.names == ['VARIABLE', 'TODO', 'REGION', 'YEAR', 'UNITS']
+    assert mdata.df['value']['SET', 'CO2I_EMIS', 'R5ASIA', 2000, 'GtC'] == 1.76820270e+000
 
 
 def test_load_magicc6_conc():
     mdata = MAGICCInput()
     mdata.read(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')
 
-    assert mdata.metadata['units']['CO2'] == 'ppm'
+    assert (mdata.df.index.get_level_values('UNITS') == 'ppm').all()
+    assert mdata.df['SET', 'CO2_CONC', 'GLOBAL', 1048, 'ppm'] == 2.80435733e+002
 
 
 def test_load_magicc7_emis():
     mdata = MAGICCInput()
     mdata.read(MAGICC7_DIR, 'HISTSSP_CO2I_EMIS.IN')
 
-    assert mdata.metadata['units']['CO2I'] == 'GtC'
     assert mdata.metadata['contact'] == 'Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org'
-    assert mdata.df['CO2I']['R6ASIA'][2000] == 1.6911
-
+    assert (mdata.df.index.get_level_values('UNITS') == 'GtC').all()
+    assert mdata.df['CO2I', 'SET', 'R6REF', 'GtC', 2013] == 0.6638
+    assert mdata.df['CO2I', 'SET', 'R6ASIA', 'GtC', 2000] == 1.6911
 
 
 def test_load_prename():
     mdata = MAGICCInput('HISTSSP_CO2I_EMIS.IN')
     mdata.read(MAGICC7_DIR)
 
-    assert mdata.metadata['units']['CO2I'] == 'GtC'
+    assert (mdata.df.index.get_level_values('UNITS') == 'GtC').all()
 
     mdata.read(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')
-    assert mdata.metadata['units']['CO2'] == 'ppm'
-    assert 'CO2I' not in mdata.metadata['units']
+    assert (mdata.df.index.get_level_values('UNITS') == 'ppm').all()
+    assert not (mdata.df.index.get_level_values('UNITS') == 'GtC').any()
 
 
 def test_direct_access():
     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
     mdata.read(MAGICC6_DIR)
 
-    assert (mdata['CO2I']['R5LAM'] == mdata.df['CO2I']['R5LAM']).all()
+    assert (mdata['CO2I', 'R5LAM'] == mdata.df['CO2I', 'SET', 'R5LAM', 'GtC']).all()
 
 
 def test_lazy_load():
