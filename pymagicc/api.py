@@ -43,10 +43,9 @@ class MAGICC(object):
         else:
             # Create a temp directory
             self.is_temp = True
-            self.root_dir = mkdtemp(prefix="pymagicc-")
 
     def __enter__(self):
-        if self.is_temp and not exists(self.run_dir):
+        if self.is_temp and self.run_dir is None:
             self.create_copy()
         return self
 
@@ -58,6 +57,10 @@ class MAGICC(object):
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
         """
+        if self.is_temp:
+            assert self.root_dir is None, "A temp copy for this instance has already been created"
+            self.root_dir = mkdtemp(prefix="pymagicc-")
+
         if exists(self.run_dir):
             raise Exception("A copy of MAGICC has already been created.")
         if not exists(self.root_dir):
@@ -79,10 +82,14 @@ class MAGICC(object):
 
     @property
     def run_dir(self):
+        if self.root_dir is None:
+            return None
         return join(self.root_dir, 'run')
 
     @property
     def out_dir(self):
+        if self.root_dir is None:
+            return None
         return join(self.root_dir, 'out')
 
     def run(self, only=None):
@@ -139,6 +146,7 @@ class MAGICC(object):
         """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
+            self.root_dir = None
 
     def set_config(self, filename='MAGTUNE_SIMPLE.CFG',
                    top_level_key='nml_allcfgs', **kwargs):
