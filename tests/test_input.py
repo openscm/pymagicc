@@ -5,7 +5,7 @@ import pkg_resources
 import pytest
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput
+from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader
 
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -36,7 +36,9 @@ def test_load_magicc7_emis():
     mdata.read(MAGICC7_DIR, 'HISTSSP_CO2I_EMIS.IN')
 
     assert mdata.metadata['units']['CO2I'] == 'GtC'
+    assert mdata.metadata['contact'] == 'Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org'
     assert mdata.df['CO2I']['R6ASIA'][2000] == 1.6911
+
 
 
 def test_load_prename():
@@ -97,3 +99,16 @@ def test_invalid_name():
 def test_default_path():
     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
     mdata.read()
+
+def test_header_metadata():
+    m6 = MAGICC6Reader('test', [])
+    assert m6.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
+    assert m6.process_header('') == {}
+    assert m6.process_header('Data: Average emissions per year') == {}
+
+    m7 = MAGICC7Reader('test', [])
+    assert m7.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
+    assert m7.process_header('') == {}
+    assert m7.process_header('Data: Average emissions per year\nother text') == {'data': 'Average emissions per year'}
+    assert m7.process_header('           Data: Average emissions per year    ') == {'data': 'Average emissions per year'}
+    assert m7.process_header('Compiled by: Zebedee Nicholls, Australian-German Climate & Energy College') == {'compiled by': 'Zebedee Nicholls, Australian-German Climate & Energy College'}

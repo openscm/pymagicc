@@ -16,6 +16,8 @@ class InputReader(object):
 
         metadata = self.process_metadata(self.lines[nml_start:nml_end + 1])
         metadata['header'] = "".join(self.lines[:nml_start])
+        header_metadata = self.process_header(metadata['header'])
+        metadata.update(header_metadata)
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
@@ -68,6 +70,16 @@ class InputReader(object):
         """
         raise NotImplementedError()
 
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata
+
+        The metadata is only present in MAGICC7 input files.
+        :param header: A string containing all the lines in the header
+        :return: A dict containing the addtional metadata in the header
+        """
+        return {}
+
 
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
@@ -92,10 +104,30 @@ class MAGICC6Reader(InputReader):
 
 
 class MAGICC7Reader(InputReader):
+    header_tags = [
+        'data',
+        'date',
+        'description',
+        'source',
+        'contact',
+        'compiled by'
+    ]
+
     def _read_line(self, stream, expected_header):
         tokens = stream.readline().split()
         assert tokens[0] == expected_header
         return tokens[1:]
+
+    def process_header(self, header):
+        metadata = {}
+        for l in header.split('\n'):
+            l = l.strip()
+            for tag in self.header_tags:
+                tag_text = '{}:'.format(tag.capitalize())
+                if l.startswith(tag_text):
+                    metadata[tag] = l[len(tag_text) + 1:].strip()
+        return metadata
+
 
     def process_data(self, stream, metadata):
         gases = self._read_line(stream, 'GAS')
