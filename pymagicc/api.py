@@ -1,8 +1,7 @@
 import shutil
 import subprocess
-from distutils import dir_util
 from os import listdir, makedirs
-from os.path import basename, dirname, exists, join
+from os.path import basename, dirname, exists, join, isfile
 from tempfile import mkdtemp
 
 import f90nml
@@ -11,6 +10,21 @@ import pandas as pd
 from .config import config
 
 IS_WINDOWS = config['is_windows']
+
+
+def _copy_files(source, target):
+    """
+    Copy all the files in source directory to target
+
+    Ignores subdirectories
+    """
+    source_files = listdir(source)
+    if not exists(target):
+        makedirs(target)
+    for filename in source_files:
+        full_filename = join(source, filename)
+        if isfile(full_filename):
+            shutil.copy(full_filename, target)
 
 
 class MAGICC(object):
@@ -62,8 +76,24 @@ class MAGICC(object):
             raise Exception("A copy of MAGICC has already been created.")
         if not exists(self.root_dir):
             makedirs(self.root_dir)
-        # Copy the MAGICC run directory into the appropriate location
-        dir_util.copy_tree(join(self.original_dir, ".."), self.root_dir)
+
+        # Copy a subset of folders from the MAGICC `original_dir`
+        # Also copy anything which is in the root of the MAGICC distribution
+        # Assumes that the MAGICC binary is in a folder one level below the root
+        # of the MAGICC distribution. I.e. /run/magicc.exe or /bin/magicc
+        dirs_to_copy = [
+            '.',
+            'bin',
+            'run'
+        ]
+        for d in dirs_to_copy:
+            source_dir = join(self.original_dir, '..', d)
+            if exists(source_dir):
+                _copy_files(source_dir, join(self.root_dir, d))
+
+        # Create an empty out dir
+        # MAGICC assumes that the 'out' directory already exists
+        makedirs(join(self.root_dir, 'out'))
 
         # Create basic configuration files so magicc can run
         self.set_years()
