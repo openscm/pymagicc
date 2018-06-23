@@ -104,7 +104,11 @@ def test_header_metadata():
     m6 = MAGICC6Reader('test', [])
     assert m6.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
     assert m6.process_header('') == {}
-    assert m6.process_header('Data: Average emissions per year') == {}
+    assert m6.process_header('Data: Average emissions per year') == {'data': 'Average emissions per year'}
+    assert m6.process_header('DATA:  Historical landuse BC (BCB) Emissions (HISTRCP_BCB_EMIS) ') == {'data': 'Historical landuse BC (BCB) Emissions (HISTRCP_BCB_EMIS)'}
+    assert m6.process_header('CONTACT:   RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov) ') == {'contact': 'RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov)'}
+    # assert warning on this one
+    # m6.process_header('DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009')
 
     m7 = MAGICC7Reader('test', [])
     assert m7.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
