@@ -2,7 +2,7 @@ all: venv
 
 test: venv
 	[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
-	source ./venv/bin/activate; pytest
+	./venv/bin/pytest tests
 
 venv: dev-requirements.txt
 	[ -d ./venv ] || python3 -m venv venv
