@@ -3,10 +3,22 @@ from os.path import basename, exists, join
 import f90nml
 import pandas as pd
 from six import StringIO
+
 from pymagicc import MAGICC6
 
 
 class InputReader(object):
+    header_tags = [
+        'compiled by',
+        'contact',
+        'data',
+        'date',
+        'description',
+        'gas',
+        'source',
+        'unit'
+    ]
+
     def __init__(self, filename, lines):
         self.filename = filename
         self.lines = lines
@@ -78,7 +90,14 @@ class InputReader(object):
         :param header: A string containing all the lines in the header
         :return: A dict containing the addtional metadata in the header
         """
-        return {}
+        metadata = {}
+        for l in header.split('\n'):
+            l = l.strip()
+            for tag in self.header_tags:
+                tag_text = '{}:'.format(tag)
+                if l.lower().startswith(tag_text):
+                    metadata[tag] = l[len(tag_text) + 1:].strip()
+        return metadata
 
 
 class MAGICC6Reader(InputReader):
@@ -104,30 +123,10 @@ class MAGICC6Reader(InputReader):
 
 
 class MAGICC7Reader(InputReader):
-    header_tags = [
-        'data',
-        'date',
-        'description',
-        'source',
-        'contact',
-        'compiled by'
-    ]
-
     def _read_line(self, stream, expected_header):
         tokens = stream.readline().split()
         assert tokens[0] == expected_header
         return tokens[1:]
-
-    def process_header(self, header):
-        metadata = {}
-        for l in header.split('\n'):
-            l = l.strip()
-            for tag in self.header_tags:
-                tag_text = '{}:'.format(tag.capitalize())
-                if l.startswith(tag_text):
-                    metadata[tag] = l[len(tag_text) + 1:].strip()
-        return metadata
-
 
     def process_data(self, stream, metadata):
         gases = self._read_line(stream, 'GAS')
