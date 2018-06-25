@@ -25,7 +25,7 @@ def test_load_magicc6_emis():
     assert isinstance(mdata.metadata['header'], str)
     assert isinstance(mdata.df, pd.DataFrame)
     assert mdata.df.index.names == ['VARIABLE', 'TODO', 'REGION', 'YEAR', 'UNITS']
-    assert mdata.df['value']['SET', 'CO2I_EMIS', 'R5ASIA', 2000, 'GtC'] == 1.76820270e+000
+    assert mdata.df['value']['CO2I_EMIS', 'SET', 'R5ASIA', 2000, 'GtC'] == 1.76820270e+000
 
 
 def test_load_magicc6_conc():
@@ -33,7 +33,7 @@ def test_load_magicc6_conc():
     mdata.read(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')
 
     assert (mdata.df.index.get_level_values('UNITS') == 'ppm').all()
-    assert mdata.df['SET', 'CO2_CONC', 'GLOBAL', 1048, 'ppm'] == 2.80435733e+002
+    assert mdata.df['value']['CO2_CONC', 'SET', 'GLOBAL', 1048, 'ppm'] == 2.80435733e+002
 
 
 def test_load_magicc7_emis():
@@ -44,7 +44,6 @@ def test_load_magicc7_emis():
     assert (mdata.df.index.get_level_values('UNITS') == 'GtC').all()
     assert mdata.df['CO2I', 'SET', 'R6REF', 'GtC', 2013] == 0.6638
     assert mdata.df['CO2I', 'SET', 'R6ASIA', 'GtC', 2000] == 1.6911
-
 
 def test_load_prename():
     mdata = MAGICCInput('HISTSSP_CO2I_EMIS.IN')
@@ -61,7 +60,8 @@ def test_direct_access():
     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
     mdata.read(MAGICC6_DIR)
 
-    assert (mdata['CO2I', 'R5LAM'] == mdata.df['CO2I', 'SET', 'R5LAM', 'GtC']).all()
+    assert (mdata['CO2I_EMIS', 'R5LAM', 1983] == mdata.df['value']['CO2I_EMIS', :, 'R5LAM', 1983, :]).all()
+    assert (mdata['CO2I_EMIS', 'R5LAM'] == mdata.df['value']['CO2I_EMIS', :, 'R5LAM', :, :]).all()
 
 
 def test_lazy_load():

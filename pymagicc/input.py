@@ -116,7 +116,7 @@ class InputReader(object):
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
         # regions line starts with 'COLCODE' instead of 'REGIONS'
-        regions = self._read_data_header_line(stream, 'COLCODE')
+        # regions = self._read_data_header_line(stream, 'COLCODE')
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -145,10 +145,10 @@ class MAGICC6Reader(InputReader):
 
 class MAGICC7Reader(InputReader):
     def process_data(self, stream, metadata):
-        variables = self._read_line(stream, 'GAS')
-        todo = self._read_line(stream, 'TODO')
-        units = self._read_line(stream, 'UNITS')
-        regions = self._read_line(stream, 'YEARS')  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
+        variables = self._read_data_header_line(stream, 'GAS')
+        todo = self._read_data_header_line(stream, 'TODO')
+        units = self._read_data_header_line(stream, 'UNITS')
+        regions = self._read_data_header_line(stream, 'YEARS')  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
         index = pd.MultiIndex.from_arrays(
             [variables, todo, regions, units],
             names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
@@ -249,7 +249,11 @@ class MAGICCInput(object):
         """
         if not self.is_loaded:
             raise ValueError('File has not been read from disk yet')
-        return self.df[item]
+        if len(item) == 2:
+            return self.df['value'][item[0], :, item[1], :, :]
+        elif len(item) == 3:
+            return self.df['value'][item[0], :, item[1], item[2], :]
+
 
     def __getattr__(self, item):
         """
