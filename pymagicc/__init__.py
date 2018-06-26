@@ -51,10 +51,10 @@ region_codes = {
 
 # Order of columns to use when writing scenario files.
 _columns = [
-    u'YEARS', u'FossilCO2', u'OtherCO2', u'CH4', u'N2O', u'SOx', u'CO',
-    u'NMVOC', u'NOx', u'BC', u'OC', u'NH3', u'CF4', u'C2F6', u'C6F14',
-    u'HFC23', u'HFC32', u'HFC43-10', u'HFC125', u'HFC134a', u'HFC143a',
-    u'HFC227ea', u'HFC245fa', u'SF6'
+    'YEARS', 'FossilCO2', 'OtherCO2', 'CH4', 'N2O', 'SOx', 'CO',
+    'NMVOC', 'NOx', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14',
+    'HFC23', 'HFC32', 'HFC43-10', 'HFC125', 'HFC134a', 'HFC143a',
+    'HFC227ea', 'HFC245fa', 'SF6'
 ]
 
 # Units to be used for each column.
