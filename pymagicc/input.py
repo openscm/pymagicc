@@ -2,7 +2,7 @@ from os.path import basename, exists, join
 
 import f90nml
 import pandas as pd
-from six import StringIO
+from io import StringIO
 from pymagicc import MAGICC6
 
 
