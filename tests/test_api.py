@@ -9,7 +9,7 @@ import pandas as pd
 import f90nml
 
 from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
-
+from .test_config import config_override #  noqa
 
 @pytest.fixture(scope="module")
 def magicc_base():
@@ -135,7 +135,7 @@ def test_incorrect_subdir():
     config["EXECUTABLE_6"] = "/tmp/magicc"
     magicc = MAGICC6()
     try:
-        with pytest.raises(AssertionError):
+        with pytest.raises(FileNotFoundError):
             magicc.create_copy()
     finally:
         del config.overrides["EXECUTABLE_6"]
@@ -369,3 +369,22 @@ def test_integration_diagnose_tcr_ecs(package):
         assert (
             actual_result["ecs"] == 2.9968448
         )  # MAGICC6 shipped with pymagicc should be stable
+
+
+def test_missing_config(config_override):
+    with MAGICC6():
+        pass
+    config_override("EXECUTABLE_6", "")
+    with pytest.raises(FileNotFoundError):
+        with MAGICC6():
+            pass
+
+    config_override("EXECUTABLE_6", "/invalid/path")
+    with pytest.raises(FileNotFoundError):
+        with MAGICC6():
+            pass
+
+    config_override("EXECUTABLE_7", "")
+    with pytest.raises(FileNotFoundError):
+        with MAGICC7():
+            pass
