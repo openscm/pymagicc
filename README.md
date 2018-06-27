@@ -182,71 +182,7 @@ python generate_plots.py
 
 ## API
 
-<h3 id="pymagicc">pymagicc</h3>
-
-
-<h4 id="pymagicc.read_scen_file">read_scen_file</h4>
-
-```python
-read_scen_file(scen_file)
-```
-
-Reads a MAGICC .SCEN file and returns a
-a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
-
-<h4 id="pymagicc.run">run</h4>
-
-```python
-run(scenario, output_dir=None, return_config=False, **kwargs)
-```
-
-Return output data and (optionally) used parameters from a MAGICC run.
-
-##### Parameters
-
-```
-output_dir:
-    Path for MAGICC data and binary, if None a temp file which will be
-    deleted automatically.
-return_config:
-    Additionaly return the full list of parameters used. default False
-kwargs:
-    Parameters overwriting default parameters.
-```
-
-##### Returns
-
-```
-output: dict
-    Dictionary with all data from MAGICC output files.
-parameters: dict
-    Parameters used in the MAGICC run. Only returned when
-    ``return_config`` is set to True
-```
-
-<h4 id="pymagicc.write_scen_file">write_scen_file</h4>
-
-```python
-write_scen_file(scenario, path_or_buf=None, description1=None, description2=None, comment=None)
-```
-
-Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
-
-##### Parameters
-
-```
-scenario: DataFrame or Dict of DataFrames
-    DataFrame (for scenarios with only the World region) or Dictionary with
-    regions.
-path_or_buf:
-    Pathname or file-like object to write the scenario to.
-description_1:
-    Optional description line.
-description_2:
-    Optional second description line.
-comment:
-    Optional comment at end of scenario file.
-```
+See the auto-generated [docs/api.md](API docs).
 
 ## Contributing
 
