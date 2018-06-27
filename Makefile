@@ -59,6 +59,6 @@ flake8: venv
 	./venv/bin/flake8 pymagicc
 
 docs/api.md: pymagicc/*.py
-	pydocmd simple pymagicc+ pymagicc.api+ pymagicc.input+ pymagicc.config > docs/api.md
+	pydocmd simple pymagicc+ pymagicc.api+ pymagicc.input++ pymagicc.config > docs/api.md
 
 .PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test

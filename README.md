@@ -6,7 +6,7 @@
 | [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.org/project/pymagicc/) | [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.org/project/pymagicc/) |
 | [![status](https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e/status.svg)](https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e) | [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.1111815.svg)](https://zenodo.org/record/1111815) |
 
-Pymagicc is a thin Python wrapper around the reduced complexity climate model
+Pymagicc is a Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
 [MAGICC6 binary](http://www.magicc.org/download6). Pymagicc itself is AGPL licensed.
 
@@ -18,8 +18,7 @@ Intergovernmental Panel on Climate Change or to model the physical aspects of cl
 Pymagicc makes the MAGICC model easily installable and usable from Python and allows for the easy modification of all MAGICC model parameters and emissions scenarios directly from Python.
 In climate research it can, for example, be used in the analysis of mitigation scenarios, in Integrated Assessment Models, complex climate model emulation, and uncertainty analyses, as well as in climate science education and communication.
 
-
-See [www.magicc.org](http://www.magicc.org/) for further information about the MAGICC model.
+See [www.magicc.org](http://www.magicc.org/), [Meinshausen et al. 2011](https://www.atmos-chem-phys.net/11/1417/2011/acp-11-1417-2011.html) and the MAGICC7 documentation (tbc) for further information.
 
 ## Basic Usage
 
@@ -81,19 +80,16 @@ editable version for local development:
 
     cd pymagicc
     make venv
-    ./venv/bin/pip install -e .
+    ./venv/bin/pip install --editable .
     ./venv/bin/jupyter-notebook notebooks/Example.ipynb
 
 
 ## Development
 
-For local development run
+For local development, install dependencies and an editable version of Pymagicc from a clone or download of the Pymagicc repository with
 
     make venv
     ./venv/bin/pip install --editable .
-
-inside of a clone or download of the Pymagicc repository
-to install dependencies and an editable version of Pymagicc.
 
 To run the tests run
 
@@ -197,7 +193,6 @@ You can also contact the `pymagicc` authors via email
 
 The [compiled MAGICC binary](http://www.magicc.org/download6) by Tom Wigley,
 Sarah Raper, and Malte Meinshausen included in this package is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
-
 
 The `pymagicc` wrapper is free software under the GNU Affero General Public
 License v3, see [LICENSE](./LICENSE).

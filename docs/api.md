@@ -16,21 +16,20 @@ a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
 write_scen_file(scenario, path_or_buf=None, description1=None, description2=None, comment=None)
 ```
 
-Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
+Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
-Parameters
-----------
-scenario: DataFrame or Dict of DataFrames
-    DataFrame (for scenarios with only the World region) or Dictionary with
-    regions.
-path_or_buf:
-    Pathname or file-like object to write the scenario to.
-description_1:
-    Optional description line.
-description_2:
-    Optional second description line.
-comment:
-    Optional comment at end of scenario file.
+__Parameters__
+
+- __scenario (DataFrame or Dict of DataFrames)__: If a single DataFrame is
+    supplied, the data is assumed to be for the WORLD region. If a Dict of
+    DataFrames is supplied then it is assumed that each DataFrame
+    containes data for one region. When using this option, be very careful
+    about the order your DataFrames are supplied in.
+- __path_or_buf (str or buffer)__: Pathname or file-like object to which to write
+    the scenario.
+- __description_1 (str)__: Optional description line.
+- __description_2 (str)__: Optional second description line.
+- __comment(str)__: Optional comment at end of scenario file.
 
 
 <h2 id="pymagicc.run">run</h2>
@@ -39,22 +38,20 @@ comment:
 run(scenario, return_config=False, **kwargs)
 ```
 
-Return output data and (optionally) used parameters from a MAGICC run.
+Run a MAGICC scenario and return output data and (optionally) config parameters
 
-Parameters
-----------
-return_config:
-    Additionaly return the full list of parameters used. default False
-kwargs:
+__Parameters__
+
+- __return_config (bool)__: If True, return the full list of parameters used. default False
+- __kwargs__:
     Parameters overwriting default parameters.
 
-Returns
--------
-output: dict
-    Dictionary with all data from MAGICC output files.
-parameters: dict
-    Parameters used in the MAGICC run. Only returned when
-    ``return_config`` is set to True
+__Returns__
+
+`output (dict)`: Dictionary with all data from the MAGICC output files in
+    DataFrames
+`parameters (dict)`: Parameters used in the MAGICC run. Only returned when
+    `return_config` is set to True
 
 <h1 id="pymagicc.api">pymagicc.api</h1>
 
@@ -67,18 +64,23 @@ MAGICCBase(self, root_dir=None)
 
 Provides access to the MAGICC binary and configuration.
 
-To enable multiple MAGICC 'packages' to be configured independently,
+To enable multiple MAGICC 'setups' to be configured independently,
 the MAGICC directory containing the input files, configuration
 and binary is copied to a new folder. The configuration in this
-MAGICC copy can then be edited without impacting other instances.
+MAGICC copy can then be edited without impacting other instances or your
+original MAGICC distribution.
 
 A `MAGICC` instance first has to be setup by calling
 `create_copy`. If many model runs are being performed this step only has
-to be performed once. `run` can be called many times with the
-configuration files being updated between each call.
+to be performed once. The `run` method can then be called many times
+without re-copying the files each time. Between each call to `run`, the
+confiugration files can be updated to perform runs with different
+configurations.
 
-Alternatively, an existing MAGICC directory structure can be used by
-setting `root_dir`.
+__Parameters__
+
+- __root_dir (str)__: If `root_dir` is supplied, an existing MAGICC 'setup' is
+    and `create_copy` cannot be used.
 
 <h1 id="pymagicc.input">pymagicc.input</h1>
 
@@ -89,20 +91,53 @@ setting `root_dir`.
 MAGICCInput(self, filename=None)
 ```
 
-An interface to read (and in future write) the input files used by MAGICC.
+*Warning: api likely to change*
 
-MAGICCInput can read input files from both MAGICC6 and MAGICC7. These
-include files with extensions .IN and .SCEN7.
+An interface to (in future) read and write the input files used by MAGICC.
+
+MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
+files in a common format with a common vocabulary to simplify the process
+of reading, writing and handling MAGICC data.
 
 The MAGICCInput, once the target input file has been loaded, can be
- treated as a pandas DataFrame. All the methods available to a DataFrame
- can be called on the MAGICCInput.
+treated as a pandas DataFrame. All the methods available to a DataFrame
+can be called on the MAGICCInput.
 
+```python
+with MAGICC6() as magicc:
+    mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
+    mdata.read(magicc.run_dir)
+    mdata.plot()
+```
 
->>> with MAGICC6() as magicc:
->>>     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
->>>     mdata.read(magicc.run_dir)
->>>     mdata.plot()
+__Parameters__
+
+- __filename (str)__: Name of the file to read
+
+<h3 id="pymagicc.input.MAGICCInput.read">read</h3>
+
+```python
+MAGICCInput.read(self, filepath=None, filename=None)
+```
+
+*Warning: still under construction*
+
+Read an input file from disk
+
+__Parameters__
+
+- __filepath (str)__: The directory to file the file from. This is often the
+    run directory for a magicc instance. If None is passed,
+    the run directory for the bundled version of MAGICC6 is used.
+- __filename (str)__: The filename to read. Overrides any existing values.
+
+<h3 id="pymagicc.input.MAGICCInput.write">write</h3>
+
+```python
+MAGICCInput.write(self, filename)
+```
+
+TODO: Implement writing to disk
 
 <h1 id="pymagicc.config">pymagicc.config</h1>
 
@@ -111,4 +146,6 @@ Module for collating configuration variables from various sources
 
 The order of preference is:
 Overrides > Environment variable > Defaults
+
+(To check with Jared) Overrides must be set directly in this file or in the config module before a run takes place.
 
