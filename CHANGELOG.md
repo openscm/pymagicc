@@ -2,12 +2,12 @@
 =====
 
 -   drop support for Python 2
--   rename RCP3PD and RCP6 to RCP26 and RCP60 for consistency and MAGICC7
+-   rename RCP3PD to RCP26 and RCP6 to RCP60 for consistency and MAGICC7
     compatibility
--   introduces new API functions for setting up and running MAGICC
--   introduces `config` module
+-   introduce new API functions for setting up and running MAGICC
+-   introduce `config` module
 -   remove `output_dir` from `run` function, this can be achieved using the new API
--   changes directory structure of the MAGICC version shipped with Pymagicc
+-   change directory structure of the MAGICC version shipped with Pymagicc
     to be more similar to MAGICC7's structure
 -   add \--skip-slow option to tests
 
