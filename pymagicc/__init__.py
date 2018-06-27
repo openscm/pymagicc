@@ -26,9 +26,6 @@ from .api import MAGICC6, MAGICC7  # noqa
 __version__ = get_versions()["version"]
 del get_versions
 
-# Default to using MAGICC6 for now
-MAGICC = MAGICC6
-
 # default parameters and cannot be changed after module load
 _magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
