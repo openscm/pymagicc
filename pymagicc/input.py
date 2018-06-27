@@ -31,7 +31,9 @@ class InputReader(object):
     def _find_nml(self):
         """
         Find the start and end of the embedded namelist
-        :return: start, end indexs for the namelist
+
+        # Returns
+        start, end (int): indexes for the namelist
         """
         nml_start = None
         nml_end = None
@@ -59,12 +61,17 @@ class InputReader(object):
     def process_data(self, stream, metadata):
         """
         Extract the tabulated data from a subset of the input file
-        :param stream: A Streamlike object (nominally StringIO) containing the
-            table to be extracted
-        :param metadata: Dictionary containing
-        :return: Tuple of a pd.DataFrame containing the data and a Dict
-            containing the units for each gas present in the output. The
-            pd.DataFrame columns are named using a MultiIndex of Gas and Region
+
+        # Arguments
+        stream (Streamlike object): A Streamlike object (nominally StringIO)
+            containing the table to be extracted
+        metadata (Dict): Dictionary containing
+
+        # Returns
+        *To be updated when stable*
+        return (Tuple): Tuple of a pd.DataFrame containing the data and a Dict
+            containing the metadata. The pd.DataFrame columns are named using
+            a MultiIndex
         """
         raise NotImplementedError()
 
@@ -78,7 +85,7 @@ class MAGICC6Reader(InputReader):
             delim_whitespace=True,
             index_col=0,
             engine="python")
-        # Convert to a columns to a MultiIndex
+        # Convert columns to a MultiIndex
         df.columns = [
             [gas] * len(df.columns),
             df.columns

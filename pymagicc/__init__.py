@@ -27,6 +27,7 @@ __version__ = get_versions()["version"]
 del get_versions
 
 # default parameters and cannot be changed after module load
+# this is still true for this API but not for the new one right?
 _magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
 if not _config['is_windows']:
@@ -40,7 +41,7 @@ _config_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
 default_config = f90nml.read(_config_path)
 
-# MAGICC's scenario files encode the used regions as follows.
+# MAGICC's SCEN files encode the regions as follows.
 region_codes = {
     11: ['WORLD'],
     20: ['WORLD', "OECD90", "REF", "ASIA", "ALM"],
@@ -49,7 +50,7 @@ region_codes = {
     41: ['WORLD', "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
 }
 
-# Order of columns to use when writing scenario files.
+# Order of columns to use when writing SCEN files.
 _columns = [
     'YEARS', 'FossilCO2', 'OtherCO2', 'CH4', 'N2O', 'SOx', 'CO',
     'NMVOC', 'NOx', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14',
@@ -98,8 +99,15 @@ def _get_region_code(scen_file):
 
 def read_scen_file(scen_file):
     """
-    Reads a MAGICC .SCEN file and returns a
-    a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
+    Read a MAGICC .SCEN file
+
+    # Parameters
+    scen_file (str): Path to scen_file to read
+
+    # Returns
+    output (DataFrame or Dict of DataFrames): For World only scenarios, a
+    single DataFrame with the data from the SCEN file. For scenarios with more
+    than one region, a dictionary containing one DataFrame for each region.
     """
     num_datapoints = _get_number_of_datapoints(scen_file)
 
@@ -155,18 +163,20 @@ def write_scen_file(scenario,
     """
     Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
+    Note that it is assumed that your units match the ones which are defined
+    in the units variable. This function provides no ability to convert units
+    or read units from a DataFrame attribute or column.
+
     # Parameters
     scenario (DataFrame or Dict of DataFrames): If a single DataFrame is
         supplied, the data is assumed to be for the WORLD region. If a Dict of
         DataFrames is supplied then it is assumed that each DataFrame
-        containes data for one region. When using this option, be very careful
-        about the order your DataFrames are supplied in.
+        containes data for one region.
     path_or_buf (str or buffer): Pathname or file-like object to which to write
         the scenario.
     description_1 (str): Optional description line.
     description_2 (str): Optional second description line.
     comment(str): Optional comment at end of scenario file.
-
     """
 
     if not isinstance(scenario, dict):
