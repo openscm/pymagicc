@@ -80,11 +80,16 @@ class MAGICCBase(object):
     def __exit__(self, *args, **kwargs):
         self.remove_temp_copy()
 
+    def get_executable(self):
+        raise NotImplementedError
+
     def create_copy(self):
         """
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
         """
+        if self.executable is None or not isfile(self.executable):
+            raise FileNotFoundError('Could not find MAGICC{} executable: {}'.format(self.version, self.executable))
         if self.is_temp:
             assert (
                 self.root_dir is None
@@ -196,7 +201,7 @@ class MAGICCBase(object):
         """
         Removes a temporary copy of the MAGICC version shipped with Pymagicc.
         """
-        if self.is_temp:
+        if self.is_temp and self.root_dir is not None:
             shutil.rmtree(self.root_dir)
             self.root_dir = None
 
