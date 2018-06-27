@@ -153,21 +153,19 @@ def write_scen_file(scenario,
                     description2=None,
                     comment=None):
     """
-    Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
+    Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
-    Parameters
-    ----------
-    scenario: DataFrame or Dict of DataFrames
-        DataFrame (for scenarios with only the World region) or Dictionary with
-        regions.
-    path_or_buf:
-        Pathname or file-like object to write the scenario to.
-    description_1:
-        Optional description line.
-    description_2:
-        Optional second description line.
-    comment:
-        Optional comment at end of scenario file.
+    # Parameters
+    scenario (DataFrame or Dict of DataFrames): If a single DataFrame is
+        supplied, the data is assumed to be for the WORLD region. If a Dict of
+        DataFrames is supplied then it is assumed that each DataFrame
+        containes data for one region. When using this option, be very careful
+        about the order your DataFrames are supplied in.
+    path_or_buf (str or buffer): Pathname or file-like object to which to write
+        the scenario.
+    description_1 (str): Optional description line.
+    description_2 (str): Optional second description line.
+    comment(str): Optional comment at end of scenario file.
 
     """
 
@@ -264,22 +262,18 @@ def write_scen_file(scenario,
 
 def run(scenario, return_config=False, **kwargs):
     """
-    Return output data and (optionally) used parameters from a MAGICC run.
+    Run a MAGICC scenario and return output data and (optionally) config parameters
 
-    Parameters
-    ----------
-    return_config:
-        Additionaly return the full list of parameters used. default False
+    # Parameters
+    return_config (bool): If True, return the full list of parameters used. default False
     kwargs:
         Parameters overwriting default parameters.
 
-    Returns
-    -------
-    output: dict
-        Dictionary with all data from MAGICC output files.
-    parameters: dict
-        Parameters used in the MAGICC run. Only returned when
-        ``return_config`` is set to True
+    # Returns
+    output (dict): Dictionary with all data from the MAGICC output files in
+        DataFrames
+    parameters (dict): Parameters used in the MAGICC run. Only returned when
+        `return_config` is set to True
     """
 
     with MAGICC6() as magicc:
