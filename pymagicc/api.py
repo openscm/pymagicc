@@ -27,6 +27,17 @@ def _copy_files(source, target):
             shutil.copy(full_filename, target)
 
 
+def _clean_value(v):
+    if isinstance(v, str):
+        return v.strip()
+    elif isinstance(v, list):
+        if isinstance(v[0], str):
+            return [
+                i.replace("\0", "").strip().replace("\n", "") for i in v
+            ]
+    return v
+
+
 class MAGICCBase(object):
     """
     Provides access to the MAGICC binary and configuration.
@@ -159,12 +170,7 @@ class MAGICCBase(object):
             for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
                 parameters[group] = dict(parameters[group])
                 for k, v in parameters[group].items():
-                    if isinstance(v, str):
-                        parameters[group][k] = v.strip()
-                    elif isinstance(v, list):
-                        if isinstance(v[0], str):
-                            parameters[group][k] = [
-                                i.strip().replace("\n", "") for i in v]
+                    parameters[group][k] = _clean_value(v)
                 parameters[group.replace("nml_", "")] = parameters.pop(group)
             self.config = parameters
 
