@@ -182,7 +182,7 @@ python generate_plots.py
 
 ## API
 
-See the auto-generated [docs/api.md](API docs).
+See the auto-generated [API docs](docs/api.md).
 
 ## Contributing
 
