@@ -27,7 +27,7 @@ def _copy_files(source, target):
             shutil.copy(full_filename, target)
 
 
-class MAGICC(object):
+class MAGICCBase(object):
     """
     Provides access to the MAGICC binary and configuration.
 
@@ -213,14 +213,14 @@ class MAGICC(object):
                                stepsperyear=12)
 
 
-class MAGICC6(MAGICC):
+class MAGICC6(MAGICCBase):
     version = 6
 
     def get_executable(cls):
         return config['executable']
 
 
-class MAGICC7(MAGICC):
+class MAGICC7(MAGICCBase):
     version = 7
 
     def get_executable(cls):
