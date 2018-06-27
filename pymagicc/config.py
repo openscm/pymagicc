@@ -3,6 +3,8 @@ Module for collating configuration variables from various sources
 
 The order of preference is:
 Overrides > Environment variable > Defaults
+
+(To check with Jared) Overrides must be set directly in this file or in the config module before a run takes place.
 """
 
 import platform
@@ -32,7 +34,7 @@ def lookup_env(item):
 
 class ConfigStore(object):
     """
-    A list of functions which given, a item attempts to find the associated
+    A list of functions which, given an item, attempts to find the associated
     config variable. All queries are case insensitive. If a lookup cannot
     find the item return None
     This list is in decending order of priority

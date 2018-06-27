@@ -42,18 +42,22 @@ class MAGICCBase(object):
     """
     Provides access to the MAGICC binary and configuration.
 
-    To enable multiple MAGICC 'packages' to be configured independently,
+    To enable multiple MAGICC 'setups' to be configured independently,
     the MAGICC directory containing the input files, configuration
     and binary is copied to a new folder. The configuration in this
-    MAGICC copy can then be edited without impacting other instances.
+    MAGICC copy can then be edited without impacting other instances or your
+    original MAGICC distribution.
 
     A `MAGICC` instance first has to be setup by calling
     `create_copy`. If many model runs are being performed this step only has
-    to be performed once. `run` can be called many times with the
-    configuration files being updated between each call.
+    to be performed once. The `run` method can then be called many times
+    without re-copying the files each time. Between each call to `run`, the
+    confiugration files can be updated to perform runs with different
+    configurations.
 
-    Alternatively, an existing MAGICC directory structure can be used by
-    setting `root_dir`.
+    # Parameters
+    root_dir (str): If `root_dir` is supplied, an existing MAGICC 'setup' is
+        and `create_copy` cannot be used.
     """
 
     version = None
@@ -94,7 +98,7 @@ class MAGICCBase(object):
         # Copy a subset of folders from the MAGICC `original_dir`
         # Also copy anything which is in the root of the MAGICC distribution
         # Assumes that the MAGICC binary is in a folder one level below the root
-        # of the MAGICC distribution. I.e. /run/magicc.exe or /bin/magicc
+        # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
         dirs_to_copy = [
             '.',
             'bin',

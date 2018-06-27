@@ -150,20 +150,27 @@ def get_reader(fname):
 
 class MAGICCInput(object):
     """
-    An interface to read (and in future write) the input files used by MAGICC.
+    *Warning: api likely to change*
 
-    MAGICCInput can read input files from both MAGICC6 and MAGICC7. These
-    include files with extensions .IN and .SCEN7.
+    An interface to (in future) read and write the input files used by MAGICC.
+
+    MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
+    files in a common format with a common vocabulary to simplify the process
+    of reading, writing and handling MAGICC data.
 
     The MAGICCInput, once the target input file has been loaded, can be
-     treated as a pandas DataFrame. All the methods available to a DataFrame
-     can be called on the MAGICCInput.
+    treated as a pandas DataFrame. All the methods available to a DataFrame
+    can be called on the MAGICCInput.
 
+    ```python
+    with MAGICC6() as magicc:
+        mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
+        mdata.read(magicc.run_dir)
+        mdata.plot()
+    ```
 
-    >>> with MAGICC6() as magicc:
-    >>>     mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
-    >>>     mdata.read(magicc.run_dir)
-    >>>     mdata.plot()
+    # Parameters
+    filename (str): Name of the file to read
     """
 
     def __init__(self, filename=None):
@@ -207,13 +214,15 @@ class MAGICCInput(object):
 
     def read(self, filepath=None, filename=None):
         """
-        Read the Input file from disk
+        *Warning: still under construction*
 
-        :param filepath: The directory to file the file from. This is often the
+        Read an input file from disk
+
+        # Parameters
+        filepath (str): The directory to file the file from. This is often the
             run directory for a magicc instance. If None is passed,
             the run directory for the bundled version of MAGICC6 is used.
-        :param filename: The filename to read. Overrides the filename provided
-         in the constructor.
+        filename (str): The filename to read. Overrides any existing values.
         """
         if filepath is None:
             filepath = MAGICC6().original_dir
@@ -228,5 +237,7 @@ class MAGICCInput(object):
         self.metadata, self.df = reader.read()
 
     def write(self, filename):
-        # TODO: Implement writing to disk
+        """
+        TODO: Implement writing to disk
+        """
         raise NotImplementedError()
