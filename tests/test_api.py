@@ -5,7 +5,7 @@ from subprocess import CalledProcessError
 import f90nml
 import pytest
 
-from pymagicc.api import MAGICC6, MAGICC7, config
+from pymagicc.api import MAGICC6, MAGICC7, config, _clean_value
 
 
 @pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
@@ -102,3 +102,24 @@ def test_dont_create_dir():
     magicc.remove_temp_copy()
     assert not exists(root_dir)
     assert magicc.root_dir is None
+
+
+def test_clean_value_simple():
+    assert "SF6" == _clean_value("SF6                 ")
+
+    assert 1970 == _clean_value(1970)
+    assert 2012.123 == _clean_value(2012.123)
+
+
+def test_clean_value_nulls():
+    in_str = [
+        "SF6                 ", "SO2F2               ",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    ]
+    expected = ["SF6", "SO2F2", "", ""]
+    out_str = _clean_value(in_str)
+
+    assert len(out_str) == len(expected)
+    for o, e in zip(out_str, expected):
+        assert o == e
