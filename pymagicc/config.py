@@ -4,7 +4,7 @@ Module for collating configuration variables from various sources
 The order of preference is:
 Overrides > Environment variable > Defaults
 
-(To check with Jared) Overrides must be set directly in this file or in the config module before a run takes place.
+Overrides can be set using the ConfigStore
 """
 
 import platform

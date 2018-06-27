@@ -52,12 +52,12 @@ class MAGICCBase(object):
     `create_copy`. If many model runs are being performed this step only has
     to be performed once. The `run` method can then be called many times
     without re-copying the files each time. Between each call to `run`, the
-    confiugration files can be updated to perform runs with different
+    configuration files can be updated to perform runs with different
     configurations.
 
     # Parameters
     root_dir (str): If `root_dir` is supplied, an existing MAGICC 'setup' is
-        and `create_copy` cannot be used.
+        used.
     """
 
     version = None

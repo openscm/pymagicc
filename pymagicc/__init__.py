@@ -27,7 +27,6 @@ __version__ = get_versions()["version"]
 del get_versions
 
 # default parameters and cannot be changed after module load
-# this is still true for this API but not for the new one right?
 _magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
 if not _config['is_windows']:

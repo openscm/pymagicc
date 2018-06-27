@@ -157,7 +157,7 @@ def get_reader(fname):
 
 class MAGICCInput(object):
     """
-    *Warning: api likely to change*
+    *Warning: API likely to change*
 
     An interface to (in future) read and write the input files used by MAGICC.
 
@@ -166,7 +166,7 @@ class MAGICCInput(object):
     of reading, writing and handling MAGICC data.
 
     The MAGICCInput, once the target input file has been loaded, can be
-    treated as a pandas DataFrame. All the methods available to a DataFrame
+    treated as a Pandas DataFrame. All the methods available to a DataFrame
     can be called on the MAGICCInput.
 
     ```python
@@ -197,7 +197,7 @@ class MAGICCInput(object):
 
     def __getitem__(self, item):
         """
-        Allow for indexing like a pandas DataFrame
+        Allow for indexing like a Pandas DataFrame
 
         >>> inpt = MAGICCInput('HISTRCP_CO2_CONC.IN')
         >>> inpt.read('./')

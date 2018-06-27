@@ -139,8 +139,6 @@ scenario = pd.DataFrame({
 
 ```
 
-*Robert: would this work or would it blow up*
-
 ### Run MAGICC for a scenario
 
 ```python
@@ -153,8 +151,6 @@ temp = (output["SURFACE_TEMP"].GLOBAL -
 
 ### Using a different MAGICC version
 
-*Robert and Jared I'm pretty sure this isn't true anymore?*
-
 The `_magiccpath` and `_magiccbinary` can be changed to point to different MAGICC
 development versions.
 
@@ -162,8 +158,6 @@ development versions.
 pymagicc._magiccpath = "/home/robert/openclimatedata/pymagicc/MAGICC_test/"
 pymagicc._magiccbinary = "./magicc"
 ```
-
-*Robert and Jared does this need to be updated too, to use `MAGICC_EXECUTABLE_7` or something similar?*
 
 If an environment variable `MAGICC_EXECUTABLE` pointing to a MAGICC binary is
 set, `_magiccpath` and `_magiccbinary` will use the values set there, making it
