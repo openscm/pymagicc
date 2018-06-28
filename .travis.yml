@@ -4,7 +4,7 @@ sudo: required
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
+  - "3.7-dev"
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
