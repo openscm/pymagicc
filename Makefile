@@ -15,6 +15,9 @@ venv: dev-requirements.txt
 	./venv/bin/pip install -e .
 	touch venv
 
+update-example-plot:
+	./venv/bin/python scripts/plot_example.py
+
 publish-on-testpypi: venv
 	-rm -rf build dist
 	@status=$$(git status --porcelain); \
