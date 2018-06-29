@@ -2,11 +2,23 @@ from os.path import basename, exists, join
 
 import f90nml
 import pandas as pd
-from io import StringIO
+from six import StringIO
+
 from pymagicc import MAGICC6
 
 
 class InputReader(object):
+    header_tags = [
+        'compiled by',
+        'contact',
+        'data',
+        'date',
+        'description',
+        'gas',
+        'source',
+        'unit'
+    ]
+
     def __init__(self, filename, lines):
         self.filename = filename
         self.lines = lines
@@ -16,6 +28,8 @@ class InputReader(object):
 
         metadata = self.process_metadata(self.lines[nml_start:nml_end + 1])
         metadata['header'] = "".join(self.lines[:nml_start])
+        header_metadata = self.process_header(metadata['header'])
+        metadata.update(header_metadata)
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
@@ -74,6 +88,23 @@ class InputReader(object):
             a MultiIndex
         """
         raise NotImplementedError()
+
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata
+
+        The metadata is only present in MAGICC7 input files.
+        :param header: A string containing all the lines in the header
+        :return: A dict containing the addtional metadata in the header
+        """
+        metadata = {}
+        for l in header.split('\n'):
+            l = l.strip()
+            for tag in self.header_tags:
+                tag_text = '{}:'.format(tag)
+                if l.lower().startswith(tag_text):
+                    metadata[tag] = l[len(tag_text) + 1:].strip()
+        return metadata
 
 
 class MAGICC6Reader(InputReader):
