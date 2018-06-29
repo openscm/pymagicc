@@ -1,5 +1,9 @@
 all: venv
 
+test: venv
+	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
+	./venv/bin/pytest tests
+
 venv: dev-requirements.txt
 	[ -d ./venv ] || python3 -m venv venv
 	./venv/bin/pip install --upgrade pip
@@ -8,7 +12,11 @@ venv: dev-requirements.txt
 	./venv/bin/jupyter serverextension enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension     enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension enable --py widgetsnbextension
+	./venv/bin/pip install -e .
 	touch venv
+
+update-example-plot:
+	./venv/bin/python scripts/plot_example.py
 
 publish-on-testpypi: venv
 	-rm -rf build dist
@@ -53,4 +61,7 @@ test-pypi-install: venv
 flake8: venv
 	./venv/bin/flake8 pymagicc
 
-.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8
+docs/api.md: pymagicc/*.py
+	pydocmd simple pymagicc+ pymagicc.api+ pymagicc.input++ pymagicc.config > docs/api.md
+
+.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test

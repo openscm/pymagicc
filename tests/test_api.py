@@ -4,7 +4,8 @@ from subprocess import CalledProcessError
 
 import f90nml
 import pytest
-from pymagicc.api import MAGICC6, MAGICC7, config
+
+from pymagicc.api import MAGICC6, MAGICC7, config, _clean_value
 
 
 @pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
@@ -15,10 +16,11 @@ def package(request):
     if p.executable is None or not exists(p.original_dir):
         pytest.skip('MAGICC {} is not available'.format(p.version))
     p.create_copy()
+    root_dir = p.root_dir
     yield p
     # Perform cleanup after tests are complete
     p.remove_temp_copy()
-    assert not exists(p.root_dir)
+    assert not exists(root_dir)
 
 
 def write_config(p):
@@ -40,8 +42,9 @@ def write_config(p):
 
 def test_not_initalise():
     p = MAGICC6()
-    assert exists(p.root_dir)
-    assert not exists(p.run_dir)
+    assert p.root_dir is None
+    assert p.run_dir is None
+    assert p.out_dir is None
 
 
 def test_initalise_and_clean(package):
@@ -87,3 +90,36 @@ def test_override_config():
     # Stop this override impacting other tests
     del config.overrides['EXECUTABLE']
     assert magicc.executable == '/tmp/magicc'
+
+
+def test_dont_create_dir():
+    magicc = MAGICC6()
+    # Dir isn't created yet
+    assert magicc.root_dir is None
+    magicc.create_copy()
+    root_dir = magicc.root_dir
+    assert exists(root_dir)
+    magicc.remove_temp_copy()
+    assert not exists(root_dir)
+    assert magicc.root_dir is None
+
+
+def test_clean_value_simple():
+    assert "SF6" == _clean_value("SF6                 ")
+
+    assert 1970 == _clean_value(1970)
+    assert 2012.123 == _clean_value(2012.123)
+
+
+def test_clean_value_nulls():
+    in_str = [
+        "SF6                 ", "SO2F2               ",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+        "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
+    ]
+    expected = ["SF6", "SO2F2", "", ""]
+    out_str = _clean_value(in_str)
+
+    assert len(out_str) == len(expected)
+    for o, e in zip(out_str, expected):
+        assert o == e

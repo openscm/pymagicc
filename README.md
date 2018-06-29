@@ -6,7 +6,7 @@
 | [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.org/project/pymagicc/) | [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.org/project/pymagicc/) |
 | [![status](https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e/status.svg)](https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e) | [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.1111815.svg)](https://zenodo.org/record/1111815) |
 
-Pymagicc is a thin Python wrapper around the reduced complexity climate model
+Pymagicc is a Python wrapper around the reduced complexity climate model
 [MAGICC6](http://magicc.org/). It wraps the CC-BY-NC-SA licensed
 [MAGICC6 binary](http://www.magicc.org/download6). Pymagicc itself is AGPL licensed.
 
@@ -18,8 +18,7 @@ Intergovernmental Panel on Climate Change or to model the physical aspects of cl
 Pymagicc makes the MAGICC model easily installable and usable from Python and allows for the easy modification of all MAGICC model parameters and emissions scenarios directly from Python.
 In climate research it can, for example, be used in the analysis of mitigation scenarios, in Integrated Assessment Models, complex climate model emulation, and uncertainty analyses, as well as in climate science education and communication.
 
-
-See [www.magicc.org](http://www.magicc.org/) for further information about the MAGICC model.
+See [www.magicc.org](http://www.magicc.org/), [Meinshausen et al. 2011](https://www.atmos-chem-phys.net/11/1417/2011/acp-11-1417-2011.html) and the MAGICC7 documentation (tbc) for further information.
 
 ## Basic Usage
 
@@ -81,19 +80,16 @@ editable version for local development:
 
     cd pymagicc
     make venv
-    ./venv/bin/pip install -e .
+    ./venv/bin/pip install --editable .
     ./venv/bin/jupyter-notebook notebooks/Example.ipynb
 
 
 ## Development
 
-For local development run
+For local development, install dependencies and an editable version of Pymagicc from a clone or download of the Pymagicc repository with
 
     make venv
     ./venv/bin/pip install --editable .
-
-inside of a clone or download of the Pymagicc repository
-to install dependencies and an editable version of Pymagicc.
 
 To run the tests run
 
@@ -182,71 +178,7 @@ python generate_plots.py
 
 ## API
 
-<h3 id="pymagicc">pymagicc</h3>
-
-
-<h4 id="pymagicc.read_scen_file">read_scen_file</h4>
-
-```python
-read_scen_file(scen_file)
-```
-
-Reads a MAGICC .SCEN file and returns a
-a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
-
-<h4 id="pymagicc.run">run</h4>
-
-```python
-run(scenario, output_dir=None, return_config=False, **kwargs)
-```
-
-Return output data and (optionally) used parameters from a MAGICC run.
-
-##### Parameters
-
-```
-output_dir:
-    Path for MAGICC data and binary, if None a temp file which will be
-    deleted automatically.
-return_config:
-    Additionaly return the full list of parameters used. default False
-kwargs:
-    Parameters overwriting default parameters.
-```
-
-##### Returns
-
-```
-output: dict
-    Dictionary with all data from MAGICC output files.
-parameters: dict
-    Parameters used in the MAGICC run. Only returned when
-    ``return_config`` is set to True
-```
-
-<h4 id="pymagicc.write_scen_file">write_scen_file</h4>
-
-```python
-write_scen_file(scenario, path_or_buf=None, description1=None, description2=None, comment=None)
-```
-
-Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
-
-##### Parameters
-
-```
-scenario: DataFrame or Dict of DataFrames
-    DataFrame (for scenarios with only the World region) or Dictionary with
-    regions.
-path_or_buf:
-    Pathname or file-like object to write the scenario to.
-description_1:
-    Optional description line.
-description_2:
-    Optional second description line.
-comment:
-    Optional comment at end of scenario file.
-```
+See the auto-generated [API docs](docs/api.md).
 
 ## Contributing
 
@@ -261,7 +193,6 @@ You can also contact the `pymagicc` authors via email
 
 The [compiled MAGICC binary](http://www.magicc.org/download6) by Tom Wigley,
 Sarah Raper, and Malte Meinshausen included in this package is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
-
 
 The `pymagicc` wrapper is free software under the GNU Affero General Public
 License v3, see [LICENSE](./LICENSE).

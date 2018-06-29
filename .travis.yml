@@ -2,9 +2,9 @@ language: python
 dist: trusty
 sudo: required
 python:
-  - "2.7"
   - "3.5"
   - "3.6"
+  - "3.7-dev"
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
@@ -16,5 +16,3 @@ script:
   - pytest --cov
 after_success:
   - codecov
-notifications:
-  slack: climate-models:LuGwA2dGrgZRL1O7AssggqyP

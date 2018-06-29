@@ -40,7 +40,7 @@ _config_path = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
 default_config = f90nml.read(_config_path)
 
-# MAGICC's scenario files encode the used regions as follows.
+# MAGICC's SCEN files encode the regions as follows.
 region_codes = {
     11: ['WORLD'],
     20: ['WORLD', "OECD90", "REF", "ASIA", "ALM"],
@@ -49,12 +49,12 @@ region_codes = {
     41: ['WORLD', "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
 }
 
-# Order of columns to use when writing scenario files.
+# Order of columns to use when writing SCEN files.
 _columns = [
-    u'YEARS', u'FossilCO2', u'OtherCO2', u'CH4', u'N2O', u'SOx', u'CO',
-    u'NMVOC', u'NOx', u'BC', u'OC', u'NH3', u'CF4', u'C2F6', u'C6F14',
-    u'HFC23', u'HFC32', u'HFC43-10', u'HFC125', u'HFC134a', u'HFC143a',
-    u'HFC227ea', u'HFC245fa', u'SF6'
+    'YEARS', 'FossilCO2', 'OtherCO2', 'CH4', 'N2O', 'SOx', 'CO',
+    'NMVOC', 'NOx', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14',
+    'HFC23', 'HFC32', 'HFC43-10', 'HFC125', 'HFC134a', 'HFC143a',
+    'HFC227ea', 'HFC245fa', 'SF6'
 ]
 
 # Units to be used for each column.
@@ -98,8 +98,15 @@ def _get_region_code(scen_file):
 
 def read_scen_file(scen_file):
     """
-    Reads a MAGICC .SCEN file and returns a
-    a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
+    Read a MAGICC .SCEN file
+
+    # Parameters
+    scen_file (str): Path to scen_file to read
+
+    # Returns
+    output (DataFrame or Dict of DataFrames): For World only scenarios, a
+    single DataFrame with the data from the SCEN file. For scenarios with more
+    than one region, a dictionary containing one DataFrame for each region.
     """
     num_datapoints = _get_number_of_datapoints(scen_file)
 
@@ -153,22 +160,22 @@ def write_scen_file(scenario,
                     description2=None,
                     comment=None):
     """
-    Write a Dictionary of DataFrames or DataFrame to a MAGICC .SCEN-file.
+    Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
-    Parameters
-    ----------
-    scenario: DataFrame or Dict of DataFrames
-        DataFrame (for scenarios with only the World region) or Dictionary with
-        regions.
-    path_or_buf:
-        Pathname or file-like object to write the scenario to.
-    description_1:
-        Optional description line.
-    description_2:
-        Optional second description line.
-    comment:
-        Optional comment at end of scenario file.
+    Note that it is assumed that your units match the ones which are defined
+    in the units variable. This function provides no ability to convert units
+    or read units from a DataFrame attribute or column.
 
+    # Parameters
+    scenario (DataFrame or Dict of DataFrames): If a single DataFrame is
+        supplied, the data is assumed to be for the WORLD region. If a Dict of
+        DataFrames is supplied then it is assumed that each DataFrame
+        containes data for one region.
+    path_or_buf (str or buffer): Pathname or file-like object to which to write
+        the scenario.
+    description_1 (str): Optional description line.
+    description_2 (str): Optional second description line.
+    comment(str): Optional comment at end of scenario file.
     """
 
     if not isinstance(scenario, dict):
@@ -264,22 +271,18 @@ def write_scen_file(scenario,
 
 def run(scenario, return_config=False, **kwargs):
     """
-    Return output data and (optionally) used parameters from a MAGICC run.
+    Run a MAGICC scenario and return output data and (optionally) config parameters
 
-    Parameters
-    ----------
-    return_config:
-        Additionaly return the full list of parameters used. default False
+    # Parameters
+    return_config (bool): If True, return the full list of parameters used. default False
     kwargs:
         Parameters overwriting default parameters.
 
-    Returns
-    -------
-    output: dict
-        Dictionary with all data from MAGICC output files.
-    parameters: dict
-        Parameters used in the MAGICC run. Only returned when
-        ``return_config`` is set to True
+    # Returns
+    output (dict): Dictionary with all data from the MAGICC output files in
+        DataFrames
+    parameters (dict): Parameters used in the MAGICC run. Only returned when
+        `return_config` is set to True
     """
 
     with MAGICC6() as magicc:

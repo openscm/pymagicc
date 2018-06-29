@@ -1,8 +1,7 @@
 import shutil
 import subprocess
-from distutils import dir_util
 from os import listdir, makedirs
-from os.path import basename, dirname, exists, join
+from os.path import basename, dirname, exists, join, isfile
 from tempfile import mkdtemp
 
 import f90nml
@@ -13,22 +12,52 @@ from .config import config
 IS_WINDOWS = config['is_windows']
 
 
-class MAGICC(object):
+def _copy_files(source, target):
+    """
+    Copy all the files in source directory to target
+
+    Ignores subdirectories
+    """
+    source_files = listdir(source)
+    if not exists(target):
+        makedirs(target)
+    for filename in source_files:
+        full_filename = join(source, filename)
+        if isfile(full_filename):
+            shutil.copy(full_filename, target)
+
+
+def _clean_value(v):
+    if isinstance(v, str):
+        return v.strip()
+    elif isinstance(v, list):
+        if isinstance(v[0], str):
+            return [
+                i.replace("\0", "").strip().replace("\n", "") for i in v
+            ]
+    return v
+
+
+class MAGICCBase(object):
     """
     Provides access to the MAGICC binary and configuration.
 
-    To enable multiple MAGICC 'packages' to be configured independently,
+    To enable multiple MAGICC 'setups' to be configured independently,
     the MAGICC directory containing the input files, configuration
     and binary is copied to a new folder. The configuration in this
-    MAGICC copy can then be edited without impacting other instances.
+    MAGICC copy can then be edited without impacting other instances or your
+    original MAGICC distribution.
 
     A `MAGICC` instance first has to be setup by calling
     `create_copy`. If many model runs are being performed this step only has
-    to be performed once. `run` can be called many times with the
-    configuration files being updated between each call.
+    to be performed once. The `run` method can then be called many times
+    without re-copying the files each time. Between each call to `run`, the
+    configuration files can be updated to perform runs with different
+    configurations.
 
-    Alternatively, an existing MAGICC directory structure can be used by
-    setting `root_dir`.
+    # Parameters
+    root_dir (str): If `root_dir` is supplied, an existing MAGICC 'setup' is
+        used.
     """
 
     version = None
@@ -43,10 +72,9 @@ class MAGICC(object):
         else:
             # Create a temp directory
             self.is_temp = True
-            self.root_dir = mkdtemp(prefix="pymagicc-")
 
     def __enter__(self):
-        if self.is_temp and not exists(self.run_dir):
+        if self.is_temp and self.run_dir is None:
             self.create_copy()
         return self
 
@@ -58,12 +86,32 @@ class MAGICC(object):
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
         """
+        if self.is_temp:
+            assert self.root_dir is None, "A temp copy for this instance has already been created"
+            self.root_dir = mkdtemp(prefix="pymagicc-")
+
         if exists(self.run_dir):
             raise Exception("A copy of MAGICC has already been created.")
         if not exists(self.root_dir):
             makedirs(self.root_dir)
-        # Copy the MAGICC run directory into the appropriate location
-        dir_util.copy_tree(join(self.original_dir, ".."), self.root_dir)
+
+        # Copy a subset of folders from the MAGICC `original_dir`
+        # Also copy anything which is in the root of the MAGICC distribution
+        # Assumes that the MAGICC binary is in a folder one level below the root
+        # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
+        dirs_to_copy = [
+            '.',
+            'bin',
+            'run'
+        ]
+        for d in dirs_to_copy:
+            source_dir = join(self.original_dir, '..', d)
+            if exists(source_dir):
+                _copy_files(source_dir, join(self.root_dir, d))
+
+        # Create an empty out dir
+        # MAGICC assumes that the 'out' directory already exists
+        makedirs(join(self.root_dir, 'out'))
 
         # Create basic configuration files so magicc can run
         self.set_years()
@@ -79,10 +127,14 @@ class MAGICC(object):
 
     @property
     def run_dir(self):
+        if self.root_dir is None:
+            return None
         return join(self.root_dir, 'run')
 
     @property
     def out_dir(self):
+        if self.root_dir is None:
+            return None
         return join(self.root_dir, 'out')
 
     def run(self, only=None):
@@ -122,12 +174,7 @@ class MAGICC(object):
             for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
                 parameters[group] = dict(parameters[group])
                 for k, v in parameters[group].items():
-                    if isinstance(v, str):
-                        parameters[group][k] = v.strip()
-                    elif isinstance(v, list):
-                        if isinstance(v[0], str):
-                            parameters[group][k] = [
-                                i.strip().replace("\n", "") for i in v]
+                    parameters[group][k] = _clean_value(v)
                 parameters[group.replace("nml_", "")] = parameters.pop(group)
             self.config = parameters
 
@@ -139,6 +186,7 @@ class MAGICC(object):
         """
         if self.is_temp:
             shutil.rmtree(self.root_dir)
+            self.root_dir = None
 
     def set_config(self, filename='MAGTUNE_SIMPLE.CFG',
                    top_level_key='nml_allcfgs', **kwargs):
@@ -175,14 +223,14 @@ class MAGICC(object):
                                stepsperyear=12)
 
 
-class MAGICC6(MAGICC):
+class MAGICC6(MAGICCBase):
     version = 6
 
     def get_executable(cls):
         return config['executable']
 
 
-class MAGICC7(MAGICC):
+class MAGICC7(MAGICCBase):
     version = 7
 
     def get_executable(cls):
