@@ -126,11 +126,11 @@ def test_clean_value_nulls():
 
 
 def test_incorrect_subdir():
-    config['EXECUTABLE'] = '/tmp/magicc'
+    config['EXECUTABLE_6'] = '/tmp/magicc'
     magicc = MAGICC6()
     try:
         with pytest.raises(AssertionError):
             magicc.create_copy()
     finally:
-        del config.overrides['EXECUTABLE']
+        del config.overrides['EXECUTABLE_6']
         magicc.remove_temp_copy()
