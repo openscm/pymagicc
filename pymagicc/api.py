@@ -228,16 +228,13 @@ class MAGICCBase(object):
                                endyear=endyear, startyear=startyear,
                                stepsperyear=12)
 
+    def get_executable(self):
+        return config['executable_{}'.format(self.version)]
+
 
 class MAGICC6(MAGICCBase):
     version = 6
 
-    def get_executable(cls):
-        return config['executable']
-
 
 class MAGICC7(MAGICCBase):
     version = 7
-
-    def get_executable(cls):
-        return config['executable_7']

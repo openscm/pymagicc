@@ -84,11 +84,11 @@ def test_run_only(package):
 
 
 def test_override_config():
-    config['EXECUTABLE'] = '/tmp/magicc'
+    config['EXECUTABLE_6'] = '/tmp/magicc'
     magicc = MAGICC6()
 
     # Stop this override impacting other tests
-    del config.overrides['EXECUTABLE']
+    del config.overrides['EXECUTABLE_6']
     assert magicc.executable == '/tmp/magicc'
 
 
