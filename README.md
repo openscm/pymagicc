@@ -150,28 +150,23 @@ temp = (output["SURFACE_TEMP"].GLOBAL -
 ```
 
 ### Using a different MAGICC version
-
-The `_magiccpath` and `_magiccbinary` can be changed to point to different MAGICC
-development versions.
-
-```python
-pymagicc._magiccpath = "/home/robert/openclimatedata/pymagicc/MAGICC_test/"
-pymagicc._magiccbinary = "./magicc"
-```
-
-If an environment variable `MAGICC_EXECUTABLE` pointing to a MAGICC binary is
-set, `_magiccpath` and `_magiccbinary` will use the values set there, making it
-easy to point to different set of MAGICC files e.g. for testing.
+A custom version of MAGICC may be used with `pymagicc`  using the 
+`MAGICC_EXECUTABLE_6` and `MAGICC_EXECUTABLE_7` environment variables for MAGICC6
+ and MAGICC7 respectively. These environment variables should be set to the 
+ location of the magicc executable (either `magicc` for linux/mac or 
+ `magicc.exe` for Windows).
+For example, a custom MAGICC7 folder located at `/tmp/magicc` can be used on
+ under Linux by setting `MAGICC_EXECUTABLE_7` to `/tmp/magicc/run/magicc`.
 
 Example usage in Bash:
 ```bash
-MAGICC_EXECUTABLE=/tmp/magicc/magicc.exe python run_tests.py
+MAGICC_EXECUTABLE_7=/tmp/magicc/run/magicc.exe python run_tests.py
 ```
 
 Or in a script:
 ```bash
 #!/bin/bash
-export MAGICC_EXECUTABLE=/tmp/magicc/magicc.exe
+export MAGICC_EXECUTABLE_7=tmp/magicc/run/magicc.exe
 python run_tests.py
 python generate_plots.py
 ```

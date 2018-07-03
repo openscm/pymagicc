@@ -16,7 +16,7 @@ __all__ = ['config']
 _is_windows = platform.system() == "Windows"
 # Default configuration parameters for pymagicc
 default_config = {
-    'EXECUTABLE': join(dirname(abspath(__file__)),
+    'EXECUTABLE_6': join(dirname(abspath(__file__)),
                        "MAGICC6/run/magicc6.exe"
                        ),
     'IS_WINDOWS': _is_windows
