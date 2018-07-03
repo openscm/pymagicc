@@ -134,3 +134,24 @@ def test_incorrect_subdir():
     finally:
         del config.overrides['EXECUTABLE_6']
         magicc.remove_temp_copy()
+
+
+def test_root_dir():
+    with MAGICC6() as magicc:
+        m2 = MAGICC6(root_dir=magicc.root_dir)
+
+        assert m2.root_dir == magicc.root_dir
+
+        # Does nothing
+        m2.remove_temp_copy()
+        # Can be called many times
+        m2.remove_temp_copy()
+
+        assert m2.root_dir is not None
+
+def test_no_root_dir():
+    assert not exists('/tmp/magicc/')
+    magicc = MAGICC6(root_dir='/tmp/magicc/')
+
+    with pytest.raises(FileNotFoundError):
+        magicc.run()

@@ -149,6 +149,9 @@ class MAGICCBase(object):
         :param only: If not None, only extract variables in this list
         :return: Dict containing DataFrames for each of the extracted variables
         """
+        if not exists(self.root_dir):
+            raise FileNotFoundError(self.root_dir)
+
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
 
