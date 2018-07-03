@@ -1,7 +1,7 @@
 import shutil
 import subprocess
 from os import listdir, makedirs
-from os.path import basename, dirname, exists, join, isfile
+from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
 
 import f90nml
@@ -95,6 +95,8 @@ class MAGICCBase(object):
         if not exists(self.root_dir):
             makedirs(self.root_dir)
 
+        exec_dir = basename(self.original_dir)
+
         # Copy a subset of folders from the MAGICC `original_dir`
         # Also copy anything which is in the root of the MAGICC distribution
         # Assumes that the MAGICC binary is in a folder one level below the root
@@ -104,8 +106,11 @@ class MAGICCBase(object):
             'bin',
             'run'
         ]
+        # Check that the executable is in a valid sub directory
+        assert exec_dir in dirs_to_copy, 'binary must be in bin/ or run/ directory'
+
         for d in dirs_to_copy:
-            source_dir = join(self.original_dir, '..', d)
+            source_dir = abspath(join(self.original_dir, '..', d))
             if exists(source_dir):
                 _copy_files(source_dir, join(self.root_dir, d))
 
@@ -144,7 +149,8 @@ class MAGICCBase(object):
         :param only: If not None, only extract variables in this list
         :return: Dict containing DataFrames for each of the extracted variables
         """
-        command = [join(self.run_dir, self.binary_name)]
+        exec_dir = basename(self.original_dir)
+        command = [join(self.root_dir, exec_dir, self.binary_name)]
 
         if not IS_WINDOWS \
                 and self.binary_name.endswith(".exe"):  # pragma: no cover

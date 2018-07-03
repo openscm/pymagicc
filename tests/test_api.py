@@ -123,3 +123,14 @@ def test_clean_value_nulls():
     assert len(out_str) == len(expected)
     for o, e in zip(out_str, expected):
         assert o == e
+
+
+def test_incorrect_subdir():
+    config['EXECUTABLE'] = '/tmp/magicc'
+    magicc = MAGICC6()
+    try:
+        with pytest.raises(AssertionError):
+            magicc.create_copy()
+    finally:
+        del config.overrides['EXECUTABLE']
+        magicc.remove_temp_copy()
