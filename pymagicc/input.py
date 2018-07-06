@@ -178,6 +178,10 @@ class MAGICC7Reader(InputReader):
 
         return result
 
+class CONC_INReader(InputReader):
+    def process_data(self, stream, metadata):
+        proxy_reader = MAGICC6Reader(self.filename, self.lines)
+        return proxy_reader.process_data(stream, metadata)
 
 _file_types = {
     'MAGICC6': MAGICC6Reader,
@@ -201,9 +205,7 @@ def get_reader(fname):
 
 class MAGICCInput(object):
     """
-    *Warning: API likely to change*
-
-    An interface to (in future) read and write the input files used by MAGICC.
+    An interface to read and write the input files used by MAGICC.
 
     MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
     files in a common format with a common vocabulary to simplify the process
@@ -220,6 +222,8 @@ class MAGICCInput(object):
         mdata.plot()
     ```
 
+    TODO: Write example for writing
+
     # Parameters
     filename (str): Name of the file to read
     """
@@ -232,7 +236,9 @@ class MAGICCInput(object):
         not read until the search directory is provided in `read`. This allows
         for MAGICCInput files to be lazy-loaded once the appropriate MAGICC run
         directory is known.
-        :param filename: Optional file name, including extension for the target
+
+        # Parameters
+        filename (str): Optional file name, including extension, for the target
          file, i.e. 'HISTRCP_CO2I_EMIS.IN'
         """
         self.df = None
@@ -248,7 +254,7 @@ class MAGICCInput(object):
         >>> assert (inpt['CO2']['GLOBAL'] == inpt.df['CO2']['GLOBAL']).all()
         """
         if not self.is_loaded:
-            raise ValueError('File has not been read from disk yet')
+            self._raise_not_loaded_error()
         if len(item) == 2:
             return self.df['value'][item[0], :, item[1], :, :]
         elif len(item) == 3:
@@ -260,8 +266,11 @@ class MAGICCInput(object):
         Proxy any attributes/functions on the dataframe
         """
         if not self.is_loaded:
-            raise ValueError('File has not been read from disk yet')
+            self._raise_not_loaded_error()
         return getattr(self.df, item)
+
+    def _raise_not_loaded_error(self):
+        raise ValueError('File has not been read from disk yet')
 
     @property
     def is_loaded(self):
@@ -269,8 +278,6 @@ class MAGICCInput(object):
 
     def read(self, filepath=None, filename=None):
         """
-        *Warning: still under construction*
-
         Read an input file from disk
 
         # Parameters

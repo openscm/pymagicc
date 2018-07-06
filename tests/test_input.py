@@ -121,3 +121,18 @@ def test_header_metadata():
     assert m7.process_header('Data: Average emissions per year\nother text') == {'data': 'Average emissions per year'}
     assert m7.process_header('           Data: Average emissions per year    ') == {'data': 'Average emissions per year'}
     assert m7.process_header('Compiled by: Zebedee Nicholls, Australian-German Climate & Energy College') == {'compiled by': 'Zebedee Nicholls, Australian-German Climate & Energy College'}
+
+@pytest.mark.parametrize('test_filename', [
+    (None),
+    ('test/filename.OUT')
+])
+def test_MAGICCInput_init(test_filename):
+    if test_filename is None:
+        mdata = MAGICCInput()
+        assert mdata.name is None
+    else:
+        mdata = MAGICCInput(test_filename)
+        assert mdata.name is test_filename
+
+    assert mdata.df is None
+    assert mdata.metadata == {}
