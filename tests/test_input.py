@@ -1,4 +1,7 @@
-from os.path import dirname, join, isfile
+from os import remove
+from os.path import dirname, join, isfile, basename
+from tempfile import mkstemp, mkdtemp
+from shutil import rmtree
 
 import pandas as pd
 import re
@@ -7,7 +10,7 @@ import pytest
 from unittest.mock import patch
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader, CONC_INReader
+from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader, HIST_CONC_INReader
 
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -162,10 +165,42 @@ def test_set_lines():
 ])
 def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
 
-    conc_reader = CONC_INReader(test_filename)
+    conc_reader = HIST_CONC_INReader(test_filename)
     if expected_variable is None:
         expected_message = re.escape('Cannot determine variable from filename: {}'.format(test_filename))
         with pytest.raises(SyntaxError, match=expected_message):
             conc_reader._get_variable_from_filename()
     else:
         assert conc_reader._get_variable_from_filename() == expected_variable
+
+@pytest.fixture
+def temp_file():
+    temp_file = mkstemp()[1]
+    yield temp_file
+    print('deleting {}'.format(temp_file))
+    remove(temp_file)
+
+@pytest.fixture
+def temp_dir():
+    temp_dir = mkdtemp()
+    yield temp_dir
+    print('deleting {}'.format(temp_dir))
+    rmtree(temp_dir)
+
+@pytest.mark.parametrize('starting_file', [
+    (join(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')),
+])
+def test_CONC_IN_file_read_write_identical(starting_file, temp_dir):
+    with open(starting_file, 'r') as sf:
+        lines_initial = sf.readlines()
+
+    mi = MAGICCInput(starting_file)
+    mi.read(filepath='')
+
+    # need to fix all these API details later...
+    mi.write(join(temp_dir, basename(starting_file)))
+
+    with open(temp_file, 'r') as wf:
+        lines_written = wf.readlines()
+
+    assert lines_written == lines_initial

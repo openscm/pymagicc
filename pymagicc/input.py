@@ -194,7 +194,7 @@ class MAGICC7Reader(InputReader):
 
         return result
 
-class CONC_INReader(InputReader):
+class HIST_CONC_INReader(InputReader):
     def process_data(self, stream, metadata):
         regions = self._read_data_header_line(stream, 'COLCODE') # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
         units = [metadata['units']]*len(regions)
@@ -228,6 +228,7 @@ class CONC_INReader(InputReader):
 
 
 class HIST_EMIS_INReader(InputReader):
+    # TODO: fix this. Not high priority now
     def process_data(self, stream, metadata):
         if any(['COLCODE' in line for line in self.lines]):
             proxy_reader = MAGICC6Reader(self.filename)
@@ -235,16 +236,57 @@ class HIST_EMIS_INReader(InputReader):
             proxy_reader = MAGICC7Reader(self.filename)
         return proxy_reader.process_data(stream, metadata)
 
-_file_types = {
-    'MAGICC6': MAGICC6Reader,
-    'MAGICC7': MAGICC7Reader,
-}
+class InputWriter(object):
+    def __init__(self):
+        pass
+
+    def write(self, magicc_input, filename, filepath=None):
+        """
+        Write a MAGICC input file from df and metadata
+
+        # Arguments
+        filename (str): name of file to write to
+        filepath (str): path in which to write file. If not provided,
+           the file will be written in the current directory (TODO: check this is true...)
+        """
+        self.minput = magicc_input
+        header = self._get_header()
+        nml = self._get_nml()
+        data_block = self._get_data_block()
+
+        if filepath is not None:
+            filename = join(filepath, filename)
+
+        with open(filename) as output_file:
+            output_file.write('\n'.join([header, nml, data_block]))
+
+    def _get_header(self):
+        raise NotImplementedError()
+
+    def _get_nml(self):
+        raise NotImplementedError()
+
+    def _get_data_block(self):
+        raise NotImplementedError()
+
+class HIST_CONC_INWriter(InputWriter):
+    def _get_data_block(self):
+        raise NotImplementedError()
+
+
+def determine_tool(fname, regexp_map):
+    for fname_regex in regexp_map:
+        if re.match(fname_regex, basename(fname)):
+            return regexp_map[fname_regex]
+
+hist_emis_in_regexp = r'^HIST.*\_EMIS\.IN$'
+hist_conc_in_regexp = r'^.*\_.*CONC.*\.IN$'
 
 _fname_reader_regex_map = {
-    r'^HIST.*\_EMIS\.IN$': HIST_EMIS_INReader,
+    hist_emis_in_regexp: HIST_EMIS_INReader,
     # r'^.*\.SCEN$': SCENReader,
     # r'^.*\.SCEN7$': SCEN7Reader,
-    r'^.*\_.*CONC.*\.IN$': CONC_INReader,
+    hist_conc_in_regexp: HIST_CONC_INReader,
     # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
     # r'.*\.SECTOR$': SECTORReader,
 }
@@ -252,19 +294,17 @@ _fname_reader_regex_map = {
 def get_reader(fname):
     return determine_tool(fname, _fname_reader_regex_map)(fname)
 
-    for fname_regex in _fname_reader_regex_map:
-        if re.match(fname_regex, basename(fname)):
-            return _fname_reader_regex_map[fname_regex](fname)
+_fname_writer_regex_map = {
+    # hist_emis_in_regexp: HIST_EMIS_INWriter,
+    # r'^.*\.SCEN$': SCENWriter,
+    # r'^.*\.SCEN7$': SCEN7Writer,
+    hist_conc_in_regexp: HIST_CONC_INWriter,
+    # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTWriter,
+    # r'.*\.SECTOR$': SECTORWriter,
+}
 
-    # # Infer the file type from the header
-    # if '.__  __          _____ _____ _____ _____   ______   ______ __  __ _____  _____  _____ _   _' \
-    #         in lines[0]:
-    #     file_type = 'MAGICC7'
-    # else:
-    #     file_type = 'MAGICC6'
-
-    # return _file_types[file_type](fname, lines)
-
+def get_writer(fname):
+    return determine_tool(fname, _fname_writer_regex_map)()
 
 class MAGICCInput(object):
     """
