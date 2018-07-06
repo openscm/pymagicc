@@ -2,6 +2,7 @@ from os.path import basename, exists, join, splitext
 
 import f90nml
 import pandas as pd
+import re
 from six import StringIO
 
 from pymagicc import MAGICC6
@@ -19,11 +20,21 @@ class InputReader(object):
         'unit'
     ]
 
-    def __init__(self, filename, lines):
+    def __init__(self, filename):
         self.filename = filename
-        self.lines = lines
+
+    def _set_lines(self):
+        with open(self.filename, 'r') as f:
+            self.lines = f.readlines()
 
     def read(self):
+        self._set_lines()
+        # refactor to:
+        # header, nml, data = self._get_split_lines()
+        # metadata = self.process_metadata(header, nml)
+        # df = self.process_data(data, metadata)
+        # return metadata, df
+
         nml_end, nml_start = self._find_nml()
 
         metadata = self.process_metadata(self.lines[nml_start:nml_end + 1])
@@ -82,7 +93,6 @@ class InputReader(object):
         metadata (Dict): Dictionary containing
 
         # Returns
-        *To be updated when stable*
         return (Tuple): Tuple of a pd.DataFrame containing the data and a Dict
             containing the metadata. The pd.DataFrame columns are named using
             a MultiIndex
@@ -115,8 +125,6 @@ class InputReader(object):
 
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
-        # regions line starts with 'COLCODE' instead of 'REGIONS'
-        # regions = self._read_data_header_line(stream, 'COLCODE')
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -178,30 +186,117 @@ class MAGICC7Reader(InputReader):
 
         return result
 
-class CONC_INReader(InputReader):
+class HIST_CONC_INReader(InputReader):
     def process_data(self, stream, metadata):
-        proxy_reader = MAGICC6Reader(self.filename, self.lines)
+        regions = self._read_data_header_line(stream, 'COLCODE') # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
+        units = [metadata['units']]*len(regions)
+        metadata.pop('units')
+        todo = ['SET']*len(regions)
+        variables = [self._get_variable_from_filename()]*len(regions)
+        index = pd.MultiIndex.from_arrays(
+            [variables, todo, regions, units],
+            names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
+        )
+        df = pd.read_csv(
+            stream,
+            skip_blank_lines=True,
+            delim_whitespace=True,
+            names=None,
+            header=None,
+            index_col=0)
+        df.index.name = 'YEAR'
+        df.columns = index
+        df = df.T.stack()
+
+        return df, metadata
+
+    def _get_variable_from_filename(self):
+        regexp_capture_variable = re.compile(r'.*\_(\w*\_CONC)\.IN$')
+        try:
+            return regexp_capture_variable.search(self.filename).group(1)
+        except AttributeError:
+            error_msg = 'Cannot determine variable from filename: {}'.format(self.filename)
+            raise SyntaxError(error_msg)
+
+
+class HIST_EMIS_INReader(InputReader):
+    # TODO: fix this. Not high priority now
+    def process_data(self, stream, metadata):
+        if any(['COLCODE' in line for line in self.lines]):
+            proxy_reader = MAGICC6Reader(self.filename)
+        else:
+            proxy_reader = MAGICC7Reader(self.filename)
         return proxy_reader.process_data(stream, metadata)
 
-_file_types = {
-    'MAGICC6': MAGICC6Reader,
-    'MAGICC7': MAGICC7Reader,
+class InputWriter(object):
+    def __init__(self):
+        pass
+
+    def write(self, magicc_input, filename, filepath=None):
+        """
+        Write a MAGICC input file from df and metadata
+
+        # Arguments
+        filename (str): name of file to write to
+        filepath (str): path in which to write file. If not provided,
+           the file will be written in the current directory (TODO: check this is true...)
+        """
+        self.minput = magicc_input
+        header = self._get_header()
+        nml = self._get_nml()
+        data_block = self._get_data_block()
+
+        if filepath is not None:
+            filename = join(filepath, filename)
+
+        with open(filename) as output_file:
+            output_file.write('\n'.join([header, nml, data_block]))
+
+    def _get_header(self):
+        raise NotImplementedError()
+
+    def _get_nml(self):
+        raise NotImplementedError()
+
+    def _get_data_block(self):
+        raise NotImplementedError()
+
+class HIST_CONC_INWriter(InputWriter):
+    def _get_data_block(self):
+        raise NotImplementedError()
+
+
+def determine_tool(fname, regexp_map):
+    for fname_regex in regexp_map:
+        if re.match(fname_regex, basename(fname)):
+            return regexp_map[fname_regex]
+
+hist_emis_in_regexp = r'^HIST.*\_EMIS\.IN$'
+hist_conc_in_regexp = r'^.*\_.*CONC.*\.IN$'
+
+_fname_reader_regex_map = {
+    hist_emis_in_regexp: HIST_EMIS_INReader,
+    # r'^.*\.SCEN$': SCENReader,
+    # r'^.*\.SCEN7$': SCEN7Reader,
+    hist_conc_in_regexp: HIST_CONC_INReader,
+    # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
+    # r'.*\.SECTOR$': SECTORReader,
 }
 
-
 def get_reader(fname):
-    with open(fname) as f:
-        lines = f.readlines()
+    return determine_tool(fname, _fname_reader_regex_map)(fname)
 
-    # Infer the file type from the header
-    if '.__  __          _____ _____ _____ _____   ______   ______ __  __ _____  _____  _____ _   _' \
-            in lines[0]:
-        file_type = 'MAGICC7'
-    else:
-        file_type = 'MAGICC6'
+_fname_writer_regex_map = {
+    # hist_emis_in_regexp: HIST_EMIS_INWriter,
+    # r'^.*\.SCEN$': SCENWriter,
+    # r'^.*\.SCEN7$': SCEN7Writer,
+    hist_conc_in_regexp: HIST_CONC_INWriter,
+    # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTWriter,
+    # r'.*\.SECTOR$': SECTORWriter,
+}
 
-    return _file_types[file_type](fname, lines)
-
+def get_writer(fname):
+    return determine_tool(fname, _fname_writer_regex_map)()
 
 class MAGICCInput(object):
     """
@@ -302,4 +397,5 @@ class MAGICCInput(object):
         """
         TODO: Implement writing to disk
         """
-        raise NotImplementedError()
+        writer = get_writer(filename)
+        writer.write(self, filename)

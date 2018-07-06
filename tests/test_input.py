@@ -1,11 +1,16 @@
-from os.path import dirname, join
+from os import remove
+from os.path import dirname, join, isfile, basename
+from tempfile import mkstemp, mkdtemp
+from shutil import rmtree
 
 import pandas as pd
+import re
 import pkg_resources
 import pytest
+from unittest.mock import patch
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader
+from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader, HIST_CONC_INReader
 
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -33,7 +38,7 @@ def test_load_magicc6_conc():
     mdata.read(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')
 
     assert (mdata.df.index.get_level_values('UNITS') == 'ppm').all()
-    assert mdata.df['value']['CO2_CONC', 'SET', 'GLOBAL', 1048, 'ppm'] == 2.80435733e+002
+    assert mdata.df['CO2_CONC', 'SET', 'GLOBAL', 'ppm', 1048] == 2.80435733e+002
 
 
 def test_load_magicc7_emis():
@@ -106,7 +111,7 @@ def test_default_path():
     mdata.read()
 
 def test_header_metadata():
-    m6 = MAGICC6Reader('test', [])
+    m6 = MAGICC6Reader('test')
     assert m6.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
     assert m6.process_header('') == {}
     assert m6.process_header('Data: Average emissions per year') == {'data': 'Average emissions per year'}
@@ -115,7 +120,7 @@ def test_header_metadata():
     # assert warning on this one
     # m6.process_header('DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009')
 
-    m7 = MAGICC7Reader('test', [])
+    m7 = MAGICC7Reader('test')
     assert m7.process_header('lkhdsljdkjflkjndlkjlkndjgf') == {}
     assert m7.process_header('') == {}
     assert m7.process_header('Data: Average emissions per year\nother text') == {'data': 'Average emissions per year'}
@@ -136,3 +141,62 @@ def test_MAGICCInput_init(test_filename):
 
     assert mdata.df is None
     assert mdata.metadata == {}
+
+def test_set_lines():
+    reader = InputReader('test')
+    with pytest.raises(FileNotFoundError):
+        reader._set_lines()
+
+    test_file = join(MAGICC7_DIR, 'HISTSSP_CO2I_EMIS.IN')
+    assert isfile(test_file)
+
+    reader = InputReader(test_file)
+    reader._set_lines()
+    with open(test_file) as f:
+        assert reader.lines == f.readlines()
+
+@pytest.mark.parametrize('test_filename, expected_variable', [
+    ('/test/filename/paths/HISTABCD_CH4_CONC.IN', 'CH4_CONC'),
+    ('test/filename.OUT', None),
+])
+def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
+
+    conc_reader = HIST_CONC_INReader(test_filename)
+    if expected_variable is None:
+        expected_message = re.escape('Cannot determine variable from filename: {}'.format(test_filename))
+        with pytest.raises(SyntaxError, match=expected_message):
+            conc_reader._get_variable_from_filename()
+    else:
+        assert conc_reader._get_variable_from_filename() == expected_variable
+
+@pytest.fixture
+def temp_file():
+    temp_file = mkstemp()[1]
+    yield temp_file
+    print('deleting {}'.format(temp_file))
+    remove(temp_file)
+
+@pytest.fixture
+def temp_dir():
+    temp_dir = mkdtemp()
+    yield temp_dir
+    print('deleting {}'.format(temp_dir))
+    rmtree(temp_dir)
+
+@pytest.mark.parametrize('starting_file', [
+    (join(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')),
+])
+def test_CONC_IN_file_read_write_identical(starting_file, temp_dir):
+    with open(starting_file, 'r') as sf:
+        lines_initial = sf.readlines()
+
+    mi = MAGICCInput(starting_file)
+    mi.read(filepath='')
+
+    # need to fix all these API details later...
+    mi.write(join(temp_dir, basename(starting_file)))
+
+    with open(temp_file, 'r') as wf:
+        lines_written = wf.readlines()
+
+    assert lines_written == lines_initial
