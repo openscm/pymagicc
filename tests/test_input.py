@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import patch
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader
+from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader, CONC_INReader
 
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -35,7 +35,7 @@ def test_load_magicc6_conc():
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
 
     assert (mdata.df.index.get_level_values('UNITS') == 'ppm').all()
-    assert mdata.df['value']['CO2_CONC', 'SET', 'GLOBAL', 1048, 'ppm'] == 2.80435733e+002
+    assert mdata.df['CO2_CONC', 'SET', 'GLOBAL', 'ppm', 1048] == 2.80435733e+002
 
 
 def test_load_magicc7_emis():
@@ -155,3 +155,17 @@ def test_set_lines():
     reader._set_lines()
     with open(test_file) as f:
         assert reader.lines == f.readlines()
+
+@pytest.mark.parametrize('test_filename, expected_variable', [
+    ('/test/filename/paths/HISTABCD_CH4_CONC.IN', 'CH4_CONC'),
+    ('test/filename.OUT', None),
+])
+def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
+
+    conc_reader = CONC_INReader(test_filename)
+    if expected_variable is None:
+        expected_message = re.escape('Cannot determine variable from filename: {}'.format(test_filename))
+        with pytest.raises(SyntaxError, match=expected_message):
+            conc_reader._get_variable_from_filename()
+    else:
+        assert conc_reader._get_variable_from_filename() == expected_variable
