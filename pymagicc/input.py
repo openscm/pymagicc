@@ -129,8 +129,6 @@ class InputReader(object):
 
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
-        # regions line starts with 'COLCODE' instead of 'REGIONS'
-        # regions = self._read_data_header_line(stream, 'COLCODE')
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -198,8 +196,36 @@ class MAGICC7Reader(InputReader):
 
 class CONC_INReader(InputReader):
     def process_data(self, stream, metadata):
-        proxy_reader = MAGICC6Reader(self.filename)
-        return proxy_reader.process_data(stream, metadata)
+        regions = self._read_data_header_line(stream, 'COLCODE') # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
+        units = [metadata['units']]*len(regions)
+        metadata.pop('units')
+        todo = ['SET']*len(regions)
+        variables = [self._get_variable_from_filename()]*len(regions)
+        index = pd.MultiIndex.from_arrays(
+            [variables, todo, regions, units],
+            names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
+        )
+        df = pd.read_csv(
+            stream,
+            skip_blank_lines=True,
+            delim_whitespace=True,
+            names=None,
+            header=None,
+            index_col=0)
+        df.index.name = 'YEAR'
+        df.columns = index
+        df = df.T.stack()
+
+        return df, metadata
+
+    def _get_variable_from_filename(self):
+        regexp_capture_variable = re.compile(r'.*\_(\w*\_CONC)\.IN$')
+        try:
+            return regexp_capture_variable.search(self.filename).group(1)
+        except AttributeError:
+            error_msg = 'Cannot determine variable from filename: {}'.format(self.filename)
+            raise SyntaxError(error_msg)
+
 
 class HIST_EMIS_INReader(InputReader):
     def process_data(self, stream, metadata):
