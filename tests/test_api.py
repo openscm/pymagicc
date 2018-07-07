@@ -9,7 +9,6 @@ import pandas as pd
 import f90nml
 
 from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
-from .test_config import config_override  #  noqa
 
 
 @pytest.fixture(scope="module")
@@ -578,6 +577,9 @@ def test_integration_diagnose_tcr_ecs(package):
     assert "ecs" in actual_result
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
-        # MAGICC6 shipped with pymagicc should be stable
-        np.testing.assert_allclose(actual_result["tcr"], 1.9733976)
-        np.testing.assert_allclose(actual_result["ecs"], 2.9968448)
+        assert (
+            actual_result["tcr"] == 1.9733976000000002
+        )  # MAGICC6 shipped with pymagicc should be stable
+        assert (
+            actual_result["ecs"] == 2.9968448
+        )  # MAGICC6 shipped with pymagicc should be stable

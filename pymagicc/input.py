@@ -26,7 +26,7 @@ class InputReader(object):
         self.filename = filename
 
     def _set_lines(self):
-        with open(self.filename, 'r') as f:
+        with open(self.filename, "r") as f:
             self.lines = f.readlines()
 
     def read(self):
@@ -39,13 +39,10 @@ class InputReader(object):
 
         nml_end, nml_start = self._find_nml()
 
-        nml_values = self.process_metadata(self.lines[nml_start:nml_end + 1])
-        metadata = {
-            key: value for key, value in  nml_values.items()
-            if key == 'units'
-        }
-        metadata['header'] = "".join(self.lines[:nml_start])
-        header_metadata = self.process_header(metadata['header'])
+        nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
+        metadata = {key: value for key, value in nml_values.items() if key == "units"}
+        metadata["header"] = "".join(self.lines[:nml_start])
+        header_metadata = self.process_header(metadata["header"])
         metadata.update(header_metadata)
 
         # Create a stream from the remaining lines, ignoring any blank lines
@@ -107,7 +104,6 @@ class InputReader(object):
         """
         raise NotImplementedError()
 
-
     def process_header(self, header):
         """
         Parse the header for additional metadata
@@ -134,27 +130,22 @@ class InputReader(object):
 class MAGICC6Reader(InputReader):
     def process_data(self, stream, metadata):
         df = pd.read_csv(
-            stream,
-            skip_blank_lines=True,
-            delim_whitespace=True,
-            engine="python")
+            stream, skip_blank_lines=True, delim_whitespace=True, engine="python"
+        )
 
-        df.rename(columns={'COLCODE': 'YEAR'}, inplace=True)
+        df.rename(columns={"COLCODE": "YEAR"}, inplace=True)
 
-        df = pd.melt(df, id_vars='YEAR', var_name='REGION', )
+        df = pd.melt(df, id_vars="YEAR", var_name="REGION")
 
-        df['UNITS'] = metadata['units']
-        metadata.pop('units')
+        df["UNITS"] = metadata["units"]
+        metadata.pop("units")
 
-        df['TODO'] = 'SET'
+        df["TODO"] = "SET"
 
         filename_only = splitext(basename(self.filename))[0]
-        df['VARIABLE'] = '_'.join(filename_only.split('_')[1:])
+        df["VARIABLE"] = "_".join(filename_only.split("_")[1:])
 
-        df.set_index(
-            ['VARIABLE', 'TODO', 'REGION', 'YEAR', 'UNITS'],
-            inplace=True
-        )
+        df.set_index(["VARIABLE", "TODO", "REGION", "YEAR", "UNITS"], inplace=True)
 
         return df, metadata
 
@@ -162,13 +153,15 @@ class MAGICC6Reader(InputReader):
 
 class MAGICC7Reader(InputReader):
     def process_data(self, stream, metadata):
-        variables = self._read_data_header_line(stream, 'GAS')
-        todo = self._read_data_header_line(stream, 'TODO')
-        units = self._read_data_header_line(stream, 'UNITS')
-        regions = self._read_data_header_line(stream, 'YEARS')  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
+        variables = self._read_data_header_line(stream, "GAS")
+        todo = self._read_data_header_line(stream, "TODO")
+        units = self._read_data_header_line(stream, "UNITS")
+        regions = self._read_data_header_line(
+            stream, "YEARS"
+        )  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
         index = pd.MultiIndex.from_arrays(
             [variables, todo, regions, units],
-            names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
+            names=["VARIABLE", "TODO", "REGION", "UNITS"],
         )
         df = pd.read_csv(
             stream,
@@ -198,16 +191,19 @@ class MAGICC7Reader(InputReader):
 
         return result
 
+
 class HIST_CONC_INReader(InputReader):
     def process_data(self, stream, metadata):
-        regions = self._read_data_header_line(stream, 'COLCODE') # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
-        units = [metadata['units']]*len(regions)
-        metadata.pop('units')
-        todo = ['SET']*len(regions)
-        variables = [self._get_variable_from_filename()]*len(regions)
+        regions = self._read_data_header_line(
+            stream, "COLCODE"
+        )  # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
+        units = [metadata["units"]] * len(regions)
+        metadata.pop("units")
+        todo = ["SET"] * len(regions)
+        variables = [self._get_variable_from_filename()] * len(regions)
         index = pd.MultiIndex.from_arrays(
             [variables, todo, regions, units],
-            names=['VARIABLE', 'TODO', 'REGION', 'UNITS']
+            names=["VARIABLE", "TODO", "REGION", "UNITS"],
         )
         df = pd.read_csv(
             stream,
@@ -215,30 +211,34 @@ class HIST_CONC_INReader(InputReader):
             delim_whitespace=True,
             names=None,
             header=None,
-            index_col=0)
-        df.index.name = 'YEAR'
+            index_col=0,
+        )
+        df.index.name = "YEAR"
         df.columns = index
         df = df.T.stack()
 
         return df, metadata
 
     def _get_variable_from_filename(self):
-        regexp_capture_variable = re.compile(r'.*\_(\w*\_CONC)\.IN$')
+        regexp_capture_variable = re.compile(r".*\_(\w*\_CONC)\.IN$")
         try:
             return regexp_capture_variable.search(self.filename).group(1)
         except AttributeError:
-            error_msg = 'Cannot determine variable from filename: {}'.format(self.filename)
+            error_msg = "Cannot determine variable from filename: {}".format(
+                self.filename
+            )
             raise SyntaxError(error_msg)
 
 
 class HIST_EMIS_INReader(InputReader):
     # TODO: fix this. Not high priority now
     def process_data(self, stream, metadata):
-        if any(['COLCODE' in line for line in self.lines]):
+        if any(["COLCODE" in line for line in self.lines]):
             proxy_reader = MAGICC6Reader(self.filename)
         else:
             proxy_reader = MAGICC7Reader(self.filename)
         return proxy_reader.process_data(stream, metadata)
+
 
 class InputWriter(object):
     def __init__(self):
@@ -261,74 +261,94 @@ class InputWriter(object):
         output = StringIO()
         output.write(self._get_header())
 
-
         nml, data_block = self._get_nml_and_data_block()
 
-        no_lines_nml_header_end = 2 # &NML_INDICATOR goes above, / goes at end
-        line_after_nml = '\n'
+        no_lines_nml_header_end = 2  # &NML_INDICATOR goes above, / goes at end
+        line_after_nml = "\n"
 
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTDATAROW'] = 0
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTDATAROW'] = (
-            len(output.getvalue().split('\n')) +
-            len(nml['THISFILE_SPECIFICATIONS']) +
-            no_lines_nml_header_end +
-            len(line_after_nml.split('\n'))
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = 0
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+            len(output.getvalue().split("\n"))
+            + len(nml["THISFILE_SPECIFICATIONS"])
+            + no_lines_nml_header_end
+            + len(line_after_nml.split("\n"))
         )
 
         nml.uppercase = True
         nml._writestream(output)
         output.write(line_after_nml)
 
-        output.write('    ') # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
-        data_block.to_string(output, index=False, formatters={'COLCODE': '{:12d}'.format, 'GLOBAL': '{:18.8e}'.format,})
+        output.write(
+            "    "
+        )  # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+        data_block.to_string(
+            output,
+            index=False,
+            formatters={"COLCODE": "{:12d}".format, "GLOBAL": "{:18.8e}".format},
+        )
 
-        output.write('\n')
-        with open(filename, 'w') as output_file:
+        output.write("\n")
+        with open(filename, "w") as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
 
     def _get_header(self):
-        return self.minput.metadata['header']
+        return self.minput.metadata["header"]
 
     def _get_nml_and_data_block(self):
         data_block = self._get_data_block()
 
         nml = Namelist()
-        nml['THISFILE_SPECIFICATIONS'] = Namelist()
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_DATACOLUMNS'] = len(data_block.columns) - 1
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTYEAR'] = data_block['COLCODE'].iloc[0]
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_LASTYEAR'] = data_block['COLCODE'].iloc[-1]
-        assert (data_block['COLCODE'].iloc[-1] - data_block['COLCODE'].iloc[0] + 1) / len(data_block['COLCODE']) == 1.0 # not ready for others yet
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_ANNUALSTEPS'] = 1
-        unique_units = self.minput.df.index.get_level_values('UNITS').unique()
-        assert len(unique_units) == 1 # again not ready for other stuff
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_UNITS'] = unique_units[0]
-        regions = self.minput.df.index.get_level_values('REGION').unique()
-        assert len(regions) == 1 # again not ready for other stuff
-        assert regions[0] == 'GLOBAL' # again not ready for other stuff
-        nml['THISFILE_SPECIFICATIONS']['THISFILE_DATTYPE'] = 'FOURBOXDATA'
+        nml["THISFILE_SPECIFICATIONS"] = Namelist()
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
+            len(data_block.columns) - 1
+        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block[
+            "COLCODE"
+        ].iloc[0]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block[
+            "COLCODE"
+        ].iloc[-1]
+        assert (
+            (data_block["COLCODE"].iloc[-1] - data_block["COLCODE"].iloc[0] + 1)
+            / len(data_block["COLCODE"])
+            == 1.0
+        )  # not ready for others yet
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = 1
+        unique_units = self.minput.df.index.get_level_values("UNITS").unique()
+        assert len(unique_units) == 1  # again not ready for other stuff
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = unique_units[0]
+        regions = self.minput.df.index.get_level_values("REGION").unique()
+        assert len(regions) == 1  # again not ready for other stuff
+        assert regions[0] == "GLOBAL"  # again not ready for other stuff
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "FOURBOXDATA"
 
         return nml, data_block
 
     def _get_data_block(self):
         raise NotImplementedError()
 
+
 class HIST_CONC_INWriter(InputWriter):
     def _get_data_block(self):
         # lazy but works for now, will become smarter later
         data_block = self.minput.df[self.minput.df.index.values[0][:-1]]
-        data_block = pd.DataFrame(data_block).reset_index() # the fact that I have to do this is problematic...
-        assert len(data_block.columns == 2) # only ready for global series now
-        data_block.columns = ['COLCODE', 'GLOBAL']
+        data_block = pd.DataFrame(
+            data_block
+        ).reset_index()  # the fact that I have to do this is problematic...
+        assert len(data_block.columns == 2)  # only ready for global series now
+        data_block.columns = ["COLCODE", "GLOBAL"]
         return data_block
+
 
 def determine_tool(fname, regexp_map):
     for fname_regex in regexp_map:
         if re.match(fname_regex, basename(fname)):
             return regexp_map[fname_regex]
 
-hist_emis_in_regexp = r'^HIST.*\_EMIS\.IN$'
-hist_conc_in_regexp = r'^.*\_.*CONC.*\.IN$'
+
+hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
+hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
 
 _fname_reader_regex_map = {
     hist_emis_in_regexp: HIST_EMIS_INReader,
@@ -339,8 +359,10 @@ _fname_reader_regex_map = {
     # r'.*\.SECTOR$': SECTORReader,
 }
 
+
 def get_reader(fname):
     return determine_tool(fname, _fname_reader_regex_map)(fname)
+
 
 _fname_writer_regex_map = {
     # hist_emis_in_regexp: HIST_EMIS_INWriter,
@@ -351,8 +373,10 @@ _fname_writer_regex_map = {
     # r'.*\.SECTOR$': SECTORWriter,
 }
 
+
 def get_writer(fname):
     return determine_tool(fname, _fname_writer_regex_map)()
+
 
 class MAGICCInput(object):
     """
@@ -407,10 +431,9 @@ class MAGICCInput(object):
         if not self.is_loaded:
             self._raise_not_loaded_error()
         if len(item) == 2:
-            return self.df['value'][item[0], :, item[1], :, :]
+            return self.df["value"][item[0], :, item[1], :, :]
         elif len(item) == 3:
-            return self.df['value'][item[0], :, item[1], item[2], :]
-
+            return self.df["value"][item[0], :, item[1], item[2], :]
 
     def __getattr__(self, item):
         """
@@ -421,7 +444,7 @@ class MAGICCInput(object):
         return getattr(self.df, item)
 
     def _raise_not_loaded_error(self):
-        raise ValueError('File has not been read from disk yet')
+        raise ValueError("File has not been read from disk yet")
 
     @property
     def is_loaded(self):
