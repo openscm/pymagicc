@@ -10,5 +10,4 @@ appmode
 pydoc-markdown
 mock
 flake8
-black
-nbval
+pint
