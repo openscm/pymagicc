@@ -1,6 +1,8 @@
 from os.path import basename, exists, join, splitext
+from shutil import copyfileobj
 
 import f90nml
+from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
@@ -37,7 +39,11 @@ class InputReader(object):
 
         nml_end, nml_start = self._find_nml()
 
-        metadata = self.process_metadata(self.lines[nml_start:nml_end + 1])
+        nml_values = self.process_metadata(self.lines[nml_start:nml_end + 1])
+        metadata = {
+            key: value for key, value in  nml_values.items()
+            if key == 'units'
+        }
         metadata['header'] = "".join(self.lines[:nml_start])
         header_metadata = self.process_header(metadata['header'])
         metadata.update(header_metadata)
@@ -242,29 +248,73 @@ class InputWriter(object):
            the file will be written in the current directory (TODO: check this is true...)
         """
         self.minput = magicc_input
-        header = self._get_header()
-        nml = self._get_nml()
-        data_block = self._get_data_block()
 
         if filepath is not None:
             filename = join(filepath, filename)
 
-        with open(filename) as output_file:
-            output_file.write('\n'.join([header, nml, data_block]))
+        output = StringIO()
+        output.write(self._get_header())
+
+
+        nml, data_block = self._get_nml_and_data_block()
+
+        no_lines_nml_header_end = 2 # &NML_INDICATOR goes above, / goes at end
+        line_after_nml = '\n'
+
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTDATAROW'] = 0
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTDATAROW'] = (
+            len(output.getvalue().split('\n')) +
+            len(nml['THISFILE_SPECIFICATIONS']) +
+            no_lines_nml_header_end +
+            len(line_after_nml.split('\n'))
+        )
+
+        nml.uppercase = True
+        nml._writestream(output)
+        output.write(line_after_nml)
+
+        output.write('    ') # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+        data_block.to_string(output, index=False, formatters={'COLCODE': '{:12d}'.format, 'GLOBAL': '{:18.8e}'.format,})
+
+        output.write('\n')
+        with open(filename, 'w') as output_file:
+            output.seek(0)
+            copyfileobj(output, output_file)
 
     def _get_header(self):
-        raise NotImplementedError()
+        return self.minput.metadata['header']
 
-    def _get_nml(self):
-        raise NotImplementedError()
+    def _get_nml_and_data_block(self):
+        data_block = self._get_data_block()
+
+        nml = Namelist()
+        nml['THISFILE_SPECIFICATIONS'] = Namelist()
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_DATACOLUMNS'] = len(data_block.columns) - 1
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_FIRSTYEAR'] = data_block['COLCODE'].iloc[0]
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_LASTYEAR'] = data_block['COLCODE'].iloc[-1]
+        assert (data_block['COLCODE'].iloc[-1] - data_block['COLCODE'].iloc[0] + 1) / len(data_block['COLCODE']) == 1.0 # not ready for others yet
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_ANNUALSTEPS'] = 1
+        unique_units = self.minput.df.index.get_level_values('UNITS').unique()
+        assert len(unique_units) == 1 # again not ready for other stuff
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_UNITS'] = unique_units[0]
+        regions = self.minput.df.index.get_level_values('REGION').unique()
+        assert len(regions) == 1 # again not ready for other stuff
+        assert regions[0] == 'GLOBAL' # again not ready for other stuff
+        nml['THISFILE_SPECIFICATIONS']['THISFILE_DATTYPE'] = 'FOURBOXDATA'
+
+        return nml, data_block
 
     def _get_data_block(self):
         raise NotImplementedError()
 
 class HIST_CONC_INWriter(InputWriter):
     def _get_data_block(self):
-        raise NotImplementedError()
-
+        # lazy but works for now, will become smarter later
+        data_block = self.minput.df[self.minput.df.index.values[0][:-1]]
+        data_block = pd.DataFrame(data_block).reset_index() # the fact that I have to do this is problematic...
+        assert len(data_block.columns == 2) # only ready for global series now
+        data_block.columns = ['COLCODE', 'GLOBAL']
+        return data_block
 
 def determine_tool(fname, regexp_map):
     for fname_regex in regexp_map:
