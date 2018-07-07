@@ -8,12 +8,16 @@ import re
 import pkg_resources
 import pytest
 from unittest.mock import patch
+import f90nml
 
 from pymagicc.api import MAGICC6
 from pymagicc.input import MAGICCInput, MAGICC7Reader, MAGICC6Reader, InputReader, HIST_CONC_INReader
 
 MAGICC6_DIR = pkg_resources.resource_filename('pymagicc', 'MAGICC6/run')
 MAGICC7_DIR = join(dirname(__file__), "test_data")
+
+# TEMPCHANGELOG:
+# - stop reading in the nml. All the values in it should be introspected hence this step is redundant. If required as a check of file validity in future, we can write a separate function, it shouldn't be in the reader
 
 # TODO:
 # - write tests for SCEN and SCEN7 files
@@ -24,9 +28,10 @@ def test_load_magicc6_emis():
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN")
     assert mdata.is_loaded == True
 
-    with pytest.raises(KeyError):
-        mdata.metadata['units']
-    assert mdata.metadata['dattype'] == 'REGIONDATA'
+    for key in ['units', 'firstdatarow', 'dattype']:
+        with pytest.raises(KeyError):
+            mdata.metadata[key]
+
     assert isinstance(mdata.metadata['header'], str)
     assert isinstance(mdata.df, pd.DataFrame)
     assert mdata.df.index.names == ['VARIABLE', 'TODO', 'REGION', 'YEAR', 'UNITS']
@@ -187,20 +192,23 @@ def temp_dir():
     print('deleting {}'.format(temp_dir))
     rmtree(temp_dir)
 
-@pytest.mark.parametrize('starting_file', [
-    (join(MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN')),
+@pytest.mark.parametrize('starting_fpath, starting_fname', [
+    (MAGICC6_DIR, 'HISTRCP_CO2_CONC.IN'),
 ])
-def test_CONC_IN_file_read_write_identical(starting_file, temp_dir):
-    with open(starting_file, 'r') as sf:
-        lines_initial = sf.readlines()
+def test_CONC_IN_file_read_write_functionally_identical(starting_fpath, starting_fname, temp_dir):
+    mi_writer = MAGICCInput()
+    mi_writer.read(filepath=starting_fpath, filename=starting_fname)
 
-    mi = MAGICCInput(starting_file)
-    mi.read(filepath='')
+    mi_writer.write(join(temp_dir, starting_fname))
 
-    # need to fix all these API details later...
-    mi.write(join(temp_dir, basename(starting_file)))
+    mi_written = MAGICCInput()
+    mi_written.read(filepath=temp_dir, filename=starting_fname)
+    nml_written = f90nml.read(join(temp_dir, starting_fname))
 
-    with open(temp_file, 'r') as wf:
-        lines_written = wf.readlines()
+    mi_initial = MAGICCInput()
+    mi_initial.read(filepath=starting_fpath, filename=starting_fname)
+    nml_initial = f90nml.read(join(temp_dir, starting_fname))
 
-    assert lines_written == lines_initial
+    assert mi_written.metadata == mi_initial.metadata
+    assert (mi_written.df == mi_initial.df).all()
+    assert sorted(nml_written['thisfile_specifications']) == sorted(nml_initial['thisfile_specifications'])
