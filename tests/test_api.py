@@ -2,8 +2,11 @@ from os import remove
 from os.path import exists, join
 from subprocess import CalledProcessError
 
-import f90nml
+import numpy as np
 import pytest
+from unittest.mock import patch
+import pandas as pd
+import f90nml
 
 from pymagicc.api import MAGICC6, MAGICC7, config, _clean_value
 
@@ -155,3 +158,46 @@ def test_no_root_dir():
 
     with pytest.raises(FileNotFoundError):
         magicc.run()
+
+def test_diagnose_tcr_ecs(package):
+    mock_tcr_val = 1.8
+    mock_tcr_yr = 1825
+    mock_ecs_val = 3.1
+    mock_ecs_yr = 2200
+
+    mock_res = {}
+    fake_time = np.arange(1750, 2200)
+    mock_res['SURFACE_TEMP'] = pd.DataFrame(
+        {'GLOBAL': np.zeros(len(fake_time))},
+        index=fake_time,
+    )
+
+    mock_res['SURFACE_TEMP']['GLOBAL'].loc[mock_tcr_yr] = mock_tcr_val
+    mock_res['SURFACE_TEMP']['GLOBAL'].loc[mock_ecs_yr] = mock_ecs_val
+
+    with patch.object(package, '_diagnose_tcr_ecs_config_setup') as mock_diagnose_tcr_ecs_setup:
+        mock_diagnose_tcr_ecs_setup.return_value = [mock_tcr_yr, mock_ecs_yr]
+
+        with patch.object(package, 'run') as mock_run:
+            mock_run.return_value = mock_res
+
+            actual_result = package.diagnose_tcr_ecs()
+            print(actual_result['tcr'])
+            assert actual_result['tcr'] == mock_tcr_val
+            assert actual_result['ecs'] == mock_ecs_val
+
+
+# at one level have to check that CO2 concs come out as expected (and error if not) and that total forcing is linear (and error if not) and that temperature is monotonic increasing (and error if not)
+# test that 1PCT CO2 file hasn't changed (and error if it has)
+
+# integration test (i.e. actually runs magicc) hence slow
+@pytest.mark.slow
+def test_integration_diagnose_tcr_ecs(package):
+    actual_result = package.diagnose_tcr_ecs()
+    assert isinstance(result, dict)
+    assert 'tcr' in result
+    assert 'ecs' in result
+    assert result['tcr'] < result['ecs']
+    if isinstance(package, MAGICC6):
+        assert result['tcr'] == 1.970709 # MAGICC6 shipped with pymagicc should be stable
+        assert result['ecs'] == 3.0 # MAGICC6 shipped with pymagicc should be stable

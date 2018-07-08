@@ -234,6 +234,17 @@ class MAGICCBase(object):
     def get_executable(self):
         return config['executable_{}'.format(self.version)]
 
+    def diagnose_tcr_ecs(self):
+        tcr_yr, ecs_yr = self._diagnose_tcr_ecs_config_setup()
+        results = self.run(only=['SURFACE_TEMP',])
+        return {
+            'tcr': results['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr],
+            'ecs': results['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr],
+        }
+
+    def _diagnose_tcr_ecs_config_setup(self):
+        raise NotImplementedError
+
 
 class MAGICC6(MAGICCBase):
     version = 6
