@@ -241,10 +241,10 @@ class MAGICCBase(object):
     def diagnose_tcr_ecs(self):
         self._diagnose_tcr_ecs_config_setup()
         results = self.run(only=['SURFACE_TEMP',])
-        tcr_yr, ecs_yr = self._check_tcr_ecs_diagnosis(results)
+        tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(results)
         return {
-            'tcr': results['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr],
-            'ecs': results['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr],
+            'tcr': tcr,
+            'ecs': ecs,
         }
 
     def _diagnose_tcr_ecs_config_setup(self):
@@ -256,9 +256,24 @@ class MAGICCBase(object):
             RF_TOTAL_CONSTANTAFTERYR=2000,
         )
 
-    def _check_tcr_ecs_diagnosis(self, results_to_check):
+    def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
+        tcr_yr, ecs_yr = self._get_tcr_ecs_yr_from_CO2_concs(
+            results_tcr_ecs_run['CO2_CONC']['GLOBAL']
+        )
+        self._check_tcr_ecs_total_RF(
+            results_tcr_ecs_run['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
+            tcr_yr=tcr_yr,
+            ecs_yr=ecs_yr,
+        )
+        tcr = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr]
+        ecs = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr]
+        return tcr, ecs
+
+    def _get_tcr_ecs_yr_from_CO2_concs(self, results_tcr_ecs_run):
         raise NotImplementedError
 
+    def _check_tcr_ecs_total_RF(self, results_tcr_ecs_run, tcr_yr, ecs_yr):
+        raise NotImplementedError
 
 class MAGICC6(MAGICCBase):
     version = 6

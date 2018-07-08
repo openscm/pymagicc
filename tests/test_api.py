@@ -8,8 +8,11 @@ from unittest.mock import patch
 import pandas as pd
 import f90nml
 
-from pymagicc.api import MAGICC6, MAGICC7, config, _clean_value
+from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
 
+@pytest.fixture(scope="module")
+def magicc_base():
+    yield MAGICCBase()
 
 @pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
 def package(request):
@@ -159,49 +162,102 @@ def test_no_root_dir():
     with pytest.raises(FileNotFoundError):
         magicc.run()
 
-def test_diagnose_tcr_ecs(package):
+@patch.object(MAGICCBase, '_diagnose_tcr_ecs_config_setup')
+@patch.object(MAGICCBase, 'run')
+@patch.object(MAGICCBase, '_get_tcr_ecs_from_diagnosis_results')
+def test_diagnose_tcr_ecs(mock_get_tcr_ecs_from_results, mock_run, mock_diagnose_tcr_ecs_setup, magicc_base):
     mock_tcr_val = 1.8
-    mock_tcr_yr = 1825
     mock_ecs_val = 3.1
-    mock_ecs_yr = 2200
+    mock_results = pd.DataFrame()
 
-    mock_res = {}
-    fake_time = np.arange(1750, 2200)
-    mock_res['SURFACE_TEMP'] = pd.DataFrame(
-        {'GLOBAL': np.zeros(len(fake_time))},
-        index=fake_time,
+    mock_run.return_value = mock_results
+    mock_get_tcr_ecs_from_results.return_value = [mock_tcr_val, mock_ecs_val]
+
+    assert magicc_base.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
+    assert mock_diagnose_tcr_ecs_setup.call_count == 1
+    mock_run.assert_called_with(only=['SURFACE_TEMP'])
+    assert mock_get_tcr_ecs_from_results.call_count == 1
+    mock_get_tcr_ecs_from_results.assert_called_with(mock_run())
+
+    assert magicc_base.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
+    assert mock_diagnose_tcr_ecs_setup.call_count == 2
+    assert mock_get_tcr_ecs_from_results.call_count == 2
+
+@patch.object(MAGICCBase, 'set_config')
+@patch.object(MAGICCBase, 'set_years')
+def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_set_config, magicc_base):
+    magicc_base._diagnose_tcr_ecs_config_setup()
+    mock_set_years.assert_called_with(startyear=1750, endyear=4200)
+    mock_set_config.assert_called_with(
+        FILE_CO2_CONC="HISTTCRECS_CO2_CONC.IN",
+        RF_TOTAL_RUNMODUS="CO2",
+        RF_TOTAL_CONSTANTAFTERYR=2000,
     )
 
-    mock_res['SURFACE_TEMP']['GLOBAL'].loc[mock_tcr_yr] = mock_tcr_val
-    mock_res['SURFACE_TEMP']['GLOBAL'].loc[mock_ecs_yr] = mock_ecs_val
+@pytest.fixture
+def valid_tcr_ecs_diagnosis_results():
+    startyear = 1700
+    endyear = 4000
+    fake_PI_conc = 278.
+    spin_up_time = 50.
+    rising_time = 70.
+    eqm_time = endyear - startyear - spin_up_time - rising_time
 
-    with patch.object(package, '_diagnose_tcr_ecs_config_setup') as mock_diagnose_tcr_ecs_setup:
-        with patch.object(package, 'run') as mock_run:
-            mock_run.return_value = mock_res
-            with patch.object(package, '_check_tcr_ecs_diagnosis') as mock_check_tcr_ecs_diagnosis:
-                mock_check_tcr_ecs_diagnosis.return_value = [mock_tcr_yr, mock_ecs_yr]
+    fake_time = np.arange(startyear, endyear)
+    fake_concs = np.concatenate((
+        fake_PI_conc*np.ones(int(spin_up_time)),
+        fake_PI_conc*1.01**(np.arange(rising_time)),
+        fake_PI_conc*1.01**(rising_time)*np.ones(int(eqm_time)),
+    ))
+    fake_rf = 2.*np.log(1+fake_concs/fake_PI_conc)
+    fake_temp = np.log(fake_rf) + fake_time / fake_time[1400]
 
-                assert package.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
-                mock_run.assert_called_with(only=['SURFACE_TEMP'])
-                assert mock_diagnose_tcr_ecs_setup.call_count == 1
-                assert mock_check_tcr_ecs_diagnosis.call_count == 1
-                mock_check_tcr_ecs_diagnosis.assert_called_with(mock_run())
+    mock_results = {}
+    mock_results['CO2_CONC'] = pd.DataFrame(
+        {'GLOBAL': fake_concs},
+        index=fake_time,
+    )
+    mock_results['TOTAL_INCLVOLCANIC_RF'] = pd.DataFrame(
+        {'GLOBAL': fake_rf},
+        index=fake_time,
+    )
+    mock_results['SURFACE_TEMP'] = pd.DataFrame(
+        {'GLOBAL': fake_temp},
+        index=fake_time,
+    )
+    yield mock_results
 
+@patch.object(MAGICCBase, '_check_tcr_ecs_total_RF')
+@patch.object(MAGICCBase, '_get_tcr_ecs_yr_from_CO2_concs')
+def test_get_tcr_ecs_from_diagnosis_results(mock_get_tcr_ecs_yr_from_CO2_concs, mock_check_tcr_ecs_total_RF, valid_tcr_ecs_diagnosis_results, magicc_base):
+    # these can be any time as unit testing
+    test_tcr_yr = 1820
+    test_ecs_yr = 3200
 
-                assert package.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
-                assert mock_diagnose_tcr_ecs_setup.call_count == 2
-                assert mock_check_tcr_ecs_diagnosis.call_count == 2
+    mock_get_tcr_ecs_yr_from_CO2_concs.return_value = [
+        test_tcr_yr,
+        test_ecs_yr
+    ]
 
-def test_diagnose_tcr_ecs_config_setup(package):
-    with patch.object(package, 'set_years') as mock_set_years:
-        with patch.object(package, 'set_config') as mock_set_config:
-            package._diagnose_tcr_ecs_config_setup()
-            mock_set_years.assert_called_with(startyear=1750, endyear=4200)
-            mock_set_config.assert_called_with(
-                FILE_CO2_CONC="HISTTCRECS_CO2_CONC.IN",
-                RF_TOTAL_RUNMODUS="CO2",
-                RF_TOTAL_CONSTANTAFTERYR=2000,
-            )
+    expected_tcr = valid_tcr_ecs_diagnosis_results['SURFACE_TEMP']['GLOBAL'].loc[test_tcr_yr]
+    expected_ecs = valid_tcr_ecs_diagnosis_results['SURFACE_TEMP']['GLOBAL'].loc[test_ecs_yr]
+
+    actual_tcr, actual_ecs = magicc_base._get_tcr_ecs_from_diagnosis_results(
+        valid_tcr_ecs_diagnosis_results
+    )
+    assert actual_tcr  == expected_tcr
+    assert actual_ecs == expected_ecs
+
+    mock_get_tcr_ecs_yr_from_CO2_concs.assert_called_with(
+        valid_tcr_ecs_diagnosis_results['CO2_CONC']['GLOBAL']
+    )
+    mock_check_tcr_ecs_total_RF.assert_called_with(
+        valid_tcr_ecs_diagnosis_results['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
+        tcr_yr=test_tcr_yr,
+        ecs_yr=test_ecs_yr,
+    )
+
+# def test_get_tcr_ecs_yr_from_CO2_concs()
 
 # at one level have to check that CO2 concs come out as expected (and error if not) and that total forcing is linear (and error if not) and that temperature is monotonic increasing (and error if not)
 # test that 1PCT CO2 file hasn't changed (and error if it has)
