@@ -175,13 +175,18 @@ def test_diagnose_tcr_ecs(mock_get_tcr_ecs_from_results, mock_run, mock_diagnose
 
     assert magicc_base.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
     assert mock_diagnose_tcr_ecs_setup.call_count == 1
-    mock_run.assert_called_with(only=['SURFACE_TEMP'])
+    mock_run.assert_called_with(
+        only=['CO2_CONC', 'TOTAL_INCLVOLCANIC_RF', 'SURFACE_TEMP',]
+    )
     assert mock_get_tcr_ecs_from_results.call_count == 1
     mock_get_tcr_ecs_from_results.assert_called_with(mock_run())
 
     assert magicc_base.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
     assert mock_diagnose_tcr_ecs_setup.call_count == 2
     assert mock_get_tcr_ecs_from_results.call_count == 2
+
+    full_results = magicc_base.diagnose_tcr_ecs(full_results=True)
+    assert isinstance(full_results, pd.DataFrame)
 
 @patch.object(MAGICCBase, 'set_config')
 @patch.object(MAGICCBase, 'set_years')
@@ -198,19 +203,21 @@ def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_set_config, magicc_b
 def valid_tcr_ecs_diagnosis_results():
     startyear = 1700
     endyear = 4000
+    spin_up_time = 50
+    rising_time = 70
+    tcr_yr = startyear + spin_up_time + rising_time
+    ecs_yr = endyear
     fake_PI_conc = 278.
-    spin_up_time = 50.
-    rising_time = 70.
     eqm_time = endyear - startyear - spin_up_time - rising_time
 
-    fake_time = np.arange(startyear, endyear)
+    fake_time = np.arange(startyear, endyear+1)
     fake_concs = np.concatenate((
-        fake_PI_conc*np.ones(int(spin_up_time)),
-        fake_PI_conc*1.01**(np.arange(rising_time)),
-        fake_PI_conc*1.01**(rising_time)*np.ones(int(eqm_time)),
+        fake_PI_conc*np.ones(spin_up_time),
+        fake_PI_conc*1.01**(np.arange(rising_time+1)),
+        fake_PI_conc*1.01**(rising_time)*np.ones(eqm_time),
     ))
-    fake_rf = 2.*np.log(1+fake_concs/fake_PI_conc)
-    fake_temp = np.log(fake_rf) + fake_time / fake_time[1400]
+    fake_rf = 2.*np.log(fake_concs/fake_PI_conc)
+    fake_temp = np.log(fake_rf+1.) + fake_time / fake_time[1400]
 
     mock_results = {}
     mock_results['CO2_CONC'] = pd.DataFrame(
@@ -225,42 +232,89 @@ def valid_tcr_ecs_diagnosis_results():
         {'GLOBAL': fake_temp},
         index=fake_time,
     )
-    yield mock_results
+    yield {
+        'mock_results': mock_results,
+        'tcr_yr': tcr_yr,
+        'ecs_yr': ecs_yr,
+    }
 
+@patch.object(MAGICCBase, '_check_tcr_ecs_temp')
 @patch.object(MAGICCBase, '_check_tcr_ecs_total_RF')
 @patch.object(MAGICCBase, '_get_tcr_ecs_yr_from_CO2_concs')
-def test_get_tcr_ecs_from_diagnosis_results(mock_get_tcr_ecs_yr_from_CO2_concs, mock_check_tcr_ecs_total_RF, valid_tcr_ecs_diagnosis_results, magicc_base):
-    # these can be any time as unit testing
-    test_tcr_yr = 1820
-    test_ecs_yr = 3200
+def test_get_tcr_ecs_from_diagnosis_results(mock_get_tcr_ecs_yr_from_CO2_concs, mock_check_tcr_ecs_total_RF, mock_check_tcr_ecs_temp, valid_tcr_ecs_diagnosis_results, magicc_base):
+    test_tcr_yr = valid_tcr_ecs_diagnosis_results['tcr_yr']
+    test_ecs_yr = valid_tcr_ecs_diagnosis_results['ecs_yr']
+    test_results_dict = valid_tcr_ecs_diagnosis_results['mock_results']
 
     mock_get_tcr_ecs_yr_from_CO2_concs.return_value = [
         test_tcr_yr,
         test_ecs_yr
     ]
 
-    expected_tcr = valid_tcr_ecs_diagnosis_results['SURFACE_TEMP']['GLOBAL'].loc[test_tcr_yr]
-    expected_ecs = valid_tcr_ecs_diagnosis_results['SURFACE_TEMP']['GLOBAL'].loc[test_ecs_yr]
+    expected_tcr = test_results_dict['SURFACE_TEMP']['GLOBAL'].loc[test_tcr_yr]
+    expected_ecs = test_results_dict['SURFACE_TEMP']['GLOBAL'].loc[test_ecs_yr]
 
     actual_tcr, actual_ecs = magicc_base._get_tcr_ecs_from_diagnosis_results(
-        valid_tcr_ecs_diagnosis_results
+        test_results_dict
     )
     assert actual_tcr  == expected_tcr
     assert actual_ecs == expected_ecs
 
     mock_get_tcr_ecs_yr_from_CO2_concs.assert_called_with(
-        valid_tcr_ecs_diagnosis_results['CO2_CONC']['GLOBAL']
+        test_results_dict['CO2_CONC']['GLOBAL']
     )
     mock_check_tcr_ecs_total_RF.assert_called_with(
-        valid_tcr_ecs_diagnosis_results['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
+        test_results_dict['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
         tcr_yr=test_tcr_yr,
         ecs_yr=test_ecs_yr,
     )
+    mock_check_tcr_ecs_temp.assert_called_with(
+        test_results_dict['SURFACE_TEMP']['GLOBAL'],
+    )
 
-# def test_get_tcr_ecs_yr_from_CO2_concs()
+def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_base):
+    test_CO2_data = valid_tcr_ecs_diagnosis_results['mock_results']['CO2_CONC']['GLOBAL']
+    actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_yr_from_CO2_concs(
+        test_CO2_data
+    )
+    assert actual_tcr_yr == valid_tcr_ecs_diagnosis_results['tcr_yr']
+    assert actual_ecs_yr == valid_tcr_ecs_diagnosis_results['ecs_yr']
 
-# at one level have to check that CO2 concs come out as expected (and error if not) and that total forcing is linear (and error if not) and that temperature is monotonic increasing (and error if not)
-# test that 1PCT CO2 file hasn't changed (and error if it has)
+    test_time = test_CO2_data.index.values
+    for year_to_break in [test_time[0], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
+        broken_CO2_data = test_CO2_data.copy()
+        broken_CO2_data.loc[year_to_break] = test_CO2_data.loc[year_to_break] * 1.01
+        with pytest.raises(ValueError, match=r'Your TCR ECS CO2 concs look wrong.*'):
+            magicc_base._get_tcr_ecs_yr_from_CO2_concs(broken_CO2_data)
+
+def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
+    test_RF_data = valid_tcr_ecs_diagnosis_results['mock_results']['TOTAL_INCLVOLCANIC_RF']['GLOBAL']
+    magicc_base._check_tcr_ecs_total_RF(
+        test_RF_data,
+        valid_tcr_ecs_diagnosis_results['tcr_yr'],
+        valid_tcr_ecs_diagnosis_results['ecs_yr'],
+    )
+    test_time = test_RF_data.index.values
+    for year_to_break in [test_time[0], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
+        broken_CO2_data = test_RF_data.copy()
+        broken_CO2_data.loc[year_to_break] = test_RF_data.loc[year_to_break] * 1.01 + 0.01
+        with pytest.raises(ValueError, match=r'Your TCR ECS total radiative forcing looks wrong.*'):
+            magicc_base._check_tcr_ecs_total_RF(
+                broken_CO2_data,
+                valid_tcr_ecs_diagnosis_results['tcr_yr'],
+                valid_tcr_ecs_diagnosis_results['ecs_yr'],
+            )
+
+def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
+    test_temp_data = valid_tcr_ecs_diagnosis_results['mock_results']['SURFACE_TEMP']['GLOBAL']
+    magicc_base._check_tcr_ecs_temp(test_temp_data)
+
+    test_time = test_temp_data.index.values
+    for year_to_break in [test_time[3], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
+        broken_temp_data = test_temp_data.copy()
+        broken_temp_data.loc[year_to_break] = test_temp_data.loc[year_to_break-1] - 0.1
+        with pytest.raises(ValueError, match=r'Your TCR ECS surface temperature looks wrong, it decreases'):
+            magicc_base._check_tcr_ecs_temp(broken_temp_data)
 
 # integration test (i.e. actually runs magicc) hence slow
 @pytest.mark.slow
@@ -271,5 +325,5 @@ def test_integration_diagnose_tcr_ecs(package):
     assert 'ecs' in actual_result
     assert actual_result['tcr'] < actual_result['ecs']
     if isinstance(package, MAGICC6):
-        assert actual_result['tcr'] == 1.970709 # MAGICC6 shipped with pymagicc should be stable
-        assert actual_result['ecs'] == 2.982 # MAGICC6 shipped with pymagicc should be stable
+        assert actual_result['tcr'] == 1.9733976000000002 # MAGICC6 shipped with pymagicc should be stable
+        assert actual_result['ecs'] == 2.9968448 # MAGICC6 shipped with pymagicc should be stable
