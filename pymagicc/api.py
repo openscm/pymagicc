@@ -239,16 +239,22 @@ class MAGICCBase(object):
         return config['executable_{}'.format(self.version)]
 
     def diagnose_tcr_ecs(self):
-        tcr_yr, ecs_yr = self._diagnose_tcr_ecs_config_setup()
+        self._diagnose_tcr_ecs_config_setup()
         results = self.run(only=['SURFACE_TEMP',])
-        self._check_tcr_ecs_diagnosis(results)
+        tcr_yr, ecs_yr = self._check_tcr_ecs_diagnosis(results)
         return {
             'tcr': results['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr],
             'ecs': results['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr],
         }
 
     def _diagnose_tcr_ecs_config_setup(self):
-        raise NotImplementedError
+        self.set_years(startyear=1750, endyear=4200) # 4200 seems to be the max I can push too without an error
+
+        self.set_config(
+            FILE_CO2_CONC="HISTTCRECS_CO2_CONC.IN",
+            RF_TOTAL_RUNMODUS="CO2",
+            RF_TOTAL_CONSTANTAFTERYR=2000,
+        )
 
     def _check_tcr_ecs_diagnosis(self, results_to_check):
         raise NotImplementedError

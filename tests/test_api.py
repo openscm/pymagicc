@@ -176,11 +176,10 @@ def test_diagnose_tcr_ecs(package):
     mock_res['SURFACE_TEMP']['GLOBAL'].loc[mock_ecs_yr] = mock_ecs_val
 
     with patch.object(package, '_diagnose_tcr_ecs_config_setup') as mock_diagnose_tcr_ecs_setup:
-        mock_diagnose_tcr_ecs_setup.return_value = [mock_tcr_yr, mock_ecs_yr]
-
         with patch.object(package, 'run') as mock_run:
+            mock_run.return_value = mock_res
             with patch.object(package, '_check_tcr_ecs_diagnosis') as mock_check_tcr_ecs_diagnosis:
-                mock_run.return_value = mock_res
+                mock_check_tcr_ecs_diagnosis.return_value = [mock_tcr_yr, mock_ecs_yr]
 
                 assert package.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
                 mock_run.assert_called_with(only=['SURFACE_TEMP'])
@@ -199,7 +198,7 @@ def test_diagnose_tcr_ecs_config_setup(package):
             package._diagnose_tcr_ecs_config_setup()
             mock_set_years.assert_called_with(startyear=1750, endyear=4200)
             mock_set_config.assert_called_with(
-                FILE_CO2_CONC="HISTTCR_CO2_CONC.IN",
+                FILE_CO2_CONC="HISTTCRECS_CO2_CONC.IN",
                 RF_TOTAL_RUNMODUS="CO2",
                 RF_TOTAL_CONSTANTAFTERYR=2000,
             )
