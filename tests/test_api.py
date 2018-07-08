@@ -179,15 +179,30 @@ def test_diagnose_tcr_ecs(package):
         mock_diagnose_tcr_ecs_setup.return_value = [mock_tcr_yr, mock_ecs_yr]
 
         with patch.object(package, 'run') as mock_run:
-            mock_run.return_value = mock_res
-            assert package.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
-            assert mock_diagnose_tcr_ecs_setup.call_count == 1
-            mock_run.assert_called_with(only=['SURFACE_TEMP'])
-            assert package.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
-            assert mock_diagnose_tcr_ecs_setup.call_count == 2
+            with patch.object(package, '_check_tcr_ecs_diagnosis') as mock_check_tcr_ecs_diagnosis:
+                mock_run.return_value = mock_res
+
+                assert package.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
+                mock_run.assert_called_with(only=['SURFACE_TEMP'])
+                assert mock_diagnose_tcr_ecs_setup.call_count == 1
+                assert mock_check_tcr_ecs_diagnosis.call_count == 1
+                mock_check_tcr_ecs_diagnosis.assert_called_with(mock_run())
+
+
+                assert package.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
+                assert mock_diagnose_tcr_ecs_setup.call_count == 2
+                assert mock_check_tcr_ecs_diagnosis.call_count == 2
 
 def test_diagnose_tcr_ecs_config_setup(package):
     with patch.object(package, 'set_years') as mock_set_years:
+        with patch.object(package, 'set_config') as mock_set_config:
+            package._diagnose_tcr_ecs_config_setup()
+            mock_set_years.assert_called_with(startyear=1750, endyear=4200)
+            mock_set_config.assert_called_with(
+                FILE_CO2_CONC="HISTTCR_CO2_CONC.IN",
+                RF_TOTAL_RUNMODUS="CO2",
+                RF_TOTAL_CONSTANTAFTERYR=2000,
+            )
 
 # at one level have to check that CO2 concs come out as expected (and error if not) and that total forcing is linear (and error if not) and that temperature is monotonic increasing (and error if not)
 # test that 1PCT CO2 file hasn't changed (and error if it has)

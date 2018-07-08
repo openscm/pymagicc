@@ -241,12 +241,16 @@ class MAGICCBase(object):
     def diagnose_tcr_ecs(self):
         tcr_yr, ecs_yr = self._diagnose_tcr_ecs_config_setup()
         results = self.run(only=['SURFACE_TEMP',])
+        self._check_tcr_ecs_diagnosis(results)
         return {
             'tcr': results['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr],
             'ecs': results['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr],
         }
 
     def _diagnose_tcr_ecs_config_setup(self):
+        raise NotImplementedError
+
+    def _check_tcr_ecs_diagnosis(self, results_to_check):
         raise NotImplementedError
 
 
