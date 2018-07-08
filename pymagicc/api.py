@@ -203,12 +203,16 @@ class MAGICCBase(object):
         Create a configuration file for MAGICC
 
         Writes a fortran namelist in run_dir.
-        :param filename:
-        :param top_level_key:
-        :param kwargs: Other parameters to pass to the configuration file. No
+
+        # Parameters
+        filename (str): Name of configuration file to write
+        top_level_key (str): Name of namelist to be written in the
+            configuration file
+        kwargs: Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
-        :return: A dict containing the contents of the namelist which was
-            written to file
+
+        # Returns
+        data (dict): The contents of the namelist which was written to file
         """
         fname = join(self.run_dir, filename)
         data = {

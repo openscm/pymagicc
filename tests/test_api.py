@@ -180,12 +180,14 @@ def test_diagnose_tcr_ecs(package):
 
         with patch.object(package, 'run') as mock_run:
             mock_run.return_value = mock_res
+            assert package.diagnose_tcr_ecs()['tcr'] == mock_tcr_val
+            assert mock_diagnose_tcr_ecs_setup.call_count == 1
+            mock_run.assert_called_with(only=['SURFACE_TEMP'])
+            assert package.diagnose_tcr_ecs()['ecs'] == mock_ecs_val
+            assert mock_diagnose_tcr_ecs_setup.call_count == 2
 
-            actual_result = package.diagnose_tcr_ecs()
-            print(actual_result['tcr'])
-            assert actual_result['tcr'] == mock_tcr_val
-            assert actual_result['ecs'] == mock_ecs_val
-
+def test_diagnose_tcr_ecs_config_setup(package):
+    with patch.object(package, 'set_years') as mock_set_years:
 
 # at one level have to check that CO2 concs come out as expected (and error if not) and that total forcing is linear (and error if not) and that temperature is monotonic increasing (and error if not)
 # test that 1PCT CO2 file hasn't changed (and error if it has)
@@ -194,10 +196,10 @@ def test_diagnose_tcr_ecs(package):
 @pytest.mark.slow
 def test_integration_diagnose_tcr_ecs(package):
     actual_result = package.diagnose_tcr_ecs()
-    assert isinstance(result, dict)
-    assert 'tcr' in result
-    assert 'ecs' in result
-    assert result['tcr'] < result['ecs']
+    assert isinstance(actual_result, dict)
+    assert 'tcr' in actual_result
+    assert 'ecs' in actual_result
+    assert actual_result['tcr'] < actual_result['ecs']
     if isinstance(package, MAGICC6):
-        assert result['tcr'] == 1.970709 # MAGICC6 shipped with pymagicc should be stable
-        assert result['ecs'] == 3.0 # MAGICC6 shipped with pymagicc should be stable
+        assert actual_result['tcr'] == 1.970709 # MAGICC6 shipped with pymagicc should be stable
+        assert actual_result['ecs'] == 2.982 # MAGICC6 shipped with pymagicc should be stable
