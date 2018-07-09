@@ -198,7 +198,7 @@ class MAGICCBase(object):
             shutil.rmtree(self.root_dir)
             self.root_dir = None
 
-    def set_config(self, filename='MAGTUNE_SIMPLE.CFG',
+    def set_config(self, filename='MAGTUNE_PYMAGICC.CFG',
                    top_level_key='nml_allcfgs', **kwargs):
         """
         Create a configuration file for MAGICC
