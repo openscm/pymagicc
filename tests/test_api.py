@@ -194,7 +194,7 @@ def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_set_config, magicc_b
     magicc_base._diagnose_tcr_ecs_config_setup()
     mock_set_years.assert_called_with(startyear=1750, endyear=4200)
     mock_set_config.assert_called_with(
-        FILE_CO2_CONC="HISTTCRECS_CO2_CONC.IN",
+        FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
         RF_TOTAL_RUNMODUS="CO2",
         RF_TOTAL_CONSTANTAFTERYR=2000,
     )
