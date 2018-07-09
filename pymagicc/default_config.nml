@@ -15,7 +15,7 @@
     file_emissionscenario = 'SCENARIO.SCEN'
     file_tuningmodel = 'C4MIP_DEFAULT'
     file_tuningmodel_2 = 'FULLTUNE_DEFAULT'
-    file_tuningmodel_3 = 'SIMPLE'
+    file_tuningmodel_3 = 'PYMAGICC'
     sector_include = 'NOSECTOR'
     file_sector_emis = ''
     bulkrunmodus = 'SINGLERUN'
