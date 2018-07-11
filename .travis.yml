@@ -9,10 +9,22 @@ before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
   - sudo apt-get install --no-install-recommends -y wine
+  # thanks https://github.com/ghego/travis_anaconda_jupyter/blob/master/.travis.yml
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+
+  - conda env create -n test-env-pymagicc python=$TRAVIS_PYTHON_VERSION -f environment.yaml
+  - source activate test-env-pymagicc
   - pip install pytest pytest-cov codecov mock
 install:
   - pip install -e .
 script:
   - pytest --cov
+  - scons
 after_success:
   - codecov
