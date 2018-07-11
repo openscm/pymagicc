@@ -282,7 +282,7 @@ class MAGICCBase(object):
         tcr_yr = yr_start_rise + 70
         spin_up_co2_concs = df_co2_concs.loc[:yr_start_rise]
         if not (spin_up_co2_concs == co2_conc_0).all():
-            raise ValueError('Your TCR ECS CO2 concs look wrong, they are not constant before they start rising')
+            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant before they start rising')
 
         actual_rise_co2_concs = df_co2_concs.loc[yr_start_rise:yr_start_rise+70].values
         expected_rise_co2_concs = co2_conc_0*1.01**np.arange(71)
@@ -291,12 +291,12 @@ class MAGICCBase(object):
             expected_rise_co2_concs
         ).all()
         if not rise_co2_concs_correct:
-            raise ValueError('Your TCR ECS CO2 concs look wrong during the rise period')
+            raise ValueError('The TCR/ECS CO2 concs look wrong during the rise period')
 
         co2_conc_final = max(expected_rise_co2_concs)
         eqm_co2_concs = df_co2_concs.loc[tcr_yr:]
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
-            raise ValueError('Your TCR ECS CO2 concs look wrong, they are not constant after 70 years of rising')
+            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising')
 
         ecs_yr = df_co2_concs.index[-1]
 
@@ -304,23 +304,23 @@ class MAGICCBase(object):
 
     def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_yr, ecs_yr):
         if not (df_total_rf.loc[:tcr_yr-70] == 0).all():
-            raise ValueError('Your TCR ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising')
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising')
 
         total_rf_max = df_total_rf.max()
         actual_rise_rf = df_total_rf.loc[tcr_yr-70:tcr_yr].values
         expected_rise_rf = total_rf_max/70.*np.arange(71)
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
-            raise ValueError('Your TCR ECS total radiative forcing looks wrong during the rise period')
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong during the rise period')
 
         if not (df_total_rf.loc[tcr_yr:] == total_rf_max).all():
-            raise ValueError('Your TCR ECS total radiative forcing looks wrong, it is not constant after concentrations are constant')
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant')
 
     def _check_tcr_ecs_temp(self, df_temp):
         tmp_vls = df_temp.values
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
-            raise ValueError('Your TCR ECS surface temperature looks wrong, it decreases')
+            raise ValueError('The TCR/ECS surface temperature looks wrong, it decreases')
 
 
 class MAGICC6(MAGICCBase):
