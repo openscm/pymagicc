@@ -1,4 +1,4 @@
-name: test-environment
+name: test-env-pymagicc
 channels:
   - default
 dependencies:
