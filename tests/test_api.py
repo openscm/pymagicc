@@ -12,7 +12,10 @@ from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
 from .test_config import config_override  #  noqa
 
 
-@pytest.fixture(scope="module")
+magicc_classes = [MAGICC6, MAGICC7]
+
+
+@pytest.fixture(scope="function")
 def magicc_base():
     yield MAGICCBase()
 
@@ -21,9 +24,8 @@ def magicc_base():
 def package(request):
     MAGICC_cls = request.param
     p = MAGICC_cls()
+    check_available(p)
 
-    if p.executable is None or not exists(p.original_dir):
-        pytest.skip("MAGICC {} is not available".format(p.version))
     p.create_copy()
     root_dir = p.root_dir
     yield p
@@ -659,3 +661,13 @@ def test_output_variables(package):
     package.set_output_variables(this_doesnt_exist=False)
     raw_conf = f90nml.read(fname)
     assert raw_conf["nml_allcfgs"]["OUT_THIS_DOESNT_EXIST"] == 0
+
+
+def test_persistant_state(magicc_class):
+    with magicc_class() as magicc:
+        test_ecs = 1.75
+        magicc.set_config(CORE_CLIMATESENSITIVITY=test_ecs)
+        actual_results = magicc.diagnose_tcr_ecs()
+        assert (
+            actual_results["ecs"] == test_ecs
+        )  # test will need to change to handle numerical precision when fixed
