@@ -185,8 +185,8 @@ def test_diagnose_tcr_ecs(mock_get_tcr_ecs_from_results, mock_run, mock_diagnose
     assert mock_diagnose_tcr_ecs_setup.call_count == 2
     assert mock_get_tcr_ecs_from_results.call_count == 2
 
-    full_results = magicc_base.diagnose_tcr_ecs(full_results=True)
-    assert isinstance(full_results, pd.DataFrame)
+    results = magicc_base.diagnose_tcr_ecs()
+    assert isinstance(results["timeseries"], pd.DataFrame)
 
 @patch.object(MAGICCBase, 'set_config')
 @patch.object(MAGICCBase, 'set_years')
@@ -284,7 +284,7 @@ def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_b
     for year_to_break in [test_time[0], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
         broken_CO2_data = test_CO2_data.copy()
         broken_CO2_data.loc[year_to_break] = test_CO2_data.loc[year_to_break] * 1.01
-        with pytest.raises(ValueError, match=r'Your TCR ECS CO2 concs look wrong.*'):
+        with pytest.raises(ValueError, match=r'The TCR/ECS CO2 concs look wrong.*'):
             magicc_base._get_tcr_ecs_yr_from_CO2_concs(broken_CO2_data)
 
 def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
@@ -298,7 +298,7 @@ def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
     for year_to_break in [test_time[0], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
         broken_CO2_data = test_RF_data.copy()
         broken_CO2_data.loc[year_to_break] = test_RF_data.loc[year_to_break] * 1.01 + 0.01
-        with pytest.raises(ValueError, match=r'Your TCR ECS total radiative forcing looks wrong.*'):
+        with pytest.raises(ValueError, match=r'The TCR/ECS total radiative forcing looks wrong.*'):
             magicc_base._check_tcr_ecs_total_RF(
                 broken_CO2_data,
                 valid_tcr_ecs_diagnosis_results['tcr_yr'],
@@ -313,7 +313,7 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
     for year_to_break in [test_time[3], test_time[15], test_time[115], test_time[-1] - 100, test_time[-1]]:
         broken_temp_data = test_temp_data.copy()
         broken_temp_data.loc[year_to_break] = test_temp_data.loc[year_to_break-1] - 0.1
-        with pytest.raises(ValueError, match=r'Your TCR ECS surface temperature looks wrong, it decreases'):
+        with pytest.raises(ValueError, match=r'The TCR/ECS surface temperature looks wrong, it decreases'):
             magicc_base._check_tcr_ecs_temp(broken_temp_data)
 
 # integration test (i.e. actually runs magicc) hence slow
