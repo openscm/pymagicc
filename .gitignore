@@ -51,3 +51,7 @@ ENV/
 .cache
 .coverage
 *.DS_Store
+
+# scons stuff
+.sconsign.dblite
+.phony_notebooks*
