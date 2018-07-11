@@ -239,21 +239,22 @@ class MAGICCBase(object):
     def get_executable(self):
         return config['executable_{}'.format(self.version)]
 
-    def diagnose_tcr_ecs(self):
-        self._diagnose_tcr_ecs_config_setup()
+    def diagnose_tcr_ecs(self, **kwargs):
+        self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
             only=['CO2_CONC', 'TOTAL_INCLVOLCANIC_RF', 'SURFACE_TEMP',]
         )
         tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
 
-    def _diagnose_tcr_ecs_config_setup(self):
+    def _diagnose_tcr_ecs_config_setup(self, **kwargs):
         self.set_years(startyear=1750, endyear=4200) # 4200 seems to be the max I can push too without an error
 
         self.set_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
+            **kwargs
         )
 
     def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
