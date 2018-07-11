@@ -4,8 +4,9 @@ from os import listdir, makedirs
 from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
 
-import f90nml
+import numpy as np
 import pandas as pd
+import f90nml
 
 from .config import config
 
@@ -203,12 +204,16 @@ class MAGICCBase(object):
         Create a configuration file for MAGICC
 
         Writes a fortran namelist in run_dir.
-        :param filename:
-        :param top_level_key:
-        :param kwargs: Other parameters to pass to the configuration file. No
+
+        # Parameters
+        filename (str): Name of configuration file to write
+        top_level_key (str): Name of namelist to be written in the
+            configuration file
+        kwargs: Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
-        :return: A dict containing the contents of the namelist which was
-            written to file
+
+        # Returns
+        data (dict): The contents of the namelist which was written to file
         """
         fname = join(self.run_dir, filename)
         data = {
@@ -233,6 +238,83 @@ class MAGICCBase(object):
 
     def get_executable(self):
         return config['executable_{}'.format(self.version)]
+
+    def diagnose_tcr_ecs(self):
+        self._diagnose_tcr_ecs_config_setup()
+        timeseries = self.run(
+            only=['CO2_CONC', 'TOTAL_INCLVOLCANIC_RF', 'SURFACE_TEMP',]
+        )
+        tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
+        return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
+
+    def _diagnose_tcr_ecs_config_setup(self):
+        self.set_years(startyear=1750, endyear=4200) # 4200 seems to be the max I can push too without an error
+
+        self.set_config(
+            FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
+            RF_TOTAL_RUNMODUS="CO2",
+            RF_TOTAL_CONSTANTAFTERYR=2000,
+        )
+
+    def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
+        tcr_yr, ecs_yr = self._get_tcr_ecs_yr_from_CO2_concs(
+            results_tcr_ecs_run['CO2_CONC']['GLOBAL']
+        )
+        self._check_tcr_ecs_total_RF(
+            results_tcr_ecs_run['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
+            tcr_yr=tcr_yr,
+            ecs_yr=ecs_yr,
+        )
+        self._check_tcr_ecs_temp(results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'])
+        tcr = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr]
+        ecs = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr]
+        return tcr, ecs
+
+    def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
+        co2_conc_0 = df_co2_concs.iloc[0]
+        yr_start_rise = -1 + df_co2_concs[df_co2_concs.gt(co2_conc_0)].index[0]
+        tcr_yr = yr_start_rise + 70
+        spin_up_co2_concs = df_co2_concs.loc[:yr_start_rise]
+        if not (spin_up_co2_concs == co2_conc_0).all():
+            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant before they start rising')
+
+        actual_rise_co2_concs = df_co2_concs.loc[yr_start_rise:yr_start_rise+70].values
+        expected_rise_co2_concs = co2_conc_0*1.01**np.arange(71)
+        rise_co2_concs_correct = np.isclose(
+            actual_rise_co2_concs,
+            expected_rise_co2_concs
+        ).all()
+        if not rise_co2_concs_correct:
+            raise ValueError('The TCR/ECS CO2 concs look wrong during the rise period')
+
+        co2_conc_final = max(expected_rise_co2_concs)
+        eqm_co2_concs = df_co2_concs.loc[tcr_yr:]
+        if not np.isclose(eqm_co2_concs, co2_conc_final).all():
+            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising')
+
+        ecs_yr = df_co2_concs.index[-1]
+
+        return tcr_yr, ecs_yr
+
+    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_yr, ecs_yr):
+        if not (df_total_rf.loc[:tcr_yr-70] == 0).all():
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising')
+
+        total_rf_max = df_total_rf.max()
+        actual_rise_rf = df_total_rf.loc[tcr_yr-70:tcr_yr].values
+        expected_rise_rf = total_rf_max/70.*np.arange(71)
+        rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
+        if not rise_rf_correct:
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong during the rise period')
+
+        if not (df_total_rf.loc[tcr_yr:] == total_rf_max).all():
+            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant')
+
+    def _check_tcr_ecs_temp(self, df_temp):
+        tmp_vls = df_temp.values
+        tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
+        if not np.all(tmp_minus_previous_yr >= 0):
+            raise ValueError('The TCR/ECS surface temperature looks wrong, it decreases')
 
 
 class MAGICC6(MAGICCBase):
