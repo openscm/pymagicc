@@ -4,6 +4,9 @@ test: venv
 	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
 	./venv/bin/pytest tests
 
+test-notebooks: venv notebooks/*.ipynb
+	./scripts/test_notebooks.sh
+
 venv: dev-requirements.txt
 	[ -d ./venv ] || python3 -m venv venv
 	./venv/bin/pip install --upgrade pip
