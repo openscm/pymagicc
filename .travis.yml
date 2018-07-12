@@ -14,5 +14,6 @@ install:
   - pip install -e .
 script:
   - pytest --cov
+  - ./scripts/test_notebooks.sh
 after_success:
   - codecov
