@@ -1,0 +1,10 @@
+docs_dir: docsrc
+site_dir: docs
+site_name: Pymagicc
+pages:
+  - Overview: index.md
+  - pymagicc: pymagicc.md
+  - pymagicc.api: pymagicc.api.md
+  - pymagicc.input: pymagicc.input.md
+  - pymagicc.config: pymagicc.config.md
+theme: readthedocs
