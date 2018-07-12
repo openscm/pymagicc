@@ -18,7 +18,7 @@ Intergovernmental Panel on Climate Change or to model the physical aspects of cl
 Pymagicc makes the MAGICC model easily installable and usable from Python and allows for the easy modification of all MAGICC model parameters and emissions scenarios directly from Python.
 In climate research it can, for example, be used in the analysis of mitigation scenarios, in Integrated Assessment Models, complex climate model emulation, and uncertainty analyses, as well as in climate science education and communication.
 
-See [www.magicc.org](http://www.magicc.org/), [Meinshausen et al. 2011](https://www.atmos-chem-phys.net/11/1417/2011/acp-11-1417-2011.html) and the MAGICC7 documentation (tbc) for further information.
+See [www.magicc.org](http://www.magicc.org/) and [Meinshausen et al. 2011](https://doi.org/10.5194/acp-11-1417-2011) for further information.
 
 ## Basic Usage
 
@@ -150,10 +150,10 @@ temp = (output["SURFACE_TEMP"].GLOBAL -
 ```
 
 ### Using a different MAGICC version
-A custom version of MAGICC may be used with `pymagicc`  using the 
+A custom version of MAGICC may be used with `pymagicc` using the
 `MAGICC_EXECUTABLE_6` and `MAGICC_EXECUTABLE_7` environment variables for MAGICC6
- and MAGICC7 respectively. These environment variables should be set to the 
- location of the magicc executable (either `magicc` for linux/mac or 
+ and MAGICC7 respectively. These environment variables should be set to the
+ location of the magicc executable (either `magicc` for linux/mac or
  `magicc.exe` for Windows).
 For example, a custom MAGICC7 folder located at `/tmp/magicc` can be used on
  under Linux by setting `MAGICC_EXECUTABLE_7` to `/tmp/magicc/run/magicc`.
