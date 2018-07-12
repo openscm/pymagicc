@@ -103,6 +103,13 @@ To get a test coverage report, run
 
     ./venv/bin/pytest --cov
 
+To unify coding style [black](https://github.com/ambv/black) is used.
+
+To format the files `pymagicc` and `tests` as well as `setup.py` run
+
+```shell
+make black
+```
 
 ## More Usage Examples
 
@@ -150,6 +157,7 @@ temp = (output["SURFACE_TEMP"].GLOBAL -
 ```
 
 ### Using a different MAGICC version
+
 A custom version of MAGICC may be used with `pymagicc` using the
 `MAGICC_EXECUTABLE_6` and `MAGICC_EXECUTABLE_7` environment variables for MAGICC6
  and MAGICC7 respectively. These environment variables should be set to the

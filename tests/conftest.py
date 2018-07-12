@@ -3,8 +3,7 @@ import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--skip-slow", action="store_true", default=False,
-        help="skip any slow tests"
+        "--skip-slow", action="store_true", default=False, help="skip any slow tests"
     )
 
 

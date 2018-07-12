@@ -10,7 +10,7 @@ import f90nml
 
 from .config import config
 
-IS_WINDOWS = config['is_windows']
+IS_WINDOWS = config["is_windows"]
 
 
 def _copy_files(source, target):
@@ -33,9 +33,7 @@ def _clean_value(v):
         return v.strip()
     elif isinstance(v, list):
         if isinstance(v[0], str):
-            return [
-                i.replace("\0", "").strip().replace("\n", "") for i in v
-            ]
+            return [i.replace("\0", "").strip().replace("\n", "") for i in v]
     return v
 
 
@@ -88,7 +86,9 @@ class MAGICCBase(object):
         configuration files and binary.
         """
         if self.is_temp:
-            assert self.root_dir is None, "A temp copy for this instance has already been created"
+            assert (
+                self.root_dir is None
+            ), "A temp copy for this instance has already been created"
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
         if exists(self.run_dir):
@@ -102,22 +102,18 @@ class MAGICCBase(object):
         # Also copy anything which is in the root of the MAGICC distribution
         # Assumes that the MAGICC binary is in a folder one level below the root
         # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
-        dirs_to_copy = [
-            '.',
-            'bin',
-            'run'
-        ]
+        dirs_to_copy = [".", "bin", "run"]
         # Check that the executable is in a valid sub directory
-        assert exec_dir in dirs_to_copy, 'binary must be in bin/ or run/ directory'
+        assert exec_dir in dirs_to_copy, "binary must be in bin/ or run/ directory"
 
         for d in dirs_to_copy:
-            source_dir = abspath(join(self.original_dir, '..', d))
+            source_dir = abspath(join(self.original_dir, "..", d))
             if exists(source_dir):
                 _copy_files(source_dir, join(self.root_dir, d))
 
         # Create an empty out dir
         # MAGICC assumes that the 'out' directory already exists
-        makedirs(join(self.root_dir, 'out'))
+        makedirs(join(self.root_dir, "out"))
 
         # Create basic configuration files so magicc can run
         self.set_years()
@@ -135,13 +131,13 @@ class MAGICCBase(object):
     def run_dir(self):
         if self.root_dir is None:
             return None
-        return join(self.root_dir, 'run')
+        return join(self.root_dir, "run")
 
     @property
     def out_dir(self):
         if self.root_dir is None:
             return None
-        return join(self.root_dir, 'out')
+        return join(self.root_dir, "out")
 
     def run(self, only=None):
         """
@@ -156,17 +152,19 @@ class MAGICCBase(object):
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
 
-        if not IS_WINDOWS \
-                and self.binary_name.endswith(".exe"):  # pragma: no cover
-            command.insert(0, 'wine')
+        if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
+            command.insert(0, "wine")
 
         # On Windows shell=True is required.
         subprocess.check_call(command, cwd=self.run_dir, shell=IS_WINDOWS)
 
         results = {}
 
-        outfiles = [f for f in listdir(self.out_dir)
-                    if f.startswith("DAT_") and f.endswith(".OUT")]
+        outfiles = [
+            f
+            for f in listdir(self.out_dir)
+            if f.startswith("DAT_") and f.endswith(".OUT")
+        ]
 
         for filename in outfiles:
             name = filename.replace("DAT_", "").replace(".OUT", "")
@@ -176,7 +174,7 @@ class MAGICCBase(object):
                     delim_whitespace=True,
                     skiprows=19 if self.version == 6 else 21,
                     index_col=0,
-                    engine="python"
+                    engine="python",
                 )
 
         with open(join(self.out_dir, "PARAMETERS.OUT")) as nml_file:
@@ -198,8 +196,9 @@ class MAGICCBase(object):
             shutil.rmtree(self.root_dir)
             self.root_dir = None
 
-    def set_config(self, filename='MAGTUNE_PYMAGICC.CFG',
-                   top_level_key='nml_allcfgs', **kwargs):
+    def set_config(
+        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
+    ):
         """
         Create a configuration file for MAGICC
 
@@ -216,9 +215,7 @@ class MAGICCBase(object):
         data (dict): The contents of the namelist which was written to file
         """
         fname = join(self.run_dir, filename)
-        data = {
-            top_level_key: kwargs
-        }
+        data = {top_level_key: kwargs}
         f90nml.write(data, fname, force=True)
 
         return data
@@ -232,43 +229,49 @@ class MAGICCBase(object):
         :return: The contents of the namelist
         """
         # stepsperyear is required and should never be overridden
-        return self.set_config('MAGCFG_NMLYEARS.CFG', 'nml_years',
-                               endyear=endyear, startyear=startyear,
-                               stepsperyear=12)
+        return self.set_config(
+            "MAGCFG_NMLYEARS.CFG",
+            "nml_years",
+            endyear=endyear,
+            startyear=startyear,
+            stepsperyear=12,
+        )
 
     def get_executable(self):
-        return config['executable_{}'.format(self.version)]
+        return config["executable_{}".format(self.version)]
 
     def diagnose_tcr_ecs(self, **kwargs):
         self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
-            only=['CO2_CONC', 'TOTAL_INCLVOLCANIC_RF', 'SURFACE_TEMP',]
+            only=["CO2_CONC", "TOTAL_INCLVOLCANIC_RF", "SURFACE_TEMP"]
         )
         tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
 
     def _diagnose_tcr_ecs_config_setup(self, **kwargs):
-        self.set_years(startyear=1750, endyear=4200) # 4200 seems to be the max I can push too without an error
+        self.set_years(
+            startyear=1750, endyear=4200
+        )  # 4200 seems to be the max I can push too without an error
 
         self.set_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
-            **kwargs
+            **kwargs,
         )
 
     def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
         tcr_yr, ecs_yr = self._get_tcr_ecs_yr_from_CO2_concs(
-            results_tcr_ecs_run['CO2_CONC']['GLOBAL']
+            results_tcr_ecs_run["CO2_CONC"]["GLOBAL"]
         )
         self._check_tcr_ecs_total_RF(
-            results_tcr_ecs_run['TOTAL_INCLVOLCANIC_RF']['GLOBAL'],
+            results_tcr_ecs_run["TOTAL_INCLVOLCANIC_RF"]["GLOBAL"],
             tcr_yr=tcr_yr,
             ecs_yr=ecs_yr,
         )
-        self._check_tcr_ecs_temp(results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'])
-        tcr = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[tcr_yr]
-        ecs = results_tcr_ecs_run['SURFACE_TEMP']['GLOBAL'].loc[ecs_yr]
+        self._check_tcr_ecs_temp(results_tcr_ecs_run["SURFACE_TEMP"]["GLOBAL"])
+        tcr = results_tcr_ecs_run["SURFACE_TEMP"]["GLOBAL"].loc[tcr_yr]
+        ecs = results_tcr_ecs_run["SURFACE_TEMP"]["GLOBAL"].loc[ecs_yr]
         return tcr, ecs
 
     def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
@@ -277,45 +280,58 @@ class MAGICCBase(object):
         tcr_yr = yr_start_rise + 70
         spin_up_co2_concs = df_co2_concs.loc[:yr_start_rise]
         if not (spin_up_co2_concs == co2_conc_0).all():
-            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant before they start rising')
+            raise ValueError(
+                "The TCR/ECS CO2 concs look wrong, they are not constant before they start rising"
+            )
 
-        actual_rise_co2_concs = df_co2_concs.loc[yr_start_rise:yr_start_rise+70].values
-        expected_rise_co2_concs = co2_conc_0*1.01**np.arange(71)
+        actual_rise_co2_concs = df_co2_concs.loc[
+            yr_start_rise : yr_start_rise + 70
+        ].values
+        expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(71)
         rise_co2_concs_correct = np.isclose(
-            actual_rise_co2_concs,
-            expected_rise_co2_concs
+            actual_rise_co2_concs, expected_rise_co2_concs
         ).all()
         if not rise_co2_concs_correct:
-            raise ValueError('The TCR/ECS CO2 concs look wrong during the rise period')
+            raise ValueError("The TCR/ECS CO2 concs look wrong during the rise period")
 
         co2_conc_final = max(expected_rise_co2_concs)
         eqm_co2_concs = df_co2_concs.loc[tcr_yr:]
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
-            raise ValueError('The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising')
+            raise ValueError(
+                "The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising"
+            )
 
         ecs_yr = df_co2_concs.index[-1]
 
         return tcr_yr, ecs_yr
 
     def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_yr, ecs_yr):
-        if not (df_total_rf.loc[:tcr_yr-70] == 0).all():
-            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising')
+        if not (df_total_rf.loc[: tcr_yr - 70] == 0).all():
+            raise ValueError(
+                "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
+            )
 
         total_rf_max = df_total_rf.max()
-        actual_rise_rf = df_total_rf.loc[tcr_yr-70:tcr_yr].values
-        expected_rise_rf = total_rf_max/70.*np.arange(71)
+        actual_rise_rf = df_total_rf.loc[tcr_yr - 70 : tcr_yr].values
+        expected_rise_rf = total_rf_max / 70. * np.arange(71)
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
-            raise ValueError('The TCR/ECS total radiative forcing looks wrong during the rise period')
+            raise ValueError(
+                "The TCR/ECS total radiative forcing looks wrong during the rise period"
+            )
 
         if not (df_total_rf.loc[tcr_yr:] == total_rf_max).all():
-            raise ValueError('The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant')
+            raise ValueError(
+                "The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant"
+            )
 
     def _check_tcr_ecs_temp(self, df_temp):
         tmp_vls = df_temp.values
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
-            raise ValueError('The TCR/ECS surface temperature looks wrong, it decreases')
+            raise ValueError(
+                "The TCR/ECS surface temperature looks wrong, it decreases"
+            )
 
 
 class MAGICC6(MAGICCBase):
