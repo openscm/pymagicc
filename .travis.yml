@@ -14,6 +14,6 @@ install:
   - pip install -e .
 script:
   - pytest --cov
-  - ./scripts/test_notebooks.sh
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then ./scripts/test_notebooks.sh; fi
 after_success:
   - codecov
