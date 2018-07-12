@@ -105,7 +105,7 @@ To get a test coverage report, run
 
 To unify coding style [black](https://github.com/ambv/black) is used.
 
-To format the files `pymagicc` and `tests` as well as `setup.py` run
+To format the files in `pymagicc` and `tests` as well as `setup.py` run
 
 ```shell
 make black
