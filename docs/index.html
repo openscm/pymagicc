@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="./img/favicon.ico">
+  <title>Overview - Pymagicc</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="./css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Overview";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/";
+  </script>
+  
+  <script src="./js/jquery-2.1.1.min.js"></script>
+  <script src="./js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="." class="icon icon-home"> Pymagicc</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href=".">Overview</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#pymagicc">Pymagicc</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#basic-usage">Basic Usage</a></li>
+        
+            <li><a class="toctree-l3" href="#installation">Installation</a></li>
+        
+            <li><a class="toctree-l3" href="#development">Development</a></li>
+        
+            <li><a class="toctree-l3" href="#more-usage-examples">More Usage Examples</a></li>
+        
+            <li><a class="toctree-l3" href="#contributing">Contributing</a></li>
+        
+            <li><a class="toctree-l3" href="#license">License</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="pymagicc/">pymagicc</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="pymagicc.api/">pymagicc.api</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="pymagicc.input/">pymagicc.input</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="pymagicc.config/">pymagicc.config</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href=".">Pymagicc</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Overview</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="pymagicc">Pymagicc</h1>
+<table>
+<thead>
+<tr>
+<th align="left"><a href="https://travis-ci.org/openclimatedata/pymagicc"><img alt="Build Status" src="https://img.shields.io/travis/openclimatedata/pymagicc.svg" /></a></th>
+<th align="left"><a href="https://ci.appveyor.com/project/openclimatedata/pymagicc"><img alt="AppVeyor" src="https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg" /></a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><a href="https://codecov.io/gh/openclimatedata/pymagicc"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg" /></a></td>
+<td align="left"><a href="https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb"><img alt="Launch Binder" src="https://img.shields.io/badge/launch-binder-e66581.svg" /></a></td>
+</tr>
+<tr>
+<td align="left"><a href="https://pypi.org/project/pymagicc/"><img alt="PyPI" src="https://img.shields.io/pypi/pyversions/pymagicc.svg" /></a></td>
+<td align="left"><a href="https://pypi.org/project/pymagicc/"><img alt="PyPI" src="https://img.shields.io/pypi/v/pymagicc.svg" /></a></td>
+</tr>
+<tr>
+<td align="left"><a href="https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e"><img alt="status" src="https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e/status.svg" /></a></td>
+<td align="left"><a href="https://zenodo.org/record/1111815"><img alt="Zenodo" src="https://zenodo.org/badge/DOI/10.5281/zenodo.1111815.svg" /></a></td>
+</tr>
+</tbody>
+</table>
+<p>Pymagicc is a Python wrapper around the reduced complexity climate model
+<a href="http://magicc.org/">MAGICC6</a>. It wraps the CC-BY-NC-SA licensed
+<a href="http://www.magicc.org/download6">MAGICC6 binary</a>. Pymagicc itself is AGPL licensed.</p>
+<p>MAGICC (Model for the Assessment of Greenhouse Gas Induced Climate Change)
+is widely used in the assessment of future emissions pathways in climate policy analyses,
+e.g. in the Fifth Assessment Report of the
+Intergovernmental Panel on Climate Change or to model the physical aspects of climate change in Integrated Assessment Models (IAMs).</p>
+<p>Pymagicc makes the MAGICC model easily installable and usable from Python and allows for the easy modification of all MAGICC model parameters and emissions scenarios directly from Python.
+In climate research it can, for example, be used in the analysis of mitigation scenarios, in Integrated Assessment Models, complex climate model emulation, and uncertainty analyses, as well as in climate science education and communication.</p>
+<p>See <a href="http://www.magicc.org/">www.magicc.org</a> and <a href="https://doi.org/10.5194/acp-11-1417-2011">Meinshausen et al. 2011</a> for further information.</p>
+<h2 id="basic-usage">Basic Usage</h2>
+<pre><code class="python">import pymagicc
+from pymagicc import scenarios
+import matplotlib.pyplot as plt
+
+for name, scen in scenarios.items():
+    results, params = pymagicc.run(scen, return_config=True)
+    temp = (results[&quot;SURFACE_TEMP&quot;].GLOBAL.loc[1850:] -
+            results[&quot;SURFACE_TEMP&quot;].GLOBAL.loc[1850:1900].mean())
+    temp.plot(label=name)
+plt.legend()
+plt.title(&quot;Global Mean Temperature Projection&quot;)
+plt.ylabel(u&quot;°C over pre-industrial (1850-1900 mean)&quot;)
+# Run `plt.show()` to display the plot when running this example
+# interactively or add `%matplotlib inline` on top when in a Jupyter Notebook.
+</code></pre>
+
+<p><img alt="" src="./scripts/example-plot.png" /></p>
+<p>For more example usage see this <a href="https://github.com/openclimatedata/pymagicc/blob/master/notebooks/Example.ipynb">Jupyter Notebook</a>.
+Thanks to the <a href="https://mybinder.org">Binder project</a> the <a href="https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb">Notebook</a> can be run and modified without installing anything locally. A small interactive <a href="https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb">demo app</a> using Jupyter Notebook's <a href="https://github.com/oschuett/appmode/">appmode extension</a>
+is also available.</p>
+<h2 id="installation">Installation</h2>
+<pre><code>pip install pymagicc
+</code></pre>
+<p>On Linux and OS X the original compiled Windows binary available on
+http://www.magicc.org/ and included in Pymagicc
+can run using <a href="https://www.winehq.org/">Wine</a>.</p>
+<p>On modern 64-bit systems one needs to use the 32-bit version of Wine</p>
+<pre><code>sudo dpkg --add-architecture i386
+sudo apt-get install wine32
+</code></pre>
+<p>On 32-bit systems Debian/Ubuntu-based systems <code>wine</code> can be installed with</p>
+<pre><code>sudo apt-get install wine
+</code></pre>
+<p>On OS X <code>wine</code> is available in the Homebrew package manager:</p>
+<pre><code>brew install wine
+</code></pre>
+<p>It should also be available in other package managers, as well as directly from the <a href="https://wiki.winehq.org/Download">Wine project</a>.</p>
+<p>Note that after the first install the first run of Pymagicc might be slow due
+to setting up of the <code>wine</code> configuration and be accompanied by pop-ups or
+debug output.</p>
+<p>To run an example session using Jupyter Notebook and Python 3 you can run the
+following commands to create a virtual environment <code>venv</code> and install an
+editable version for local development:</p>
+<pre><code>git clone https://github.com/openclimatedata/pymagicc.git
+
+cd pymagicc
+make venv
+./venv/bin/pip install --editable .
+./venv/bin/jupyter-notebook notebooks/Example.ipynb
+</code></pre>
+<h2 id="development">Development</h2>
+<p>For local development, install dependencies and an editable version of Pymagicc from a clone or download of the Pymagicc repository with</p>
+<pre><code>make venv
+./venv/bin/pip install --editable .
+</code></pre>
+<p>To run the tests run</p>
+<pre><code>./venv/bin/pytest tests --verbose
+</code></pre>
+<p>To skip tests which run MAGICC and take longer use</p>
+<pre><code>./venv/bin/pytest tests --skip-slow
+</code></pre>
+<p>To get a test coverage report, run</p>
+<pre><code>./venv/bin/pytest --cov
+</code></pre>
+<p>To unify coding style <a href="https://github.com/ambv/black">black</a> is used.</p>
+<p>To format the files in <code>pymagicc</code> and <code>tests</code> as well as <code>setup.py</code> run</p>
+<pre><code class="shell">make black
+</code></pre>
+
+<h2 id="more-usage-examples">More Usage Examples</h2>
+<h3 id="use-an-included-scenario">Use an included scenario</h3>
+<pre><code class="python">from pymagicc import rcp26
+
+rcp26[&quot;WORLD&quot;].head()
+</code></pre>
+
+<h3 id="read-a-magicc-scenario-file">Read a MAGICC scenario file</h3>
+<pre><code class="python">from pymagicc import read_scen_file
+
+scenario = read_scen_file(&quot;PATHWAY.SCEN&quot;)
+</code></pre>
+
+<h3 id="create-a-new-scenario">Create a new scenario</h3>
+<p>Pymagicc uses Pandas DataFrames to represent scenarios. Dictionaries are
+used for scenarios with multiple regions.</p>
+<pre><code class="python">import pandas as pd
+
+scenario = pd.DataFrame({
+    &quot;FossilCO2&quot;: [8, 10, 9],
+    &quot;OtherCO2&quot;: [1.2, 1.1, 1.2],
+    &quot;CH4&quot;: [300, 250, 200]},
+    index=[2010, 2020, 2030]
+)
+
+</code></pre>
+
+<h3 id="run-magicc-for-a-scenario">Run MAGICC for a scenario</h3>
+<pre><code class="python">output = pymagicc.run(scenario)
+
+# Projected temperature adjusted to pre-industrial mean
+temp = (output[&quot;SURFACE_TEMP&quot;].GLOBAL -
+        output[&quot;SURFACE_TEMP&quot;].loc[1850:2100].GLOBAL.mean())
+</code></pre>
+
+<h3 id="using-a-different-magicc-version">Using a different MAGICC version</h3>
+<p>A custom version of MAGICC may be used with <code>pymagicc</code> using the
+<code>MAGICC_EXECUTABLE_6</code> and <code>MAGICC_EXECUTABLE_7</code> environment variables for MAGICC6
+ and MAGICC7 respectively. These environment variables should be set to the
+ location of the magicc executable (either <code>magicc</code> for linux/mac or
+ <code>magicc.exe</code> for Windows).
+For example, a custom MAGICC7 folder located at <code>/tmp/magicc</code> can be used on
+ under Linux by setting <code>MAGICC_EXECUTABLE_7</code> to <code>/tmp/magicc/run/magicc</code>.</p>
+<p>Example usage in Bash:</p>
+<pre><code class="bash">MAGICC_EXECUTABLE_7=/tmp/magicc/run/magicc.exe python run_tests.py
+</code></pre>
+
+<p>Or in a script:</p>
+<pre><code class="bash">#!/bin/bash
+export MAGICC_EXECUTABLE_7=tmp/magicc/run/magicc.exe
+python run_tests.py
+python generate_plots.py
+</code></pre>
+
+<h2 id="contributing">Contributing</h2>
+<p>Please report issues or discuss feature requests on Pymagicc's
+<a href="https://github.com/openclimatedata/pymagicc/issues">issue tracker</a>.</p>
+<p>You can also contact the <code>pymagicc</code> authors via email
+<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#111;&#98;&#101;&#114;&#116;&#46;&#103;&#105;&#101;&#115;&#101;&#107;&#101;&#64;&#112;&#105;&#107;&#45;&#112;&#111;&#116;&#115;&#100;&#97;&#109;&#46;&#100;&#101;">&#114;&#111;&#98;&#101;&#114;&#116;&#46;&#103;&#105;&#101;&#115;&#101;&#107;&#101;&#64;&#112;&#105;&#107;&#45;&#112;&#111;&#116;&#115;&#100;&#97;&#109;&#46;&#100;&#101;</a>.</p>
+<h2 id="license">License</h2>
+<p>The <a href="http://www.magicc.org/download6">compiled MAGICC binary</a> by Tom Wigley,
+Sarah Raper, and Malte Meinshausen included in this package is licensed under a <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License</a>.</p>
+<p>The <code>pymagicc</code> wrapper is free software under the GNU Affero General Public
+License v3, see <a href="./LICENSE">LICENSE</a>.</p>
+<p>If you make any use of MAGICC, please cite:</p>
+<blockquote>
+<p>M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled
+atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I
+"Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456.
+<a href="https://dx.doi.org/10.5194/acp-11-1417-2011">doi:10.5194/acp-11-1417-2011</a></p>
+</blockquote>
+<p>See also the <a href="http://magicc.org/">MAGICC website</a> and
+<a href="http://wiki.magicc.org/index.php?title=Main_Page">Wiki</a>
+for further information.</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="pymagicc/" class="btn btn-neutral float-right" title="pymagicc">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="pymagicc/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="./js/theme.js"></script>
+      <script src="./search/require.js"></script>
+      <script src="./search/search.js"></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 0.17.3
+Build Date UTC : 2018-07-12 14:14:00
+-->

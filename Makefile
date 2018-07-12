@@ -69,7 +69,11 @@ black: venv
 		echo Not trying any formatting. Working directory is dirty ... >&2; \
 	fi;
 
-docs/api.md: pymagicc/*.py
-	pydocmd simple pymagicc+ pymagicc.api+ pymagicc.input++ pymagicc.config > docs/api.md
+docs/index.html: pymagicc/*.py
+	pydocmd simple pymagicc+  > docsrc/pymagicc.md
+	pydocmd simple pymagicc.api+ > docsrc/pymagicc.api.md
+	pydocmd simple pymagicc.input++ > docsrc/pymagicc.input.md
+	pydocmd simple pymagicc.config > docsrc/pymagicc.config.md
+	mkdocs build
 
 .PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test black

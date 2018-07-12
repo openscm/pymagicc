@@ -7,8 +7,17 @@
 read_scen_file(scen_file)
 ```
 
-Reads a MAGICC .SCEN file and returns a
-a dictionary of DataFrames or, for World Only scenarios, a DataFrame.
+Read a MAGICC .SCEN file
+
+__Parameters__
+
+- __scen_file (str)__: Path to scen_file to read
+
+__Returns__
+
+`output (DataFrame or Dict of DataFrames)`: For World only scenarios, a
+single DataFrame with the data from the SCEN file. For scenarios with more
+than one region, a dictionary containing one DataFrame for each region.
 
 <h2 id="pymagicc.write_scen_file">write_scen_file</h2>
 
@@ -18,19 +27,21 @@ write_scen_file(scenario, path_or_buf=None, description1=None, description2=None
 
 Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
+Note that it is assumed that your units match the ones which are defined
+in the units variable. This function provides no ability to convert units
+or read units from a DataFrame attribute or column.
+
 __Parameters__
 
 - __scenario (DataFrame or Dict of DataFrames)__: If a single DataFrame is
     supplied, the data is assumed to be for the WORLD region. If a Dict of
     DataFrames is supplied then it is assumed that each DataFrame
-    containes data for one region. When using this option, be very careful
-    about the order your DataFrames are supplied in.
+    containes data for one region.
 - __path_or_buf (str or buffer)__: Pathname or file-like object to which to write
     the scenario.
 - __description_1 (str)__: Optional description line.
 - __description_2 (str)__: Optional second description line.
 - __comment(str)__: Optional comment at end of scenario file.
-
 
 <h2 id="pymagicc.run">run</h2>
 
@@ -74,13 +85,13 @@ A `MAGICC` instance first has to be setup by calling
 `create_copy`. If many model runs are being performed this step only has
 to be performed once. The `run` method can then be called many times
 without re-copying the files each time. Between each call to `run`, the
-confiugration files can be updated to perform runs with different
+configuration files can be updated to perform runs with different
 configurations.
 
 __Parameters__
 
 - __root_dir (str)__: If `root_dir` is supplied, an existing MAGICC 'setup' is
-    and `create_copy` cannot be used.
+    used.
 
 <h1 id="pymagicc.input">pymagicc.input</h1>
 
@@ -91,16 +102,14 @@ __Parameters__
 MAGICCInput(self, filename=None)
 ```
 
-*Warning: api likely to change*
-
-An interface to (in future) read and write the input files used by MAGICC.
+An interface to read and write the input files used by MAGICC.
 
 MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
 files in a common format with a common vocabulary to simplify the process
 of reading, writing and handling MAGICC data.
 
 The MAGICCInput, once the target input file has been loaded, can be
-treated as a pandas DataFrame. All the methods available to a DataFrame
+treated as a Pandas DataFrame. All the methods available to a DataFrame
 can be called on the MAGICCInput.
 
 ```python
@@ -109,6 +118,8 @@ with MAGICC6() as magicc:
     mdata.read(magicc.run_dir)
     mdata.plot()
 ```
+
+TODO: Write example for writing
 
 __Parameters__
 
@@ -119,8 +130,6 @@ __Parameters__
 ```python
 MAGICCInput.read(self, filepath=None, filename=None)
 ```
-
-*Warning: still under construction*
 
 Read an input file from disk
 
@@ -147,5 +156,5 @@ Module for collating configuration variables from various sources
 The order of preference is:
 Overrides > Environment variable > Defaults
 
-(To check with Jared) Overrides must be set directly in this file or in the config module before a run takes place.
+Overrides can be set using the ConfigStore
 

@@ -179,9 +179,6 @@ python run_tests.py
 python generate_plots.py
 ```
 
-## API
-
-See the auto-generated [API docs](docs/api.md).
 
 ## Contributing
 
