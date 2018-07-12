@@ -29,60 +29,84 @@ del get_versions
 # default parameters and cannot be changed after module load
 _magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
 
-if not _config['is_windows']:
-    wine_installed = subprocess.call("type wine", shell=True,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE) == 0
+if not _config["is_windows"]:
+    wine_installed = (
+        subprocess.call(
+            "type wine", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        == 0
+    )
     if not wine_installed:
         logging.warning("Wine is not installed")
 
 _config_path = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "default_config.nml")
+    os.path.dirname(os.path.abspath(__file__)), "default_config.nml"
+)
 default_config = f90nml.read(_config_path)
 
 # MAGICC's SCEN files encode the regions as follows.
 region_codes = {
-    11: ['WORLD'],
-    20: ['WORLD', "OECD90", "REF", "ASIA", "ALM"],
-    21: ['WORLD', "OECD90", "REF", "ASIA", "ALM"],
-    31: ['WORLD', "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"],
-    41: ['WORLD', "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
+    11: ["WORLD"],
+    20: ["WORLD", "OECD90", "REF", "ASIA", "ALM"],
+    21: ["WORLD", "OECD90", "REF", "ASIA", "ALM"],
+    31: ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"],
+    41: ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"],
 }
 
 # Order of columns to use when writing SCEN files.
 _columns = [
-    'YEARS', 'FossilCO2', 'OtherCO2', 'CH4', 'N2O', 'SOx', 'CO',
-    'NMVOC', 'NOx', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14',
-    'HFC23', 'HFC32', 'HFC43-10', 'HFC125', 'HFC134a', 'HFC143a',
-    'HFC227ea', 'HFC245fa', 'SF6'
+    "YEARS",
+    "FossilCO2",
+    "OtherCO2",
+    "CH4",
+    "N2O",
+    "SOx",
+    "CO",
+    "NMVOC",
+    "NOx",
+    "BC",
+    "OC",
+    "NH3",
+    "CF4",
+    "C2F6",
+    "C6F14",
+    "HFC23",
+    "HFC32",
+    "HFC43-10",
+    "HFC125",
+    "HFC134a",
+    "HFC143a",
+    "HFC227ea",
+    "HFC245fa",
+    "SF6",
 ]
 
 # Units to be used for each column.
 units = {
-    'BC': 'Mt',
-    'C2F6': 'kt',
-    'C6F14': 'kt',
-    'CF4': 'kt',
-    'CH4': 'MtCH4',
-    'CO': 'MtCO',
-    'FossilCO2': 'GtC',
-    'HFC125': 'kt',
-    'HFC134a': 'kt',
-    'HFC143a': 'kt',
-    'HFC227ea': 'kt',
-    'HFC23': 'kt',
-    'HFC245fa': 'kt',
-    'HFC32': 'kt',
-    'HFC43-10': 'kt',
-    'N2O': 'MtN2O-N',
-    'NH3': 'MtN',
-    'NMVOC': 'Mt',
-    'NOx': 'MtN',
-    'OC': 'Mt',
-    'OtherCO2': 'GtC',
-    'SF6': 'kt',
-    'SOx': 'MtS',
-    'YEARS': 'Yrs'
+    "BC": "Mt",
+    "C2F6": "kt",
+    "C6F14": "kt",
+    "CF4": "kt",
+    "CH4": "MtCH4",
+    "CO": "MtCO",
+    "FossilCO2": "GtC",
+    "HFC125": "kt",
+    "HFC134a": "kt",
+    "HFC143a": "kt",
+    "HFC227ea": "kt",
+    "HFC23": "kt",
+    "HFC245fa": "kt",
+    "HFC32": "kt",
+    "HFC43-10": "kt",
+    "N2O": "MtN2O-N",
+    "NH3": "MtN",
+    "NMVOC": "Mt",
+    "NOx": "MtN",
+    "OC": "Mt",
+    "OtherCO2": "GtC",
+    "SF6": "kt",
+    "SOx": "MtS",
+    "YEARS": "Yrs",
 }
 
 
@@ -125,7 +149,7 @@ def read_scen_file(scen_file):
             skiprows=skiprows,
             nrows=num_datapoints,
             header=0,
-            index_col=0
+            index_col=0,
         )
         output[region].name = region
 
@@ -140,12 +164,7 @@ rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
 rcp60 = read_scen_file(os.path.join(_magiccpath, "RCP60.SCEN"))
 rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"))
 
-scenarios = {
-    "RCP26": rcp26,
-    "RCP45": rcp45,
-    "RCP60": rcp60,
-    "RCP85": rcp85
-}
+scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
 
 
 def _get_date_time_string():
@@ -154,11 +173,9 @@ def _get_date_time_string():
     return now.strftime("%Y-%m-%d %H:%M")
 
 
-def write_scen_file(scenario,
-                    path_or_buf=None,
-                    description1=None,
-                    description2=None,
-                    comment=None):
+def write_scen_file(
+    scenario, path_or_buf=None, description1=None, description2=None, comment=None
+):
     """
     Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
 
@@ -199,9 +216,7 @@ def write_scen_file(scenario,
 
     # Scenario name.
     if isinstance(path_or_buf, str):
-        name = os.path.basename(
-            path_or_buf.replace(".SCEN", "")
-        )
+        name = os.path.basename(path_or_buf.replace(".SCEN", ""))
     else:
         name = "MAGICC Scenario"
     out.append(" " + name)
@@ -244,9 +259,7 @@ def write_scen_file(scenario,
             data = [with_padding.format(year)]
             for column in _columns[1:]:
                 if column in scenario[region].columns:
-                    data.append(with_digits.format(
-                        scenario[region].loc[year][column])
-                    )
+                    data.append(with_digits.format(scenario[region].loc[year][column]))
             out.append("".join(data))
 
         # Two empty lines after each block.
@@ -288,14 +301,13 @@ def run(scenario, return_config=False, **kwargs):
     with MAGICC6() as magicc:
 
         # Write out the `Scenario` as a .SCEN-file.
-        write_scen_file(scenario,
-                        os.path.join(magicc.run_dir, "SCENARIO.SCEN"))
+        write_scen_file(scenario, os.path.join(magicc.run_dir, "SCENARIO.SCEN"))
 
         year_cfg = {}
-        if 'startyear' in kwargs:
-            year_cfg['startyear'] = kwargs.pop('startyear')
-        if 'endyear' in kwargs:
-            year_cfg['endyear'] = kwargs.pop('endyear')
+        if "startyear" in kwargs:
+            year_cfg["startyear"] = kwargs.pop("startyear")
+        if "endyear" in kwargs:
+            year_cfg["endyear"] = kwargs.pop("endyear")
             magicc.set_years(**year_cfg)
         kwargs.setdefault("file_emissionscenario", "SCENARIO.SCEN")
         kwargs.setdefault("rundate", _get_date_time_string())

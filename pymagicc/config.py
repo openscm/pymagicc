@@ -11,15 +11,13 @@ import platform
 from os import environ
 from os.path import abspath, dirname, join
 
-__all__ = ['config']
+__all__ = ["config"]
 
 _is_windows = platform.system() == "Windows"
 # Default configuration parameters for pymagicc
 default_config = {
-    'EXECUTABLE_6': join(dirname(abspath(__file__)),
-                       "MAGICC6/run/magicc6.exe"
-                       ),
-    'IS_WINDOWS': _is_windows
+    "EXECUTABLE_6": join(dirname(abspath(__file__)), "MAGICC6/run/magicc6.exe"),
+    "IS_WINDOWS": _is_windows,
 }
 
 
@@ -28,7 +26,7 @@ def lookup_defaults(item):
 
 
 def lookup_env(item):
-    env_var = 'MAGICC_' + item.upper()
+    env_var = "MAGICC_" + item.upper()
     return environ.get(env_var)
 
 
@@ -43,10 +41,7 @@ class ConfigStore(object):
     def __init__(self):
         self.overrides = {}
 
-        self.config_lookups = [
-            lookup_env,
-            lookup_defaults
-        ]
+        self.config_lookups = [lookup_env, lookup_defaults]
 
     def __getitem__(self, item):
         item = item.upper()

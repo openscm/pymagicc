@@ -61,7 +61,15 @@ test-pypi-install: venv
 flake8: venv
 	./venv/bin/flake8 pymagicc
 
+black: venv
+	@status=$$(git status --porcelain pymagicc tests); \
+	if test "x$${status}" = x; then \
+		./venv/bin/black --exclude _version.py --py36 setup.py pymagicc tests; \
+	else \
+		echo Not trying any formatting. Working directory is dirty ... >&2; \
+	fi;
+
 docs/api.md: pymagicc/*.py
 	pydocmd simple pymagicc+ pymagicc.api+ pymagicc.input++ pymagicc.config > docs/api.md
 
-.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test
+.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test black
