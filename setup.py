@@ -24,7 +24,6 @@ path = os.path.abspath(os.path.dirname(__file__))
 
 
 class PyTest(TestCommand):
-
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
@@ -32,10 +31,11 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import pytest
+
         pytest.main(self.test_args)
 
 
-with open(os.path.join(path, 'README.md'), "r") as f:
+with open(os.path.join(path, "README.md"), "r") as f:
     readme = f.read()
 
 
@@ -43,37 +43,38 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
 setup(
-    name='pymagicc',
+    name="pymagicc",
     version=versioneer.get_version(),
-    description='Python wrapper for the simple climate model MAGICC',
+    description="Python wrapper for the simple climate model MAGICC",
     long_description=readme,
     long_description_content_type="text/markdown",
-    author='Robert Gieseke',
-    author_email='robert.gieseke@pik-potsdam.de',
-    url='https://github.com/openclimatedata/pymagicc',
-    license='GNU Affero General Public License v3',
+    author="Robert Gieseke",
+    author_email="robert.gieseke@pik-potsdam.de",
+    url="https://github.com/openclimatedata/pymagicc",
+    license="GNU Affero General Public License v3",
     keywords=[],
-        classifiers=[
+    classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6'
-        'Programming Language :: Python :: 3.7'
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6" "Programming Language :: Python :: 3.7",
     ],
-    packages=['pymagicc'],
-    package_data={'pymagicc': [
-        'MAGICC6/*.txt',
-        'MAGICC6/out/.gitkeep',
-        'MAGICC6/run/*.CFG',
-        'MAGICC6/run/*.exe',
-        'MAGICC6/run/*.IN',
-        'MAGICC6/run/*.MON',
-        'MAGICC6/run/*.prn',
-        'MAGICC6/run/*.SCEN'
-    ]},
+    packages=["pymagicc"],
+    package_data={
+        "pymagicc": [
+            "MAGICC6/*.txt",
+            "MAGICC6/out/.gitkeep",
+            "MAGICC6/run/*.CFG",
+            "MAGICC6/run/*.exe",
+            "MAGICC6/run/*.IN",
+            "MAGICC6/run/*.MON",
+            "MAGICC6/run/*.prn",
+            "MAGICC6/run/*.SCEN",
+        ]
+    },
     include_package_data=True,
-    install_requires=['pandas', 'f90nml'],
-    tests_require=['pytest'],
-    cmdclass=cmdclass
+    install_requires=["pandas", "f90nml"],
+    tests_require=["pytest"],
+    cmdclass=cmdclass,
 )
