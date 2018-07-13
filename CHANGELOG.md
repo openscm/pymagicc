@@ -1,3 +1,12 @@
+1.3.0
+=====
+
+- add TCR diagnosis function
+- improve testing of notebooks
+- add documentation using MkDocs
+- use Black for automatic code formatting
+- add Python 3.7 testing
+
 1.2.0
 =====
 
