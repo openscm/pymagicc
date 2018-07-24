@@ -151,3 +151,8 @@ def test_set_years():
     assert conf["years"]["endyear"] == 2000
     assert results["SURFACE_TEMP"].GLOBAL.index[0] == 1900
     assert results["SURFACE_TEMP"].GLOBAL.index[-1] == 2000
+
+@pytest.mark.slow
+def test_out_carboncycle():
+    out = run(rcp26, out_carboncycle=1)
+    assert "CARBONCYCLE" in out.keys()

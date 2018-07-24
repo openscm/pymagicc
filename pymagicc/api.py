@@ -163,7 +163,7 @@ class MAGICCBase(object):
         outfiles = [
             f
             for f in listdir(self.out_dir)
-            if f.startswith("DAT_") and f.endswith(".OUT")
+            if f.startswith(("DAT_", "CARBONCYCLE")) and f.endswith(".OUT")
         ]
 
         for filename in outfiles:
