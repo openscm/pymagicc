@@ -168,11 +168,15 @@ class MAGICCBase(object):
 
         for filename in outfiles:
             name = filename.replace("DAT_", "").replace(".OUT", "")
+            if self.version == 6:
+                skiprows = 19
+            else:
+                skiprows = 21
             if only is None or name in only:
                 results[name] = pd.read_csv(
                     join(self.out_dir, filename),
                     delim_whitespace=True,
-                    skiprows=19 if self.version == 6 else 21,
+                    skiprows=skiprows,
                     index_col=0,
                     engine="python",
                 )
