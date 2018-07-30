@@ -245,6 +245,20 @@ class MAGICCBase(object):
         return config["executable_{}".format(self.version)]
 
     def diagnose_tcr_ecs(self, method=None, **kwargs):
+        """
+        Diagnose the transient climate response (TCR) and Equilibrium climate sensitivity (ECS)
+
+        # Parameters
+        method (str): If "IPCCTAR" then tcr is diagnosed as the surface warming after 70 years of 1%/yr increases in atmospheric CO$_2$ concentrations, this follows the definition provided in the IPCC's Third Assessment Report. If "IPCCAR5" then tcr is diagnosed as the mean surface warming between years 60 and 80 of 1%/yr increases in atmospheric CO$_2$ concentrations, following the definition provided in the IPCC's Fifth Assessment Report (AR5)
+
+        how do we write defaults in here and this long docstring properly?
+
+        # Returns
+        results (dict): Dictionary containing the results with keys:
+            - tcr: diagnosed tcr value (K)
+            - ecs: diagnosed tcr value (K)
+            - timeseries: timeseries used to diagnose tcr and ecs
+        """
         if method is not None:
             raise NotImplementedError("WIP")
 
