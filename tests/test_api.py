@@ -356,16 +356,25 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
 
 # integration test (i.e. actually runs magicc) hence slow
 @pytest.mark.slow
-def test_integration_diagnose_tcr_ecs(package):
-    actual_result = package.diagnose_tcr_ecs()
+@pytest.mark.parametrize("diagnosis_method,expected_tcr,expected_ecs", [
+    (None, 1.9733976000000002, 2.9968448),
+    ("IPCCTAR", 1.9733976000000002, 2.9968448),
+    ("IPCCAR5", 1.0, 2.0),
+])
+def test_integration_diagnose_tcr_ecs(package, diagnosis_method, expected_tcr, expected_ecs):
+    if diagnosis_method is None:
+        actual_result = package.diagnose_tcr_ecs()
+    else:
+        actual_result = package.diagnose_tcr_ecs(method=diagnosis_method)
     assert isinstance(actual_result, dict)
     assert "tcr" in actual_result
     assert "ecs" in actual_result
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
         assert (
-            actual_result["tcr"] == 1.9733976000000002
+            actual_result["tcr"] == expected_tcr
         )  # MAGICC6 shipped with pymagicc should be stable
         assert (
-            actual_result["ecs"] == 2.9968448
+            actual_result["ecs"] == expected_ecs
         )  # MAGICC6 shipped with pymagicc should be stable
+

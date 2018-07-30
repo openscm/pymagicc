@@ -244,7 +244,24 @@ class MAGICCBase(object):
     def get_executable(self):
         return config["executable_{}".format(self.version)]
 
-    def diagnose_tcr_ecs(self, **kwargs):
+    def diagnose_tcr_ecs(self, method=None, **kwargs):
+        """
+        Diagnose the transient climate response (TCR) and Equilibrium climate sensitivity (ECS)
+
+        # Parameters
+        method (str): If "IPCCTAR" then tcr is diagnosed as the surface warming after 70 years of 1%/yr increases in atmospheric CO$_2$ concentrations, this follows the definition provided in the IPCC's Third Assessment Report. If "IPCCAR5" then tcr is diagnosed as the mean surface warming between years 60 and 80 of 1%/yr increases in atmospheric CO$_2$ concentrations, following the definition provided in the IPCC's Fifth Assessment Report (AR5)
+
+        how do we write defaults in here and this long docstring properly?
+
+        # Returns
+        results (dict): Dictionary containing the results with keys:
+            - tcr: diagnosed tcr value (K)
+            - ecs: diagnosed tcr value (K)
+            - timeseries: timeseries used to diagnose tcr and ecs
+        """
+        if method is not None:
+            raise NotImplementedError("WIP")
+
         self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
             only=["CO2_CONC", "TOTAL_INCLVOLCANIC_RF", "SURFACE_TEMP"]
@@ -255,7 +272,7 @@ class MAGICCBase(object):
     def _diagnose_tcr_ecs_config_setup(self, **kwargs):
         self.set_years(
             startyear=1750, endyear=4200
-        )  # 4200 seems to be the max I can push too without an error
+        )  # 4200 seems to be the max I can push to without an error
 
         self.set_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
