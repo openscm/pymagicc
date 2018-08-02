@@ -89,7 +89,11 @@ class MAGICCBase(object):
         configuration files and binary.
         """
         if self.executable is None or not isfile(self.executable):
-            raise FileNotFoundError('Could not find MAGICC{} executable: {}'.format(self.version, self.executable))
+            raise FileNotFoundError(
+                "Could not find MAGICC{} executable: {}".format(
+                    self.version, self.executable
+                )
+            )
         if self.is_temp:
             assert (
                 self.root_dir is None

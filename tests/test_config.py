@@ -40,7 +40,6 @@ def temp_set_var(store):
     return set_var, cleanup
 
 
-
 @pytest.fixture(scope="function")
 def env_override():
     set_var, cleanup = temp_set_var(environ)

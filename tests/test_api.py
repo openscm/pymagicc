@@ -9,7 +9,8 @@ import pandas as pd
 import f90nml
 
 from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
-from .test_config import config_override #  noqa
+from .test_config import config_override  #  noqa
+
 
 @pytest.fixture(scope="module")
 def magicc_base():
