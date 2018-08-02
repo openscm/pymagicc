@@ -8,8 +8,6 @@
 # License (https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
 
-# -*- coding: utf-8 -*-
-
 import datetime
 import linecache
 import logging
