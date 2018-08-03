@@ -24,8 +24,8 @@ from .api import MAGICC6, MAGICC7  # noqa
 __version__ = get_versions()["version"]
 del get_versions
 
-# default parameters and cannot be changed after module load
-_magiccpath, _magiccbinary = MAGICC6().original_dir, MAGICC6().original_dir
+# Path used for data files loading.
+_magiccpath = MAGICC6().original_dir
 
 if not _config["is_windows"]:
     wine_installed = (
