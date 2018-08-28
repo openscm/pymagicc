@@ -13,8 +13,6 @@ import f90nml
 from pymagicc.api import MAGICC6
 from pymagicc.input import (
     MAGICCInput,
-    MAGICC7Reader,
-    MAGICC6Reader,
     InputReader,
     HIST_CONC_INReader,
 )
@@ -41,18 +39,19 @@ def test_load_magicc6_emis():
 
     assert isinstance(mdata.metadata["header"], str)
     assert isinstance(mdata.df, pd.DataFrame)
-    assert mdata.df.index.names == ["VARIABLE", "TODO", "REGION", "YEAR", "UNITS"]
-    assert (
-        mdata.df["value"]["CO2I_EMIS", "SET", "R5ASIA", 2000, "GtC"] == 1.76820270e+000
-    )
+    assert mdata.df.index.names == ["YEAR"]
+    assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+    assert mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000] == 1.76820270e+000
 
 
 def test_load_magicc6_conc():
     mdata = MAGICCInput()
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
 
-    assert (mdata.df.index.get_level_values("UNITS") == "ppm").all()
-    assert mdata.df["CO2_CONC", "SET", "GLOBAL", "ppm", 1048] == 2.80435733e+002
+    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
+    assert mdata.df.index.names == ["YEAR"]
+    assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+    assert mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048] == 2.80435733e+002
 
 
 def test_load_magicc7_emis():
@@ -63,33 +62,56 @@ def test_load_magicc7_emis():
         mdata.metadata["contact"]
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
-    assert (mdata.df.index.get_level_values("UNITS") == "GtC").all()
-    assert mdata.df["CO2I", "SET", "R6REF", "GtC", 2013] == 0.6638
-    assert mdata.df["CO2I", "SET", "R6ASIA", "GtC", 2000] == 1.6911
+    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+    assert mdata.df["CO2I", "SET", "GtC", "R6REF"][2013] == 0.6638
+    assert mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000] == 1.6911
 
 
 def test_load_prename():
     mdata = MAGICCInput("HISTSSP_CO2I_EMIS.IN")
     mdata.read(MAGICC7_DIR)
 
-    assert (mdata.df.index.get_level_values("UNITS") == "GtC").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
 
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
-    assert (mdata.df.index.get_level_values("UNITS") == "ppm").all()
-    assert not (mdata.df.index.get_level_values("UNITS") == "GtC").any()
+    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
+    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
 
 
 def test_direct_access():
     mdata = MAGICCInput("HISTRCP_CO2I_EMIS.IN")
     mdata.read(MAGICC6_DIR)
 
-    assert (
-        mdata["CO2I_EMIS", "R5LAM", 1983]
-        == mdata.df["value"]["CO2I_EMIS", :, "R5LAM", 1983, :]
-    ).all()
-    assert (
-        mdata["CO2I_EMIS", "R5LAM"] == mdata.df["value"]["CO2I_EMIS", :, "R5LAM", :, :]
-    ).all()
+    result = mdata["CO2I_EMIS", "R5LAM", 1983]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        axis=1,
+        drop_level=False,
+    ).loc[[1983]]
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata["CO2I_EMIS", "R5LAM"]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        axis=1,
+        drop_level=False,
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata["CO2I_EMIS"]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", slice(None)),
+        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        axis=1,
+        drop_level=False,
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata[1994]
+    expected = mdata.df.loc[[1994]]
+    pd.testing.assert_frame_equal(result, expected)
 
 
 def test_lazy_load():
@@ -138,33 +160,38 @@ def test_default_path():
 
 
 def test_header_metadata():
-    m6 = MAGICC6Reader("test")
-    assert m6.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
-    assert m6.process_header("") == {}
-    assert m6.process_header("Data: Average emissions per year") == {
+    m = InputReader("test")
+    assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
+    assert m.process_header("") == {}
+    assert m.process_header("Data: Average emissions per year") == {
         "data": "Average emissions per year"
     }
-    assert m6.process_header(
+    assert m.process_header(
         "DATA:  Historical landuse BC (BCB) Emissions (HISTRCP_BCB_EMIS) "
     ) == {"data": "Historical landuse BC (BCB) Emissions (HISTRCP_BCB_EMIS)"}
-    assert m6.process_header(
+    assert m.process_header(
         "CONTACT:   RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov) "
     ) == {
         "contact": "RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov)"
     }
-    # assert warning on this one
-    # m6.process_header('DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009')
 
-    m7 = MAGICC7Reader("test")
-    assert m7.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
-    assert m7.process_header("") == {}
-    assert m7.process_header("Data: Average emissions per year\nother text") == {
+    assert m.process_header(
+        'DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009'
+    ) == {
+        'date': '26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009'
+    }
+
+
+    m = InputReader("test")
+    assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
+    assert m.process_header("") == {}
+    assert m.process_header("Data: Average emissions per year\nother text") == {
         "data": "Average emissions per year"
     }
-    assert m7.process_header("           Data: Average emissions per year    ") == {
+    assert m.process_header("           Data: Average emissions per year    ") == {
         "data": "Average emissions per year"
     }
-    assert m7.process_header(
+    assert m.process_header(
         "Compiled by: Zebedee Nicholls, Australian-German Climate & Energy College"
     ) == {"compiled by": "Zebedee Nicholls, Australian-German Climate & Energy College"}
 
@@ -233,7 +260,10 @@ def temp_dir():
 
 
 @pytest.mark.parametrize(
-    "starting_fpath, starting_fname", [(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")]
+    "starting_fpath, starting_fname",
+    [
+        (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"),
+    ],
 )
 def test_CONC_IN_file_read_write_functionally_identical(
     starting_fpath, starting_fname, temp_dir

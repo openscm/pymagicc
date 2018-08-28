@@ -119,77 +119,13 @@ class InputReader(object):
                 tag_text = "{}:".format(tag)
                 if l.lower().startswith(tag_text):
                     metadata[tag] = l[len(tag_text) + 1 :].strip()
+
         return metadata
 
     def _read_data_header_line(self, stream, expected_header):
         tokens = stream.readline().split()
         assert tokens[0] == expected_header
         return tokens[1:]
-
-
-class MAGICC6Reader(InputReader):
-    def process_data(self, stream, metadata):
-        df = pd.read_csv(
-            stream, skip_blank_lines=True, delim_whitespace=True, engine="python"
-        )
-
-        df.rename(columns={"COLCODE": "YEAR"}, inplace=True)
-
-        df = pd.melt(df, id_vars="YEAR", var_name="REGION")
-
-        df["UNITS"] = metadata["units"]
-        metadata.pop("units")
-
-        df["TODO"] = "SET"
-
-        filename_only = splitext(basename(self.filename))[0]
-        df["VARIABLE"] = "_".join(filename_only.split("_")[1:])
-
-        df.set_index(["VARIABLE", "TODO", "REGION", "YEAR", "UNITS"], inplace=True)
-
-        return df, metadata
-
-        df.rename(columns={"COLCODE": "YEAR"}, inplace=True)
-
-class MAGICC7Reader(InputReader):
-    def process_data(self, stream, metadata):
-        variables = self._read_data_header_line(stream, "GAS")
-        todo = self._read_data_header_line(stream, "TODO")
-        units = self._read_data_header_line(stream, "UNITS")
-        regions = self._read_data_header_line(
-            stream, "YEARS"
-        )  # Note that regions line starts with 'YEARS' instead of 'REGIONS'
-        index = pd.MultiIndex.from_arrays(
-            [variables, todo, regions, units],
-            names=["VARIABLE", "TODO", "REGION", "UNITS"],
-        )
-        df = pd.read_csv(
-            stream,
-            skip_blank_lines=True,
-            delim_whitespace=True,
-            names=None,
-            header=None,
-            index_col=0,
-        )
-        df.index.name = "YEAR"
-        df.columns = index
-        df = df.T.stack()
-
-        return df, metadata
-
-    def _extract_units(self, gases, units):
-        combos = set(zip(gases, units))
-        result = {}
-        for v, u in combos:
-            if v not in result:
-                result[v] = u
-            else:
-                # this isn't expected to happen, but should check anyway
-                raise ValueError(
-                    "Different units for {} in {}".format(v, self.filename)
-                )
-
-        return result
 
 
 class HIST_CONC_INReader(InputReader):
@@ -199,23 +135,21 @@ class HIST_CONC_INReader(InputReader):
         )  # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
         units = [metadata["units"]] * len(regions)
         metadata.pop("units")
-        todo = ["SET"] * len(regions)
+        todos = ["SET"] * len(regions)
         variables = [self._get_variable_from_filename()] * len(regions)
-        index = pd.MultiIndex.from_arrays(
-            [variables, todo, regions, units],
-            names=["VARIABLE", "TODO", "REGION", "UNITS"],
-        )
+
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
             delim_whitespace=True,
-            names=None,
             header=None,
             index_col=0,
         )
         df.index.name = "YEAR"
-        df.columns = index
-        df = df.T.stack()
+        df.columns = pd.MultiIndex.from_arrays(
+            [variables, todos, units, regions],
+            names=("VARIABLE", "TODO", "UNITS", "REGION"),
+        )
 
         return df, metadata
 
@@ -231,13 +165,45 @@ class HIST_CONC_INReader(InputReader):
 
 
 class HIST_EMIS_INReader(InputReader):
-    # TODO: fix this. Not high priority now
     def process_data(self, stream, metadata):
         if any(["COLCODE" in line for line in self.lines]):
-            proxy_reader = MAGICC6Reader(self.filename)
+            # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
+            regions = self._read_data_header_line(stream, "COLCODE")
+            units = [metadata["units"]] * len(regions)
+            metadata.pop("units")
+            todos = ["SET"] * len(regions)
+            variables = [self._get_variable_from_filename()] * len(regions)
         else:
-            proxy_reader = MAGICC7Reader(self.filename)
-        return proxy_reader.process_data(stream, metadata)
+            variables = self._read_data_header_line(stream, "GAS")
+            todos = self._read_data_header_line(stream, "TODO")
+            units = self._read_data_header_line(stream, "UNITS")
+            # Note that regions line starts with 'YEARS' instead of 'REGIONS'
+            regions = self._read_data_header_line(stream, "YEARS")
+
+        df = pd.read_csv(
+            stream,
+            skip_blank_lines=True,
+            delim_whitespace=True,
+            header=None,
+            index_col=0,
+        )
+        df.index.name = "YEAR"
+        df.columns = pd.MultiIndex.from_arrays(
+            [variables, todos, units, regions],
+            names=("VARIABLE", "TODO", "UNITS", "REGION"),
+        )
+
+        return df, metadata
+
+    def _get_variable_from_filename(self):
+        regexp_capture_variable = re.compile(r".*\_(\w*\_EMIS)\.IN$")
+        try:
+            return regexp_capture_variable.search(self.filename).group(1)
+        except AttributeError:
+            error_msg = "Cannot determine variable from filename: {}".format(
+                self.filename
+            )
+            raise SyntaxError(error_msg)
 
 
 class InputWriter(object):
@@ -359,8 +325,7 @@ _fname_reader_regex_map = {
     # r'.*\.SECTOR$': SECTORReader,
 }
 
-
-def get_reader(fname):
+def _get_reader(fname):
     return determine_tool(fname, _fname_reader_regex_map)(fname)
 
 
@@ -373,10 +338,31 @@ _fname_writer_regex_map = {
     # r'.*\.SECTOR$': SECTORWriter,
 }
 
-
-def get_writer(fname):
+def _get_writer(fname):
     return determine_tool(fname, _fname_writer_regex_map)()
 
+def _get_df_key(df, key):
+    for colname in df.columns.names:
+        try:
+            return df.xs(key, level=colname, axis=1, drop_level=False)
+        except KeyError:
+            continue
+    try:
+        return df.loc[[key]]
+    except KeyError:
+        msg = "{} is not in the column headers or the index".format(key)
+        raise KeyError(msg)
+
+def _get_df_keys(df, keys):
+    df_out = df.copy()
+    if isinstance(keys, str):
+        keys = [keys]
+    try:
+        for key in keys:
+            df_out = _get_df_key(df_out, key)
+    except TypeError:
+        df_out = _get_df_key(df_out, keys)
+    return df_out
 
 class MAGICCInput(object):
     """
@@ -422,18 +408,17 @@ class MAGICCInput(object):
 
     def __getitem__(self, item):
         """
-        Allow for indexing like a Pandas DataFrame
+        Allow for simplified indexing
 
+        # TODO: double check of delete below
         >>> inpt = MAGICCInput('HISTRCP_CO2_CONC.IN')
         >>> inpt.read('./')
-        >>> assert (inpt['CO2']['GLOBAL'] == inpt.df['CO2']['GLOBAL']).all()
+        >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
         """
         if not self.is_loaded:
             self._raise_not_loaded_error()
-        if len(item) == 2:
-            return self.df["value"][item[0], :, item[1], :, :]
-        elif len(item) == 3:
-            return self.df["value"][item[0], :, item[1], item[2], :]
+        return _get_df_keys(self.df, item)
+
 
     def __getattr__(self, item):
         """
@@ -465,16 +450,17 @@ class MAGICCInput(object):
         if filename is not None:
             self.name = filename
         assert self.name is not None
+
         filename = join(filepath, self.name)
         if not exists(filename):
             raise ValueError("Cannot find {}".format(filename))
 
-        reader = get_reader(filename)
+        reader = _get_reader(filename)
         self.metadata, self.df = reader.read()
 
     def write(self, filename):
         """
         TODO: Implement writing to disk
         """
-        writer = get_writer(filename)
+        writer = _get_writer(filename)
         writer.write(self, filename)
