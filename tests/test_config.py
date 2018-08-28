@@ -51,13 +51,13 @@ def test_lookup_default():
     assert lookup_defaults("SOMETHING") is None
 
 
-def test_lookup_env(env_var):
-    env_var("MAGICC_EXECUTABLE_6", "/foo/bar/magicc")
+def test_lookup_env(env_override):
+    env_override("MAGICC_EXECUTABLE_6", "/foo/bar/magicc")
     assert lookup_env("EXECUTABLE_6") == "/foo/bar/magicc"
     assert lookup_env("executable_6") == "/foo/bar/magicc"
 
     assert lookup_env("OTHER") is None
-    env_var("MAGICC_OTHER", "test")
+    env_override("MAGICC_OTHER", "test")
     assert lookup_env("OTHER") == "test"
 
     # Something that isn't specified
@@ -72,7 +72,7 @@ def test_precendence(env_override):
     c = ConfigStore()
     assert c["EXECUTABLE_6"] == default_config["EXECUTABLE_6"]
 
-    env_var("MAGICC_EXECUTABLE_6", "/foo/bar/magicc")
+    env_override("MAGICC_EXECUTABLE_6", "/foo/bar/magicc")
     assert c["EXECUTABLE_6"] == "/foo/bar/magicc"
 
     c["executable_6"] = "testing"
