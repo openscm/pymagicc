@@ -12,3 +12,4 @@ mock
 flake8
 black
 nbval
+git+https://github.com/thedataincubator/expectexception.git@master

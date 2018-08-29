@@ -9,7 +9,7 @@ before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
   - sudo apt-get install --no-install-recommends -y wine
-  - pip install pytest pytest-cov codecov mock nbval matplotlib
+  - pip install pytest pytest-cov codecov mock nbval matplotlib git+https://github.com/thedataincubator/expectexception.git@master
 install:
   - pip install -e .
 script:
