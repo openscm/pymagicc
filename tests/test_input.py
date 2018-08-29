@@ -11,11 +11,7 @@ from unittest.mock import patch
 import f90nml
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import (
-    MAGICCInput,
-    InputReader,
-    HIST_CONC_INReader,
-)
+from pymagicc.input import MAGICCInput, InputReader, HIST_CONC_INReader
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -85,7 +81,7 @@ def test_direct_access():
     result = mdata["CO2I_EMIS", "R5LAM", 1983]
     expected = mdata.df.xs(
         ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
-        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     ).loc[[1983]]
@@ -94,7 +90,7 @@ def test_direct_access():
     result = mdata["CO2I_EMIS", "R5LAM"]
     expected = mdata.df.xs(
         ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
-        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     )
@@ -103,7 +99,7 @@ def test_direct_access():
     result = mdata["CO2I_EMIS"]
     expected = mdata.df.xs(
         ("CO2I_EMIS", "SET", "GtC", slice(None)),
-        level=['VARIABLE', 'TODO', 'UNITS', 'REGION'],
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     )
@@ -176,11 +172,8 @@ def test_header_metadata():
     }
 
     assert m.process_header(
-        'DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009'
-    ) == {
-        'date': '26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009'
-    }
-
+        "DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
+    ) == {"date": "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"}
 
     m = InputReader("test")
     assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
@@ -265,7 +258,6 @@ def temp_dir():
         (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"),
         (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"),
         (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN"),
-
     ],
 )
 def test_CONC_IN_file_read_write_functionally_identical(
@@ -286,7 +278,6 @@ def test_CONC_IN_file_read_write_functionally_identical(
 
     assert mi_written.metadata == mi_initial.metadata
     pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
-    assert (
-        sorted(nml_written["thisfile_specifications"])
-        == sorted(nml_initial["thisfile_specifications"])
+    assert sorted(nml_written["thisfile_specifications"]) == sorted(
+        nml_initial["thisfile_specifications"]
     )

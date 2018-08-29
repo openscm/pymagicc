@@ -8,7 +8,11 @@ import re
 from six import StringIO
 
 from pymagicc import MAGICC6
-from .definitions import dattype_regionmode_regions, emissions_units, concentrations_units
+from .definitions import (
+    dattype_regionmode_regions,
+    emissions_units,
+    concentrations_units,
+)
 
 
 class InputReader(object):
@@ -261,26 +265,17 @@ class InputWriter(object):
         output.write(line_after_nml)
 
         first_col_length = 12
-        first_col_format_str = (
-            "{" + ":{}d".format(first_col_length) + "}"
-        ).format
+        first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
 
         other_col_format_str = "{:18.5e}".format
         # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
         pd_pad = " " * (
-            first_col_length
-            - len(data_block.columns.get_level_values(0)[0])
-            - 1
+            first_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
         )
         output.write(pd_pad)
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
-        data_block.to_string(
-            output,
-            index=False,
-            formatters=formatters,
-            sparsify=False,
-        )
+        data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
 
         output.write("\n")
         with open(filename, "w") as output_file:
@@ -296,15 +291,15 @@ class InputWriter(object):
         nml = Namelist()
         nml["THISFILE_SPECIFICATIONS"] = Namelist()
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
-            len(data_block.columns)
-            - 1 # for YEARS column
+            len(data_block.columns) - 1  # for YEARS column
         )
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
         assert (
-            (nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
-             - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
-             + 1
+            (
+                nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
+                - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
+                + 1
             )
             / len(data_block)
             == 1.0
@@ -316,18 +311,24 @@ class InputWriter(object):
         regions = set(self._get_df_header_row("REGION"))
 
         find_region = lambda x: set(x) == regions
-        region_rows = dattype_regionmode_regions['Regions'].apply(find_region)
+        region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
 
         if self.scen_7:
-            dattype_rows = dattype_regionmode_regions['THISFILE_DATTYPE'] == 'SCEN7'
+            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
         else:
-            dattype_rows = dattype_regionmode_regions['THISFILE_DATTYPE'] != 'SCEN7'
+            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
 
-        region_dattype_row = (region_rows & dattype_rows)
+        region_dattype_row = region_rows & dattype_rows
         assert sum(region_dattype_row) == 1
 
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = dattype_regionmode_regions['THISFILE_DATTYPE'][region_dattype_row].iloc[0]
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_REGIONMODE"] = dattype_regionmode_regions['THISFILE_REGIONMODE'][region_dattype_row].iloc[0]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = dattype_regionmode_regions[
+            "THISFILE_DATTYPE"
+        ][region_dattype_row].iloc[0]
+        nml["THISFILE_SPECIFICATIONS"][
+            "THISFILE_REGIONMODE"
+        ] = dattype_regionmode_regions["THISFILE_REGIONMODE"][region_dattype_row].iloc[
+            0
+        ]
 
         return nml, data_block
 
@@ -346,6 +347,7 @@ class HIST_CONC_INWriter(InputWriter):
         data_block.columns = ["COLCODE"] + regions
 
         return data_block
+
 
 class HIST_EMIS_INWriter(InputWriter):
     def _get_data_block(self):
@@ -373,6 +375,7 @@ def determine_tool(fname, regexp_map):
 
     raise ValueError("Couldn't find appropriate writer for {}".format(fname))
 
+
 hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
 hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
 
@@ -384,6 +387,7 @@ _fname_reader_regex_map = {
     # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
     # r'.*\.SECTOR$': SECTORReader,
 }
+
 
 def _get_reader(fname):
     return determine_tool(fname, _fname_reader_regex_map)(fname)
@@ -398,8 +402,10 @@ _fname_writer_regex_map = {
     # r'.*\.SECTOR$': SECTORWriter,
 }
 
+
 def _get_writer(fname):
     return determine_tool(fname, _fname_writer_regex_map)()
+
 
 def _get_df_key(df, key):
     for colname in df.columns.names:
@@ -413,6 +419,7 @@ def _get_df_key(df, key):
         msg = "{} is not in the column headers or the index".format(key)
         raise KeyError(msg)
 
+
 def _get_df_keys(df, keys):
     df_out = df.copy()
     if isinstance(keys, str):
@@ -423,6 +430,7 @@ def _get_df_keys(df, keys):
     except TypeError:
         df_out = _get_df_key(df_out, keys)
     return df_out
+
 
 class MAGICCInput(object):
     """
@@ -478,7 +486,6 @@ class MAGICCInput(object):
         if not self.is_loaded:
             self._raise_not_loaded_error()
         return _get_df_keys(self.df, item)
-
 
     def __getattr__(self, item):
         """
