@@ -8,6 +8,7 @@ import re
 from six import StringIO
 
 from pymagicc import MAGICC6
+from .definitions import dattype_regionmode_regions, emissions_units, concentrations_units
 
 
 class InputReader(object):
@@ -177,6 +178,7 @@ class HIST_EMIS_INReader(InputReader):
             variables = self._read_data_header_line(stream, "GAS")
             todos = self._read_data_header_line(stream, "TODO")
             units = self._read_data_header_line(stream, "UNITS")
+            metadata.pop("units")
             # Note that regions line starts with 'YEARS' instead of 'REGIONS'
             regions = self._read_data_header_line(stream, "YEARS")
 
@@ -208,6 +210,10 @@ class HIST_EMIS_INReader(InputReader):
 
 class InputWriter(object):
     def __init__(self):
+        # need this for the _get_initial_nml_and_data_block routine as SCEN7
+        # files have a special, contradictory set of region flags
+        # would be nice to be able to remove in future
+        self.scen_7 = False
         pass
 
     def write(self, magicc_input, filename, filepath=None):
@@ -229,13 +235,13 @@ class InputWriter(object):
         output = StringIO()
         output.write(self._get_header())
 
-        nml, data_block = self._get_nml_and_data_block()
+        nml_initial, data_block = self._get_initial_nml_and_data_block()
+        nml = nml_initial.copy()
 
         # '&NML_INDICATOR' goes above, '/'' goes at end
         no_lines_nml_header_end = 2
         line_after_nml = "\n"
 
-        # nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = 0
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split("\n"))
             + len(nml["THISFILE_SPECIFICATIONS"])
@@ -247,13 +253,26 @@ class InputWriter(object):
         nml._writestream(output)
         output.write(line_after_nml)
 
-        output.write(
-            "    "
-        )  # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+        first_col_length = 12
+        first_col_format_str = (
+            "{" + ":{}d".format(first_col_length) + "}"
+        ).format
+
+        other_col_format_str = "{:18.5e}".format
+        # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+        pd_pad = " " * (
+            first_col_length
+            - len(data_block.columns.get_level_values(0)[0])
+            - 1
+        )
+        output.write(pd_pad)
+        formatters = [other_col_format_str] * len(data_block.columns)
+        formatters[0] = first_col_format_str
         data_block.to_string(
             output,
             index=False,
-            formatters={"COLCODE": "{:12d}".format, "GLOBAL": "{:18.8e}".format},
+            formatters=formatters,
+            sparsify=False,
         )
 
         output.write("\n")
@@ -264,7 +283,7 @@ class InputWriter(object):
     def _get_header(self):
         return self.minput.metadata["header"]
 
-    def _get_nml_and_data_block(self):
+    def _get_initial_nml_and_data_block(self):
         data_block = self._get_data_block()
 
         nml = Namelist()
@@ -286,23 +305,55 @@ class InputWriter(object):
         unique_units = self.minput.df.columns.get_level_values("UNITS").unique()
         assert len(unique_units) == 1  # again not ready for other stuff
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = unique_units[0]
-        regions = self.minput.df.columns.get_level_values("REGION").unique()
-        assert len(regions) == 1  # again not ready for other stuff
-        assert regions[0] == "GLOBAL"  # again not ready for other stuff, solution is to use my region map
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "FOURBOXDATA"
+        regions = set(self._get_df_header_row("REGION"))
+
+        find_region = lambda x: set(x) == regions
+        region_rows = dattype_regionmode_regions['Regions'].apply(find_region)
+
+        if self.scen_7:
+            dattype_rows = dattype_regionmode_regions['THISFILE_DATTYPE'] == 'SCEN7'
+        else:
+            dattype_rows = dattype_regionmode_regions['THISFILE_DATTYPE'] != 'SCEN7'
+
+        region_dattype_row = (region_rows & dattype_rows)
+        assert sum(region_dattype_row) == 1
+
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = dattype_regionmode_regions['THISFILE_DATTYPE'][region_dattype_row].iloc[0]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_REGIONMODE"] = dattype_regionmode_regions['THISFILE_REGIONMODE'][region_dattype_row].iloc[0]
 
         return nml, data_block
 
     def _get_data_block(self):
         raise NotImplementedError()
 
+    def _get_df_header_row(self, col_name):
+        return self.minput.df.columns.get_level_values(col_name).tolist()
+
 
 class HIST_CONC_INWriter(InputWriter):
     def _get_data_block(self):
-        regions = list(self.minput.df.columns.get_level_values("REGION"))
+        regions = self._get_df_header_row("REGION")
 
         data_block = self.minput.df.copy().reset_index()
         data_block.columns = ["COLCODE"] + regions
+
+        return data_block
+
+class HIST_EMIS_INWriter(InputWriter):
+    def _get_data_block(self):
+        regions = self._get_df_header_row("REGION")
+        variables = self._get_df_header_row("VARIABLE")
+        units = self._get_df_header_row("UNITS")
+        todos = self._get_df_header_row("TODO")
+
+        data_block = self.minput.df.copy().reset_index()
+
+        data_block.columns = [
+            ["GAS"] + variables,
+            ["TODO"] + todos,
+            ["UNITS"] + units,
+            ["YEARS"] + regions,
+        ]
 
         return data_block
 
@@ -312,6 +363,7 @@ def determine_tool(fname, regexp_map):
         if re.match(fname_regex, basename(fname)):
             return regexp_map[fname_regex]
 
+    raise ValueError("Couldn't find appropriate writer for {}".format(fname))
 
 hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
 hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
@@ -330,7 +382,7 @@ def _get_reader(fname):
 
 
 _fname_writer_regex_map = {
-    # hist_emis_in_regexp: HIST_EMIS_INWriter,
+    hist_emis_in_regexp: HIST_EMIS_INWriter,
     # r'^.*\.SCEN$': SCENWriter,
     # r'^.*\.SCEN7$': SCEN7Writer,
     hist_conc_in_regexp: HIST_CONC_INWriter,
