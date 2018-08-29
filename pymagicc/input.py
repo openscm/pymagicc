@@ -215,6 +215,8 @@ class InputWriter(object):
         Write a MAGICC input file from df and metadata
 
         # Arguments
+        magicc_input (MAGICCInput): a MAGICCInput object which holds the data
+            to write
         filename (str): name of file to write to
         filepath (str): path in which to write file. If not provided,
            the file will be written in the current directory (TODO: check this is true...)
@@ -229,10 +231,11 @@ class InputWriter(object):
 
         nml, data_block = self._get_nml_and_data_block()
 
-        no_lines_nml_header_end = 2  # &NML_INDICATOR goes above, / goes at end
+        # '&NML_INDICATOR' goes above, '/'' goes at end
+        no_lines_nml_header_end = 2
         line_after_nml = "\n"
 
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = 0
+        # nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = 0
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split("\n"))
             + len(nml["THISFILE_SPECIFICATIONS"])
@@ -267,26 +270,25 @@ class InputWriter(object):
         nml = Namelist()
         nml["THISFILE_SPECIFICATIONS"] = Namelist()
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
-            len(data_block.columns) - 1
+            len(data_block.columns)
         )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block[
-            "COLCODE"
-        ].iloc[0]
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block[
-            "COLCODE"
-        ].iloc[-1]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
         assert (
-            (data_block["COLCODE"].iloc[-1] - data_block["COLCODE"].iloc[0] + 1)
-            / len(data_block["COLCODE"])
+            (nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
+             - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
+             + 1
+            )
+            / len(data_block)
             == 1.0
         )  # not ready for others yet
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = 1
-        unique_units = self.minput.df.index.get_level_values("UNITS").unique()
+        unique_units = self.minput.df.columns.get_level_values("UNITS").unique()
         assert len(unique_units) == 1  # again not ready for other stuff
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = unique_units[0]
-        regions = self.minput.df.index.get_level_values("REGION").unique()
+        regions = self.minput.df.columns.get_level_values("REGION").unique()
         assert len(regions) == 1  # again not ready for other stuff
-        assert regions[0] == "GLOBAL"  # again not ready for other stuff
+        assert regions[0] == "GLOBAL"  # again not ready for other stuff, solution is to use my region map
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "FOURBOXDATA"
 
         return nml, data_block
@@ -297,13 +299,11 @@ class InputWriter(object):
 
 class HIST_CONC_INWriter(InputWriter):
     def _get_data_block(self):
-        # lazy but works for now, will become smarter later
-        data_block = self.minput.df[self.minput.df.index.values[0][:-1]]
-        data_block = pd.DataFrame(
-            data_block
-        ).reset_index()  # the fact that I have to do this is problematic...
-        assert len(data_block.columns == 2)  # only ready for global series now
-        data_block.columns = ["COLCODE", "GLOBAL"]
+        regions = list(self.minput.df.columns.get_level_values("REGION"))
+
+        data_block = self.minput.df.copy().reset_index()
+        data_block.columns = ["COLCODE"] + regions
+
         return data_block
 
 
