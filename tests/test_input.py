@@ -263,6 +263,9 @@ def temp_dir():
     "starting_fpath, starting_fname",
     [
         (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"),
+        (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"),
+        (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN"),
+
     ],
 )
 def test_CONC_IN_file_read_write_functionally_identical(
@@ -282,7 +285,8 @@ def test_CONC_IN_file_read_write_functionally_identical(
     nml_initial = f90nml.read(join(temp_dir, starting_fname))
 
     assert mi_written.metadata == mi_initial.metadata
-    assert (mi_written.df == mi_initial.df).all()
-    assert sorted(nml_written["thisfile_specifications"]) == sorted(
-        nml_initial["thisfile_specifications"]
+    pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
+    assert (
+        sorted(nml_written["thisfile_specifications"])
+        == sorted(nml_initial["thisfile_specifications"])
     )
