@@ -242,12 +242,18 @@ class InputWriter(object):
         no_lines_nml_header_end = 2
         line_after_nml = "\n"
 
+        try:
+            no_col_headers = len(data_block.columns.levels)
+        except AttributeError:
+            assert isinstance(data_block.columns, pd.core.indexes.base.Index)
+            no_col_headers = 1
+
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split("\n"))
             + len(nml["THISFILE_SPECIFICATIONS"])
             + no_lines_nml_header_end
             + len(line_after_nml.split("\n"))
-            + len(data_block.columns.levels)
+            + no_col_headers
         )
 
         nml.uppercase = True
