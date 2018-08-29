@@ -247,6 +247,7 @@ class InputWriter(object):
             + len(nml["THISFILE_SPECIFICATIONS"])
             + no_lines_nml_header_end
             + len(line_after_nml.split("\n"))
+            + len(data_block.columns.levels)
         )
 
         nml.uppercase = True
@@ -290,6 +291,7 @@ class InputWriter(object):
         nml["THISFILE_SPECIFICATIONS"] = Namelist()
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
             len(data_block.columns)
+            - 1 # for YEARS column
         )
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
