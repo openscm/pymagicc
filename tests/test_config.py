@@ -9,6 +9,15 @@ from pymagicc.config import (
     lookup_env,
 )
 
+
+def temp_set_var(store):
+    """
+    Temporary sets a value of a Dict-like object for the duration of a test
+    :param store: A Dict-like object which holds key-value pairs. The store is
+        restored to its original state at the end of the test
+    """
+    prev_values = {}
+
     def set_var(name, value):
         if name not in prev_values:  # Only remember the first value
             prev_values[name] = store.get(name)
