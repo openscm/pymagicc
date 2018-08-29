@@ -12,5 +12,6 @@ dattype_regionmode_regions["Regions"] = [
     for raw in _dtrm.loc[:, region_cols].values.tolist()
 ]
 
+# TODO: do read ins for these too
 emissions_units = {}
 concentrations_units = {}
