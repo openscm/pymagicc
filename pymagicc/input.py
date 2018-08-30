@@ -375,7 +375,8 @@ def determine_tool(fname, regexp_map):
         if re.match(fname_regex, basename(fname)):
             return regexp_map[fname_regex]
 
-    raise ValueError("Couldn't find appropriate writer for {}".format(fname))
+    # TODO: fix this so it's clearer
+    raise ValueError("Couldn't find appropriate tool for {}".format(fname))
 
 
 hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
