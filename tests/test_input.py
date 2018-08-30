@@ -76,9 +76,7 @@ def test_load_scen():
         mdata.metadata["date"]
         == "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
     )
-    assert (
-        "Final RCP3PD with constant emissions" in mdata.metadata["header"]
-    )
+    assert "Final RCP3PD with constant emissions" in mdata.metadata["header"]
 
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "WORLD"][2000], 6.7350)
     np.testing.assert_allclose(mdata.df["N2O", "SET", "MtN2O-N", "WORLD"][2002], 7.5487)
@@ -87,7 +85,9 @@ def test_load_scen():
     np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "R5OECD"][2050], 18.2123)
     np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "R5REF"][2100], 0.0)
     np.testing.assert_allclose(mdata.df["HFC125", "SET", "kt", "R5REF"][2125], 5.2133)
-    np.testing.assert_allclose(mdata.df["HFC143A", "SET", "kt", "R5ASIA"][2040], 33.3635)
+    np.testing.assert_allclose(
+        mdata.df["HFC143A", "SET", "kt", "R5ASIA"][2040], 33.3635
+    )
     np.testing.assert_allclose(mdata.df["SF6", "SET", "kt", "R5ASIA"][2040], 0.8246)
     np.testing.assert_allclose(mdata.df["CO2B", "SET", "GtC", "R5MAF"][2050], -0.0125)
     np.testing.assert_allclose(mdata.df["CH4", "SET", "MtCH4", "R5MAF"][2070], 37.6218)

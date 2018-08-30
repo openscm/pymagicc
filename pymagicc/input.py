@@ -232,33 +232,33 @@ class ScenReader(InputReader):
         return metadata, df
 
     def _get_stream(self):
-            # Create a stream to work with, ignoring any blank lines
-            stream = StringIO()
-            cleaned_lines = [l.strip() for l in self.lines if l.strip()]
-            stream.write("\n".join(cleaned_lines))
-            stream.seek(0)
+        # Create a stream to work with, ignoring any blank lines
+        stream = StringIO()
+        cleaned_lines = [l.strip() for l in self.lines if l.strip()]
+        stream.write("\n".join(cleaned_lines))
+        stream.seek(0)
 
-            return stream
+        return stream
 
     def _read_header(self):
-            # I don't know how to do this without these nasty while True statements
-            header_notes_lines = []
-            while True:
-                prev_pos = self._stream.tell()
-                line = self._stream.readline()
-                if not line:
-                    raise ValueError(
-                        "Reached end of file without finding WORLD which should "
-                        "always be the first region in a SCEN file"
-                    )
+        # I don't know how to do this without these nasty while True statements
+        header_notes_lines = []
+        while True:
+            prev_pos = self._stream.tell()
+            line = self._stream.readline()
+            if not line:
+                raise ValueError(
+                    "Reached end of file without finding WORLD which should "
+                    "always be the first region in a SCEN file"
+                )
 
-                if line.startswith("WORLD"):
-                    self._stream.seek(prev_pos)
-                    break
+            if line.startswith("WORLD"):
+                self._stream.seek(prev_pos)
+                break
 
-                header_notes_lines.append(line)
+            header_notes_lines.append(line)
 
-            return header_notes_lines
+        return header_notes_lines
 
     def read_data_block(self):
         no_years = int(self.lines[0].strip())
@@ -280,7 +280,13 @@ class ScenReader(InputReader):
                     region_block.write(self._stream.readline())
                 region_block.seek(0)
 
-                region_df = pd.read_csv(region_block,skip_blank_lines=True,delim_whitespace=True,header=None,index_col=0,)
+                region_df = pd.read_csv(
+                    region_block,
+                    skip_blank_lines=True,
+                    delim_whitespace=True,
+                    header=None,
+                    index_col=0,
+                )
                 region_df.index.name = "YEAR"
                 region_df.columns = pd.MultiIndex.from_arrays(
                     [variables, todos, units, regions],
@@ -302,11 +308,7 @@ class ScenReader(InputReader):
         return df
 
     def _convert_to_common_variables(self, variables):
-        replacements = {
-            '-': '',
-            'FossilCO2': 'CO2I',
-            'OtherCO2': 'CO2B',
-        }
+        replacements = {"-": "", "FossilCO2": "CO2I", "OtherCO2": "CO2B"}
         variables_return = deepcopy(variables)
         for old, new in replacements.items():
             variables_return = [v.replace(old, new) for v in variables_return]
@@ -324,6 +326,7 @@ class ScenReader(InputReader):
             notes.append(line)
 
         return notes
+
 
 class InputWriter(object):
     def __init__(self):
@@ -481,45 +484,68 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
+class ScenWriter(InputWriter):
+    def write(self, magicc_input, filename, filepath=None):
+        pass
 
-def determine_tool(fname, regexp_map):
+    def _get_data_block(self):
+        regions = self._get_df_header_row("REGION")
+        variables = self._get_df_header_row("VARIABLE")
+        units = self._get_df_header_row("UNITS")
+        todos = self._get_df_header_row("TODO")
+
+        data_block = self.minput.df.copy().reset_index()
+
+        data_block.columns = [
+            ["GAS"] + variables,
+            ["TODO"] + todos,
+            ["UNITS"] + units,
+            ["YEARS"] + regions,
+        ]
+
+        return data_block
+
+def determine_tool(fname, regexp_map, tool_to_find):
     for fname_regex in regexp_map:
         if re.match(fname_regex, basename(fname)):
             return regexp_map[fname_regex]
 
-    # TODO: fix this so it's clearer
-    raise ValueError("Couldn't find appropriate tool for {}".format(fname))
+    raise ValueError("Couldn't find appropriate {} for {}".format(tool_to_find, fname))
 
 
 hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
 hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
+scen_regexp = r"^.*\.SCEN$"
+scen7_regexp = r"^.*\.SCEN7$"
+inverse_emis_out_regexp = r"^INVERSEEMIS\_.*\.OUT$"
+sector_regexp = r".*\.SECTOR$"
 
 _fname_reader_regex_map = {
+    scen_regexp: ScenReader,
+    # scen7_regexp: Scen7Reader,
+    # sector_regexp: SectorReader,
     hist_emis_in_regexp: HistEmisInReader,
-    r'^.*\.SCEN$': ScenReader,
-    # r'^.*\.SCEN7$': SCEN7Reader,
     hist_conc_in_regexp: HistConcInReader,
-    # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
-    # r'.*\.SECTOR$': SECTORReader,
+    # inverse_emis_out_regexp: InverseEmisOutReader,
 }
 
 
 def _get_reader(fname):
-    return determine_tool(fname, _fname_reader_regex_map)(fname)
+    return determine_tool(fname, _fname_reader_regex_map, "Reader")(fname)
 
 
 _fname_writer_regex_map = {
+    scen_regexp: ScenWriter,
+    # scen7_regexp: Scen7Writer,
+    # sector_regexp: SectorWriter,
     hist_emis_in_regexp: HistEmisInWriter,
-    # r'^.*\.SCEN$': SCENWriter,
-    # r'^.*\.SCEN7$': SCEN7Writer,
     hist_conc_in_regexp: HistConcInWriter,
-    # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTWriter,
-    # r'.*\.SECTOR$': SECTORWriter,
+    # inverse_emis_out_regexp: InverseEmisOutWriter,
 }
 
 
 def _get_writer(fname):
-    return determine_tool(fname, _fname_writer_regex_map)()
+    return determine_tool(fname, _fname_writer_regex_map, "Writer")()
 
 
 def _get_df_key(df, key):
