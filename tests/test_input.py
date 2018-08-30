@@ -3,6 +3,7 @@ from os.path import dirname, join, isfile, basename
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
 
+import numpy as np
 import pandas as pd
 import re
 import pkg_resources
@@ -11,7 +12,7 @@ from unittest.mock import patch
 import f90nml
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, InputReader, HIST_CONC_INReader
+from pymagicc.input import MAGICCInput, InputReader, HistConcInReader
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -37,7 +38,10 @@ def test_load_magicc6_emis():
     assert isinstance(mdata.df, pd.DataFrame)
     assert mdata.df.index.names == ["YEAR"]
     assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
-    assert mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000] == 1.76820270e+000
+    np.testing.assert_allclose(
+        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000],
+        1.7682027e+000
+    )
 
 
 def test_load_magicc6_conc():
@@ -47,7 +51,10 @@ def test_load_magicc6_conc():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
     assert mdata.df.index.names == ["YEAR"]
     assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
-    assert mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048] == 2.80435733e+002
+    np.testing.assert_allclose(
+        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048],
+        2.80435733e+002
+    )
 
 
 def test_load_magicc7_emis():
@@ -59,8 +66,14 @@ def test_load_magicc7_emis():
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
-    assert mdata.df["CO2I", "SET", "GtC", "R6REF"][2013] == 0.6638
-    assert mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000] == 1.6911
+    np.testing.assert_allclose(
+        mdata.df["CO2I", "SET", "GtC", "R6REF"][2013],
+        0.6638
+    )
+    np.testing.assert_allclose(
+        mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000],
+        1.6911
+    )
 
 
 def test_load_prename():
@@ -225,7 +238,7 @@ def test_set_lines():
 )
 def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
 
-    conc_reader = HIST_CONC_INReader(test_filename)
+    conc_reader = HistConcInReader(test_filename)
     if expected_variable is None:
         expected_message = re.escape(
             "Cannot determine variable from filename: {}".format(test_filename)
