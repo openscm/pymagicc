@@ -133,7 +133,7 @@ class InputReader(object):
         return tokens[1:]
 
 
-class HIST_CONC_INReader(InputReader):
+class HistConcInReader(InputReader):
     def process_data(self, stream, metadata):
         regions = self._read_data_header_line(
             stream, "COLCODE"
@@ -169,7 +169,7 @@ class HIST_CONC_INReader(InputReader):
             raise SyntaxError(error_msg)
 
 
-class HIST_EMIS_INReader(InputReader):
+class HistEmisInReader(InputReader):
     def process_data(self, stream, metadata):
         if any(["COLCODE" in line for line in self.lines]):
             # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
@@ -339,7 +339,7 @@ class InputWriter(object):
         return self.minput.df.columns.get_level_values(col_name).tolist()
 
 
-class HIST_CONC_INWriter(InputWriter):
+class HistConcInWriter(InputWriter):
     def _get_data_block(self):
         regions = self._get_df_header_row("REGION")
 
@@ -349,7 +349,7 @@ class HIST_CONC_INWriter(InputWriter):
         return data_block
 
 
-class HIST_EMIS_INWriter(InputWriter):
+class HistEmisInWriter(InputWriter):
     def _get_data_block(self):
         regions = self._get_df_header_row("REGION")
         variables = self._get_df_header_row("VARIABLE")
@@ -380,10 +380,10 @@ hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
 hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
 
 _fname_reader_regex_map = {
-    hist_emis_in_regexp: HIST_EMIS_INReader,
+    hist_emis_in_regexp: HistEmisInReader,
     # r'^.*\.SCEN$': SCENReader,
     # r'^.*\.SCEN7$': SCEN7Reader,
-    hist_conc_in_regexp: HIST_CONC_INReader,
+    hist_conc_in_regexp: HistConcInReader,
     # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
     # r'.*\.SECTOR$': SECTORReader,
 }
@@ -394,10 +394,10 @@ def _get_reader(fname):
 
 
 _fname_writer_regex_map = {
-    hist_emis_in_regexp: HIST_EMIS_INWriter,
+    hist_emis_in_regexp: HistEmisInWriter,
     # r'^.*\.SCEN$': SCENWriter,
     # r'^.*\.SCEN7$': SCEN7Writer,
-    hist_conc_in_regexp: HIST_CONC_INWriter,
+    hist_conc_in_regexp: HistConcInWriter,
     # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTWriter,
     # r'.*\.SECTOR$': SECTORWriter,
 }
