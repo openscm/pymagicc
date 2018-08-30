@@ -1,5 +1,6 @@
 from os.path import basename, exists, join
 from shutil import copyfileobj
+from copy import deepcopy
 
 import f90nml
 from f90nml.namelist import Namelist
@@ -220,48 +221,63 @@ class ScenReader(InputReader):
         # - read data
         # - read notes
         self._set_lines()
+        self._stream = self._get_stream()
+        header_notes_lines = self._read_header()
+        df = self.read_data_block()
+        header_notes_lines += self._read_notes()
 
-        # Create a stream to work with, ignoring any blank lines
-        stream = StringIO()
-        cleaned_lines = [l.strip() for l in self.lines if l.strip()]
-        stream.write("\n".join(cleaned_lines))
-        stream.seek(0)
+        metadata = {"header": "".join(header_notes_lines)}
+        metadata.update(self.process_header(metadata["header"]))
 
-        # I don't know how to do this without these nasty while True statements
-        while True:
-            prev_pos = stream.tell()
-            line = stream.readline()
-            if not line:
-                raise ValueError(
-                    "Reached end of file without finding WORLD which should "
-                    "always be the first region in a SCEN file"
-                )
+        return metadata, df
 
-            if line.startswith("WORLD"):
-                stream.seek(prev_pos)
-                break
+    def _get_stream(self):
+            # Create a stream to work with, ignoring any blank lines
+            stream = StringIO()
+            cleaned_lines = [l.strip() for l in self.lines if l.strip()]
+            stream.write("\n".join(cleaned_lines))
+            stream.seek(0)
 
-            try:
-                header_lines.append(line)
-            except NameError:
-                header_lines = [line]
+            return stream
 
-        metadata = {"header": "".join(header_lines)}
+    def _read_header(self):
+            # I don't know how to do this without these nasty while True statements
+            header_notes_lines = []
+            while True:
+                prev_pos = self._stream.tell()
+                line = self._stream.readline()
+                if not line:
+                    raise ValueError(
+                        "Reached end of file without finding WORLD which should "
+                        "always be the first region in a SCEN file"
+                    )
 
+                if line.startswith("WORLD"):
+                    self._stream.seek(prev_pos)
+                    break
+
+                header_notes_lines.append(line)
+
+            return header_notes_lines
+
+    def read_data_block(self):
         no_years = int(self.lines[0].strip())
 
         # go through datablocks until there are none left
         while True:
             try:
-                region = stream.readline().strip()
-                variables = self._read_data_header_line(stream, "YEARS")
-                units = self._read_data_header_line(stream, "Yrs")
+                pos_block = self._stream.tell()
+                region = self._stream.readline().strip()
+                variables = self._convert_to_common_variables(
+                    self._read_data_header_line(self._stream, "YEARS")
+                )
+                units = self._read_data_header_line(self._stream, "Yrs")
                 todos = ["SET"] * len(variables)
                 regions = [region] * len(variables)
 
                 region_block = StringIO()
                 for i in range(no_years):
-                    region_block.write(stream.readline())
+                    region_block.write(self._stream.readline())
                 region_block.seek(0)
 
                 region_df = pd.read_csv(region_block,skip_blank_lines=True,delim_whitespace=True,header=None,index_col=0,)
@@ -281,48 +297,33 @@ class ScenReader(InputReader):
             except AssertionError:  # tried to get variables from a notes line
                 break
 
-        notes_metadata = self.process_header(metadata["header"])
-        metadata.update(notes_metadata)
+        self._stream.seek(pos_block)
 
-        return metadata, df
+        return df
 
+    def _convert_to_common_variables(self, variables):
+        replacements = {
+            '-': '',
+            'FossilCO2': 'CO2I',
+            'OtherCO2': 'CO2B',
+        }
+        variables_return = deepcopy(variables)
+        for old, new in replacements.items():
+            variables_return = [v.replace(old, new) for v in variables_return]
 
-    def _get_split_lines(self):
-        self._set_lines()
-        data_start, data_end = self._find_data()
-        import pdb
-        pdb.set_trace()
+        variables_return = [v.upper() for v in variables_return]
 
+        return variables_return
 
-    def _find_data(self):
-        data_start = None
-        data_end = None
-
-        no_years = int(self.lines[0].strip())
-        scen_special_code = int(self.lines[1].strip())
-
-
-        for i in range(len(self.lines)):
-            if self.lines[i].strip().startswith("WORLD"):
-                data_start = i
+    def _read_notes(self):
+        notes = []
+        while True:
+            line = self._stream.readline()
+            if not line:
                 break
+            notes.append(line)
 
-        import pdb
-        pdb.set_trace()
-
-        # TODO, test this
-        assert (
-            data_start is not None and data_end is not None
-        ), "Could not determine datablock within {}".format(
-            self.filename
-        )
-
-        return data_start, data_end
-
-    def process_data(self, data, metadata):
-        import pdb
-        pdb.set_trace()
-
+        return notes
 
 class InputWriter(object):
     def __init__(self):
