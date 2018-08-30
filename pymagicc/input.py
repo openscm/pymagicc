@@ -214,7 +214,112 @@ class HistEmisInReader(InputReader):
 
 
 class ScenReader(InputReader):
-    def process_data(self, stream, metadata):
+    def read(self):
+        # annoyingly, will need to be a series of while loops:
+        # - read header stuff
+        # - read data
+        # - read notes
+        self._set_lines()
+
+        # Create a stream to work with, ignoring any blank lines
+        stream = StringIO()
+        cleaned_lines = [l.strip() for l in self.lines if l.strip()]
+        stream.write("\n".join(cleaned_lines))
+        stream.seek(0)
+
+        # I don't know how to do this without these nasty while True statements
+        while True:
+            prev_pos = stream.tell()
+            line = stream.readline()
+            if not line:
+                raise ValueError(
+                    "Reached end of file without finding WORLD which should "
+                    "always be the first region in a SCEN file"
+                )
+
+            if line.startswith("WORLD"):
+                stream.seek(prev_pos)
+                break
+
+            try:
+                header_lines.append(line)
+            except NameError:
+                header_lines = [line]
+
+        metadata = {"header": "".join(header_lines)}
+
+        no_years = int(self.lines[0].strip())
+
+        # go through datablocks until there are none left
+        while True:
+            try:
+                region = stream.readline().strip()
+                variables = self._read_data_header_line(stream, "YEARS")
+                units = self._read_data_header_line(stream, "Yrs")
+                todos = ["SET"] * len(variables)
+                regions = [region] * len(variables)
+
+                region_block = StringIO()
+                for i in range(no_years):
+                    region_block.write(stream.readline())
+                region_block.seek(0)
+
+                region_df = pd.read_csv(region_block,skip_blank_lines=True,delim_whitespace=True,header=None,index_col=0,)
+                region_df.index.name = "YEAR"
+                region_df.columns = pd.MultiIndex.from_arrays(
+                    [variables, todos, units, regions],
+                    names=("VARIABLE", "TODO", "UNITS", "REGION"),
+                )
+
+                try:
+                    df = df.join(region_df)
+                except NameError:
+                    df = region_df
+
+            except IndexError:  # tried to get variables from empty string
+                break
+            except AssertionError:  # tried to get variables from a notes line
+                break
+
+        notes_metadata = self.process_header(metadata["header"])
+        metadata.update(notes_metadata)
+
+        return metadata, df
+
+
+    def _get_split_lines(self):
+        self._set_lines()
+        data_start, data_end = self._find_data()
+        import pdb
+        pdb.set_trace()
+
+
+    def _find_data(self):
+        data_start = None
+        data_end = None
+
+        no_years = int(self.lines[0].strip())
+        scen_special_code = int(self.lines[1].strip())
+
+
+        for i in range(len(self.lines)):
+            if self.lines[i].strip().startswith("WORLD"):
+                data_start = i
+                break
+
+        import pdb
+        pdb.set_trace()
+
+        # TODO, test this
+        assert (
+            data_start is not None and data_end is not None
+        ), "Could not determine datablock within {}".format(
+            self.filename
+        )
+
+        return data_start, data_end
+
+    def process_data(self, data, metadata):
         import pdb
         pdb.set_trace()
 
