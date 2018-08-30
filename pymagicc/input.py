@@ -213,6 +213,12 @@ class HistEmisInReader(InputReader):
             raise SyntaxError(error_msg)
 
 
+class ScenReader(InputReader):
+    def process_data(self, stream, metadata):
+        import pdb
+        pdb.set_trace()
+
+
 class InputWriter(object):
     def __init__(self):
         # need this for the _get_initial_nml_and_data_block routine as SCEN7
@@ -384,7 +390,7 @@ hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
 
 _fname_reader_regex_map = {
     hist_emis_in_regexp: HistEmisInReader,
-    # r'^.*\.SCEN$': SCENReader,
+    r'^.*\.SCEN$': ScenReader,
     # r'^.*\.SCEN7$': SCEN7Reader,
     hist_conc_in_regexp: HistConcInReader,
     # r'^INVERSEEMIS\_.*\.OUT$': INVERSEEMIS_OUTReader,
