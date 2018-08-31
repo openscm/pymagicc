@@ -450,9 +450,7 @@ class InputWriter(object):
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
             len(data_block.columns) - 1  # for YEARS column
         )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATAROWS"] = (
-            len(data_block)
-        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATAROWS"] = len(data_block)
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
 
@@ -466,7 +464,9 @@ class InputWriter(object):
         )
 
         units_unique = list(set(self._get_df_header_row("UNITS")))
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = units_unique[0] if len(units_unique) == 1 else "MISC"
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = (
+            units_unique[0] if len(units_unique) == 1 else "MISC"
+        )
 
         region_dattype_row = self._get_dattype_regionmode_regions_row()
 
