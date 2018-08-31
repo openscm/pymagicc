@@ -1,4 +1,4 @@
-from os.path import basename, exists, join, splitext
+from os.path import basename, exists, join
 from shutil import copyfileobj
 
 import f90nml
