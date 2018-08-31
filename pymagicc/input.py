@@ -268,7 +268,8 @@ class ScenReader(InputReader):
             try:
                 pos_block = self._stream.tell()
                 region = self._stream.readline().strip()
-                variables = self._convert_to_common_variables(
+
+                variables = _convert_MAGICC6_to_MAGICC7_variables(
                     self._read_data_header_line(self._stream, "YEARS")
                 )
                 units = self._read_data_header_line(self._stream, "Yrs")
@@ -307,16 +308,6 @@ class ScenReader(InputReader):
 
         return df
 
-    def _convert_to_common_variables(self, variables):
-        replacements = {"-": "", "FossilCO2": "CO2I", "OtherCO2": "CO2B"}
-        variables_return = deepcopy(variables)
-        for old, new in replacements.items():
-            variables_return = [v.replace(old, new) for v in variables_return]
-
-        variables_return = [v.upper() for v in variables_return]
-
-        return variables_return
-
     def _read_notes(self):
         notes = []
         while True:
@@ -327,6 +318,29 @@ class ScenReader(InputReader):
 
         return notes
 
+def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
+    replacements = {
+        "FossilCO2": "CO2I",
+        "OtherCO2": "CO2B",
+        "SOx": "SOX",
+        "NOx": "NOX",
+        "HFC43-10": "HFC4310",
+        "HFC134a": "HFC134A",
+        "HFC143a": "HFC143A",
+        "HFC227ea": "HFC227EA",
+        "HFC245fa": "HFC245FA",
+    }
+    variables_return = deepcopy(variables)
+    for old, new in replacements.items():
+        if inverse:
+            old, new = (new, old)
+
+        variables_return = [v.replace(old, new) for v in variables_return]
+
+    return variables_return
+
+def _convert_MAGICC7_to_MAGICC6_variables(variables):
+    return _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=True)
 
 class InputWriter(object):
     def __init__(self):
@@ -440,22 +454,11 @@ class InputWriter(object):
             == 1.0
         )  # not ready for others yet
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = 1
-        unique_units = self.minput.df.columns.get_level_values("UNITS").unique()
-        assert len(unique_units) == 1  # again not ready for other stuff
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = unique_units[0]
-        regions = set(self._get_df_header_row("REGION"))
+        units_unique = list(set(self._get_df_header_row("UNITS")))
+        assert len(units_unique) == 1  # again not ready for other stuff, write test before changing
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = units_unique[0]
 
-        def find_region(x):
-            return set(x) == regions
-        region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
-
-        if self._scen_7:
-            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
-        else:
-            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
-
-        region_dattype_row = region_rows & dattype_rows
-        assert sum(region_dattype_row) == 1
+        region_dattype_row = self._get_dattype_regionmode_regions_row()
 
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = dattype_regionmode_regions[
             "THISFILE_DATTYPE"
@@ -470,6 +473,21 @@ class InputWriter(object):
 
     def _get_data_block(self):
         raise NotImplementedError()
+
+    def _get_dattype_regionmode_regions_row(self):
+            regions_unique = set(self._get_df_header_row("REGION"))
+
+            find_region = lambda x: set(x) == regions_unique
+            region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
+
+            if self._scen_7:
+                dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
+            else:
+                dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
+
+            region_dattype_row = region_rows & dattype_rows
+            assert sum(region_dattype_row) == 1
+            return region_dattype_row
 
     def _get_df_header_row(self, col_name):
         return self.minput.df.columns.get_level_values(col_name).tolist()
@@ -492,8 +510,10 @@ class HistEmisInWriter(InputWriter):
         units = self._get_df_header_row("UNITS")
         todos = self._get_df_header_row("TODO")
 
-        data_block = self.minput.df.copy().reset_index()
-
+        data_block = self.minput.df.copy()
+        # probably not necessary but a sensible check
+        assert data_block.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+        data_block.reset_index(inplace=True)
         data_block.columns = [
             ["GAS"] + variables,
             ["TODO"] + todos,
@@ -510,16 +530,29 @@ class ScenWriter(InputWriter):
         header_lines.append("{}".format(len(self.minput.df)))
 
         special_scen_code = self._get_special_scen_code(
-            regions = self.minput.df.columns.get_level_values("REGION").unique().tolist(),
-            emissions = self.minput.df.columns.get_level_values("VARIABLE").unique().tolist(),
+            regions = self._get_df_header_row("REGION"),
+            emissions = self._get_df_header_row("VARIABLE"),
         )
-        header_lines.append("{}".format(len()))
+        header_lines.append("{}".format(special_scen_code))
+
+        # for a scen file, the convention is (although all these lines are
+        # actually ignored by source so could be anything):
+        # - line 3 is name
+        # - line 4 is description
+        # - line 5 is notes (other notes lines go at the end)
+        # - line 6 is empty
+        header_lines.append("NAME - need better solution for how to control this")
+        header_lines.append("DESCRIPTION - need better solution for how to control this")
+        header_lines.append("NOTES - need better solution for how to control this")
+        header_lines.append("")
+
+        header_lines.append("OTHER NOTES - need better solution for how to control this")
+        header_lines.append("OTHER NOTES - need better solution for how to control this")
+        header_lines.append("OTHER NOTES - need better solution for how to control this")
+        header_lines.append("OTHER NOTES - need better solution for how to control this")
 
         output.write(self._newline_char.join(header_lines))
         output.write(self._newline_char)
-
-        # import pdb
-        # pdb.set_trace()
 
         return output
 
@@ -554,24 +587,73 @@ class ScenWriter(InputWriter):
     def _write_datablock(self, output):
         # for SCEN files, the data format is vitally important for the source code
         # we have to work out a better way of matching up all these conventions/testing them, tight coupling between pymagicc and MAGICC may solve it for us...
-        raise NotImplementedError
+        lines = output.getvalue().split(self._newline_char)
+        # notes are everything except the first 6 lines
+        no_notes_lines = len(lines) - 6
 
-    def _get_data_block(self):
-        regions = self._get_df_header_row("REGION")
-        variables = self._get_df_header_row("VARIABLE")
-        units = self._get_df_header_row("UNITS")
-        todos = self._get_df_header_row("TODO")
+        def _gip(lines, no_notes_lines):
+            """
+            get the point where we should insert the data block
+            """
+            return len(lines) - no_notes_lines
 
-        data_block = self.minput.df.copy().reset_index()
+        region_order = self._get_region_order()
+        # format is vitally important for SCEN files as far as I can tell
+        first_col_length = 12
+        first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
+        other_col_format_str = "{:11.4f}".format
 
-        data_block.columns = [
-            ["GAS"] + variables,
-            ["TODO"] + todos,
-            ["UNITS"] + units,
-            ["YEARS"] + regions,
-        ]
+        # TODO: doing it this way, out of the loop,  should ensure things
+        # explode if your regions don't all have the same number of emissions
+        # timeseries or does extra timeseries in there (that probably
+        # shouldn't raise an error, another one for the future), although the
+        # explosion will be cryptic so should add a test for good error
+        # message at some point
+        formatters = (
+            [other_col_format_str]
+            * (
+                int(len(self.minput.df.columns) / len(region_order))
+                + 1  # for the years column
+            )
+        )
+        formatters[0] = first_col_format_str
 
-        return data_block
+        for region in region_order:
+            region_block = self.minput[region]
+            region_block.columns = region_block.columns.droplevel("TODO")
+            region_block.columns = region_block.columns.droplevel("REGION")
+            variables = _convert_MAGICC7_to_MAGICC6_variables(
+                region_block.columns.get_level_values("VARIABLE").tolist()
+            )
+            units = region_block.columns.get_level_values("UNITS").tolist()
+
+            assert region_block.columns.names == ["VARIABLE", "UNITS"]
+            region_block.reset_index(inplace=True)
+            region_block.columns = [
+                ["YEARS"] + variables,
+                ["Yrs"] + units,
+            ]
+
+            # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+            pd_pad = " " * (
+                first_col_length - len(self.minput.df.columns.get_level_values(0)[0]) - 2
+            )
+            region_block_str = region + self._newline_char
+            region_block_str += pd_pad
+            region_block_str += region_block.to_string(index=False, formatters=formatters, sparsify=False)
+            region_block_str += self._newline_char * 2
+
+            lines.insert(_gip(lines, no_notes_lines), region_block_str)
+
+        output.seek(0)
+        output.write(self._newline_char.join(lines))
+        return output
+
+    def _get_region_order(self):
+        region_dattype_row = self._get_dattype_regionmode_regions_row()
+        region_order = dattype_regionmode_regions["Regions"][region_dattype_row].iloc[0]
+
+        return region_order
 
 
 def determine_tool(fname, regexp_map, tool_to_find):
