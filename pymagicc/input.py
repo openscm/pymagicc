@@ -10,6 +10,7 @@ from six import StringIO
 from pymagicc import MAGICC6
 from .definitions import (
     dattype_regionmode_regions,
+    # Not used yet:
     # emissions_units,
     # concentrations_units,
 )
@@ -118,12 +119,12 @@ class InputReader(object):
         :return: A dict containing the addtional metadata in the header
         """
         metadata = {}
-        for l in header.split("\n"):
-            l = l.strip()
+        for line in header.split("\n"):
+            line = line.strip()
             for tag in self.header_tags:
                 tag_text = "{}:".format(tag)
-                if l.lower().startswith(tag_text):
-                    metadata[tag] = l[len(tag_text) + 1 :].strip()
+                if line.lower().startswith(tag_text):
+                    metadata[tag] = line[len(tag_text) + 1 :].strip()
 
         return metadata
 
