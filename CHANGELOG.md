@@ -1,7 +1,15 @@
 Master
 =====
 
-- fix bug with reading Carbon Cycle output
+
+
+1.3.2
+=====
+
+- add short-term solution for reading Carbon Cycle output
+- add clear error if a valid executable is not configured/found
+- remove `_magiccbinary` variable
+- partial steps towards updated input/output, still not fully tested
 
 1.3.1
 =====
