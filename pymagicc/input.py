@@ -347,9 +347,6 @@ class InputWriter(object):
         filepath (str): path in which to write file. If not provided,
            the file will be written in the current directory (TODO: check this is true...)
         """
-        # tomorrow, refactor this so I can use same method for ScenWriter
-        # - process inputs/setup i.e. first 6 lines
-        # -
         self.minput = magicc_input
 
         if filepath is not None:
@@ -358,53 +355,68 @@ class InputWriter(object):
             file_to_write = filename
 
         output = StringIO()
-        output.write(self._get_header())
 
-        nml_initial, data_block = self._get_initial_nml_and_data_block()
-        nml = nml_initial.copy()
+        output = self._write_header(output)
+        output = self._write_namelist(output)
+        output = self._write_datablock(output)
 
-        # '&NML_INDICATOR' goes above, '/'' goes at end
-        no_lines_nml_header_end = 2
-        line_after_nml = "\n"
-
-        try:
-            no_col_headers = len(data_block.columns.levels)
-        except AttributeError:
-            assert isinstance(data_block.columns, pd.core.indexes.base.Index)
-            no_col_headers = 1
-
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
-            len(output.getvalue().split("\n"))
-            + len(nml["THISFILE_SPECIFICATIONS"])
-            + no_lines_nml_header_end
-            + len(line_after_nml.split("\n"))
-            + no_col_headers
-        )
-
-        nml.uppercase = True
-        nml._writestream(output)
-        output.write(line_after_nml)
-
-        first_col_length = 12
-        first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
-
-        other_col_format_str = "{:18.5e}".format
-        # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
-        pd_pad = " " * (
-            first_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
-        )
-        output.write(pd_pad)
-        formatters = [other_col_format_str] * len(data_block.columns)
-        formatters[0] = first_col_format_str
-        data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
-
-        output.write("\n")
         with open(file_to_write, "w") as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
 
+    def _write_header(self, output):
+            output.write(self._get_header())
+            return output
+
     def _get_header(self):
         return self.minput.metadata["header"]
+
+    def _write_namelist(self, output):
+            nml_initial, data_block = self._get_initial_nml_and_data_block()
+            nml = nml_initial.copy()
+
+            # '&NML_INDICATOR' goes above, '/'' goes at end
+            no_lines_nml_header_end = 2
+            line_after_nml = "\n"
+
+            try:
+                no_col_headers = len(data_block.columns.levels)
+            except AttributeError:
+                assert isinstance(data_block.columns, pd.core.indexes.base.Index)
+                no_col_headers = 1
+
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+                len(output.getvalue().split("\n"))
+                + len(nml["THISFILE_SPECIFICATIONS"])
+                + no_lines_nml_header_end
+                + len(line_after_nml.split("\n"))
+                + no_col_headers
+            )
+
+            nml.uppercase = True
+            nml._writestream(output)
+            output.write(line_after_nml)
+
+            return output
+
+    def _write_datablock(self, output):
+
+            nml_initial, data_block = self._get_initial_nml_and_data_block()
+
+            first_col_length = 12
+            first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
+
+            other_col_format_str = "{:18.5e}".format
+            # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+            pd_pad = " " * (
+                first_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
+            )
+            output.write(pd_pad)
+            formatters = [other_col_format_str] * len(data_block.columns)
+            formatters[0] = first_col_format_str
+            data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
+            output.write("\n")
+            return output
 
     def _get_initial_nml_and_data_block(self):
         data_block = self._get_data_block()
@@ -491,6 +503,18 @@ class HistEmisInWriter(InputWriter):
 
 class ScenWriter(InputWriter):
     def write(self, magicc_input, filename, filepath=None):
+        # - write header
+        # - write datablock (fiddly as needs to be inserted but could work)
+        pass
+
+    def _write_header(self, output):
+        pass
+
+    def _write_namelist(self, output):
+        # No namelist for SCEN files
+        return output
+
+    def _write_datablock(self, output):
         pass
 
     def _get_data_block(self):
