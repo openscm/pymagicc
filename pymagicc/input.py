@@ -333,7 +333,8 @@ class InputWriter(object):
         # need this for the _get_initial_nml_and_data_block routine as SCEN7
         # files have a special, contradictory set of region flags
         # would be nice to be able to remove in future
-        self.scen_7 = False
+        self._scen_7 = False
+        self._newline_char = "\n"
         pass
 
     def write(self, magicc_input, filename, filepath=None):
@@ -365,58 +366,59 @@ class InputWriter(object):
             copyfileobj(output, output_file)
 
     def _write_header(self, output):
-            output.write(self._get_header())
-            return output
+        output.write(self._get_header())
+        return output
 
     def _get_header(self):
         return self.minput.metadata["header"]
 
     def _write_namelist(self, output):
-            nml_initial, data_block = self._get_initial_nml_and_data_block()
-            nml = nml_initial.copy()
+        nml_initial, data_block = self._get_initial_nml_and_data_block()
+        nml = nml_initial.copy()
 
-            # '&NML_INDICATOR' goes above, '/'' goes at end
-            no_lines_nml_header_end = 2
-            line_after_nml = "\n"
+        # '&NML_INDICATOR' goes above, '/'' goes at end
+        no_lines_nml_header_end = 2
+        line_after_nml = self._newline_char
 
-            try:
-                no_col_headers = len(data_block.columns.levels)
-            except AttributeError:
-                assert isinstance(data_block.columns, pd.core.indexes.base.Index)
-                no_col_headers = 1
+        try:
+            no_col_headers = len(data_block.columns.levels)
+        except AttributeError:
+            assert isinstance(data_block.columns, pd.core.indexes.base.Index)
+            no_col_headers = 1
 
-            nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
-                len(output.getvalue().split("\n"))
-                + len(nml["THISFILE_SPECIFICATIONS"])
-                + no_lines_nml_header_end
-                + len(line_after_nml.split("\n"))
-                + no_col_headers
-            )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+            len(output.getvalue().split(self._newline_char))
+            + len(nml["THISFILE_SPECIFICATIONS"])
+            + no_lines_nml_header_end
+            + len(line_after_nml.split(self._newline_char))
+            + no_col_headers
+        )
 
-            nml.uppercase = True
-            nml._writestream(output)
-            output.write(line_after_nml)
+        nml.uppercase = True
+        nml._writestream(output)
+        output.write(line_after_nml)
 
-            return output
+        return output
 
     def _write_datablock(self, output):
+        nml_initial, data_block = self._get_initial_nml_and_data_block()
 
-            nml_initial, data_block = self._get_initial_nml_and_data_block()
+        # for most data files, as long as the data is space separated, the
+        # format doesn't matter
+        first_col_length = 12
+        first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
 
-            first_col_length = 12
-            first_col_format_str = ("{" + ":{}d".format(first_col_length) + "}").format
-
-            other_col_format_str = "{:18.5e}".format
-            # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
-            pd_pad = " " * (
-                first_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
-            )
-            output.write(pd_pad)
-            formatters = [other_col_format_str] * len(data_block.columns)
-            formatters[0] = first_col_format_str
-            data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
-            output.write("\n")
-            return output
+        other_col_format_str = "{:18.5e}".format
+        # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
+        pd_pad = " " * (
+            first_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
+        )
+        output.write(pd_pad)
+        formatters = [other_col_format_str] * len(data_block.columns)
+        formatters[0] = first_col_format_str
+        data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
+        output.write(self._newline_char)
+        return output
 
     def _get_initial_nml_and_data_block(self):
         data_block = self._get_data_block()
@@ -447,7 +449,7 @@ class InputWriter(object):
             return set(x) == regions
         region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
 
-        if self.scen_7:
+        if self._scen_7:
             dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
         else:
             dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
@@ -501,21 +503,29 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
-class ScenWriter(InputWriter):
-    def write(self, magicc_input, filename, filepath=None):
-        # - write header
-        # - write datablock (fiddly as needs to be inserted but could work)
-        pass
 
+class ScenWriter(InputWriter):
     def _write_header(self, output):
-        pass
+        header_lines = []
+        header_lines.append("{}".format(len(self.minput.df)))
+        header_lines.append("{}".format(len(self._get_special_scen_code())))
+
+        output.write(self._newline_char.join(header_lines))
+        output.write(self._newline_char)
+
+        # import pdb
+        # pdb.set_trace()
+
+        return output
 
     def _write_namelist(self, output):
         # No namelist for SCEN files
         return output
 
     def _write_datablock(self, output):
-        pass
+        # for SCEN files, the data format is vitally important for the source code
+        # we have to work out a better way of matching up all these conventions/testing them, tight coupling between pymagicc and MAGICC may solve it for us...
+        raise NotImplementedError
 
     def _get_data_block(self):
         regions = self._get_df_header_row("REGION")
@@ -533,6 +543,7 @@ class ScenWriter(InputWriter):
         ]
 
         return data_block
+
 
 def determine_tool(fname, regexp_map, tool_to_find):
     for fname_regex in regexp_map:
@@ -695,10 +706,9 @@ class MAGICCInput(object):
         reader = _get_reader(file_to_read)
         self.metadata, self.df = reader.read()
 
-    def write(self, filename):
+    def write(self, filename, filepath=None):
         """
         TODO: Implement writing to disk
         """
         writer = _get_writer(filename)
-        writer.write(self, filename)
-
+        writer.write(self, filename, filepath)

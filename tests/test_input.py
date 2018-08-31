@@ -12,7 +12,7 @@ from unittest.mock import patch
 import f90nml
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, InputReader, HistConcInReader
+from pymagicc.input import MAGICCInput, InputReader, HistConcInReader, ScenWriter
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -22,6 +22,7 @@ MAGICC7_DIR = join(dirname(__file__), "test_data")
 
 # TODO:
 # - write tests for SCEN and SCEN7 files
+# - add read/write identical tests
 
 
 def test_load_magicc6_emis():
@@ -295,7 +296,7 @@ def temp_dir():
         (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN"),
     ],
 )
-def test_CONC_IN_file_read_write_functionally_identical(
+def test_conc_in_file_read_write_functionally_identical(
     starting_fpath, starting_fname, temp_dir
 ):
     mi_writer = MAGICCInput()
@@ -316,3 +317,63 @@ def test_CONC_IN_file_read_write_functionally_identical(
     assert sorted(nml_written["thisfile_specifications"]) == sorted(
         nml_initial["thisfile_specifications"]
     )
+
+
+sres_regions = ["OECD90", "REF", "ASIA", "ALM"]
+
+# order doesn't matter for gases, confusing lack of convention...
+emissions_valid = [
+    "FossilCO2",
+    "OtherCO2",
+    "CH4",
+    "N2O",
+    "SOx",
+    "CO",
+    "NMVOC",
+    "NOx",
+    "BC",
+    "OC",
+    "NH3",
+    "CF4",
+    "C2F6",
+    "C6F14",
+    "HFC23",
+    "HFC32",
+    "HFC43-10",
+    "HFC125",
+    "HFC134a",
+    "HFC143a",
+    "HFC227ea",
+    "HFC245fa",
+    "SF6",
+]
+
+
+@pytest.mark.parametrize(
+    "regions, emissions, expected",
+    [
+        (sres_regions, emissions_valid, 21),
+        (sres_regions[1:], emissions_valid, "unrecognised regions"),
+        (sres_regions, emissions_valid[1:], "unrecognised gases"),
+    ],
+)
+def test_get_scen_special_code(regions, emissions, expected):
+    writer = ScenWriter()
+    if expected == "unrecognised regions":
+        error_msg = "Could not determine scen special code for regions {}".format(
+            regions
+        )
+        with pytest.raises(ValueError, error_msg):
+            writer._get_special_scen_code(regions, gases)
+    elif expected == "unrecognised gases":
+        error_msg = "Could not determine scen special code for emissions {}".format(
+            emissions
+        )
+        with pytest.raises(ValueError, error_msg):
+            writer._get_special_scen_code(regions, gases)
+    else:
+        result = writer._get_special_scen_code(regions, gases)
+        assert result == expected
+
+
+# add test of ordering stuff here
