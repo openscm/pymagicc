@@ -311,7 +311,8 @@ class InputWriter(object):
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = unique_units[0]
         regions = set(self._get_df_header_row("REGION"))
 
-        find_region = lambda x: set(x) == regions
+        def find_region(x):
+            return set(x) == regions
         region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
 
         if self.scen_7:
