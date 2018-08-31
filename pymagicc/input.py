@@ -318,6 +318,7 @@ class ScenReader(InputReader):
 
         return notes
 
+
 def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
     replacements = {
         "FossilCO2": "CO2I",
@@ -339,8 +340,10 @@ def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
 
     return variables_return
 
+
 def _convert_MAGICC7_to_MAGICC6_variables(variables):
     return _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=True)
+
 
 class InputWriter(object):
     def __init__(self):
@@ -455,7 +458,9 @@ class InputWriter(object):
         )  # not ready for others yet
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = 1
         units_unique = list(set(self._get_df_header_row("UNITS")))
-        assert len(units_unique) == 1  # again not ready for other stuff, write test before changing
+        assert (
+            len(units_unique) == 1
+        )  # again not ready for other stuff, write test before changing
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = units_unique[0]
 
         region_dattype_row = self._get_dattype_regionmode_regions_row()
@@ -475,19 +480,19 @@ class InputWriter(object):
         raise NotImplementedError()
 
     def _get_dattype_regionmode_regions_row(self):
-            regions_unique = set(self._get_df_header_row("REGION"))
+        regions_unique = set(self._get_df_header_row("REGION"))
 
-            find_region = lambda x: set(x) == regions_unique
-            region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
+        find_region = lambda x: set(x) == regions_unique
+        region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
 
-            if self._scen_7:
-                dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
-            else:
-                dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
+        if self._scen_7:
+            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
+        else:
+            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
 
-            region_dattype_row = region_rows & dattype_rows
-            assert sum(region_dattype_row) == 1
-            return region_dattype_row
+        region_dattype_row = region_rows & dattype_rows
+        assert sum(region_dattype_row) == 1
+        return region_dattype_row
 
     def _get_df_header_row(self, col_name):
         return self.minput.df.columns.get_level_values(col_name).tolist()
@@ -530,8 +535,8 @@ class ScenWriter(InputWriter):
         header_lines.append("{}".format(len(self.minput.df)))
 
         special_scen_code = self._get_special_scen_code(
-            regions = self._get_df_header_row("REGION"),
-            emissions = self._get_df_header_row("VARIABLE"),
+            regions=self._get_df_header_row("REGION"),
+            emissions=self._get_df_header_row("VARIABLE"),
         )
         header_lines.append("{}".format(special_scen_code))
 
@@ -542,14 +547,24 @@ class ScenWriter(InputWriter):
         # - line 5 is notes (other notes lines go at the end)
         # - line 6 is empty
         header_lines.append("NAME - need better solution for how to control this")
-        header_lines.append("DESCRIPTION - need better solution for how to control this")
+        header_lines.append(
+            "DESCRIPTION - need better solution for how to control this"
+        )
         header_lines.append("NOTES - need better solution for how to control this")
         header_lines.append("")
 
-        header_lines.append("OTHER NOTES - need better solution for how to control this")
-        header_lines.append("OTHER NOTES - need better solution for how to control this")
-        header_lines.append("OTHER NOTES - need better solution for how to control this")
-        header_lines.append("OTHER NOTES - need better solution for how to control this")
+        header_lines.append(
+            "OTHER NOTES - need better solution for how to control this"
+        )
+        header_lines.append(
+            "OTHER NOTES - need better solution for how to control this"
+        )
+        header_lines.append(
+            "OTHER NOTES - need better solution for how to control this"
+        )
+        header_lines.append(
+            "OTHER NOTES - need better solution for how to control this"
+        )
 
         output.write(self._newline_char.join(header_lines))
         output.write(self._newline_char)
@@ -557,7 +572,31 @@ class ScenWriter(InputWriter):
         return output
 
     def _get_special_scen_code(self, regions, emissions):
-        valid_emissions = ['CO2I', 'CO2B', 'CH4', 'N2O', 'SOX', 'CO', 'NMVOC', 'NOX', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14', 'HFC23', 'HFC32', 'HFC4310', 'HFC125', 'HFC134A', 'HFC143A', 'HFC227EA', 'HFC245FA', 'SF6']
+        valid_emissions = [
+            "CO2I",
+            "CO2B",
+            "CH4",
+            "N2O",
+            "SOX",
+            "CO",
+            "NMVOC",
+            "NOX",
+            "BC",
+            "OC",
+            "NH3",
+            "CF4",
+            "C2F6",
+            "C6F14",
+            "HFC23",
+            "HFC32",
+            "HFC4310",
+            "HFC125",
+            "HFC134A",
+            "HFC143A",
+            "HFC227EA",
+            "HFC245FA",
+            "SF6",
+        ]
 
         if set(valid_emissions) != set(emissions):
             msg = "Could not determine scen special code for emissions {}".format(
@@ -569,16 +608,17 @@ class ScenWriter(InputWriter):
             return 11
         elif set(regions) == set(["WORLD", "OECD90", "REF", "ASIA", "ALM"]):
             return 21
-        elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]):
+        elif set(regions) == set(
+            ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
+        ):
             return 31
-        elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]):
+        elif set(regions) == set(
+            ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
+        ):
             return 41
 
-        msg = "Could not determine scen special code for regions {}".format(
-                regions
-            )
+        msg = "Could not determine scen special code for regions {}".format(regions)
         raise ValueError(msg)
-
 
     def _write_namelist(self, output):
         # No namelist for SCEN files
@@ -609,12 +649,9 @@ class ScenWriter(InputWriter):
         # shouldn't raise an error, another one for the future), although the
         # explosion will be cryptic so should add a test for good error
         # message at some point
-        formatters = (
-            [other_col_format_str]
-            * (
-                int(len(self.minput.df.columns) / len(region_order))
-                + 1  # for the years column
-            )
+        formatters = [other_col_format_str] * (
+            int(len(self.minput.df.columns) / len(region_order))
+            + 1  # for the years column
         )
         formatters[0] = first_col_format_str
 
@@ -629,18 +666,19 @@ class ScenWriter(InputWriter):
 
             assert region_block.columns.names == ["VARIABLE", "UNITS"]
             region_block.reset_index(inplace=True)
-            region_block.columns = [
-                ["YEARS"] + variables,
-                ["Yrs"] + units,
-            ]
+            region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 
             # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
             pd_pad = " " * (
-                first_col_length - len(self.minput.df.columns.get_level_values(0)[0]) - 2
+                first_col_length
+                - len(self.minput.df.columns.get_level_values(0)[0])
+                - 2
             )
             region_block_str = region + self._newline_char
             region_block_str += pd_pad
-            region_block_str += region_block.to_string(index=False, formatters=formatters, sparsify=False)
+            region_block_str += region_block.to_string(
+                index=False, formatters=formatters, sparsify=False
+            )
             region_block_str += self._newline_char * 2
 
             lines.insert(_gip(lines, no_notes_lines), region_block_str)

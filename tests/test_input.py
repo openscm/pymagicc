@@ -330,7 +330,6 @@ def test_conc_in_file_read_write_functionally_identical(
     pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
 
 
-
 emissions_valid = [
     "CO2I",
     "CO2B",
@@ -361,7 +360,16 @@ sres_regions = ["WORLD", "OECD90", "REF", "ASIA", "ALM"]
 rcp_regions = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
 # the fact these are valid for SCEN files but not for other data files is
 # unbelievably confusing
-rcp_regions_plus_bunkers = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
+rcp_regions_plus_bunkers = [
+    "WORLD",
+    "R5OECD",
+    "R5REF",
+    "R5ASIA",
+    "R5MAF",
+    "R5LAM",
+    "BUNKERS",
+]
+
 
 @pytest.mark.parametrize(
     "regions, emissions, expected",
@@ -380,14 +388,14 @@ def test_get_scen_special_code(regions, emissions, expected):
         error_msg = "Could not determine scen special code for regions {}".format(
             regions
         )
-        error_msg = r'potato'
+        error_msg = r"potato"
         with pytest.raises(ValueError, message=error_msg):
             writer._get_special_scen_code(regions, emissions)
     elif expected == "unrecognised emissions":
         error_msg = "Could not determine scen special code for emissions {}".format(
             emissions
         )
-        error_msg = r'potato'
+        error_msg = r"potato"
         with pytest.raises(ValueError, message=error_msg):
             writer._get_special_scen_code(regions, emissions)
     else:
