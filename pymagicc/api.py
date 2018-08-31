@@ -80,9 +80,6 @@ class MAGICCBase(object):
     def __exit__(self, *args, **kwargs):
         self.remove_temp_copy()
 
-    def get_executable(self):
-        raise NotImplementedError
-
     def create_copy(self):
         """
         Initialises a temporary directory structure and copy of MAGICC
