@@ -10,6 +10,9 @@ Master
 - add clear error if a valid executable is not configured/found
 - remove `_magiccbinary` variable
 - partial steps towards updated input/output, still not fully tested
+- add examples of file input/writing in notebook
+- add expectexception so that we can show errors in notebooks with 
+  sensible CI
 
 1.3.1
 =====
