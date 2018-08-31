@@ -195,6 +195,7 @@ class HistEmisInReader(InputReader):
             header=None,
             index_col=0,
         )
+
         df.index.name = "YEAR"
         df.columns = pd.MultiIndex.from_arrays(
             [variables, todos, units, regions],
@@ -213,6 +214,8 @@ class HistEmisInReader(InputReader):
             )
             raise SyntaxError(error_msg)
 
+class Scen7Reader(HistEmisInReader):
+    pass
 
 class ScenReader(InputReader):
     def read(self):
@@ -447,16 +450,17 @@ class InputWriter(object):
         )
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
-        assert (
-            (
+
+        annual_steps = (
+            len(data_block)
+            / (
                 nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
                 - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
                 + 1
             )
-            / len(data_block)
-            == 1.0
-        )  # not ready for others yet
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = 1
+        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = annual_steps if annual_steps % 1 != 0 else 0
+
         units_unique = list(set(self._get_df_header_row("UNITS")))
         assert (
             len(units_unique) == 1
@@ -528,6 +532,8 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
+class Scen7Writer(HistEmisInWriter):
+    pass
 
 class ScenWriter(InputWriter):
     def _write_header(self, output):
@@ -711,7 +717,7 @@ sector_regexp = r".*\.SECTOR$"
 
 _fname_reader_regex_map = {
     scen_regexp: ScenReader,
-    # scen7_regexp: Scen7Reader,
+    scen7_regexp: Scen7Reader,
     # sector_regexp: SectorReader,
     hist_emis_in_regexp: HistEmisInReader,
     hist_conc_in_regexp: HistConcInReader,
@@ -725,7 +731,7 @@ def _get_reader(fname):
 
 _fname_writer_regex_map = {
     scen_regexp: ScenWriter,
-    # scen7_regexp: Scen7Writer,
+    scen7_regexp: Scen7Writer,
     # sector_regexp: SectorWriter,
     hist_emis_in_regexp: HistEmisInWriter,
     hist_conc_in_regexp: HistConcInWriter,
@@ -737,7 +743,7 @@ def _get_writer(fname):
     return determine_tool(fname, _fname_writer_regex_map, "Writer")()
 
 
-def _get_df_key(df, key):
+def _get_subdf_from_df_for_key(df, key):
     for colname in df.columns.names:
         try:
             return df.xs(key, level=colname, axis=1, drop_level=False)
@@ -750,15 +756,15 @@ def _get_df_key(df, key):
         raise KeyError(msg)
 
 
-def _get_df_keys(df, keys):
+def _get_subdf_from_df_for_keys(df, keys):
     df_out = df.copy()
     if isinstance(keys, str):
         keys = [keys]
     try:
         for key in keys:
-            df_out = _get_df_key(df_out, key)
+            df_out = _get_subdf_from_df_for_key(df_out, key)
     except TypeError:
-        df_out = _get_df_key(df_out, keys)
+        df_out = _get_subdf_from_df_for_key(df_out, keys)
     return df_out
 
 
@@ -808,14 +814,14 @@ class MAGICCInput(object):
         """
         Allow for simplified indexing
 
-        # TODO: double check of delete below
+        # TODO: double check or delete below
         >>> inpt = MAGICCInput('HISTRCP_CO2_CONC.IN')
         >>> inpt.read('./')
         >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
         """
         if not self.is_loaded:
             self._raise_not_loaded_error()
-        return _get_df_keys(self.df, item)
+        return _get_subdf_from_df_for_keys(self.df, item)
 
     def __getattr__(self, item):
         """

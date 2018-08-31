@@ -67,6 +67,7 @@ def test_load_magicc7_emis():
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6REF"][2013], 0.6638)
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000], 1.6911)
 
@@ -107,27 +108,27 @@ def test_load_scen7():
 
     generic_mdata_tests(mdata)
 
-    assert (
-        mdata.metadata["date"]
-        == "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
-    )
-    assert "Final RCP3PD with constant emissions" in mdata.metadata["header"]
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["description"] == "TEST SCEN7 file"
+    assert "NOTES" in mdata.metadata["header"]
+    assert "~~~~~" in mdata.metadata["header"]
+    assert "Some notes" in mdata.metadata["header"]
 
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "WORLD"][2000], 6.7350)
     np.testing.assert_allclose(mdata.df["N2OI", "SET", "MtN2O-N", "WORLD"][2002], 7.5487)
-    np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "WORLD"][2001], 0.6470)
-    np.testing.assert_allclose(mdata.df["SOX", "SET", "MtS", "R5OECD"][2005], 11.9769)
-    np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "R5OECD"][2050], 18.2123)
-    np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "R5REF"][2100], 0.0)
-    np.testing.assert_allclose(mdata.df["CH2Cl2", "SET", "kt", "R5REF"][2125], 5.2133)
+    np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "WORLD"][2001], 10.4328)
+    np.testing.assert_allclose(mdata.df["SOX", "SET", "MtS", "R6OECD90"][2005], 11.9769)
+    np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "R6OECD90"][2050], 18.2123)
+    np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "R6REF"][2100], 0.0)
+    np.testing.assert_allclose(mdata.df["CH2Cl2", "SET", "kt", "R6REF"][2125], 5.2133)
     np.testing.assert_allclose(
-        mdata.df["HFC143A", "SET", "kt", "R5ASIA"][2040], 33.3635
+        mdata.df["HFC143A", "SET", "kt", "R6ASIA"][2040], 33.3635
     )
-    np.testing.assert_allclose(mdata.df["SO2F2", "SET", "kt", "R5ASIA"][2040], 0.8246)
-    np.testing.assert_allclose(mdata.df["CO2B", "SET", "GtC", "R5MAF"][2050], -0.0125)
-    np.testing.assert_allclose(mdata.df["CH4", "SET", "MtCH4", "R5MAF"][2070], 37.6218)
-    np.testing.assert_allclose(mdata.df["NOX", "SET", "MtN", "R5LAM"][2080], 1.8693)
-    np.testing.assert_allclose(mdata.df["BCB", "SET", "Mt", "R5LAM"][2090], 0.4254)
+    np.testing.assert_allclose(mdata.df["SO2F2", "SET", "kt", "R6ASIA"][2040], 0.8246)
+    np.testing.assert_allclose(mdata.df["CO2B", "SET", "GtC", "R6MAF"][2050], -0.0125)
+    np.testing.assert_allclose(mdata.df["CH4", "SET", "MtCH4", "R6MAF"][2070], 37.6218)
+    np.testing.assert_allclose(mdata.df["NOX", "SET", "MtN", "R6LAM"][2080], 1.8693)
+    np.testing.assert_allclose(mdata.df["BCB", "SET", "Mt", "R6LAM"][2090], 0.4254)
     np.testing.assert_allclose(mdata.df["NH3", "SET", "MtN", "BUNKERS"][2000], 0.0)
     np.testing.assert_allclose(mdata.df["SO2F2", "SET", "kt", "BUNKERS"][2002], 0.0)
 
