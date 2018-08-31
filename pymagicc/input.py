@@ -10,8 +10,8 @@ from six import StringIO
 from pymagicc import MAGICC6
 from .definitions import (
     dattype_regionmode_regions,
-    emissions_units,
-    concentrations_units,
+    # emissions_units,
+    # concentrations_units,
 )
 
 
