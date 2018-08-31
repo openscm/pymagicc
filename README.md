@@ -1,6 +1,6 @@
 # Pymagicc
 
-| [![Build Status](https://img.shields.io/travis/openclimatedata/pymagicc.svg)](https://travis-ci.org/openclimatedata/pymagicc) | [![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc) |
+| [![Build Status](https://travis-ci.org/openclimatedata/pymagicc.svg?branch=master)](https://travis-ci.org/openclimatedata/pymagicc) | [![AppVeyor](https://img.shields.io/appveyor/ci/openclimatedata/pymagicc/master.svg)](https://ci.appveyor.com/project/openclimatedata/pymagicc) |
 | :--- | :--- |
 | [![Codecov](https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg)](https://codecov.io/gh/openclimatedata/pymagicc) | [![Launch Binder](https://img.shields.io/badge/launch-binder-e66581.svg)](https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb) |
 | [![PyPI](https://img.shields.io/pypi/pyversions/pymagicc.svg)](https://pypi.org/project/pymagicc/) | [![PyPI](https://img.shields.io/pypi/v/pymagicc.svg)](https://pypi.org/project/pymagicc/) |
