@@ -60,6 +60,9 @@ def test_load_magicc7_emis():
     mdata = MAGICCInput()
     mdata.read(MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN")
 
+    assert mdata.df.index.names == ["YEAR"]
+    assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+
     assert (
         mdata.metadata["contact"]
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
@@ -72,6 +75,9 @@ def test_load_magicc7_emis():
 def test_load_scen():
     mdata = MAGICCInput()
     mdata.read(MAGICC6_DIR, "RCP26.SCEN")
+
+    assert mdata.df.index.names == ["YEAR"]
+    assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
 
     assert (
         mdata.metadata["date"]
@@ -319,18 +325,17 @@ def test_conc_in_file_read_write_functionally_identical(
     )
 
 
-sres_regions = ["OECD90", "REF", "ASIA", "ALM"]
 
-# order doesn't matter for gases, confusing lack of convention...
+
 emissions_valid = [
-    "FossilCO2",
-    "OtherCO2",
+    "CO2I",
+    "CO2B",
     "CH4",
     "N2O",
-    "SOx",
+    "SOX",
     "CO",
     "NMVOC",
-    "NOx",
+    "NOX",
     "BC",
     "OC",
     "NH3",
@@ -339,22 +344,30 @@ emissions_valid = [
     "C6F14",
     "HFC23",
     "HFC32",
-    "HFC43-10",
+    "HFC4310",
     "HFC125",
-    "HFC134a",
-    "HFC143a",
-    "HFC227ea",
-    "HFC245fa",
+    "HFC134A",
+    "HFC143A",
+    "HFC227EA",
+    "HFC245FA",
     "SF6",
 ]
-
+global_only = ["WORLD"]
+sres_regions = ["WORLD", "OECD90", "REF", "ASIA", "ALM"]
+rcp_regions = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
+# the fact these are valid for SCEN files but not for other data files is
+# unbelievably confusing
+rcp_regions_plus_bunkers = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
 
 @pytest.mark.parametrize(
     "regions, emissions, expected",
     [
+        (global_only, emissions_valid, 11),
         (sres_regions, emissions_valid, 21),
         (sres_regions[1:], emissions_valid, "unrecognised regions"),
-        (sres_regions, emissions_valid[1:], "unrecognised gases"),
+        (sres_regions, emissions_valid[1:], "unrecognised emissions"),
+        (rcp_regions, emissions_valid, 31),
+        (rcp_regions_plus_bunkers, emissions_valid, 41),
     ],
 )
 def test_get_scen_special_code(regions, emissions, expected):
@@ -363,16 +376,18 @@ def test_get_scen_special_code(regions, emissions, expected):
         error_msg = "Could not determine scen special code for regions {}".format(
             regions
         )
-        with pytest.raises(ValueError, error_msg):
-            writer._get_special_scen_code(regions, gases)
-    elif expected == "unrecognised gases":
+        error_msg = r'potato'
+        with pytest.raises(ValueError, message=error_msg):
+            writer._get_special_scen_code(regions, emissions)
+    elif expected == "unrecognised emissions":
         error_msg = "Could not determine scen special code for emissions {}".format(
             emissions
         )
-        with pytest.raises(ValueError, error_msg):
-            writer._get_special_scen_code(regions, gases)
+        error_msg = r'potato'
+        with pytest.raises(ValueError, message=error_msg):
+            writer._get_special_scen_code(regions, emissions)
     else:
-        result = writer._get_special_scen_code(regions, gases)
+        result = writer._get_special_scen_code(regions, emissions)
         assert result == expected
 
 

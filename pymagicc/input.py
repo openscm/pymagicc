@@ -508,7 +508,12 @@ class ScenWriter(InputWriter):
     def _write_header(self, output):
         header_lines = []
         header_lines.append("{}".format(len(self.minput.df)))
-        header_lines.append("{}".format(len(self._get_special_scen_code())))
+
+        special_scen_code = self._get_special_scen_code(
+            regions = self.minput.df.columns.get_level_values("REGION").unique().tolist(),
+            emissions = self.minput.df.columns.get_level_values("VARIABLE").unique().tolist(),
+        )
+        header_lines.append("{}".format(len()))
 
         output.write(self._newline_char.join(header_lines))
         output.write(self._newline_char)
@@ -517,6 +522,30 @@ class ScenWriter(InputWriter):
         # pdb.set_trace()
 
         return output
+
+    def _get_special_scen_code(self, regions, emissions):
+        valid_emissions = ['CO2I', 'CO2B', 'CH4', 'N2O', 'SOX', 'CO', 'NMVOC', 'NOX', 'BC', 'OC', 'NH3', 'CF4', 'C2F6', 'C6F14', 'HFC23', 'HFC32', 'HFC4310', 'HFC125', 'HFC134A', 'HFC143A', 'HFC227EA', 'HFC245FA', 'SF6']
+
+        if set(valid_emissions) != set(emissions):
+            msg = "Could not determine scen special code for emissions {}".format(
+                emissions
+            )
+            raise ValueError(msg)
+
+        if set(regions) == set(["WORLD"]):
+            return 11
+        elif set(regions) == set(["WORLD", "OECD90", "REF", "ASIA", "ALM"]):
+            return 21
+        elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]):
+            return 31
+        elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]):
+            return 41
+
+        msg = "Could not determine scen special code for regions {}".format(
+                regions
+            )
+        raise ValueError(msg)
+
 
     def _write_namelist(self, output):
         # No namelist for SCEN files
