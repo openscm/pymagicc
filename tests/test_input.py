@@ -24,6 +24,7 @@ MAGICC7_DIR = join(dirname(__file__), "test_data")
 # - write tests for SCEN and SCEN7 files
 # - add read/write identical tests
 
+
 def generic_mdata_tests(mdata):
     assert mdata.is_loaded == True
     assert isinstance(mdata.df, pd.DataFrame)
@@ -33,6 +34,7 @@ def generic_mdata_tests(mdata):
         with pytest.raises(KeyError):
             mdata.metadata[key]
     assert isinstance(mdata.metadata["header"], str)
+
 
 def test_load_magicc6_emis():
     mdata = MAGICCInput()
@@ -102,6 +104,7 @@ def test_load_scen():
     np.testing.assert_allclose(mdata.df["NH3", "SET", "MtN", "BUNKERS"][2000], 0.0)
     np.testing.assert_allclose(mdata.df["SF6", "SET", "kt", "BUNKERS"][2002], 0.0)
 
+
 def test_load_scen7():
     mdata = MAGICCInput()
     mdata.read(MAGICC7_DIR, "TESTSCEN7.SCEN7")
@@ -115,10 +118,14 @@ def test_load_scen7():
     assert "Some notes" in mdata.metadata["header"]
 
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "WORLD"][2000], 6.7350)
-    np.testing.assert_allclose(mdata.df["N2OI", "SET", "MtN2O-N", "WORLD"][2002], 7.5487)
+    np.testing.assert_allclose(
+        mdata.df["N2OI", "SET", "MtN2O-N", "WORLD"][2002], 7.5487
+    )
     np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "WORLD"][2001], 10.4328)
     np.testing.assert_allclose(mdata.df["SOX", "SET", "MtS", "R6OECD90"][2005], 11.9769)
-    np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "R6OECD90"][2050], 18.2123)
+    np.testing.assert_allclose(
+        mdata.df["NMVOC", "SET", "Mt", "R6OECD90"][2050], 18.2123
+    )
     np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "R6REF"][2100], 0.0)
     np.testing.assert_allclose(mdata.df["CH2Cl2", "SET", "kt", "R6REF"][2125], 5.2133)
     np.testing.assert_allclose(
@@ -435,3 +442,4 @@ def test_get_scen_special_code(regions, emissions, expected):
 
 # add test of ordering stuff
 # add test of converting names for SCEN files
+# add test of valid output files e.g. checking namelists, formatting etc.

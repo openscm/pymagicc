@@ -214,8 +214,10 @@ class HistEmisInReader(InputReader):
             )
             raise SyntaxError(error_msg)
 
+
 class Scen7Reader(HistEmisInReader):
     pass
+
 
 class ScenReader(InputReader):
     def read(self):
@@ -451,21 +453,17 @@ class InputWriter(object):
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] = data_block.iloc[0, 0]
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] = data_block.iloc[-1, 0]
 
-        annual_steps = (
-            len(data_block)
-            / (
-                nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
-                - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
-                + 1
-            )
+        annual_steps = len(data_block) / (
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
+            - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
+            + 1
         )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = annual_steps if annual_steps % 1 != 0 else 0
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = (
+            annual_steps if annual_steps % 1 != 0 else 0
+        )
 
         units_unique = list(set(self._get_df_header_row("UNITS")))
-        assert (
-            len(units_unique) == 1
-        )  # again not ready for other stuff, write test before changing
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = units_unique[0]
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = units_unique[0] if len(units_unique) == 1 else "MISC"
 
         region_dattype_row = self._get_dattype_regionmode_regions_row()
 
@@ -532,8 +530,10 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
+
 class Scen7Writer(HistEmisInWriter):
     pass
+
 
 class ScenWriter(InputWriter):
     def _write_header(self, output):
