@@ -347,10 +347,15 @@ class InputWriter(object):
         filepath (str): path in which to write file. If not provided,
            the file will be written in the current directory (TODO: check this is true...)
         """
+        # tomorrow, refactor this so I can use same method for ScenWriter
+        # - process inputs/setup i.e. first 6 lines
+        # -
         self.minput = magicc_input
 
         if filepath is not None:
-            filename = join(filepath, filename)
+            file_to_write = join(filepath, filename)
+        else:
+            file_to_write = filename
 
         output = StringIO()
         output.write(self._get_header())
@@ -394,7 +399,7 @@ class InputWriter(object):
         data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
 
         output.write("\n")
-        with open(filename, "w") as output_file:
+        with open(file_to_write, "w") as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
 
@@ -613,7 +618,7 @@ class MAGICCInput(object):
         """
         self.df = None
         self.metadata = {}
-        self.name = filename
+        self.filename = filename
 
     def __getitem__(self, item):
         """
@@ -656,14 +661,14 @@ class MAGICCInput(object):
         if filepath is None:
             filepath = MAGICC6().original_dir
         if filename is not None:
-            self.name = filename
-        assert self.name is not None
+            self.filename = filename
+        assert self.filename is not None
 
-        filename = join(filepath, self.name)
-        if not exists(filename):
-            raise ValueError("Cannot find {}".format(filename))
+        file_to_read = join(filepath, self.filename)
+        if not exists(file_to_read):
+            raise ValueError("Cannot find {}".format(file_to_read))
 
-        reader = _get_reader(filename)
+        reader = _get_reader(file_to_read)
         self.metadata, self.df = reader.read()
 
     def write(self, filename):
@@ -672,3 +677,4 @@ class MAGICCInput(object):
         """
         writer = _get_writer(filename)
         writer.write(self, filename)
+

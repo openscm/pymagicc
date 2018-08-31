@@ -227,10 +227,10 @@ def test_header_metadata():
 def test_MAGICCInput_init(test_filename):
     if test_filename is None:
         mdata = MAGICCInput()
-        assert mdata.name is None
+        assert mdata.filename is None
     else:
         mdata = MAGICCInput(test_filename)
-        assert mdata.name is test_filename
+        assert mdata.filename is test_filename
 
     assert mdata.df is None
     assert mdata.metadata == {}
