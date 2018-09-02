@@ -97,84 +97,20 @@ class InputReader(object):
 
     def process_data(self, stream, metadata):
         """
-        Extract the tabulated data from a subset of the input file
+        Extract the tabulated data from the input file
 
         # Arguments
         stream (Streamlike object): A Streamlike object (nominally StringIO)
             containing the table to be extracted
-        metadata (Dict): Dictionary containing
+        metadata (dict): metadata read in from the header and the namelist
 
         # Returns
-        return (Tuple): Tuple of a pd.DataFrame containing the data and a Dict
-            containing the metadata. The pd.DataFrame columns are named using
-            a MultiIndex
+        df (pandas.DataFrame): contains the data, processed to the standard
+            MAGICCInput format
+        metadata (dict): updated metadata based on the processing performed
         """
-        raise NotImplementedError()
-
-    def process_header(self, header):
-        """
-        Parse the header for additional metadata
-
-        The metadata is only present in MAGICC7 input files.
-        :param header: A string containing all the lines in the header
-        :return: A dict containing the addtional metadata in the header
-        """
-        metadata = {}
-        for line in header.split("\n"):
-            line = line.strip()
-            for tag in self.header_tags:
-                tag_text = "{}:".format(tag)
-                if line.lower().startswith(tag_text):
-                    metadata[tag] = line[len(tag_text) + 1 :].strip()
-
-        return metadata
-
-    def _read_data_header_line(self, stream, expected_header):
-        tokens = stream.readline().split()
-        assert tokens[0] == expected_header, "Expected a header token of {}, got {}".format(expected_header, tokens[0])
-        return tokens[1:]
-
-
-class ConcInReader(InputReader):
-    def process_data(self, stream, metadata):
-        regions = self._read_data_header_line(
-            stream, "COLCODE"
-        )  # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
-        units = [metadata["units"]] * len(regions)
-        metadata.pop("units")
-        todos = ["SET"] * len(regions)
-        variables = [self._get_variable_from_filename()] * len(regions)
-
-        df = pd.read_csv(
-            stream,
-            skip_blank_lines=True,
-            delim_whitespace=True,
-            header=None,
-            index_col=0,
-        )
-        df.index.name = "YEAR"
-        df.columns = pd.MultiIndex.from_arrays(
-            [variables, todos, units, regions],
-            names=("VARIABLE", "TODO", "UNITS", "REGION"),
-        )
-
-        return df, metadata
-
-    def _get_variable_from_filename(self):
-        regexp_capture_variable = re.compile(r".*\_(\w*\_CONC)\.IN$")
-        try:
-            return regexp_capture_variable.search(self.filename).group(1)
-        except AttributeError:
-            error_msg = "Cannot determine variable from filename: {}".format(
-                self.filename
-            )
-            raise SyntaxError(error_msg)
-
-
-class HistEmisInReader(InputReader):
-    def process_data(self, stream, metadata):
         if any(["COLCODE" in line for line in self.lines]):
-            # Note that regions line starts with 'COLCODE' instead of 'REGIONS'
+            # File written in MAGICC6 style with only one header line rest of data must be inferred. Assumption is that line starting with 'COLCODE' contains the regions
             regions = self._read_data_header_line(stream, "COLCODE")
             units = [metadata["units"]] * len(regions)
             metadata.pop("units")
@@ -204,6 +140,54 @@ class HistEmisInReader(InputReader):
 
         return df, metadata
 
+    def _get_variable_from_filename(self):
+        """
+        Determine the file variable from the filename
+
+        # Returns
+        return (str): best guess of variable name from the filename
+        """
+        raise NotImplementedError()
+
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata
+
+        # Arguments
+        header (str): all the lines in the header
+
+        # Returns
+        return (dict): the metadata in the header
+        """
+        metadata = {}
+        for line in header.split("\n"):
+            line = line.strip()
+            for tag in self.header_tags:
+                tag_text = "{}:".format(tag)
+                if line.lower().startswith(tag_text):
+                    metadata[tag] = line[len(tag_text) + 1 :].strip()
+
+        return metadata
+
+    def _read_data_header_line(self, stream, expected_header):
+        tokens = stream.readline().split()
+        assert tokens[0] == expected_header, "Expected a header token of {}, got {}".format(expected_header, tokens[0])
+        return tokens[1:]
+
+
+class ConcInReader(InputReader):
+    def _get_variable_from_filename(self):
+        regexp_capture_variable = re.compile(r".*\_(\w*\_CONC)\.IN$")
+        try:
+            return regexp_capture_variable.search(self.filename).group(1)
+        except AttributeError:
+            error_msg = "Cannot determine variable from filename: {}".format(
+                self.filename
+            )
+            raise SyntaxError(error_msg)
+
+
+class HistEmisInReader(InputReader):
     def _get_variable_from_filename(self):
         regexp_capture_variable = re.compile(r".*\_(\w*\_EMIS)\.IN$")
         try:
