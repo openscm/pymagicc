@@ -9,6 +9,8 @@ mdata = MAGICCInput()
 
 cant_read = []
 for file in listdir(MAGICC6_DIR):
+    if file.endswith((".exe")):
+        continue
     try:
         mdata.read(MAGICC6_DIR, file)
     except Exception:
