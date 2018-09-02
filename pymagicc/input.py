@@ -281,7 +281,14 @@ class ScenReader(InputReader):
             except AssertionError:  # tried to get variables from a notes line
                 break
 
-            units = self._read_data_header_line(self._stream, "Yrs")
+            try:
+                pos_units = self._stream.tell()
+                units = self._read_data_header_line(self._stream, "Yrs")
+            except AssertionError:
+                # for SRES SCEN files
+                self._stream.seek(pos_units)
+                units = self._read_data_header_line(self._stream, "YEARS")
+
             todos = ["SET"] * len(variables)
             regions = [region] * len(variables)
 
@@ -324,6 +331,8 @@ class ScenReader(InputReader):
 
 
 def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
+    # to make the mapping two way, we can't simply use rules like e.g
+    # upper() but have to instead define all the mappings
     replacements = {
         "FossilCO2": "CO2I",
         "OtherCO2": "CO2B",
@@ -335,11 +344,24 @@ def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
         "HFC227ea": "HFC227EA",
         "HFC245fa": "HFC245FA",
     }
+    if inverse:
+        replacements = {v:k for k,v in replacements.items()}
+    else:
+        # deal with SRES files
+        sres_replacements = {
+            "HFC-23": "HFC23",
+            "HFC-32": "HFC32",
+            "HFC-43-10": "HFC4310",
+            "HFC-125": "HFC125",
+            "HFC-134a": "HFC134A",
+            "HFC-143a": "HFC143A",
+            "HFC-227ea": "HFC227EA",
+            "HFC-245ca": "HFC245FA",  # need to check with Malte if this is right...
+        }
+        replacements = {**replacements, **sres_replacements}
+
     variables_return = deepcopy(variables)
     for old, new in replacements.items():
-        if inverse:
-            old, new = (new, old)
-
         variables_return = [v.replace(old, new) for v in variables_return]
 
     return variables_return
@@ -459,7 +481,7 @@ class InputWriter(object):
             + 1
         )
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = (
-            annual_steps if annual_steps % 1 == 0 else 0
+            int(annual_steps) if annual_steps % 1 == 0 else 0
         )
 
         units_unique = list(set(self._get_df_header_row("UNITS")))

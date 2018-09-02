@@ -105,6 +105,28 @@ def test_load_scen():
     np.testing.assert_allclose(mdata.df["SF6", "SET", "kt", "BUNKERS"][2002], 0.0)
 
 
+def test_load_scen_sres():
+    mdata = MAGICCInput()
+    mdata.read(MAGICC6_DIR, "SRESA1B.SCEN")
+
+    generic_mdata_tests(mdata)
+
+    assert "Antero Hot Springs" in mdata.metadata["header"]
+
+    np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "WORLD"][2000], 6.8963)
+    np.testing.assert_allclose(mdata.df["N2O", "SET", "MtN2O-N", "WORLD"][1990], 6.6751)
+    np.testing.assert_allclose(mdata.df["HFC4310", "SET", "kt", "WORLD"][2000], 0.0000)
+    np.testing.assert_allclose(mdata.df["SOX", "SET", "MtS", "OECD90"][2010], 9.8762)
+    np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "OECD90"][2050], 28.1940)
+    np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "REF"][2100], 0.0624)
+    np.testing.assert_allclose(mdata.df["HFC125", "SET", "kt", "REF"][2100], 5.4067)
+    np.testing.assert_allclose(
+        mdata.df["HFC143A", "SET", "kt", "ASIA"][2040], 15.4296
+    )
+    np.testing.assert_allclose(mdata.df["SF6", "SET", "kt", "ASIA"][2040], 6.4001)
+    np.testing.assert_allclose(mdata.df["CO2B", "SET", "GtC", "ALM"][2050], 0.2613)
+    np.testing.assert_allclose(mdata.df["CH4", "SET", "MtCH4", "ALM"][2070], 130.1256)
+
 def test_load_scen7():
     mdata = MAGICCInput()
     mdata.read(MAGICC7_DIR, "TESTSCEN7.SCEN7")
@@ -440,6 +462,5 @@ def test_get_scen_special_code(regions, emissions, expected):
         assert result == expected
 
 
-# add test of ordering stuff
 # add test of converting names for SCEN files
-# add test of valid output files e.g. checking namelists, formatting etc.
+# add test of valid output files e.g. checking namelists, formatting, column ordering etc.
