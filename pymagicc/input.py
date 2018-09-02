@@ -131,7 +131,7 @@ class InputReader(object):
 
     def _read_data_header_line(self, stream, expected_header):
         tokens = stream.readline().split()
-        assert tokens[0] == expected_header
+        assert tokens[0] == expected_header, "Expected a header token of {}, got {}".format(expected_header, tokens[0])
         return tokens[1:]
 
 
@@ -270,44 +270,43 @@ class ScenReader(InputReader):
 
         # go through datablocks until there are none left
         while True:
+            pos_block = self._stream.tell()
+            region = self._stream.readline().strip()
             try:
-                pos_block = self._stream.tell()
-                region = self._stream.readline().strip()
-
                 variables = _convert_MAGICC6_to_MAGICC7_variables(
                     self._read_data_header_line(self._stream, "YEARS")
                 )
-                units = self._read_data_header_line(self._stream, "Yrs")
-                todos = ["SET"] * len(variables)
-                regions = [region] * len(variables)
-
-                region_block = StringIO()
-                for i in range(no_years):
-                    region_block.write(self._stream.readline())
-                region_block.seek(0)
-
-                region_df = pd.read_csv(
-                    region_block,
-                    skip_blank_lines=True,
-                    delim_whitespace=True,
-                    header=None,
-                    index_col=0,
-                )
-                region_df.index.name = "YEAR"
-                region_df.columns = pd.MultiIndex.from_arrays(
-                    [variables, todos, units, regions],
-                    names=("VARIABLE", "TODO", "UNITS", "REGION"),
-                )
-
-                try:
-                    df = df.join(region_df)
-                except NameError:
-                    df = region_df
-
             except IndexError:  # tried to get variables from empty string
                 break
             except AssertionError:  # tried to get variables from a notes line
                 break
+
+            units = self._read_data_header_line(self._stream, "Yrs")
+            todos = ["SET"] * len(variables)
+            regions = [region] * len(variables)
+
+            region_block = StringIO()
+            for i in range(no_years):
+                region_block.write(self._stream.readline())
+            region_block.seek(0)
+
+            region_df = pd.read_csv(
+                region_block,
+                skip_blank_lines=True,
+                delim_whitespace=True,
+                header=None,
+                index_col=0,
+            )
+            region_df.index.name = "YEAR"
+            region_df.columns = pd.MultiIndex.from_arrays(
+                [variables, todos, units, regions],
+                names=("VARIABLE", "TODO", "UNITS", "REGION"),
+            )
+
+            try:
+                df = df.join(region_df)
+            except NameError:
+                df = region_df
 
         self._stream.seek(pos_block)
 
