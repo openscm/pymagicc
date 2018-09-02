@@ -135,7 +135,7 @@ class InputReader(object):
         return tokens[1:]
 
 
-class HistConcInReader(InputReader):
+class ConcInReader(InputReader):
     def process_data(self, stream, metadata):
         regions = self._read_data_header_line(
             stream, "COLCODE"
@@ -213,6 +213,10 @@ class HistEmisInReader(InputReader):
                 self.filename
             )
             raise SyntaxError(error_msg)
+
+
+class OpticalThicknessInReader(HistEmisInReader):
+    pass
 
 
 class Scen7Reader(HistEmisInReader):
@@ -524,7 +528,7 @@ class InputWriter(object):
         return self.minput.df.columns.get_level_values(col_name).tolist()
 
 
-class HistConcInWriter(InputWriter):
+class ConcInWriter(InputWriter):
     def _get_data_block(self):
         regions = self._get_df_header_row("REGION")
 
@@ -735,10 +739,11 @@ def determine_tool(fname, regexp_map, tool_to_find):
     raise ValueError("Couldn't find appropriate {} for {}".format(tool_to_find, fname))
 
 
-hist_emis_in_regexp = r"^HIST.*\_EMIS\.IN$"
-hist_conc_in_regexp = r"^.*\_.*CONC.*\.IN$"
 scen_regexp = r"^.*\.SCEN$"
 scen7_regexp = r"^.*\.SCEN7$"
+hist_emis_in_regexp = r"^HIST.*\_EMIS.*\.IN$"
+conc_in_regexp = r"^.*\_CONC.*\.IN$"
+ot_in_regexp = r"^.*\_OT\.IN$"
 inverse_emis_out_regexp = r"^INVERSEEMIS\_.*\.OUT$"
 sector_regexp = r".*\.SECTOR$"
 
@@ -747,7 +752,8 @@ _fname_reader_regex_map = {
     scen7_regexp: Scen7Reader,
     # sector_regexp: SectorReader,
     hist_emis_in_regexp: HistEmisInReader,
-    hist_conc_in_regexp: HistConcInReader,
+    conc_in_regexp: ConcInReader,
+    ot_in_regexp: OpticalThicknessInReader,
     # inverse_emis_out_regexp: InverseEmisOutReader,
 }
 
@@ -761,7 +767,7 @@ _fname_writer_regex_map = {
     scen7_regexp: Scen7Writer,
     # sector_regexp: SectorWriter,
     hist_emis_in_regexp: HistEmisInWriter,
-    hist_conc_in_regexp: HistConcInWriter,
+    conc_in_regexp: ConcInWriter,
     # inverse_emis_out_regexp: InverseEmisOutWriter,
 }
 

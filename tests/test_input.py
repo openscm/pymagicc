@@ -12,7 +12,7 @@ from unittest.mock import patch
 import f90nml
 
 from pymagicc.api import MAGICC6
-from pymagicc.input import MAGICCInput, InputReader, HistConcInReader, ScenWriter
+from pymagicc.input import MAGICCInput, InputReader, ConcInReader, ScenWriter
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 MAGICC7_DIR = join(dirname(__file__), "test_data")
@@ -324,7 +324,7 @@ def test_set_lines():
 )
 def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
 
-    conc_reader = HistConcInReader(test_filename)
+    conc_reader = ConcInReader(test_filename)
     if expected_variable is None:
         expected_message = re.escape(
             "Cannot determine variable from filename: {}".format(test_filename)
