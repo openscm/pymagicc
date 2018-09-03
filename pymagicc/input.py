@@ -590,7 +590,9 @@ class InputWriter(object):
     def _get_dattype_regionmode_regions_row(self):
         regions_unique = set(self._get_df_header_row("REGION"))
 
-        find_region = lambda x: set(x) == regions_unique
+        def find_region(x):
+            return set(x) == regions_unique
+
         region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
 
         if self._scen_7:
