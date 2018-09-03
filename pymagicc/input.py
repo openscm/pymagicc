@@ -34,7 +34,7 @@ class InputReader(object):
         self.filename = filename
 
     def _set_lines(self):
-        with codecs.open(self.filename, "r", "iso-8859-15") as f:
+        with open(self.filename, "r", encoding="iso-8859-15", newline="\n") as f:
             self.lines = f.readlines()
 
     def read(self):
