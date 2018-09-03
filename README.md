@@ -186,6 +186,9 @@ Please report issues or discuss feature requests on Pymagicc's
 [issue tracker](https://github.com/openclimatedata/pymagicc/issues).
 
 When creating a pull request, please append the pull request url with either `expand=1&template=new_feature.md` or `expand=1&template=bug_fix.md` in order to use the templates we provide for pull requests.
+For example, when you land on the page with title 'Open a pull request' (either after hitting 'New Pull Request' --> 'Create Pull Request' or by some other means), your url will look something like 'https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template'.
+Adding 'expand=1&template=bug_fix.md' to this makes it 'https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template?expand=1&template=new_feature.md'.
+If you then refresh the page, you will then see that the template is automatically added to the pull request for you.
 
 You can also contact the `pymagicc` authors via email
 <robert.gieseke@pik-potsdam.de>.
