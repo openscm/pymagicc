@@ -1,24 +1,25 @@
-RCPTOOL - MAGICC 6.X DATA FILE
-VERSION:   ALPHA - FIRST DRAFT - PRIMAP xls file written on 02 Sep 2009, 17:04:37
-
-
-DATA:  Historical fossil&industrial CO2 (CO2I) Emissions (HISTRCP_CO2I_EMIS)
-SOURCE:  RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, August 2009
-CONTACT:  Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov); RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Concentrations & Forcing compilation: Malte Meinshausen (malte.meinshausen@pik-potsdam.de)
-
-
-
-
+RCPTOOL - MAGICC 6.X DATA FILE 
+VERSION:   ALPHA - FIRST DRAFT - PRIMAP xls file written on 02 Sep 2009, 17:04:37 
+ 
+ 
+DATA:  Historical fossil&industrial CO2 (CO2I) Emissions (HISTRCP_CO2I_EMIS) 
+SOURCE:  RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, August 2009 
+CONTACT:  Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov); RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Concentrations & Forcing compilation: Malte Meinshausen (malte.meinshausen@pik-potsdam.de) 
+ 
+ 
+ 
+ 
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 5
+    THISFILE_DATAROWS = 242
     THISFILE_FIRSTYEAR = 1765
     THISFILE_LASTYEAR = 2006
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'GtC'
     THISFILE_DATTYPE = 'REGIONDATA'
     THISFILE_REGIONMODE = 'RCP'
-    THISFILE_FIRSTDATAROW = 28
+    THISFILE_FIRSTDATAROW = 29
 /
 
         GAS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS
