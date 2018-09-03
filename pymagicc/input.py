@@ -109,20 +109,7 @@ class InputReader(object):
             MAGICCInput format
         metadata (dict): updated metadata based on the processing performed
         """
-        if any(["COLCODE" in line for line in self.lines]):
-            # File written in MAGICC6 style with only one header line rest of data must be inferred. Assumption is that line starting with 'COLCODE' contains the regions
-            regions = self._read_data_header_line(stream, "COLCODE")
-            units = [metadata["units"]] * len(regions)
-            metadata.pop("units")
-            todos = ["SET"] * len(regions)
-            variables = [self._get_variable_from_filename()] * len(regions)
-        else:
-            variables = self._read_data_header_line(stream, "GAS")
-            todos = self._read_data_header_line(stream, "TODO")
-            units = self._read_data_header_line(stream, "UNITS")
-            metadata.pop("units")
-            # Note that regions line starts with 'YEARS' instead of 'REGIONS'
-            regions = self._read_data_header_line(stream, "YEARS")
+        ch, metadata = self._get_column_headers_update_metadata(stream, metadata)
 
         df = pd.read_csv(
             stream,
@@ -134,11 +121,38 @@ class InputReader(object):
 
         df.index.name = "YEAR"
         df.columns = pd.MultiIndex.from_arrays(
-            [variables, todos, units, regions],
+            [ch['variables'], ch['todos'], ch['units'], ch['regions']],
             names=("VARIABLE", "TODO", "UNITS", "REGION"),
         )
 
         return df, metadata
+
+    def _get_column_headers_update_metadata(self, stream, metadata):
+        if any(["COLCODE" in line for line in self.lines]):
+            # File written in MAGICC6 style with only one header line rest of
+            # data must be inferred.
+            # Note that regions header line is assumed to start with 'COLCODE'
+            # instead of 'REGIONS'
+            regions = self._read_data_header_line(stream, "COLCODE")
+            column_headers = {
+                'variables': [self._get_variable_from_filename()] * len(regions),
+                'todos': ["SET"] * len(regions),
+                'units': [metadata["units"]] * len(regions),
+                'regions': regions,
+            }
+            metadata.pop("units")
+        else:
+            # Note that regions header line is assumed to start with 'YEARS'
+            # instead of 'REGIONS'
+            column_headers = {
+                'variables': self._read_data_header_line(stream, "GAS"),
+                'todos': self._read_data_header_line(stream, "TODO"),
+                'units': self._read_data_header_line(stream, "UNITS"),
+                'regions': self._read_data_header_line(stream, "YEARS"),
+            }
+            metadata.pop("units")
+
+        return column_headers, metadata
 
     def _get_variable_from_filename(self):
         """
@@ -171,7 +185,11 @@ class InputReader(object):
 
     def _read_data_header_line(self, stream, expected_header):
         tokens = stream.readline().split()
-        assert tokens[0] == expected_header, "Expected a header token of {}, got {}".format(expected_header, tokens[0])
+        assert (
+            tokens[0] == expected_header
+        ), "Expected a header token of {}, got {}".format(
+            expected_header, tokens[0]
+        )
         return tokens[1:]
 
 
@@ -200,7 +218,47 @@ class HistEmisInReader(InputReader):
 
 
 class OpticalThicknessInReader(HistEmisInReader):
-    pass
+    def _get_column_headers_update_metadata(self, stream, metadata):
+        if any(["TODO" in line for line in self.lines]):
+            # Note that regions header line is assumed to start with 'YEARS'
+            # instead of 'REGIONS'
+            column_headers = {
+                'variables': self._read_data_header_line(stream, "VARIABLE"),
+                'todos': self._read_data_header_line(stream, "TODO"),
+                'units': self._read_data_header_line(stream, "UNITS"),
+                'regions': self._read_data_header_line(stream, "YEARS"),
+            }
+            metadata.pop("units")
+        else:
+            # File written in MAGICC6 style with only one header line rest of
+            # data must be inferred.
+            # Note that regions header line is assumed to start with 'YEARS'
+            # instead of 'REGIONS'
+            regions = self._read_data_header_line(stream, "YEARS")
+            region_mapping = {
+                "FORC-NO": "NH-OCEAN",
+                "FORC-SO": "SH-OCEAN",
+                "FORC-NL": "NH-LAND",
+                "FORC-SL": "SH-LAND",
+            }
+            regions = [region_mapping[r] for r in regions]
+            variable = metadata['gas']
+            metadata.pop('gas')
+
+            if variable.endswith(("I", "B")):
+                variable = variable[:-1]
+            variable += "_RF"
+
+            column_headers = {
+                'variables': [variable] * len(regions),
+                'todos': ["SET"] * len(regions),
+                'units': ["dimensionless"] * len(regions),
+                'regions': regions,
+            }
+            metadata["unit normalisation"] = metadata["unit"]
+            metadata.pop("unit")
+
+        return column_headers, metadata
 
 
 class Scen7Reader(HistEmisInReader):
@@ -333,7 +391,7 @@ def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
         "HFC245fa": "HFC245FA",
     }
     if inverse:
-        replacements = {v:k for k,v in replacements.items()}
+        replacements = {v: k for k, v in replacements.items()}
     else:
         # deal with SRES files
         sres_replacements = {

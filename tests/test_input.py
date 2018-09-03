@@ -69,9 +69,31 @@ def test_load_magicc7_emis():
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
-
+    # change read in to CO2I_EMIS
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6REF"][2013], 0.6638)
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000], 1.6911)
+
+def test_load_ot():
+    mdata = MAGICCInput()
+    mdata.read(MAGICC6_DIR, "MIXED_NOXI_OT.IN")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["data"] == "Optical Thickness"
+    assert mdata.metadata["description"] == "the land/ocean ratio of optical depth of NOXI is scaled with the hemispheric EDGAR NOXI emissions. NOXI opt. depth as available on http://www.giss.nasa.gov/data/simodel/trop.aer/"
+    assert mdata.metadata["source"] == "Mixed: EDGAR: www.mnp.nl; NASA-GISS: http://data.giss.nasa.gov/"
+    assert mdata.metadata["compiled by"] == "Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com"
+    assert mdata.metadata["date"] == "18-Jul-2006 11:02:48"
+    assert mdata.metadata["unit normalisation"] == "Normalized to 1 in year 2000"
+
+    assert (mdata.df.columns.get_level_values("UNITS") == "dimensionless").all()
+    assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
+    assert (mdata.df.columns.get_level_values("VARIABLE") == "NOX_RF").all()
+
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "NH-OCEAN"][1765], 0.00668115649)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "NH-LAND"][1865], 0.526135104)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "SH-OCEAN"][1965], 0.612718845)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "SH-LAND"][2000], 3.70377980)
 
 
 def test_load_scen():
@@ -120,12 +142,11 @@ def test_load_scen_sres():
     np.testing.assert_allclose(mdata.df["NMVOC", "SET", "Mt", "OECD90"][2050], 28.1940)
     np.testing.assert_allclose(mdata.df["HFC23", "SET", "kt", "REF"][2100], 0.0624)
     np.testing.assert_allclose(mdata.df["HFC125", "SET", "kt", "REF"][2100], 5.4067)
-    np.testing.assert_allclose(
-        mdata.df["HFC143A", "SET", "kt", "ASIA"][2040], 15.4296
-    )
+    np.testing.assert_allclose(mdata.df["HFC143A", "SET", "kt", "ASIA"][2040], 15.4296)
     np.testing.assert_allclose(mdata.df["SF6", "SET", "kt", "ASIA"][2040], 6.4001)
     np.testing.assert_allclose(mdata.df["CO2B", "SET", "GtC", "ALM"][2050], 0.2613)
     np.testing.assert_allclose(mdata.df["CH4", "SET", "MtCH4", "ALM"][2070], 130.1256)
+
 
 def test_load_scen7():
     mdata = MAGICCInput()
@@ -356,6 +377,7 @@ def temp_dir():
     [
         (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"),
         (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"),
+        (MAGICC6_DIR, "MIXED_NOXI_OT.IN"),
         (MAGICC6_DIR, "RCP26.SCEN"),
         (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN"),
         (MAGICC7_DIR, "TESTSCEN7.SCEN7"),
