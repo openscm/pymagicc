@@ -26,6 +26,7 @@ MAGICC7_DIR = join(dirname(__file__), "test_data")
 
 
 def generic_mdata_tests(mdata):
+    "Resusable tests to ensure data format."
     assert mdata.is_loaded == True
     assert isinstance(mdata.df, pd.DataFrame)
     assert mdata.df.index.names == ["YEAR"]
@@ -58,8 +59,8 @@ def test_load_magicc6_conc():
     )
 
 
-# test for file with magiccc6 style vars in filename
-# test for file with special characters e.g. umlauts
+# TODO test for file with magiccc6 style vars in filename
+# TODO test for file with special characters e.g. umlauts
 
 
 def test_load_magicc7_emis():
@@ -332,7 +333,7 @@ def test_header_metadata():
 
 
 @pytest.mark.parametrize("test_filename", [(None), ("test/filename.OUT")])
-def test_MAGICCInput_init(test_filename):
+def test_magicc_input_init(test_filename):
     if test_filename is None:
         mdata = MAGICCInput()
         assert mdata.filename is None
@@ -365,7 +366,7 @@ def test_set_lines():
         ("test/filename.OUT", None),
     ],
 )
-def test_CONC_INReader_get_variable_from_filename(test_filename, expected_variable):
+def test_conc_in_reader_get_variable_from_filename(test_filename, expected_variable):
 
     conc_reader = ConcInReader(test_filename)
     if expected_variable is None:
@@ -512,5 +513,5 @@ def test_get_scen_special_code(regions, emissions, expected):
         assert result == expected
 
 
-# add test of converting names for SCEN files
-# add test of valid output files e.g. checking namelists, formatting, column ordering etc.
+# TODO add test of converting names for SCEN files
+# TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
