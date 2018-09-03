@@ -470,7 +470,7 @@ class InputWriter(object):
         output = self._write_namelist(output)
         output = self._write_datablock(output)
 
-        with open(file_to_write, "w") as output_file:
+        with open(file_to_write, "w", newline="\n") as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
 
