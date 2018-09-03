@@ -122,7 +122,7 @@ class InputReader(object):
 
         df.index.name = "YEAR"
         df.columns = pd.MultiIndex.from_arrays(
-            [ch['variables'], ch['todos'], ch['units'], ch['regions']],
+            [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
             names=("VARIABLE", "TODO", "UNITS", "REGION"),
         )
 
@@ -133,10 +133,10 @@ class InputReader(object):
             # Note that regions header line is assumed to start with 'YEARS'
             # instead of 'REGIONS'
             column_headers = {
-                'variables': self._read_data_header_line(stream, "GAS"),
-                'todos': self._read_data_header_line(stream, "TODO"),
-                'units': self._read_data_header_line(stream, "UNITS"),
-                'regions': self._read_data_header_line(stream, "YEARS"),
+                "variables": self._read_data_header_line(stream, "GAS"),
+                "todos": self._read_data_header_line(stream, "TODO"),
+                "units": self._read_data_header_line(stream, "UNITS"),
+                "regions": self._read_data_header_line(stream, "YEARS"),
             }
             metadata.pop("units")
         else:
@@ -159,10 +159,10 @@ class InputReader(object):
                 metadata.pop("unit")
 
             column_headers = {
-                'variables': [self._get_variable_from_filename()] * len(regions),
-                'todos': ["SET"] * len(regions),
-                'units': units,
-                'regions': regions,
+                "variables": [self._get_variable_from_filename()] * len(regions),
+                "todos": ["SET"] * len(regions),
+                "units": units,
+                "regions": regions,
             }
 
         return column_headers, metadata
@@ -211,7 +211,7 @@ class ConcInReader(InputReader):
         regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
         try:
             return _convert_MAGICC6_to_MAGICC7_variables(
-                [regexp_capture_variable.search(self.filename).group(1)],
+                [regexp_capture_variable.search(self.filename).group(1)]
             )[0]
 
         except AttributeError:
@@ -239,10 +239,10 @@ class OpticalThicknessInReader(HistEmisInReader):
             # Note that regions header line is assumed to start with 'YEARS'
             # instead of 'REGIONS'
             column_headers = {
-                'variables': self._read_data_header_line(stream, "VARIABLE"),
-                'todos': self._read_data_header_line(stream, "TODO"),
-                'units': self._read_data_header_line(stream, "UNITS"),
-                'regions': self._read_data_header_line(stream, "YEARS"),
+                "variables": self._read_data_header_line(stream, "VARIABLE"),
+                "todos": self._read_data_header_line(stream, "TODO"),
+                "units": self._read_data_header_line(stream, "UNITS"),
+                "regions": self._read_data_header_line(stream, "YEARS"),
             }
         else:
             # File written in MAGICC6 style with only one header line rest of
@@ -257,17 +257,17 @@ class OpticalThicknessInReader(HistEmisInReader):
                 "FORC-SL": "SHLAND",
             }
             regions = [region_mapping[r] for r in regions]
-            variable = metadata['gas']
+            variable = metadata["gas"]
 
             if variable.endswith(("I", "B")):
                 variable = variable[:-1]
             variable += "_RF"
 
             column_headers = {
-                'variables': [variable] * len(regions),
-                'todos': ["SET"] * len(regions),
-                'units': ["DIMENSIONLESS"] * len(regions),
-                'regions': regions,
+                "variables": [variable] * len(regions),
+                "todos": ["SET"] * len(regions),
+                "units": ["DIMENSIONLESS"] * len(regions),
+                "regions": regions,
             }
 
             metadata["unit normalisation"] = metadata["unit"]
@@ -636,8 +636,10 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
+
 class OpticalThicknessInWriter(InputWriter):
     pass
+
 
 class Scen7Writer(HistEmisInWriter):
     def _get_initial_nml_and_data_block(self):

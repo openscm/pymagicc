@@ -57,8 +57,10 @@ def test_load_magicc6_conc():
         mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e+002
     )
 
+
 # test for file with magiccc6 style vars in filename
 # test for file with special characters e.g. umlauts
+
 
 def test_load_magicc7_emis():
     mdata = MAGICCInput()
@@ -75,6 +77,7 @@ def test_load_magicc7_emis():
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6REF"][2013], 0.6638)
     np.testing.assert_allclose(mdata.df["CO2I", "SET", "GtC", "R6ASIA"][2000], 1.6911)
 
+
 def test_load_ot():
     mdata = MAGICCInput()
     mdata.read(MAGICC6_DIR, "MIXED_NOXI_OT.IN")
@@ -82,9 +85,18 @@ def test_load_ot():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["data"] == "Optical Thickness"
-    assert mdata.metadata["description"] == "the land/ocean ratio of optical depth of NOXI is scaled with the hemispheric EDGAR NOXI emissions. NOXI opt. depth as available on http://www.giss.nasa.gov/data/simodel/trop.aer/"
-    assert mdata.metadata["source"] == "Mixed: EDGAR: www.mnp.nl; NASA-GISS: http://data.giss.nasa.gov/"
-    assert mdata.metadata["compiled by"] == "Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com"
+    assert (
+        mdata.metadata["description"]
+        == "the land/ocean ratio of optical depth of NOXI is scaled with the hemispheric EDGAR NOXI emissions. NOXI opt. depth as available on http://www.giss.nasa.gov/data/simodel/trop.aer/"
+    )
+    assert (
+        mdata.metadata["source"]
+        == "Mixed: EDGAR: www.mnp.nl; NASA-GISS: http://data.giss.nasa.gov/"
+    )
+    assert (
+        mdata.metadata["compiled by"]
+        == "Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com"
+    )
     assert mdata.metadata["date"] == "18-Jul-2006 11:02:48"
     assert mdata.metadata["unit normalisation"] == "Normalized to 1 in year 2000"
 
@@ -92,10 +104,18 @@ def test_load_ot():
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
     assert (mdata.df.columns.get_level_values("VARIABLE") == "NOX_RF").all()
 
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.00668115649)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526135104)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612718845)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.70377980)
+    np.testing.assert_allclose(
+        mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.00668115649
+    )
+    np.testing.assert_allclose(
+        mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526135104
+    )
+    np.testing.assert_allclose(
+        mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612718845
+    )
+    np.testing.assert_allclose(
+        mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.70377980
+    )
 
 
 def test_load_scen():
@@ -379,7 +399,11 @@ def temp_dir():
     [
         (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False),
         (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN", False),
-        (MAGICC6_DIR, "MIXED_NOXI_OT.IN", True),  # handling of units and gas is super weird
+        (
+            MAGICC6_DIR,
+            "MIXED_NOXI_OT.IN",
+            True,
+        ),  # handling of units and gas is super weird
         (MAGICC6_DIR, "RCP26.SCEN", True),  # metadata all over the place
         (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN", False),
         (MAGICC7_DIR, "TESTSCEN7.SCEN7", False),
