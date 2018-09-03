@@ -57,6 +57,8 @@ def test_load_magicc6_conc():
         mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e+002
     )
 
+# test for file with magiccc6 style vars in filename
+# test for file with special characters e.g. umlauts
 
 def test_load_magicc7_emis():
     mdata = MAGICCInput()

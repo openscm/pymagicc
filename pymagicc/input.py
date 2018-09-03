@@ -1,6 +1,7 @@
 from os.path import basename, exists, join
 from shutil import copyfileobj
 from copy import deepcopy
+import codecs
 
 import f90nml
 from f90nml.namelist import Namelist
@@ -33,7 +34,7 @@ class InputReader(object):
         self.filename = filename
 
     def _set_lines(self):
-        with open(self.filename, "r") as f:
+        with codecs.open(self.filename, "r", "iso-8859-15") as f:
             self.lines = f.readlines()
 
     def read(self):
@@ -128,20 +129,7 @@ class InputReader(object):
         return df, metadata
 
     def _get_column_headers_update_metadata(self, stream, metadata):
-        if any(["COLCODE" in line for line in self.lines]):
-            # File written in MAGICC6 style with only one header line rest of
-            # data must be inferred.
-            # Note that regions header line is assumed to start with 'COLCODE'
-            # instead of 'REGIONS'
-            regions = self._read_data_header_line(stream, "COLCODE")
-            column_headers = {
-                'variables': [self._get_variable_from_filename()] * len(regions),
-                'todos': ["SET"] * len(regions),
-                'units': [metadata["units"]] * len(regions),
-                'regions': regions,
-            }
-            metadata.pop("units")
-        else:
+        if any(["TODO" in line for line in self.lines]):
             # Note that regions header line is assumed to start with 'YEARS'
             # instead of 'REGIONS'
             column_headers = {
@@ -151,6 +139,31 @@ class InputReader(object):
                 'regions': self._read_data_header_line(stream, "YEARS"),
             }
             metadata.pop("units")
+        else:
+            # File written in MAGICC6 style with only one header line rest of
+            # data must be inferred.
+            # Note that regions header line is assumed to start with 'COLCODE'
+            # or 'YEARS' instead of 'REGIONS'
+            try:
+                pos_regions = stream.tell()
+                regions = self._read_data_header_line(stream, "COLCODE")
+            except AssertionError:
+                stream.seek(pos_regions)
+                regions = self._read_data_header_line(stream, "YEARS")
+
+            try:
+                units = [metadata["units"]] * len(regions)
+                metadata.pop("units")
+            except KeyError:
+                units = [metadata["unit"]] * len(regions)
+                metadata.pop("unit")
+
+            column_headers = {
+                'variables': [self._get_variable_from_filename()] * len(regions),
+                'todos': ["SET"] * len(regions),
+                'units': units,
+                'regions': regions,
+            }
 
         return column_headers, metadata
 
@@ -195,9 +208,12 @@ class InputReader(object):
 
 class ConcInReader(InputReader):
     def _get_variable_from_filename(self):
-        regexp_capture_variable = re.compile(r".*\_(\w*\_CONC)\.IN$")
+        regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
         try:
-            return regexp_capture_variable.search(self.filename).group(1)
+            return _convert_MAGICC6_to_MAGICC7_variables(
+                [regexp_capture_variable.search(self.filename).group(1)],
+            )[0]
+
         except AttributeError:
             error_msg = "Cannot determine variable from filename: {}".format(
                 self.filename
