@@ -435,7 +435,7 @@ def test_conc_in_file_read_write_functionally_identical(
     #       as intended is the next step
     if not confusing_metadata:
         for k, v in mi_written.metadata.items():
-            assert v.strip() == mi_initial.metadata[k].strip()
+            assert v.strip().strip() == mi_initial.metadata[k].strip().strip()
 
     pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
 
