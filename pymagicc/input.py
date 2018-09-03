@@ -30,11 +30,13 @@ class InputReader(object):
         "unit",
     ]
 
+
     def __init__(self, filename):
         self.filename = filename
+        self._newline_char = "\n"
 
     def _set_lines(self):
-        with open(self.filename, "r", encoding="iso-8859-15", newline="\n") as f:
+        with open(self.filename, "r", encoding="iso-8859-15", newline=self._newline_char) as f:
             self.lines = f.readlines()
 
     def read(self):
@@ -470,7 +472,7 @@ class InputWriter(object):
         output = self._write_namelist(output)
         output = self._write_datablock(output)
 
-        with open(file_to_write, "w", newline="\n") as output_file:
+        with open(file_to_write, "w", newline=self._newline_char) as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
 
