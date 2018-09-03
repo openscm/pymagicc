@@ -244,7 +244,6 @@ class OpticalThicknessInReader(HistEmisInReader):
                 'units': self._read_data_header_line(stream, "UNITS"),
                 'regions': self._read_data_header_line(stream, "YEARS"),
             }
-            metadata.pop("units")
         else:
             # File written in MAGICC6 style with only one header line rest of
             # data must be inferred.
@@ -252,14 +251,13 @@ class OpticalThicknessInReader(HistEmisInReader):
             # instead of 'REGIONS'
             regions = self._read_data_header_line(stream, "YEARS")
             region_mapping = {
-                "FORC-NO": "NH-OCEAN",
-                "FORC-SO": "SH-OCEAN",
-                "FORC-NL": "NH-LAND",
-                "FORC-SL": "SH-LAND",
+                "FORC-NO": "NHOCEAN",
+                "FORC-SO": "SHOCEAN",
+                "FORC-NL": "NHLAND",
+                "FORC-SL": "SHLAND",
             }
             regions = [region_mapping[r] for r in regions]
             variable = metadata['gas']
-            metadata.pop('gas')
 
             if variable.endswith(("I", "B")):
                 variable = variable[:-1]
@@ -268,11 +266,17 @@ class OpticalThicknessInReader(HistEmisInReader):
             column_headers = {
                 'variables': [variable] * len(regions),
                 'todos': ["SET"] * len(regions),
-                'units': ["dimensionless"] * len(regions),
+                'units': ["DIMENSIONLESS"] * len(regions),
                 'regions': regions,
             }
+
             metadata["unit normalisation"] = metadata["unit"]
-            metadata.pop("unit")
+
+            for k in ["unit", "units", "gas"]:
+                try:
+                    metadata.pop(k)
+                except KeyError:
+                    pass
 
         return column_headers, metadata
 
@@ -565,7 +569,23 @@ class InputWriter(object):
         return nml, data_block
 
     def _get_data_block(self):
-        raise NotImplementedError()
+        regions = self._get_df_header_row("REGION")
+        variables = self._get_df_header_row("VARIABLE")
+        units = self._get_df_header_row("UNITS")
+        todos = self._get_df_header_row("TODO")
+
+        data_block = self.minput.df.copy()
+        # probably not necessary but a sensible check
+        assert data_block.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+        data_block.reset_index(inplace=True)
+        data_block.columns = [
+            ["VARIABLE"] + variables,
+            ["TODO"] + todos,
+            ["UNITS"] + units,
+            ["YEARS"] + regions,
+        ]
+
+        return data_block
 
     def _get_dattype_regionmode_regions_row(self):
         regions_unique = set(self._get_df_header_row("REGION"))
@@ -616,6 +636,8 @@ class HistEmisInWriter(InputWriter):
 
         return data_block
 
+class OpticalThicknessInWriter(InputWriter):
+    pass
 
 class Scen7Writer(HistEmisInWriter):
     def _get_initial_nml_and_data_block(self):
@@ -826,6 +848,7 @@ _fname_writer_regex_map = {
     # sector_regexp: SectorWriter,
     hist_emis_in_regexp: HistEmisInWriter,
     conc_in_regexp: ConcInWriter,
+    ot_in_regexp: OpticalThicknessInWriter,
     # inverse_emis_out_regexp: InverseEmisOutWriter,
 }
 

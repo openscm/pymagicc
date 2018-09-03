@@ -88,14 +88,14 @@ def test_load_ot():
     assert mdata.metadata["date"] == "18-Jul-2006 11:02:48"
     assert mdata.metadata["unit normalisation"] == "Normalized to 1 in year 2000"
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "dimensionless").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "DIMENSIONLESS").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
     assert (mdata.df.columns.get_level_values("VARIABLE") == "NOX_RF").all()
 
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "NH-OCEAN"][1765], 0.00668115649)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "NH-LAND"][1865], 0.526135104)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "SH-OCEAN"][1965], 0.612718845)
-    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "dimensionless", "SH-LAND"][2000], 3.70377980)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.00668115649)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526135104)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612718845)
+    np.testing.assert_allclose(mdata.df["NOX_RF", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.70377980)
 
 
 def test_load_scen():
@@ -375,18 +375,18 @@ def temp_dir():
 
 
 @pytest.mark.parametrize(
-    "starting_fpath, starting_fname",
+    "starting_fpath, starting_fname, confusing_metadata",
     [
-        (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"),
-        (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"),
-        (MAGICC6_DIR, "MIXED_NOXI_OT.IN"),
-        (MAGICC6_DIR, "RCP26.SCEN"),
-        (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN"),
-        (MAGICC7_DIR, "TESTSCEN7.SCEN7"),
+        (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False),
+        (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN", False),
+        (MAGICC6_DIR, "MIXED_NOXI_OT.IN", True),  # handling of units and gas is super weird
+        (MAGICC6_DIR, "RCP26.SCEN", True),  # metadata all over the place
+        (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN", False),
+        (MAGICC7_DIR, "TESTSCEN7.SCEN7", False),
     ],
 )
 def test_conc_in_file_read_write_functionally_identical(
-    starting_fpath, starting_fname, temp_dir
+    starting_fpath, starting_fname, confusing_metadata, temp_dir
 ):
     mi_writer = MAGICCInput()
     mi_writer.read(filepath=starting_fpath, filename=starting_fname)
@@ -406,8 +406,10 @@ def test_conc_in_file_read_write_functionally_identical(
             nml_initial["thisfile_specifications"]
         )
 
-    if not starting_fname.endswith(".SCEN"):
-        # TODO: fix writing so this isn't necessary
+    # TODO: work out how to test files with confusing metadata, the Writers
+    #       should fix the metadata but how to test that this has been fixed
+    #       as intended is the next step
+    if not confusing_metadata:
         assert mi_written.metadata == mi_initial.metadata
 
     pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
