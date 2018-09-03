@@ -7,7 +7,7 @@ Please confirm that this pull request has done the following:
 - [ ] Example added (either to an existing notebook or as a new notebook)
 - [ ] Description in CHANGELOG.md Added
 
-# Adding to CHANGELOG.md
+## Adding to CHANGELOG.md
 
 Please add a single line in the changelog notes similar to the following:
 
