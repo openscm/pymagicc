@@ -185,6 +185,8 @@ python generate_plots.py
 Please report issues or discuss feature requests on Pymagicc's
 [issue tracker](https://github.com/openclimatedata/pymagicc/issues).
 
+When creating a pull request, please append the pull request url with either `expand=1&template=new_feature.md` or `expand=1&template=bug_fix.md` in order to use the templates we provide for pull requests.
+
 You can also contact the `pymagicc` authors via email
 <robert.gieseke@pik-potsdam.de>.
 
