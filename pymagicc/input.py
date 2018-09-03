@@ -210,7 +210,7 @@ class ConcInReader(InputReader):
     def _get_variable_from_filename(self):
         regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
         try:
-            return _convert_MAGICC6_to_MAGICC7_variables(
+            return _convert_magicc6_to_magicc7_variables(
                 [regexp_capture_variable.search(self.filename).group(1)]
             )[0]
 
@@ -339,7 +339,7 @@ class ScenReader(InputReader):
             pos_block = self._stream.tell()
             region = self._stream.readline().strip()
             try:
-                variables = _convert_MAGICC6_to_MAGICC7_variables(
+                variables = _convert_magicc6_to_magicc7_variables(
                     self._read_data_header_line(self._stream, "YEARS")
                 )
             except IndexError:  # tried to get variables from empty string
@@ -396,7 +396,7 @@ class ScenReader(InputReader):
         return notes
 
 
-def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
+def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # to make the mapping two way, we can't simply use rules like e.g
     # upper() but have to instead define all the mappings
     replacements = {
@@ -434,7 +434,7 @@ def _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=False):
 
 
 def _convert_MAGICC7_to_MAGICC6_variables(variables):
-    return _convert_MAGICC6_to_MAGICC7_variables(variables, inverse=True)
+    return _convert_magicc6_to_magicc7_variables(variables, inverse=True)
 
 
 class InputWriter(object):
