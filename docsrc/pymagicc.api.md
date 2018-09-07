@@ -27,3 +27,15 @@ __Parameters__
 - __root_dir (str)__: If `root_dir` is supplied, an existing MAGICC 'setup' is
     used.
 
+<h2 id="pymagicc.api.MAGICC6">MAGICC6</h2>
+
+```python
+MAGICC6(self, root_dir=None)
+```
+
+<h2 id="pymagicc.api.MAGICC7">MAGICC7</h2>
+
+```python
+MAGICC7(self, root_dir=None)
+```
+
