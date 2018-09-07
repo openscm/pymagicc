@@ -9,7 +9,7 @@ Date: 22-Dec-2017 18:05:49
 
 Data: Historical fossil and industrial CO2 emissions
 Gas: CO2I
-Description: This emissions file was generated to complement the 2017 SSP scenarios in order to produce concentration fields for the CMIP6 experiment.
+Description: Test line by näme with ümlauts ëh ça
 Source: CEDS data from data publicly available for download in the supplementary material of Hoesly et al. GMD 2017 https://www.geosci-model-dev-discuss.net/gmd-2017-43/ These have been scaled to the 5 region level by Steve Smith before being passed to Zeb somehow.
 Contact: Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org
 

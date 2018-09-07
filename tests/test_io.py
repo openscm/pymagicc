@@ -129,10 +129,7 @@ def test_load_magicc6_conc_old_style_name_umlaut_metadata():
     mdata.read(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN")
 
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
-    assert (
-        mdata.metadata["data"]
-        == "Global average mixing ratio by näme with ümlauts ëh ça"
-    )
+    assert mdata.metadata["data"]== "Global average mixing ratio"
     generic_mdata_tests(mdata)
     np.testing.assert_allclose(mdata.df["HFC245FA_CONC", "SET", "ppt", "GLOBAL"], 0.0)
 
@@ -150,7 +147,7 @@ def test_load_magicc6_conc_old_style_name_with_hyphen():
 # TODO test for file with special characters e.g. umlauts
 
 
-def test_load_magicc7_emis():
+def test_load_magicc7_emis_umlaut_metadata():
     mdata = MAGICCData()
     mdata.read(MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN")
 
@@ -160,6 +157,7 @@ def test_load_magicc7_emis():
         mdata.metadata["contact"]
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
+    assert mdata.metadata["description"] == "Test line by näme with ümlauts ëh ça"
     assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
     # change read in to CO2I_EMIS
     np.testing.assert_allclose(

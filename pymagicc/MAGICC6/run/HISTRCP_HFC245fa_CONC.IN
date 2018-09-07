@@ -1,7 +1,7 @@
 
 __RCP Historical Concentration File: HFC245fa__
 
-Data: Global average mixing ratio by näme with ümlauts ëh ça
+Data: Global average mixing ratio
 Gas: HFC245fa
 Unit: Parts per trillion (ppt)
 Description: Historical mixing ratio before 2000 assumed zero. HFC245fa, rather than HFC245ca, is the actually used isomer.
