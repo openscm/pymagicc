@@ -1,5 +1,7 @@
 # Auto-generated pydocmd files
 docsrc/pymagicc.*
+# Auto-generated pydocmd file which isn't need yet
+docs/sitemap.xml.gz
 
 # Rendered JOSS paper
 paper/paper.pdf
