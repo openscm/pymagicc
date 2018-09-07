@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Api - Pymagicc</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Api";
+    var mkdocs_page_input_path = "api.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Pymagicc</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Overview</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc/">pymagicc</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.api/">pymagicc.api</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.input/">pymagicc.input</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.config/">pymagicc.config</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Pymagicc</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Api</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="pymagicc">pymagicc</h1>
+
+<h2 id="pymagicc.read_scen_file">read_scen_file</h2>
+
+<pre><code class="python">read_scen_file(scen_file)
+</code></pre>
+
+<p>Read a MAGICC .SCEN file</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>scen_file (str)</strong>: Path to scen_file to read</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>output (DataFrame or Dict of DataFrames)</code>: For World only scenarios, a
+single DataFrame with the data from the SCEN file. For scenarios with more
+than one region, a dictionary containing one DataFrame for each region.</p>
+<h2 id="pymagicc.write_scen_file">write_scen_file</h2>
+
+<pre><code class="python">write_scen_file(scenario, path_or_buf=None, description1=None, description2=None, comment=None)
+</code></pre>
+
+<p>Write a Dictionary of DataFrames or a DataFrame to a MAGICC <code>.SCEN</code> file.</p>
+<p>Note that it is assumed that your units match the ones which are defined
+in the units variable. This function provides no ability to convert units
+or read units from a DataFrame attribute or column.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>scenario (DataFrame or Dict of DataFrames)</strong>: If a single DataFrame is
+    supplied, the data is assumed to be for the WORLD region. If a Dict of
+    DataFrames is supplied then it is assumed that each DataFrame
+    containes data for one region.</li>
+<li><strong>path_or_buf (str or buffer)</strong>: Pathname or file-like object to which to write
+    the scenario.</li>
+<li><strong>description_1 (str)</strong>: Optional description line.</li>
+<li><strong>description_2 (str)</strong>: Optional second description line.</li>
+<li><strong>comment(str)</strong>: Optional comment at end of scenario file.</li>
+</ul>
+<h2 id="pymagicc.run">run</h2>
+
+<pre><code class="python">run(scenario, return_config=False, **kwargs)
+</code></pre>
+
+<p>Run a MAGICC scenario and return output data and (optionally) config parameters</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>return_config (bool)</strong>: If True, return the full list of parameters used. default False</li>
+<li><strong>kwargs</strong>:
+    Parameters overwriting default parameters.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<p><code>output (dict)</code>: Dictionary with all data from the MAGICC output files in
+    DataFrames
+<code>parameters (dict)</code>: Parameters used in the MAGICC run. Only returned when
+    <code>return_config</code> is set to True</p>
+<h1 id="pymagicc.api">pymagicc.api</h1>
+
+<h2 id="pymagicc.api.MAGICCBase">MAGICCBase</h2>
+
+<pre><code class="python">MAGICCBase(self, root_dir=None)
+</code></pre>
+
+<p>Provides access to the MAGICC binary and configuration.</p>
+<p>To enable multiple MAGICC 'setups' to be configured independently,
+the MAGICC directory containing the input files, configuration
+and binary is copied to a new folder. The configuration in this
+MAGICC copy can then be edited without impacting other instances or your
+original MAGICC distribution.</p>
+<p>A <code>MAGICC</code> instance first has to be setup by calling
+<code>create_copy</code>. If many model runs are being performed this step only has
+to be performed once. The <code>run</code> method can then be called many times
+without re-copying the files each time. Between each call to <code>run</code>, the
+configuration files can be updated to perform runs with different
+configurations.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>root_dir (str)</strong>: If <code>root_dir</code> is supplied, an existing MAGICC 'setup' is
+    used.</li>
+</ul>
+<h1 id="pymagicc.input">pymagicc.input</h1>
+
+<h2 id="pymagicc.input.MAGICCInput">MAGICCInput</h2>
+
+<pre><code class="python">MAGICCInput(self, filename=None)
+</code></pre>
+
+<p>An interface to read and write the input files used by MAGICC.</p>
+<p>MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
+files in a common format with a common vocabulary to simplify the process
+of reading, writing and handling MAGICC data.</p>
+<p>The MAGICCInput, once the target input file has been loaded, can be
+treated as a Pandas DataFrame. All the methods available to a DataFrame
+can be called on the MAGICCInput.</p>
+<pre><code class="python">with MAGICC6() as magicc:
+    mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
+    mdata.read(magicc.run_dir)
+    mdata.plot()
+</code></pre>
+
+<p>TODO: Write example for writing</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filename (str)</strong>: Name of the file to read</li>
+</ul>
+<h3 id="pymagicc.input.MAGICCInput.read">read</h3>
+
+<pre><code class="python">MAGICCInput.read(self, filepath=None, filename=None)
+</code></pre>
+
+<p>Read an input file from disk</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filepath (str)</strong>: The directory to file the file from. This is often the
+    run directory for a magicc instance. If None is passed,
+    the run directory for the bundled version of MAGICC6 is used.</li>
+<li><strong>filename (str)</strong>: The filename to read. Overrides any existing values.</li>
+</ul>
+<h3 id="pymagicc.input.MAGICCInput.write">write</h3>
+
+<pre><code class="python">MAGICCInput.write(self, filename)
+</code></pre>
+
+<p>TODO: Implement writing to disk</p>
+<h1 id="pymagicc.config">pymagicc.config</h1>
+
+<p>Module for collating configuration variables from various sources</p>
+<p>The order of preference is:
+Overrides &gt; Environment variable &gt; Defaults</p>
+<p>Overrides can be set using the ConfigStore</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
