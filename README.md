@@ -111,6 +111,18 @@ To format the files in `pymagicc` and `tests` as well as `setup.py` run
 make black
 ```
 
+### Building the documentation
+
+To build our documentation we use [Pydocmd](https://github.com/NiklasRosenstein/pydoc-markdown) which uses MkDocs. The configuration is located in `mkdocs.yml`.
+
+To build the documentation, simply running
+
+```sh
+make docs
+```
+
+should build the docs for you.
+
 ## More Usage Examples
 
 ### Use an included scenario
