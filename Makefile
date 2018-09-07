@@ -77,7 +77,7 @@ docs: docs/index.html
 docs/index.html: pymagicc/*.py venv
 	./venv/bin/pydocmd simple pymagicc+  > docsrc/pymagicc.md
 	./venv/bin/pydocmd simple pymagicc.api+ > docsrc/pymagicc.api.md
-	./venv/bin/pydocmd simple pymagicc.input++ > docsrc/pymagicc.input.md
+	./venv/bin/pydocmd simple pymagicc.io++ > docsrc/pymagicc.io.md
 	./venv/bin/pydocmd simple pymagicc.config > docsrc/pymagicc.config.md
 	./venv/bin/mkdocs build
 

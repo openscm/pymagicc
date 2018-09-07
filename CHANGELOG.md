@@ -1,6 +1,7 @@
 Master
 =====
 
+- (#108)[https://github.com/openclimatedata/pymagicc/pull/108] Added ability to read all files in MAGICC6 run folder (`pymagicc/MAGICC6/run`) to a common format
 
 
 1.3.2
@@ -11,7 +12,7 @@ Master
 - remove `_magiccbinary` variable
 - partial steps towards updated input/output, still not fully tested
 - add examples of file input/writing in notebook
-- add expectexception so that we can show errors in notebooks with 
+- add expectexception so that we can show errors in notebooks with
   sensible CI
 
 1.3.1
