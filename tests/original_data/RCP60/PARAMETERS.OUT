@@ -5,11 +5,11 @@
  /
  &NML_ALLCFGS
  MAGICCVERSION   = "6.8.01 BETA, 7th July 2012 - live.magicc.org                                                        ",
- PATHNAME_INFILES        = "../MAGICC_INPUT/                                                                                         
-                                                                                                                                     
+ PATHNAME_INFILES        = "../MAGICC_INPUT/
+
                   ",
- PATHNAME_OUTFILES       = "../../../../_magicc/m_e10472a240afc5955ddb687d4e91a6cf/OUT/                                              
-                                                                                                                                     
+ PATHNAME_OUTFILES       = "../../../../_magicc/m_e10472a240afc5955ddb687d4e91a6cf/OUT/
+
                   ",
  PATH_STATICCFG_FROMINFILEPATH   =           1,
  RUNDATE = "1431237713                                                                                          ",
@@ -186,7 +186,7 @@
  SLR_PERMAFROST_MMPERYEAR        =  0.113600000000000     ,
  SLR_SEDIMENT_TECTON_MMPYEAR     =  2.500000000000000E-002,
  SLR_EXPANSION_SCALING   =   1.00000000000000     ,
- FILE_SLR_HISTORIC       = "                                                                                                         
+ FILE_SLR_HISTORIC       = "
                        ",
  SLR_SWITCH_CALC2HIST    =      -10000,
  SLR_SEMIEMPI_ZERORATETEMP       = -0.500000000000000     ,
@@ -224,12 +224,12 @@
  OUT_KEYDATA_1   =           0,
  OUT_KEYDATA_2   =           1,
  RF_PREIND_REFERENCEYR   =        1750,
- RF_INITIALIZATION_METHOD        = "JUMPSTART                                                                                        
+ RF_INITIALIZATION_METHOD        = "JUMPSTART
                                ",
  RF_EXTRA_READ   =           0,
  RF_EXTRA_OFFSET =  0.000000000000000E+000,
  RF_EXTRA_FACTOR =   1.00000000000000     ,
- RF_TOTAL_RUNMODUS       = "ALL                                                                                                      
+ RF_TOTAL_RUNMODUS       = "ALL
                        ",
  RF_TOTAL_CONSTANTAFTERYR        =        2100,
  RF_TROPOZ_CONSTANTAFTERYR       =        2100,
@@ -339,8 +339,8 @@
  FILE_N2ON_EMIS  = "                                                                                                    ",
  FILE_NOXI_EMIS  = "HISTRCP_NOXI_EMIS.IN                                                                                ",
  FILE_NOXB_EMIS  = "HISTRCP_NOXB_EMIS.IN                                                                                ",
- FILE_NH3I_EMIS  = "EDGAR_NOX_EMIS_FOSSIL&IND.IN                                                                        ",
- FILE_NH3B_EMIS  = "EDGAR_NOX_EMIS_LANDUSE.IN                                                                           ",
+ FILE_NH3I_EMIS  = "EDGAR_NOXI_EMIS.IN                                                                        ",
+ FILE_NH3B_EMIS  = "EDGAR_NOXB_EMIS.IN                                                                           ",
  FILE_NMVOCI_EMIS        = "HISTRCP_NMVOCI_EMIS.IN                                                                              ",
  FILE_NMVOCB_EMIS        = "HISTRCP_NMVOCB_EMIS.IN                                                                              ",
  FILE_SOXI_EMIS  = "HISTRCP_SOXI_EMIS.IN                                                                                ",
@@ -384,27 +384,27 @@
  CLOUD_APPLY_LIMIT_MAX   =           0,
  CLOUD_LIMIT_MAX =  0.000000000000000E+000,
  FGAS_NAMES      = "CF4                                               ", "C2F6                                              ", "C6F14
-                                             ", "HFC23                                             ", "HFC32                         
+                                             ", "HFC23                                             ", "HFC32
                     ", "HFC43_10                                          ", "HFC125                                            ", "H
-FC134a                                           ", "HFC143a                                           ", "HFC227ea                  
+FC134a                                           ", "HFC143a                                           ", "HFC227ea
                         ", "HFC245fa                                          ", "SF6                                               "
  ,
  FILE_FGAS_EMIS  = "HISTRCP_CF4_EMIS.IN                               ", "HISTRCP_C2F6_EMIS.IN                              ", "HISTR
-CP_C6F14_EMIS.IN                             ", "HISTRCP_HFC23_EMIS.IN                             ", "HISTRCP_HFC32_EMIS.IN         
+CP_C6F14_EMIS.IN                             ", "HISTRCP_HFC23_EMIS.IN                             ", "HISTRCP_HFC32_EMIS.IN
                     ", "                                                  ", "HISTRCP_HFC125_EMIS.IN                            ", "H
-ISTRCP_HFC134a_EMIS.IN                           ", "HISTRCP_HFC143a_EMIS.IN                           ", "HISTRCP_HFC227EA_EMIS.IN  
+ISTRCP_HFC134a_EMIS.IN                           ", "HISTRCP_HFC143a_EMIS.IN                           ", "HISTRCP_HFC227EA_EMIS.IN
                         ", "HISTRCP_HFC245fa_EMIS.IN                          ", "HISTRCP_SF6_EMIS.IN                               "
  ,
  FILE_FGAS_CONC  = "HISTRCP_CF4_CONC.IN                               ", "HISTRCP_C2F6_CONC.IN                              ", "HISTR
-CP_C6F14_CONC.IN                             ", "HISTRCP_HFC23_CONC.IN                             ", "HISTRCP_HFC32_CONC.IN         
+CP_C6F14_CONC.IN                             ", "HISTRCP_HFC23_CONC.IN                             ", "HISTRCP_HFC32_CONC.IN
                     ", "HISTRCP_HFC43-10_CONC.IN                          ", "HISTRCP_HFC125_CONC.IN                            ", "H
-ISTRCP_HFC134a_CONC.IN                           ", "HISTRCP_HFC143a_CONC.IN                           ", "HISTRCP_HFC227EA_CONC.IN  
+ISTRCP_HFC134a_CONC.IN                           ", "HISTRCP_HFC143a_CONC.IN                           ", "HISTRCP_HFC227EA_CONC.IN
                         ", "HISTRCP_HFC245fa_CONC.IN                          ", "HISTRCP_SF6_CONC.IN                               "
  ,
  FGAS_FORMULA    = "(CF4)                                             ", "(C2F6)                                            ", "(C6F1
-4)                                           ", "(CHF3)                                            ", "(CH2F2)                       
+4)                                           ", "(CHF3)                                            ", "(CH2F2)
                     ", "(C5H2F10)                                         ", "(CHF2CF3)                                         ", "(
-CH2FCF3)                                         ", "(CH3CF3)                                          ", "(C3HF7)                   
+CH2FCF3)                                         ", "(CH3CF3)                                          ", "(C3HF7)
                         ", "(C3H3F5)                                          ", "(SF6)                                             "
  ,
  FGAS_CL_ATOMS   = 12*0,
@@ -422,7 +422,7 @@ CH2FCF3)                                         ", "(CH3CF3)                   
     7.60000000000000     ,  0.000000000000000E+000,
  FGAS_TAU_STRAT  = 12*0.000000000000000E+000  ,
  FGAS_EFF_MIXBOXSIZE     = 2*0.969000000000000       ,  0.968000000000000     , 8*0.949000000000000       ,  0.968000000000000     ,
- FGAS_RADIATIVE_EFFICIENCY       =  0.100000000000000     ,  0.260000000000000     ,  0.490000000000000     ,  0.190000000000000     
+ FGAS_RADIATIVE_EFFICIENCY       =  0.100000000000000     ,  0.260000000000000     ,  0.490000000000000     ,  0.190000000000000
  ,  0.110000000000000     ,  0.400000000000000     ,  0.230000000000000     ,  0.160000000000000     ,  0.130000000000000     ,
    0.260000000000000     ,  0.280000000000000     ,  0.520000000000000     ,
  FGAS_FRACT_RELEASEFACTOR        = 12*0.000000000000000E+000  ,
@@ -435,18 +435,18 @@ CH2FCF3)                                         ", "(CH3CF3)                   
  FGAS_RF_REGIONSCALING_LOWERTAU  =   1.00000000000000     ,
  FGAS_RF_REGIONSCALING_UPPERTAU  =   8.00000000000000     ,
  MHALO_NAMES     = "CFC_11                                            ", "CFC_12                                            ", "CFC_1
-13                                           ", "CFC_114                                           ", "CFC_115                       
+13                                           ", "CFC_114                                           ", "CFC_115
                     ", "CARB_TET                                          ", "MCF                                               ", "H
-CFC_22                                           ", "HCFC_141B                                         ", "HCFC_142B                 
+CFC_22                                           ", "HCFC_141B                                         ", "HCFC_142B
                         ", "HALON1211                                         ", "HALON1202                                         "
- , "HALON1301                                         ", "HALON2402                                         ", "CH3BR                
+ , "HALON1301                                         ", "HALON2402                                         ", "CH3BR
                              ", "CH3CL                                             ",
  MHALO_FORMULA   = "(CCL3F)                                           ", "(CCL2F2)                                          ", "(C2CL
-3F3)                                         ", "(C2CL2F4)                                         ", "(C2CLF5)                      
+3F3)                                         ", "(C2CL2F4)                                         ", "(C2CLF5)
                     ", "(CCL4)                                            ", "(CH3CCL3)                                         ", "(
-CHCLF2)                                          ", "(CH3CCL2F)                                        ", "(CH3CCLF2)                
+CHCLF2)                                          ", "(CH3CCL2F)                                        ", "(CH3CCLF2)
                         ", "(CF2CLBR)                                         ", "(CBR2F2)                                          "
- , "(CF3BR)                                           ", "((CF2BR)2)                                        ", "(CH3BR)              
+ , "(CF3BR)                                           ", "((CF2BR)2)                                        ", "(CH3BR)
                              ", "(CH3CL)                                           ",
  MHALO_CL_ATOMS  =           3,           2,           3,           2,           1,           4,           3,           1,
             2, 2*1, 4*0,           1,
@@ -532,7 +532,7 @@ CHCLF2)                                          ", "(CH3CCL2F)                 
  GEN_RCPREGIONS2NH       =  0.900000000000000     ,   1.00000000000000     ,  0.800000000000000     ,  0.600000000000000     ,
    0.300000000000000     ,
  GEN_RCPPLUSREGIONS2NH   =  0.900000000000000     ,   1.00000000000000     ,  0.800000000000000     ,  0.600000000000000     ,
-   0.300000000000000     ,  0.900000000000000     
+   0.300000000000000     ,  0.900000000000000
  /
  &NML_OUTPUTCFGS
  OUTPUT_OCEANVOLUME      =  0.000000000000000E+000,
@@ -575,6 +575,6 @@ CHCLF2)                                          ", "(CH3CCL2F)                 
  RFSUB_REGIONS_CLOUD_COVER       = 4*0.000000000000000E+000  ,
  RFSUB_REGIONS_CLOUD_ALBEDO      = 4*0.000000000000000E+000  ,
  RFSUB_REGIONS_DUST      = 4*0.000000000000000E+000  ,
- ERRORLOG        = "                                                                                                                 
+ ERRORLOG        = "
                                                                                        "
  /
