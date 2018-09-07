@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>pymagicc.input - Pymagicc</title>
+  <title>Pymagicc.input - Pymagicc</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "pymagicc.input";
+    var mkdocs_page_name = "Pymagicc.input";
     var mkdocs_page_input_path = "pymagicc.input.md";
     var mkdocs_page_url = null;
   </script>
@@ -50,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="..">Overview</a>
+    <a class="" href="../index.md">Overview</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -63,12 +63,9 @@
     <a class="" href="../pymagicc.api/">pymagicc.api</a>
 	    </li>
           
-            <li class="toctree-l1 current">
+            <li class="toctree-l1">
 		
-    <a class="current" href="./">pymagicc.input</a>
-    <ul class="subnav">
-            
-    </ul>
+    <a class="" href="../pymagicc.io/">pymagicc.io</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -98,7 +95,7 @@
     
       
     
-    <li>pymagicc.input</li>
+    <li>Pymagicc.input</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -108,118 +105,11 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="pymagicc.input">pymagicc.input</h1>
-
-<h2 id="pymagicc.input.InputReader">InputReader</h2>
-
-<pre><code class="python">InputReader(self, filename)
-</code></pre>
-
-<h3 id="pymagicc.input.InputReader.header_tags">header_tags</h3>
-
-<p>list() -&gt; new empty list
-list(iterable) -&gt; new list initialized from iterable's items
-<h3 id="pymagicc.input.InputReader.process_data">process_data</h3></p>
-<pre><code class="python">InputReader.process_data(self, stream, metadata)
-</code></pre>
-
-<p>Extract the tabulated data from the input file</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>stream (Streamlike object)</strong>: A Streamlike object (nominally StringIO)
-    containing the table to be extracted</li>
-<li><strong>metadata (dict)</strong>: metadata read in from the header and the namelist</li>
-</ul>
-<p><strong>Returns</strong></p>
-<p><code>df (pandas.DataFrame)</code>: contains the data, processed to the standard
-    MAGICCInput format
-<code>metadata (dict)</code>: updated metadata based on the processing performed</p>
-<h3 id="pymagicc.input.InputReader.process_header">process_header</h3>
-
-<pre><code class="python">InputReader.process_header(self, header)
-</code></pre>
-
-<p>Parse the header for additional metadata</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>header (str)</strong>: all the lines in the header</li>
-</ul>
-<p><strong>Returns</strong></p>
-<p><code>return (dict)</code>: the metadata in the header</p>
-<h2 id="pymagicc.input.InputWriter">InputWriter</h2>
-
-<pre><code class="python">InputWriter(self)
-</code></pre>
-
-<h3 id="pymagicc.input.InputWriter.write">write</h3>
-
-<pre><code class="python">InputWriter.write(self, magicc_input, filename, filepath=None)
-</code></pre>
-
-<p>Write a MAGICC input file from df and metadata</p>
-<p><strong>Arguments</strong></p>
-<ul>
-<li><strong>magicc_input (MAGICCInput)</strong>: a MAGICCInput object which holds the data
-    to write</li>
-<li><strong>filename (str)</strong>: name of file to write to</li>
-<li><strong>filepath (str)</strong>: path in which to write file. If not provided,</li>
-<li><strong>the file will be written in the current directory (TODO</strong>: check this is true...)</li>
-</ul>
-<h2 id="pymagicc.input.MAGICCInput">MAGICCInput</h2>
-
-<pre><code class="python">MAGICCInput(self, filename=None)
-</code></pre>
-
-<p>An interface to read and write the input files used by MAGICC.</p>
-<p>MAGICCInput can read input files from both MAGICC6 and MAGICC7. It returns
-files in a common format with a common vocabulary to simplify the process
-of reading, writing and handling MAGICC data.</p>
-<p>The MAGICCInput, once the target input file has been loaded, can be
-treated as a Pandas DataFrame. All the methods available to a DataFrame
-can be called on the MAGICCInput.</p>
-<pre><code class="python">with MAGICC6() as magicc:
-    mdata = MAGICCInput('HISTRCP_CO2I_EMIS.IN')
-    mdata.read(magicc.run_dir)
-    mdata.plot()
-</code></pre>
-
-<p>TODO: Write example for writing</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><strong>filename (str)</strong>: Name of the file to read</li>
-</ul>
-<h3 id="pymagicc.input.MAGICCInput.read">read</h3>
-
-<pre><code class="python">MAGICCInput.read(self, filepath=None, filename=None)
-</code></pre>
-
-<p>Read an input file from disk</p>
-<p><strong>Parameters</strong></p>
-<ul>
-<li><strong>filepath (str)</strong>: The directory to file the file from. This is often the
-    run directory for a magicc instance. If None is passed,
-    the run directory for the bundled version of MAGICC6 is used.</li>
-<li><strong>filename (str)</strong>: The filename to read. Overrides any existing values.</li>
-</ul>
-<h3 id="pymagicc.input.MAGICCInput.write">write</h3>
-
-<pre><code class="python">MAGICCInput.write(self, filename, filepath=None)
-</code></pre>
-
-<p>TODO: Implement writing to disk</p>
+                
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../pymagicc.config/" class="btn btn-neutral float-right" title="pymagicc.config">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../pymagicc.api/" class="btn btn-neutral" title="pymagicc.api"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -243,10 +133,6 @@ can be called on the MAGICCInput.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../pymagicc.api/" style="color: #fcfcfc;">&laquo; Previous</a></span>
-      
-      
-        <span style="margin-left: 15px"><a href="../pymagicc.config/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
