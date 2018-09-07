@@ -7,24 +7,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="None">
   
-  <link rel="shortcut icon" href="./img/favicon.ico">
+  <link rel="shortcut icon" href="img/favicon.ico">
   <title>Overview - Pymagicc</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="./css/highlight.css">
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Overview";
     var mkdocs_page_input_path = "index.md";
-    var mkdocs_page_url = "/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="./js/jquery-2.1.1.min.js"></script>
-  <script src="./js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="./js/highlight.pack.js"></script> 
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -38,7 +39,7 @@
         <a href="." class="icon icon-home"> Pymagicc</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -130,8 +131,8 @@
 <table>
 <thead>
 <tr>
-<th align="left"><a href="https://travis-ci.org/openclimatedata/pymagicc"><img alt="Build Status" src="https://img.shields.io/travis/openclimatedata/pymagicc.svg" /></a></th>
-<th align="left"><a href="https://ci.appveyor.com/project/openclimatedata/pymagicc"><img alt="AppVeyor" src="https://img.shields.io/appveyor/ci/openclimatedata/pymagicc.svg" /></a></th>
+<th align="left"><a href="https://travis-ci.org/openclimatedata/pymagicc"><img alt="Build Status" src="https://travis-ci.org/openclimatedata/pymagicc.svg?branch=master" /></a></th>
+<th align="left"><a href="https://ci.appveyor.com/project/openclimatedata/pymagicc"><img alt="AppVeyor" src="https://img.shields.io/appveyor/ci/openclimatedata/pymagicc/master.svg" /></a></th>
 </tr>
 </thead>
 <tbody>
@@ -176,7 +177,7 @@ plt.ylabel(u&quot;°C over pre-industrial (1850-1900 mean)&quot;)
 # interactively or add `%matplotlib inline` on top when in a Jupyter Notebook.
 </code></pre>
 
-<p><img alt="" src="./scripts/example-plot.png" /></p>
+<p><img alt="" src="scripts/example-plot.png" /></p>
 <p>For more example usage see this <a href="https://github.com/openclimatedata/pymagicc/blob/master/notebooks/Example.ipynb">Jupyter Notebook</a>.
 Thanks to the <a href="https://mybinder.org">Binder project</a> the <a href="https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb">Notebook</a> can be run and modified without installing anything locally. A small interactive <a href="https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb">demo app</a> using Jupyter Notebook's <a href="https://github.com/oschuett/appmode/">appmode extension</a>
 is also available.</p>
@@ -286,6 +287,10 @@ python generate_plots.py
 <h2 id="contributing">Contributing</h2>
 <p>Please report issues or discuss feature requests on Pymagicc's
 <a href="https://github.com/openclimatedata/pymagicc/issues">issue tracker</a>.</p>
+<p>When creating a pull request, please append the pull request url with either <code>expand=1&amp;template=new_feature.md</code> or <code>expand=1&amp;template=bug_fix.md</code> in order to use the templates we provide for pull requests.
+For example, when you land on the page with title 'Open a pull request' (either after hitting 'New Pull Request' --&gt; 'Create Pull Request' or by some other means), your url will look something like 'https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template'.
+Adding 'expand=1&amp;template=bug_fix.md' to this makes it 'https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template?expand=1&amp;template=new_feature.md'.
+If you then refresh the page, you will then see that the template is automatically added to the pull request for you.</p>
 <p>You can also contact the <code>pymagicc</code> authors via email
 <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#114;&#111;&#98;&#101;&#114;&#116;&#46;&#103;&#105;&#101;&#115;&#101;&#107;&#101;&#64;&#112;&#105;&#107;&#45;&#112;&#111;&#116;&#115;&#100;&#97;&#109;&#46;&#100;&#101;">&#114;&#111;&#98;&#101;&#114;&#116;&#46;&#103;&#105;&#101;&#115;&#101;&#107;&#101;&#64;&#112;&#105;&#107;&#45;&#112;&#111;&#116;&#115;&#100;&#97;&#109;&#46;&#100;&#101;</a>.</p>
 <h2 id="license">License</h2>
@@ -343,14 +348,13 @@ for further information.</p>
     </span>
 </div>
     <script>var base_url = '.';</script>
-    <script src="./js/theme.js"></script>
-      <script src="./search/require.js"></script>
-      <script src="./search/search.js"></script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
 
 </body>
 </html>
 
 <!--
-MkDocs version : 0.17.3
-Build Date UTC : 2018-07-12 14:14:00
+MkDocs version : 1.0.3
+Build Date UTC : 2018-09-07 14:34:15
 -->
