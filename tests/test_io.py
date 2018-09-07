@@ -37,7 +37,7 @@ def test_cant_find_reader_writer():
             "of the following types and the filename must match its "
             "corresponding regular expression:"
         )
-        + r"\n"
+        + r"(\n.*)*"  # dicts aren't ordered in Python3.5
         + re.escape("SCEN: ^.*\\.SCEN$")
         + r"(\n.*)*$"
     )
