@@ -1,3 +1,7 @@
+# Auto-generated pydocmd files
+docsrc/pymagicc.*
+
+# Rendered JOSS paper
 paper/paper.pdf
 
 # Byte-compiled / optimized / DLL files
