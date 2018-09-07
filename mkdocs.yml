@@ -5,6 +5,6 @@ pages:
   - Overview: index.md
   - pymagicc: pymagicc.md
   - pymagicc.api: pymagicc.api.md
-  - pymagicc.input: pymagicc.input.md
+  - pymagicc.io: pymagicc.io.md
   - pymagicc.config: pymagicc.config.md
 theme: readthedocs
