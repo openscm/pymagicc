@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>pymagicc.io - Pymagicc</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "pymagicc.io";
+    var mkdocs_page_input_path = "pymagicc.io.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Pymagicc</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.md">Overview</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc/">pymagicc</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.api/">pymagicc.api</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">pymagicc.io</a>
+    <ul class="subnav">
+            
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.config/">pymagicc.config</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Pymagicc</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>pymagicc.io</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="pymagicc.io">pymagicc.io</h1>
+
+<h2 id="pymagicc.io.MAGICCData">MAGICCData</h2>
+
+<pre><code class="python">MAGICCData(self, filename=None)
+</code></pre>
+
+<p>An interface to read and write the input files used by MAGICC.</p>
+<p>MAGICCData can read input files from both MAGICC6 and MAGICC7. It returns
+files in a common format with a common vocabulary to simplify the process
+of reading, writing and handling MAGICC data.</p>
+<p>MAGICCData, once the target input file has been loaded, can be
+treated as a Pandas DataFrame. All the methods available to a DataFrame
+can be called on MAGICCData.</p>
+<pre><code class="python">&gt;&gt;&gt; with MAGICC6() as magicc:
+&gt;&gt;&gt;     mdata = MAGICCData(&quot;HISTRCP_CO2I_EMIS.IN&quot;)
+&gt;&gt;&gt;     mdata.read(magicc.run_dir)
+&gt;&gt;&gt;     mdata.plot()
+</code></pre>
+
+<p>A MAGICCData instance can also be used to write files e.g.</p>
+<pre><code class="python">&gt;&gt;&gt; with MAGICC6() as magicc:
+&gt;&gt;&gt;     mdata = MAGICCData(&quot;HISTRCP_CO2I_EMIS.IN&quot;)
+&gt;&gt;&gt;     mdata.read(magicc.run_dir)
+&gt;&gt;&gt;     mdata.write(&quot;EXAMPLE_CO2I_EMIS.IN&quot;, &quot;./&quot;)
+</code></pre>
+
+<p>See <code>notebooks/Input-Examples.ipynb</code> for further usage examples.</p>
+<p><strong>Initialisation parameters</strong></p>
+<p>filename (str): Optional file name, including extension, for the target
+    file, i.e. 'HISTRCP_CO2I_EMIS.IN'. The file is not read until the search
+    directory is provided in <code>read</code>. This allows for MAGICCData files to be
+    lazy-loaded once the appropriate MAGICC run directory is known.</p>
+<h3 id="pymagicc.io.MAGICCData.read">read</h3>
+
+<pre><code class="python">MAGICCData.read(self, filepath=None, filename=None)
+</code></pre>
+
+<p>Read an input file from disk</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filepath (str)</strong>: The directory to read the file from. This is often the
+    run directory for a magicc instance. If None is passed,
+    the run directory for the version of MAGICC6 included in pymagicc
+    is used.</li>
+<li><strong>filename (str)</strong>: The filename to read. Overrides any existing values.
+    If None is passed, the filename used to initialise the MAGICCData
+    instance is used.</li>
+</ul>
+<h3 id="pymagicc.io.MAGICCData.write">write</h3>
+
+<pre><code class="python">MAGICCData.write(self, filename_to_write, filepath=None)
+</code></pre>
+
+<p>Write an input file from disk</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filename_to_write (str)</strong>: The name of the file to write. The filename
+    is critically important as it tells MAGICC what kind of file to
+    write.</li>
+<li><strong>filepath_to_write (str)</strong>: The directory to write the file to. This is
+    often the run directory for a magicc instance. If None is passed,
+    the current working directory is used.</li>
+</ul>
+<h3 id="pymagicc.io.MAGICCData.determine_tool">determine_tool</h3>
+
+<pre><code class="python">MAGICCData.determine_tool(self, filename, tool_to_get)
+</code></pre>
+
+<p>Determine the tool to use for reading/writing</p>
+<p>The function uses an internally defined set of mappings between filenames,
+regular expresions and readers/writers to work out which tool to use
+for a given task, given the filename.</p>
+<p>It is intended for internal use only, but is public because of its
+importance to the input/output of pymagicc.</p>
+<p>If it fails, it will give clear error messages about why and what the
+available regular expressions are.</p>
+<pre><code class="python">&gt;&gt;&gt; mdata = MAGICCData()
+&gt;&gt;&gt; mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
+ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
+The file must be one of the following types and the filename must match its corresponding regular expression:
+SCEN: ^.*\.SCEN$
+SCEN7: ^.*\.SCEN7$
+prn: ^.*\.prn$
+</code></pre>
+
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filename (str)</strong>: Name of the file to read/write, including extension</li>
+<li><strong>tool_to_get (str)</strong>: The tool to get, valid options are "reader", "writer".
+    Invalid values will throw a KeyError.</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../pymagicc.config/" class="btn btn-neutral float-right" title="pymagicc.config">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../pymagicc.api/" class="btn btn-neutral" title="pymagicc.api"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../pymagicc.api/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../pymagicc.config/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>

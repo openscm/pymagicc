@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>pymagicc - Pymagicc</title>
+  <title>Api - Pymagicc</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "pymagicc";
-    var mkdocs_page_input_path = "pymagicc.md";
+    var mkdocs_page_name = "Api";
+    var mkdocs_page_input_path = "api.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -53,12 +53,9 @@
     <a class="" href="../index.md">Overview</a>
 	    </li>
           
-            <li class="toctree-l1 current">
+            <li class="toctree-l1">
 		
-    <a class="current" href="./">pymagicc</a>
-    <ul class="subnav">
-            
-    </ul>
+    <a class="" href="../pymagicc/">pymagicc</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -98,7 +95,7 @@
     
       
     
-    <li>pymagicc</li>
+    <li>Api</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -162,17 +159,84 @@ or read units from a DataFrame attribute or column.</p>
     DataFrames
 <code>parameters (dict)</code>: Parameters used in the MAGICC run. Only returned when
     <code>return_config</code> is set to True</p>
+<h1 id="pymagicc.api">pymagicc.api</h1>
+
+<h2 id="pymagicc.api.MAGICCBase">MAGICCBase</h2>
+
+<pre><code class="python">MAGICCBase(self, root_dir=None)
+</code></pre>
+
+<p>Provides access to the MAGICC binary and configuration.</p>
+<p>To enable multiple MAGICC 'setups' to be configured independently,
+the MAGICC directory containing the input files, configuration
+and binary is copied to a new folder. The configuration in this
+MAGICC copy can then be edited without impacting other instances or your
+original MAGICC distribution.</p>
+<p>A <code>MAGICC</code> instance first has to be setup by calling
+<code>create_copy</code>. If many model runs are being performed this step only has
+to be performed once. The <code>run</code> method can then be called many times
+without re-copying the files each time. Between each call to <code>run</code>, the
+configuration files can be updated to perform runs with different
+configurations.</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>root_dir (str)</strong>: If <code>root_dir</code> is supplied, an existing MAGICC 'setup' is
+    used.</li>
+</ul>
+<h1 id="pymagicc.io">pymagicc.io</h1>
+
+<h2 id="pymagicc.io.MAGICCData">MAGICCData</h2>
+
+<pre><code class="python">MAGICCData(self, filename=None)
+</code></pre>
+
+<p>An interface to read and write the input files used by MAGICC.</p>
+<p>MAGICCData can read input files from both MAGICC6 and MAGICC7. It returns
+files in a common format with a common vocabulary to simplify the process
+of reading, writing and handling MAGICC data.</p>
+<p>The MAGICCData, once the target input file has been loaded, can be
+treated as a Pandas DataFrame. All the methods available to a DataFrame
+can be called on the MAGICCData.</p>
+<pre><code class="python">with MAGICC6() as magicc:
+    mdata = MAGICCData('HISTRCP_CO2I_EMIS.IN')
+    mdata.read(magicc.run_dir)
+    mdata.plot()
+</code></pre>
+
+<p>TODO: Write example for writing</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filename (str)</strong>: Name of the file to read</li>
+</ul>
+<h3 id="pymagicc.io.MAGICCData.read">read</h3>
+
+<pre><code class="python">MAGICCData.read(self, filepath=None, filename=None)
+</code></pre>
+
+<p>Read an input file from disk</p>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><strong>filepath (str)</strong>: The directory to file the file from. This is often the
+    run directory for a magicc instance. If None is passed,
+    the run directory for the bundled version of MAGICC6 is used.</li>
+<li><strong>filename (str)</strong>: The filename to read. Overrides any existing values.</li>
+</ul>
+<h3 id="pymagicc.io.MAGICCData.write">write</h3>
+
+<pre><code class="python">MAGICCData.write(self, filename)
+</code></pre>
+
+<p>TODO: Implement writing to disk</p>
+<h1 id="pymagicc.config">pymagicc.config</h1>
+
+<p>Module for collating configuration variables from various sources</p>
+<p>The order of preference is:
+Overrides &gt; Environment variable &gt; Defaults</p>
+<p>Overrides can be set using the ConfigStore</p>
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="../pymagicc.api/" class="btn btn-neutral float-right" title="pymagicc.api">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>
@@ -196,8 +260,6 @@ or read units from a DataFrame attribute or column.</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-      
-        <span style="margin-left: 15px"><a href="../pymagicc.api/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
