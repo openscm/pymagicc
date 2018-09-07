@@ -1,10 +1,20 @@
 # Auto-generated pydocmd files
 docsrc/pymagicc.*
-# Auto-generated pydocmd file which isn't need yet
+
+# Auto-generated pydocmd file which is binary and not really needed
 docs/sitemap.xml.gz
+
+# Virtualenv
+venv/
+ENV/
 
 # Rendered JOSS paper
 paper/paper.pdf
+
+# Coverage testing data file
+.coverage
+
+.cache
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -49,11 +59,3 @@ pip-delete-this-directory.txt
 
 # dotenv
 .env
-
-# virtualenv
-venv/
-ENV/
-
-.cache
-.coverage
-*.DS_Store
