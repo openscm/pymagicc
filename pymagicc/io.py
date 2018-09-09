@@ -1249,17 +1249,23 @@ class MAGICCData(object):
             If None is passed, the filename used to initialise the MAGICCData
             instance is used.
         """
+        file_to_read = self._get_full_file(filepath=filepath, filename=filename)
+
+        reader_tool = self.determine_tool(file_to_read, "reader")
+        reader = reader_tool(file_to_read)
+        self.metadata, self.df = reader.read()
+
+    def _get_full_file(self, filepath=None, filename=None):
         if filepath is None:
             filepath = MAGICC6().original_dir
         if filename is not None:
             self.filename = filename
         assert self.filename is not None
 
-        file_to_read = join(filepath, self.filename)
-        _check_file_exists(file_to_read)
+        full_file_name = join(filepath, self.filename)
+        _check_file_exists(full_file_name)
 
-        reader = self.determine_tool(file_to_read, "reader")(file_to_read)
-        self.metadata, self.df = reader.read()
+        return full_file_name
 
     def write(self, filename_to_write, filepath=None):
         """
@@ -1267,13 +1273,20 @@ class MAGICCData(object):
 
         # Parameters
         filename_to_write (str): The name of the file to write. The filename
-            is critically important as it tells MAGICC what kind of file to
-            write.
-        filepath_to_write (str): The directory to write the file to. This is
+            is critically important as it tells MAGICCData which writer to use.
+        filepath (str): The directory to write the file to. This is
             often the run directory for a magicc instance. If None is passed,
             the current working directory is used.
         """
-        writer = self.determine_tool(filename_to_write, "writer")()
+
+        # TODO: check with Jared, this is how I think this should really work
+        """
+        fullfile_to_write = self._get_full_file(filepath=filepath, filename=filename_to_write)
+        writer = writer_tool()
+        writer.write(self, fullfile_to_write)
+        """
+        writer_tool = self.determine_tool(filename_to_write, "writer")
+        writer = writer_tool()
         writer.write(self, filename_to_write, filepath)
 
     def determine_tool(self, filename, tool_to_get):
