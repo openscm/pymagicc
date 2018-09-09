@@ -21,7 +21,7 @@ from pymagicc.io import (
 )
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
-MAGICC7_DIR = join(dirname(__file__), "test_data")
+TEST_DATA_DIR = join(dirname(__file__), "test_data")
 
 
 def test_cant_find_reader_writer():
@@ -43,7 +43,7 @@ def test_cant_find_reader_writer():
     )
 
     with pytest.raises(ValueError, match=expected_message):
-        mdata.read(MAGICC7_DIR, test_filename)
+        mdata.read(TEST_DATA_DIR, test_filename)
 
     expected_message = expected_message.replace("reader", "writer")
     with pytest.raises(ValueError, match=expected_message):
@@ -54,7 +54,7 @@ def test_get_invalid_tool():
     mdata = MAGICCData()
     junk_tool = "junk tool"
     expected_error_msg = (
-        r'^\"?'
+        r"^\"?"
         + re.escape(
             "MAGICCData does not know how to get a {}, "
             "valid options are:".format(junk_tool)
@@ -63,6 +63,7 @@ def test_get_invalid_tool():
     )
     with pytest.raises(KeyError, match=expected_error_msg):
         mdata.determine_tool("EXAMPLE.SCEN", junk_tool)
+
 
 def generic_mdata_tests(mdata):
     "Resusable tests to ensure data format."
@@ -113,6 +114,19 @@ def test_load_magicc5_emis():
     np.testing.assert_allclose(mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][1751], 0.0)
 
 
+def test_load_magicc5_emis_not_renamed_error():
+    mdata = MAGICCData()
+
+    test_filepath = TEST_DATA_DIR
+    test_filename = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
+
+    expected_error_msg = "Cannot determine variable from filename: {}".format(
+        join(test_filepath, test_filename)
+    )
+    with pytest.raises(ValueError, match=expected_error_msg):
+        mdata.read(test_filepath, test_filename)
+
+
 def test_load_magicc6_conc():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
@@ -129,7 +143,7 @@ def test_load_magicc6_conc_old_style_name_umlaut_metadata():
     mdata.read(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN")
 
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
-    assert mdata.metadata["data"]== "Global average mixing ratio"
+    assert mdata.metadata["data"] == "Global average mixing ratio"
     generic_mdata_tests(mdata)
     np.testing.assert_allclose(mdata.df["HFC245FA_CONC", "SET", "ppt", "GLOBAL"], 0.0)
 
@@ -144,12 +158,9 @@ def test_load_magicc6_conc_old_style_name_with_hyphen():
     np.testing.assert_allclose(mdata.df["HFC4310_CONC", "SET", "ppt", "GLOBAL"], 0.0)
 
 
-# TODO test for file with special characters e.g. umlauts
-
-
 def test_load_magicc7_emis_umlaut_metadata():
     mdata = MAGICCData()
-    mdata.read(MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN")
+    mdata.read(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
 
     generic_mdata_tests(mdata)
 
@@ -419,7 +430,7 @@ def test_load_scen_sres():
 
 def test_load_scen7():
     mdata = MAGICCData()
-    mdata.read(MAGICC7_DIR, "TESTSCEN7.SCEN7")
+    mdata.read(TEST_DATA_DIR, "TESTSCEN7.SCEN7")
 
     generic_mdata_tests(mdata)
 
@@ -683,7 +694,7 @@ def test_load_cfg():
 
 @pytest.mark.xfail(reason="f90nml cannot handle / in namelist properly")
 def test_load_cfg_with_slash_in_units():
-    cfg = read_cfg_file(join(MAGICC7_DIR, "F90NML_BUG.CFG"))
+    cfg = read_cfg_file(join(TEST_DATA_DIR, "F90NML_BUG.CFG"))
 
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] == 4
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"] == 1000
@@ -696,7 +707,7 @@ def test_load_cfg_with_slash_in_units():
 
 def test_load_prename():
     mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
-    mdata.read(MAGICC7_DIR)
+    mdata.read(TEST_DATA_DIR)
 
     assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
 
@@ -838,7 +849,7 @@ def test_set_lines():
     with pytest.raises(FileNotFoundError):
         reader._set_lines()
 
-    test_file = join(MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN")
+    test_file = join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
     assert isfile(test_file)
 
     reader = _InputReader(test_file)
@@ -861,7 +872,7 @@ def test_conc_in_reader_get_variable_from_filename(test_filename, expected_varia
         expected_message = re.escape(
             "Cannot determine variable from filename: {}".format(test_filename)
         )
-        with pytest.raises(SyntaxError, match=expected_message):
+        with pytest.raises(ValueError, match=expected_message):
             conc_reader._get_variable_from_filename()
     else:
         assert conc_reader._get_variable_from_filename() == expected_variable
@@ -892,7 +903,7 @@ def temp_dir():
         (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False),
         (MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN", True),  # weird units handling
         (MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN", True),  # weird units handling
-        (MAGICC7_DIR, "HISTSSP_CO2I_EMIS.IN", False),
+        (TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN", False),
         (MAGICC6_DIR, "MIXED_NOXI_OT.IN", True),  # weird units handling
         (MAGICC6_DIR, "GISS_BCB_RF.IN", True),  # weird units handling
         (MAGICC6_DIR, "HISTRCP_SOLAR_RF.IN", True),  # weird units handling
@@ -909,7 +920,7 @@ def temp_dir():
         ),  # weird units and notes handling
         (MAGICC6_DIR, "RCP26.SCEN", True),  # metadata all over the place
         (MAGICC6_DIR, "SRESA1B.SCEN", True),  # metadata all over the place
-        (MAGICC7_DIR, "TESTSCEN7.SCEN7", False),
+        (TEST_DATA_DIR, "TESTSCEN7.SCEN7", False),
     ],
 )
 def test_conc_in_file_read_write_functionally_identical(
