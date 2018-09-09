@@ -843,7 +843,7 @@ def test_set_lines():
 
     reader = _InputReader(test_file)
     reader._set_lines()
-    with open(test_file) as f:
+    with open(test_file, "r", encoding="utf-8", newline="\n") as f:
         assert reader.lines == f.readlines()
 
 
