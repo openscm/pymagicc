@@ -15,5 +15,5 @@ install:
   - "%PYTHON%/Scripts/pip.exe install ."
 
 test_script:
-  - "%PYTHON%/Scripts/pytest tests"
+  - "%PYTHON%/Scripts/pytest -rfsxEX tests"
 
