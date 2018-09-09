@@ -1163,7 +1163,110 @@ def _get_subdf_from_df_for_keys(df, keys):
     return df_out
 
 
-class MAGICCData(object):
+class IO(object):
+    """
+    pymagicc's input/output interface.
+
+    # TODO: test all the claims made here
+    It provides basic file reading and writing capability as well as providing
+    a slightly more natural way to query DataFrames which takes advantage of
+    the fact that none of our data categories (e.g. variables, units, regions)
+    should have overlapping categories.
+    """
+    def __init__(self, filename=None):
+        """
+        Initialise an IO object.
+        """
+        self.df = None
+        self.metadata = {}
+        self.filename = filename
+
+    def __getitem__(self, item):
+        """
+        Allow for simplified indexing
+
+        # TODO: double check or delete below
+        >>> inpt = MAGICCData('HISTRCP_CO2_CONC.IN')
+        >>> inpt.read('./')
+        >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
+        """
+        if not self.is_loaded:
+            self._raise_not_loaded_error()
+        return _get_subdf_from_df_for_keys(self.df, item)
+
+    def __getattr__(self, item):
+        """
+        Proxy any attributes/functions on the dataframe
+        """
+        if not self.is_loaded:
+            self._raise_not_loaded_error()
+        return getattr(self.df, item)
+
+    def _raise_not_loaded_error(self):
+        raise ValueError("File has not been read from disk yet")
+
+    @property
+    def is_loaded(self):
+        return self.df is not None
+
+    def _get_full_file(self, filepath=None, filename=None):
+        if filepath is None:
+            filepath = MAGICC6().original_dir
+        if filename is not None:
+            self.filename = filename
+
+        assertion_error_msg = "filename not specified on instantiation or in method call"
+        assert self.filename is not None, assertion_error_msg
+
+        full_file_name = join(filepath, self.filename)
+        _check_file_exists(full_file_name)
+
+        return full_file_name
+
+    def read(self, filepath, filename=None, filetype=None):
+        """
+        # TODO, test all the claims here
+        Read an input file from disk
+
+        # Parameters
+        filepath (str): The directory to read the file from.
+        filename (str): The filename to read. Overrides any existing values.
+            If None is passed, the filename used to initialise the IO instance
+            is used.
+        filetype (str): The type of file to read. If None, the IO instance
+            will try all the different readers it knows about and if none of
+            them work, it will through an error. If an urecognised filetype is
+            provided, a warning will be raised and IO will revert to behaving
+            as if filetype was given as None
+        """
+        file_to_read = self._get_full_file(filepath=filepath, filename=filename)
+
+        # TODO: write this bit
+        """
+        if filetype is not None:
+            reader = self._readers[filetype]
+            # no valid reader found
+            if reader is None:
+                # revert to assuming filetype is None
+                filetype = None
+            else:
+                self.metadata, self.df = reader().read(file_to_read)
+                return
+
+        if filetype is None:
+            for reader in self._readers.values():
+                try:
+                    self.metadata, self.df = reader().read(file_to_read)
+                    return
+                except Exception:
+                    continue
+
+        error_msg = "Cannot read {}, raise an issue in pymagicc if you would like to fix this".format(file_to_read)
+        raise ValueError(error_msg)
+        """
+
+
+class MAGICCData(IO):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -1199,43 +1302,6 @@ class MAGICCData(object):
         directory is provided in `read`. This allows for MAGICCData files to be
         lazy-loaded once the appropriate MAGICC run directory is known.
     """
-
-    def __init__(self, filename=None):
-        """
-        Initialise a MAGICCData object.
-        """
-        self.df = None
-        self.metadata = {}
-        self.filename = filename
-
-    def __getitem__(self, item):
-        """
-        Allow for simplified indexing
-
-        # TODO: double check or delete below
-        >>> inpt = MAGICCData('HISTRCP_CO2_CONC.IN')
-        >>> inpt.read('./')
-        >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return _get_subdf_from_df_for_keys(self.df, item)
-
-    def __getattr__(self, item):
-        """
-        Proxy any attributes/functions on the dataframe
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return getattr(self.df, item)
-
-    def _raise_not_loaded_error(self):
-        raise ValueError("File has not been read from disk yet")
-
-    @property
-    def is_loaded(self):
-        return self.df is not None
-
     def read(self, filepath=None, filename=None):
         """
         Read an input file from disk
@@ -1254,18 +1320,6 @@ class MAGICCData(object):
         reader_tool = self.determine_tool(file_to_read, "reader")
         reader = reader_tool(file_to_read)
         self.metadata, self.df = reader.read()
-
-    def _get_full_file(self, filepath=None, filename=None):
-        if filepath is None:
-            filepath = MAGICC6().original_dir
-        if filename is not None:
-            self.filename = filename
-        assert self.filename is not None
-
-        full_file_name = join(filepath, self.filename)
-        _check_file_exists(full_file_name)
-
-        return full_file_name
 
     def write(self, filename_to_write, filepath=None):
         """
@@ -1318,7 +1372,6 @@ class MAGICCData(object):
         tool_to_get (str): The tool to get, valid options are "reader", "writer".
             Invalid values will throw a KeyError.
         """
-
         file_regexp_reader_writer = {
             "SCEN": {
                 "regexp": r"^.*\.SCEN$",
@@ -1392,7 +1445,7 @@ class MAGICCData(object):
 
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
-        raise ValueError("Cannot find {}".format(file_to_read))
+        raise FileNotFoundError("Cannot find {}".format(file_to_read))
 
 
 def read_cfg_file(fullfilename):

@@ -13,7 +13,7 @@ import f90nml
 
 from pymagicc.api import MAGICC6
 from pymagicc.io import (
-    # IO,
+    IO,
     MAGICCData,
     _InputReader,
     _ConcInReader,
@@ -29,96 +29,114 @@ TEST_DATA_DIR = join(dirname(__file__), "test_data")
 # TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
 
 
-def test_load_prename():
-    mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
-    mdata.read(TEST_DATA_DIR)
-
-    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
-
-    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
-    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
-    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
+@pytest.fixture(scope="module", params=[MAGICCData, IO])
+def data_class(request):
+    yield request.param
 
 
-def test_direct_access():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
+def get_basic_df():
+    test_data = np.array([
+        [1, 1, 1],
+        [2, 3, 1],
+        [3, 5, 2],
+        [4, 7, 3],
+        [5, 9, 5],
+    ])
+    years = [1980, 1983, 1986, 1989, 1994]
+    basic_df = pd.DataFrame(
+        test_data,
+        index=pd.Index(years, name="YEAR")
+    )
 
-    result = mdata["CO2I_EMIS", "R5LAM", 1983]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+    variables = ["CO2I_EMIS", "CH4B_EMIS", "HFC23_EMIS"]
+    units = ["GtCO2", "MtC", "kt"]
+    todos = ["SET"] * len(variables)
+    regions = ["WORLD", "R5ASIA", "R5REF"]
+
+    basic_df.columns = pd.MultiIndex.from_arrays(
+        [variables, todos, units, regions],
+        names=("VARIABLE", "TODO", "UNITS", "REGION"),
+    )
+
+    return basic_df
+
+
+@pytest.fixture(scope="module")
+def basic_df():
+    yield get_basic_df()
+
+
+def generic_loaded_io_tests(io):
+    """Resusable tests to ensure io format"""
+    basic_df = get_basic_df()
+    assert io.is_loaded == True
+    assert isinstance(io.df, pd.DataFrame)
+    assert io.df.index.names == basic_df.index.names
+    assert io.df.columns.names == basic_df.columns.names
+    for key in ["units", "firstdatarow", "dattype"]:
+        with pytest.raises(KeyError):
+            io.metadata[key]
+
+
+def test_direct_access(data_class, basic_df):
+    dc = data_class()
+    dc.df = basic_df
+
+    result = dc["CO2I_EMIS", "WORLD", 1983]
+    expected = dc.df.xs(
+        ("CO2I_EMIS", "SET", "GtCO2", "WORLD"),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     ).loc[[1983]]
     pd.testing.assert_frame_equal(result, expected)
 
-    result = mdata["CO2I_EMIS", "R5LAM"]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+    result = dc["CO2I_EMIS", "WORLD"]
+    expected = dc.df.xs(
+        ("CO2I_EMIS", "SET", "GtCO2", "WORLD"),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     )
     pd.testing.assert_frame_equal(result, expected)
 
-    result = mdata["CO2I_EMIS"]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", slice(None)),
+    result = dc["CO2I_EMIS"]
+    expected = dc.df.xs(
+        ("CO2I_EMIS", "SET", "GtCO2", slice(None)),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     )
     pd.testing.assert_frame_equal(result, expected)
 
-    result = mdata[1994]
-    expected = mdata.df.loc[[1994]]
+    result = dc[1994]
+    expected = dc.df.loc[[1994]]
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_lazy_load():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    # I don't know where the file is yet..
-    with MAGICC6() as magicc:
-        # and now load the data
-        mdata.read(magicc.run_dir)
-        assert mdata.df is not None
-
-
-def test_proxy():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
+def test_proxy(data_class, basic_df):
+    dc = data_class()
+    dc.df =  basic_df
 
     # Get an attribute from the pandas DataFrame
-    plot = mdata.plot
+    plot = dc.plot
     assert plot.__module__ == "pandas.plotting._core"
 
 
-def test_early_call():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-
-    with pytest.raises(ValueError):
-        mdata["CO2I_EMIS"]["R5LAM"]
-
-    with pytest.raises(ValueError):
-        mdata.plot()
+def test_no_name(data_class):
+    dc = data_class()
+    expected_error_msg = "filename not specified on instantiation or in method call"
+    with pytest.raises(AssertionError, match=expected_error_msg):
+        dc.read("/tmp")
 
 
-def test_no_name():
-    mdata = MAGICCData()
-    with pytest.raises(AssertionError):
-        mdata.read("/tmp")
-
-
-def test_invalid_name():
-    mdata = MAGICCData()
-    with pytest.raises(ValueError):
-        mdata.read("/tmp", "MYNONEXISTANT.IN")
-
-
-def test_default_path():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read()
+def test_invalid_name(data_class):
+    dc = data_class()
+    test_path = "/tmp"
+    test_file = "MYNONEXISTANT.IN"
+    expected_error_msg = "Cannot find {}".format(join(test_path, test_file))
+    with pytest.raises(FileNotFoundError, match=expected_error_msg):
+        dc.read(test_path, test_file)
 
 
 @pytest.mark.parametrize("test_filename", [(None), ("test/filename.OUT")])
@@ -175,23 +193,65 @@ def test_get_invalid_tool():
         mdata.determine_tool("EXAMPLE.SCEN", junk_tool)
 
 
-def generic_mdata_tests(mdata):
-    "Resusable tests to ensure data format."
-    assert mdata.is_loaded == True
-    assert isinstance(mdata.df, pd.DataFrame)
-    assert mdata.df.index.names == ["YEAR"]
-    assert mdata.df.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
-    for key in ["units", "firstdatarow", "dattype"]:
-        with pytest.raises(KeyError):
-            mdata.metadata[key]
+def generic_loaded_mdata_tests(mdata):
+    """Resusable tests to ensure mdata format"""
+    generic_loaded_io_tests(mdata)
     assert isinstance(mdata.metadata["header"], str)
+
+
+def test_load_prename():
+    mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
+    mdata.read(TEST_DATA_DIR)
+
+    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+
+    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
+    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
+    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
+
+
+def test_with_magicc_pattern():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+
+    with MAGICC6() as magicc:
+        mdata.read(magicc.run_dir)
+        assert mdata.df is not None
+
+
+def test_default_path():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+    mdata.read()
+
+
+def test_lazy_load():
+    test_file = "HISTSSP_CO2I_EMIS.IN"
+    mdata = MAGICCData(test_file)
+    # I don't know where the file is yet..
+    # default place to look is MAGICC6 directory
+    expected_error_msg = "Cannot find {}".format(join(MAGICC6_DIR, test_file))
+    with pytest.raises(FileNotFoundError, match=expected_error_msg):
+        mdata.read()
+
+    # and now load the data
+    mdata.read(TEST_DATA_DIR)
+    assert mdata.df is not None
+
+
+def test_early_call():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+
+    with pytest.raises(ValueError):
+        mdata["CO2I_EMIS"]["R5LAM"]
+
+    with pytest.raises(ValueError):
+        mdata.plot()
 
 
 def test_load_magicc6_emis():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN")
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     np.testing.assert_allclose(
         mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.7682027e+000
@@ -202,7 +262,7 @@ def test_load_magicc6_emis_hyphen_in_units():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
     mdata.read(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN")
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     np.testing.assert_allclose(
         mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "R5ASIA"][2000], 0.288028519
@@ -213,7 +273,7 @@ def test_load_magicc5_emis():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
     mdata.read(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN")
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     np.testing.assert_allclose(
         mdata.df["CO2I_EMIS", "SET", "GtC", "NH"][2000], 6.20403698
@@ -244,7 +304,7 @@ def test_load_magicc6_conc():
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
 
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
     np.testing.assert_allclose(
         mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e+002
     )
@@ -265,7 +325,7 @@ def test_load_magicc6_conc_old_style_name_with_hyphen():
     mdata.read(MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN")
 
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     np.testing.assert_allclose(mdata.df["HFC4310_CONC", "SET", "ppt", "GLOBAL"], 0.0)
 
@@ -274,7 +334,7 @@ def test_load_magicc7_emis_umlaut_metadata():
     mdata = MAGICCData()
     mdata.read(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert (
         mdata.metadata["contact"]
@@ -295,7 +355,7 @@ def test_load_ot():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "MIXED_NOXI_OT.IN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert mdata.metadata["data"] == "Optical Thickness"
     assert (
@@ -335,7 +395,7 @@ def test_load_rf():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "GISS_BCB_RF.IN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert mdata.metadata["data"] == "Radiative Forcing"
     assert (
@@ -372,7 +432,7 @@ def test_load_solar_rf():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "HISTRCP6SCP6to45_SOLAR_RF.IN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert mdata.metadata["data"] == "Radiative Forcing, kept constant after 2250"
     assert (
@@ -416,7 +476,7 @@ def test_load_volcanic_rf():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert mdata.metadata["data"] == "Radiative Forcing"
     assert (
@@ -456,7 +516,7 @@ def test_load_scen():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "RCP26.SCEN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert (
         mdata.metadata["date"]
@@ -507,7 +567,7 @@ def test_load_scen_sres():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "SRESA1B.SCEN")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert "Antero Hot Springs" in mdata.metadata["header"]
 
@@ -544,7 +604,7 @@ def test_load_scen7():
     mdata = MAGICCData()
     mdata.read(TEST_DATA_DIR, "TESTSCEN7.SCEN7")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
     assert mdata.metadata["description"] == "TEST SCEN7 file"
@@ -597,7 +657,7 @@ def test_load_prn():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     # top line should be ignored
     assert "16      1850      2500" not in mdata.metadata["header"]
@@ -631,7 +691,7 @@ def test_load_prn_no_units():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "WMO2006_ODS_A1Baseline.prn")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     # top line should be ignored
     assert "6      1950      2100" not in mdata.metadata["header"]
@@ -656,7 +716,7 @@ def test_load_prn_mixing_ratios_years_label():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "RCPODS_WMO2006_MixingRatios_A1.prn")
 
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
 
     # top line should be ignored
     assert "17      1850      2100" not in mdata.metadata["header"]
