@@ -2,6 +2,7 @@ Master
 =====
 
 - (#108)[https://github.com/openclimatedata/pymagicc/pull/108] Added ability to read all files in MAGICC6 run folder (`pymagicc/MAGICC6/run`) to a common format
+    - Note that this change means that only files which follow the MAGICC6 naming convention are supported. These are very similar to MAGICC5 except that emissions files must be named in the form `.*\.SCEN`, `.*\.SCEN7` or `.*EMISX\.IN` where 'X' is 'I' if the file contains fossil and industrial emissions and 'B' if the file contains agriculture, land-use and land-use change emissions. The suffixes 'FOSSIL&IND' and 'LANDUSE' are no longer supported.
 
 
 1.3.2

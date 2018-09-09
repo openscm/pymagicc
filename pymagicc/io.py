@@ -230,7 +230,7 @@ class _InputReader(object):
 
     def _raise_cannot_determine_variable_from_filename_error(self):
         error_msg = "Cannot determine variable from filename: {}".format(self.filename)
-        raise SyntaxError(error_msg)
+        raise ValueError(error_msg)
 
     def process_header(self, header):
         """
@@ -272,7 +272,7 @@ class _InputReader(object):
         return [region_mapping[r] for r in regions]
 
 
-class NonEmisInReader(_InputReader):
+class _NonEmisInReader(_InputReader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
@@ -285,7 +285,7 @@ class NonEmisInReader(_InputReader):
         return column_headers, metadata
 
 
-class _ConcInReader(NonEmisInReader):
+class _ConcInReader(_NonEmisInReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
 
     def _get_variable_from_filename(self):
@@ -297,7 +297,7 @@ class _ConcInReader(NonEmisInReader):
         return [t.replace("_MIXINGRATIO", "") for t in tokens]
 
 
-class _OpticalThicknessInReader(NonEmisInReader):
+class _OpticalThicknessInReader(_NonEmisInReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_OT)\.IN$")
 
     def _read_magicc6_style_header(self, stream, metadata):
@@ -313,7 +313,7 @@ class _OpticalThicknessInReader(NonEmisInReader):
         return [t.replace("OT-", "") for t in tokens]
 
 
-class _RadiativeForcingInReader(NonEmisInReader):
+class _RadiativeForcingInReader(_NonEmisInReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_RF)\.(IN|MON)$")
 
     def _read_data_header_line(self, stream, expected_header):
@@ -326,7 +326,7 @@ class _RadiativeForcingInReader(NonEmisInReader):
         return column_headers, metadata
 
 
-class EmisInReader(_InputReader):
+class _EmisInReader(_InputReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_EMIS)\.IN$")
     _variable_line_keyword = "GAS"
 
@@ -351,15 +351,15 @@ class EmisInReader(_InputReader):
         return column_headers, metadata
 
 
-class _HistEmisInReader(EmisInReader):
+class _HistEmisInReader(_EmisInReader):
     pass
 
 
-class _Scen7Reader(EmisInReader):
+class _Scen7Reader(_EmisInReader):
     pass
 
 
-class NonStandardEmisInReader(_InputReader):
+class _NonStandardEmisInReader(_InputReader):
     def read(self):
         self._set_lines()
         self._stream = self._get_stream()
@@ -391,7 +391,7 @@ class NonStandardEmisInReader(_InputReader):
         raise NotImplementedError()
 
 
-class _ScenReader(NonStandardEmisInReader):
+class _ScenReader(_NonStandardEmisInReader):
     def _read_header(self):
         # I don't know how to do this without these nasty while True statements
         header_notes_lines = []
@@ -480,7 +480,7 @@ class _ScenReader(NonStandardEmisInReader):
         return notes
 
 
-class _PrnReader(NonStandardEmisInReader):
+class _PrnReader(_NonStandardEmisInReader):
     def read(self):
         metadata, df = super().read()
 
@@ -1158,7 +1158,6 @@ class _ScenWriter(_InputWriter):
         return region_order
 
 
-
 def _get_subdf_from_df_for_key(df, key):
     for colname in df.columns.names:
         try:
@@ -1297,7 +1296,6 @@ class MAGICCData(object):
         writer = self.determine_tool(filename_to_write, "writer")()
         writer.write(self, filename_to_write, filepath)
 
-
     def determine_tool(self, filename, tool_to_get):
         """
         Determine the tool to use for reading/writing
@@ -1339,11 +1337,7 @@ class MAGICCData(object):
                 "reader": _Scen7Reader,
                 "writer": _Scen7Writer,
             },
-            "prn": {
-                "regexp": r"^.*\.prn$",
-                "reader": _PrnReader,
-                "writer": _PrnWriter,
-            },
+            "prn": {"regexp": r"^.*\.prn$", "reader": _PrnReader, "writer": _PrnWriter},
             # "Sector": {"regexp": r".*\.SECTOR$", "reader": _Scen7Reader, "writer": _Scen7Writer},
             "EmisIn": {
                 "regexp": r"^.*\_EMIS.*\.IN$",
@@ -1374,10 +1368,7 @@ class MAGICCData(object):
                 try:
                     return file_tools[tool_to_get]
                 except KeyError:
-                    valid_tools = [
-                        k for k in file_tools.keys()
-                        if k != "regexp"
-                    ]
+                    valid_tools = [k for k in file_tools.keys() if k != "regexp"]
                     error_msg = (
                         "MAGICCData does not know how to get a {}, "
                         "valid options are: {}".format(tool_to_get, valid_tools)
@@ -1390,10 +1381,12 @@ class MAGICCData(object):
                 "pymagicc.io.read_cfg_file".format(filename)
             )
         else:
-            regexp_list_str = "\n".join([
-                "{}: {}".format(k, v["regexp"])
-                for k, v in file_regexp_reader_writer.items()
-            ])
+            regexp_list_str = "\n".join(
+                [
+                    "{}: {}".format(k, v["regexp"])
+                    for k, v in file_regexp_reader_writer.items()
+                ]
+            )
             error_msg = (
                 "Couldn't find appropriate {} for {}.\nThe file must be one "
                 "of the following types and the filename must match its "
@@ -1402,6 +1395,7 @@ class MAGICCData(object):
             )
 
         raise ValueError(error_msg)
+
 
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
