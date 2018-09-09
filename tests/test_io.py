@@ -24,6 +24,10 @@ MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
 
 
+# TODO add test of converting names for SCEN files
+# TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
+
+
 def test_cant_find_reader_writer():
     mdata = MAGICCData()
     test_filename = "HISTRCP_CO2I_EMIS.txt"
@@ -1037,7 +1041,3 @@ def test_can_read_all_files_in_magicc6_dir(file_to_read):
     else:
         mdata = MAGICCData()
         mdata.read(MAGICC6_DIR, file_to_read)
-
-
-# TODO add test of converting names for SCEN files
-# TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
