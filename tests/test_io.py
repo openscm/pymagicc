@@ -13,6 +13,7 @@ import f90nml
 
 from pymagicc.api import MAGICC6
 from pymagicc.io import (
+    # IO,
     MAGICCData,
     _InputReader,
     _ConcInReader,
@@ -26,6 +27,111 @@ TEST_DATA_DIR = join(dirname(__file__), "test_data")
 
 # TODO add test of converting names for SCEN files
 # TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
+
+
+def test_load_prename():
+    mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
+    mdata.read(TEST_DATA_DIR)
+
+    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+
+    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
+    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
+    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
+
+
+def test_direct_access():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+    mdata.read(MAGICC6_DIR)
+
+    result = mdata["CO2I_EMIS", "R5LAM", 1983]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
+        axis=1,
+        drop_level=False,
+    ).loc[[1983]]
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata["CO2I_EMIS", "R5LAM"]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
+        axis=1,
+        drop_level=False,
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata["CO2I_EMIS"]
+    expected = mdata.df.xs(
+        ("CO2I_EMIS", "SET", "GtC", slice(None)),
+        level=["VARIABLE", "TODO", "UNITS", "REGION"],
+        axis=1,
+        drop_level=False,
+    )
+    pd.testing.assert_frame_equal(result, expected)
+
+    result = mdata[1994]
+    expected = mdata.df.loc[[1994]]
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_lazy_load():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+    # I don't know where the file is yet..
+    with MAGICC6() as magicc:
+        # and now load the data
+        mdata.read(magicc.run_dir)
+        assert mdata.df is not None
+
+
+def test_proxy():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+    mdata.read(MAGICC6_DIR)
+
+    # Get an attribute from the pandas DataFrame
+    plot = mdata.plot
+    assert plot.__module__ == "pandas.plotting._core"
+
+
+def test_early_call():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+
+    with pytest.raises(ValueError):
+        mdata["CO2I_EMIS"]["R5LAM"]
+
+    with pytest.raises(ValueError):
+        mdata.plot()
+
+
+def test_no_name():
+    mdata = MAGICCData()
+    with pytest.raises(AssertionError):
+        mdata.read("/tmp")
+
+
+def test_invalid_name():
+    mdata = MAGICCData()
+    with pytest.raises(ValueError):
+        mdata.read("/tmp", "MYNONEXISTANT.IN")
+
+
+def test_default_path():
+    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+    mdata.read()
+
+
+@pytest.mark.parametrize("test_filename", [(None), ("test/filename.OUT")])
+def test_magicc_input_init(test_filename):
+    if test_filename is None:
+        mdata = MAGICCData()
+        assert mdata.filename is None
+    else:
+        mdata = MAGICCData(test_filename)
+        assert mdata.filename is test_filename
+
+    assert mdata.df is None
+    assert mdata.metadata == {}
 
 
 def test_cant_find_reader_writer():
@@ -580,7 +686,7 @@ def test_load_prn_mixing_ratios_years_label():
     )
 
 
-def test_load_cfg_with_magicc_input():
+def test_load_cfg_with_magicc_input_error():
     mdata = MAGICCData()
     test_file = "MAGCFG_BULKPARAS.CFG"
     expected_error_msg = (
@@ -698,7 +804,7 @@ def test_load_cfg():
     ]
 
 
-@pytest.mark.xfail(reason="f90nml cannot handle / in namelist properly")
+@pytest.mark.xfail(reason="f90nml cannot handle '/' in namelist properly")
 def test_load_cfg_with_slash_in_units():
     cfg = read_cfg_file(join(TEST_DATA_DIR, "F90NML_BUG.CFG"))
 
@@ -707,100 +813,7 @@ def test_load_cfg_with_slash_in_units():
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"] == 2006
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] == 12
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] == 21
-    # this fails
-    assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2"
-
-
-def test_load_prename():
-    mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
-    mdata.read(TEST_DATA_DIR)
-
-    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
-
-    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
-    assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
-    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
-
-
-def test_direct_access():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
-
-    result = mdata["CO2I_EMIS", "R5LAM", 1983]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
-        level=["VARIABLE", "TODO", "UNITS", "REGION"],
-        axis=1,
-        drop_level=False,
-    ).loc[[1983]]
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata["CO2I_EMIS", "R5LAM"]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
-        level=["VARIABLE", "TODO", "UNITS", "REGION"],
-        axis=1,
-        drop_level=False,
-    )
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata["CO2I_EMIS"]
-    expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", slice(None)),
-        level=["VARIABLE", "TODO", "UNITS", "REGION"],
-        axis=1,
-        drop_level=False,
-    )
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata[1994]
-    expected = mdata.df.loc[[1994]]
-    pd.testing.assert_frame_equal(result, expected)
-
-
-def test_lazy_load():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    # I don't know where the file is yet..
-    with MAGICC6() as magicc:
-        # and now load the data
-        mdata.read(magicc.run_dir)
-        assert mdata.df is not None
-
-
-def test_proxy():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
-
-    # Get an attribute from the pandas DataFrame
-    plot = mdata.plot
-    assert plot.__module__ == "pandas.plotting._core"
-
-
-def test_early_call():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-
-    with pytest.raises(ValueError):
-        mdata["CO2I_EMIS"]["R5LAM"]
-
-    with pytest.raises(ValueError):
-        mdata.plot()
-
-
-def test_no_name():
-    mdata = MAGICCData()
-    with pytest.raises(AssertionError):
-        mdata.read("/tmp")
-
-
-def test_invalid_name():
-    mdata = MAGICCData()
-    with pytest.raises(ValueError):
-        mdata.read("/tmp", "MYNONEXISTANT.IN")
-
-
-def test_default_path():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read()
+    assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2", "'/' in namelist fails"
 
 
 def test_header_metadata():
@@ -835,19 +848,6 @@ def test_header_metadata():
     assert m.process_header(
         "Compiled by: Zebedee Nicholls, Australian-German Climate & Energy College"
     ) == {"compiled by": "Zebedee Nicholls, Australian-German Climate & Energy College"}
-
-
-@pytest.mark.parametrize("test_filename", [(None), ("test/filename.OUT")])
-def test_magicc_input_init(test_filename):
-    if test_filename is None:
-        mdata = MAGICCData()
-        assert mdata.filename is None
-    else:
-        mdata = MAGICCData(test_filename)
-        assert mdata.filename is test_filename
-
-    assert mdata.df is None
-    assert mdata.metadata == {}
 
 
 def test_set_lines():
