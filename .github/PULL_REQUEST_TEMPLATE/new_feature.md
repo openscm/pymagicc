@@ -6,7 +6,7 @@ Please confirm that this pull request has done the following:
 - [ ] Documentation added
 - [ ] Example added (either to an existing notebook or as a new notebook)
 - [ ] Description in CHANGELOG.md added
-- [ ]  Branch rebased
+- [ ] Branch rebased onto master
 
 ## Adding to CHANGELOG.md
 
