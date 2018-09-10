@@ -120,8 +120,10 @@ def test_load_magicc5_emis_not_renamed_error():
     test_filepath = TEST_DATA_DIR
     test_filename = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
 
-    expected_error_msg = "Cannot determine variable from filename: {}".format(
-        join(test_filepath, test_filename)
+    expected_error_msg = re.escape(
+        "Cannot determine variable from filename: {}".format(
+            join(test_filepath, test_filename)
+        )
     )
     with pytest.raises(ValueError, match=expected_error_msg):
         mdata.read(test_filepath, test_filename)
