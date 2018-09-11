@@ -74,7 +74,7 @@ black: venv
 
 docs: docs/index.html
 
-docs/index.html: pymagicc/*.py venv
+docs/index.html: pymagicc/*.py mkdocs.yml venv
 	./venv/bin/pydocmd simple pymagicc+  > docsrc/pymagicc.md
 	./venv/bin/pydocmd simple pymagicc.api+ > docsrc/pymagicc.api.md
 	./venv/bin/pydocmd simple pymagicc.io++ > docsrc/pymagicc.io.md
