@@ -3,6 +3,7 @@ site_dir: docs
 site_name: Pymagicc
 pages:
   - Overview: index.md
+  - File Conventions: file_conventions.md
   - pymagicc: pymagicc.md
   - pymagicc.api: pymagicc.api.md
   - pymagicc.io: pymagicc.io.md
