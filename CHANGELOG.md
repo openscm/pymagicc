@@ -9,6 +9,7 @@ Master
         - `pymagicc/MAGICC6/run/HOUGHTON_CO2_EMIS_LANDUSE.IN` => `pymagicc/MAGICC6/run/HOUGHTON_CO2B_EMIS.IN`
         - `pymagicc/MAGICC6/run/MARLAND_CO2_EMIS_FOSSIL&IND.IN` => `pymagicc/MAGICC6/run/MARLAND_CO2I_EMIS.IN`
     - Deleted ` pymagicc/MAGICC6/run/HIST_SEALEVEL_CHURCHWHITE2006_RF.IN` as it's empty
+    - Added `scripts/check_run_dir_file_read.py` so we can quickly check which files in a MAGICC `run` directory can be read by `pymagicc`
 
 
 1.3.2
