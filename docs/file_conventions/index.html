@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>File conventions - Pymagicc</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "File conventions";
+    var mkdocs_page_input_path = "file_conventions.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> Pymagicc</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Overview</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc/">pymagicc</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.api/">pymagicc.api</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.io/">pymagicc.io</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../pymagicc.config/">pymagicc.config</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">Pymagicc</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>File conventions</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="magicc-file-conventions">MAGICC file conventions</h2>
+<h3 id="input-files">Input files</h3>
+<p>The MAGICC <code>run</code> directory contains all of MAGICC's input files. At the moment, we have only tested reading of these files. Hence whilst we can also write these files, we make no guarantee that having written them, they will a) run MAGICC or b) be handled in the expected way.</p>
+<p>The files in the <code>run</code> directory follow a number of conventions, we summarise these here (please note that this is just a summary, we are still unsure about how strictly many of these conventions have to be followed as we are yet to set up tests for running MAGICC with all of these different files after they've been set using pymagicc, the key question we still need to answer is how important column order is in each of these files).</p>
+<ol>
+<li>Files ending in <code>.SCEN</code> are emissions scenario files. They are used to drive MAGICC6 and can also be used to drive MAGICC7, although it is much less predictable with MAGICC7.</li>
+<li>Files ending in <code>.SCEN7</code> and <code>.IN</code> are other input files. They are both the same format, some notes, then the data in space separated columns.<ol>
+<li>Files ending in <code>.SCEN7</code> are scenario input files.</li>
+<li>Files ending in <code>.IN</code> are input files, typically related to the historical period. The filename indicates what data is in the file e.g. <code>CONC.IN</code> indicates that this file contains concentrations.</li>
+</ol>
+</li>
+<li>Files ending in <code>.CFG</code> are config files. They are used to set MAGICC's configuration and are always in the format of a FORTRAN90 namelist.</li>
+<li>Files ending in <code>.prn</code> are emissions input files for ozone depleting substances. This file format comprises of a header row which contains (unlabelled) information about the first data row, start year and end year, then some notes rows, then the data in fixed width columns. This file format is used by MAGICC6 but has been deprecated for MAGICC7 in favour of <code>*EMIS.IN</code> and <code>*.SCEN7</code> files.</li>
+</ol>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
