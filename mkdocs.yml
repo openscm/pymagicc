@@ -1,8 +1,9 @@
 docs_dir: docsrc
 site_dir: docs
 site_name: Pymagicc
-pages:
+nav:
   - Overview: index.md
+  - Changelog: changelog.md
   - File Conventions: file_conventions.md
   - pymagicc: pymagicc.md
   - pymagicc.api: pymagicc.api.md
