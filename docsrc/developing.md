@@ -47,3 +47,5 @@ To test, one can run
 to install Pymagicc in a temp directory and to print its version number.
 
 To test publishing on PyPI's testing instance it is possible to use the `publish-on-test-pypi` and `test-testpypi-install` tasks. Versions uploaded there should be deleted after testing.
+
+Finally, the new version needs to be turned into a release on <https://github.com/openclimatedata/pymagicc/releases> for automatic archival on [Zenodo](https://doi.org/10.5281/zenodo.1111815).
