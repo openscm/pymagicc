@@ -4,6 +4,7 @@ site_name: Pymagicc
 nav:
   - Overview: index.md
   - Changelog: changelog.md
+  - Developing: developing.md
   - File Conventions: file_conventions.md
   - pymagicc: pymagicc.md
   - pymagicc.api: pymagicc.api.md
