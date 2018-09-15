@@ -17,7 +17,7 @@ GitHub repository at https://github.com/openclimatedata/pymagicc.
 import versioneer
 
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 path = os.path.abspath(os.path.dirname(__file__))
@@ -61,8 +61,9 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    packages=["pymagicc"],
+    packages=find_packages(exclude=["tests"]),
     package_data={
+        "": ["*.csv"],
         "pymagicc": [
             "MAGICC6/*.txt",
             "MAGICC6/out/.gitkeep",
@@ -72,7 +73,7 @@ setup(
             "MAGICC6/run/*.MON",
             "MAGICC6/run/*.prn",
             "MAGICC6/run/*.SCEN",
-        ]
+        ],
     },
     include_package_data=True,
     install_requires=["pandas", "f90nml"],
