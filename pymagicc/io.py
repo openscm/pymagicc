@@ -12,6 +12,9 @@ from six import StringIO
 from pymagicc import MAGICC6
 from .definitions import (
     dattype_regionmode_regions,
+    magicc6_emms_code_0_emissions,
+    magicc6_emms_code_1_emissions,
+    magicc6_prn_species,
     # Not used yet:
     # emissions_units,
     # concentrations_units,
@@ -978,6 +981,12 @@ class _PrnWriter(_InputWriter):
         ]
         data_block.columns = old_style_vars
 
+        emms_assert_msg = (
+            "Prn files must have, and only have, "
+            "the following species: ".format(magicc6_prn_species)
+        )
+        assert set(data_block.columns) == set(magicc6_prn_species), emms_assert_msg
+
         data_block.index.name = "Years"
         data_block.reset_index(inplace=True)
 
@@ -1028,39 +1037,10 @@ class _ScenWriter(_InputWriter):
         return output
 
     def _get_special_scen_code(self, regions, emissions):
-        sres_emissions = [
-            "CO2I",
-            "CO2B",
-            "CH4",
-            "N2O",
-            "SOX",
-            "CO",
-            "NMVOC",
-            "NOX",
-            "CF4",
-            "C2F6",
-            "C4F10",
-            "HFC23",
-            "HFC32",
-            "HFC4310",
-            "HFC125",
-            "HFC134A",
-            "HFC143A",
-            "HFC227EA",
-            "HFC245FA",
-            "SF6",
-        ]
-        rcp_emissions = [e for e in sres_emissions if e != "C4F10"] + [
-            "BC",
-            "OC",
-            "NH3",
-            "C6F14",
-        ]
-
-        if set(rcp_emissions) == set(emissions):
-            emms_code = 1
-        elif set(sres_emissions) == set(emissions):
+        if set(magicc6_emms_code_0_emissions) == set(emissions):
             emms_code = 0
+        elif set(magicc6_emms_code_1_emissions) == set(emissions):
+            emms_code = 1
         else:
             msg = "Could not determine scen special code for emissions {}".format(
                 emissions
