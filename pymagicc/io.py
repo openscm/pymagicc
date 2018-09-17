@@ -12,9 +12,9 @@ from six import StringIO
 from pymagicc import MAGICC6
 from .definitions import (
     dattype_regionmode_regions,
-    magicc6_emms_code_0_emissions,
-    magicc6_emms_code_1_emissions,
-    magicc6_prn_species,
+    scen_emms_code_0,
+    scen_emms_code_1,
+    prn_species,
     # Not used yet:
     # emissions_units,
     # concentrations_units,
@@ -983,9 +983,9 @@ class _PrnWriter(_InputWriter):
 
         emms_assert_msg = (
             "Prn files must have, and only have, "
-            "the following species: ".format(magicc6_prn_species)
+            "the following species: ".format(prn_species)
         )
-        assert set(data_block.columns) == set(magicc6_prn_species), emms_assert_msg
+        assert set(data_block.columns) == set(prn_species), emms_assert_msg
 
         data_block.index.name = "Years"
         data_block.reset_index(inplace=True)
@@ -1037,9 +1037,9 @@ class _ScenWriter(_InputWriter):
         return output
 
     def _get_special_scen_code(self, regions, emissions):
-        if set(magicc6_emms_code_0_emissions) == set(emissions):
+        if set(scen_emms_code_0) == set(emissions):
             emms_code = 0
-        elif set(magicc6_emms_code_1_emissions) == set(emissions):
+        elif set(scen_emms_code_1) == set(emissions):
             emms_code = 1
         else:
             msg = "Could not determine scen special code for emissions {}".format(

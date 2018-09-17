@@ -16,7 +16,14 @@ dattype_regionmode_regions["Regions"] = [
 emissions_units = {}
 concentrations_units = {}
 
-magicc6_emms_code_all_emissions = [
+# ------- SCEN emissions code definitions -------
+# The definitions below define the emissions species which must be in SCEN (
+# i.e. scenario i.e. emissions projection input) files and which emissions
+# code they correspond to. The emissions code is used by MAGICC to
+# pre-allocate arrays.
+
+# The emissions species which must be included in all SCEN files
+scen_emms_base = [
     "CO2I",
     "CO2B",
     "CH4",
@@ -38,17 +45,23 @@ magicc6_emms_code_all_emissions = [
     "SF6",
 ]
 
-magicc6_emms_code_0_emissions_extra = ["C4F10"]
-magicc6_emms_code_0_emissions = (
-    magicc6_emms_code_all_emissions + magicc6_emms_code_0_emissions_extra
-)
 
-magicc6_emms_code_1_emissions_extra = ["BC", "OC", "NH3", "C6F14"]
-magicc6_emms_code_1_emissions = (
-    magicc6_emms_code_all_emissions + magicc6_emms_code_1_emissions_extra
-)
+scen_emms_code_0_extra = ["C4F10"]
+# The emissions species which give a SCEN emissions code of 0
+scen_emms_code_0 = scen_emms_base + scen_emms_code_0_extra
 
-magicc6_prn_species = [
+scen_emms_code_1_extra = ["BC", "OC", "NH3", "C6F14"]
+# The emissions species which give a SCEN emissions code of 1
+scen_emms_code_1 = scen_emms_base + scen_emms_code_1_extra
+
+# ------- End SCEN emissions code definitions -------
+
+
+# ------- .prn species -------
+# .prn files are MAGICC6's ozone depleting species input file. They must
+# always contain the following species, regardless of whether they are
+# providing concentration or emissions timeseries.
+prn_species = [
     "CFC11",
     "CFC12",
     "CFC113",
@@ -66,3 +79,4 @@ magicc6_prn_species = [
     "CH3BR",
     "CH3CL",
 ]
+# ------- End .prn species -------
