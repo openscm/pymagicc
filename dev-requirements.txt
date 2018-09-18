@@ -14,3 +14,11 @@ black
 nbval
 git+https://github.com/thedataincubator/expectexception.git@master
 git+https://github.com/IAMconsortium/pyam.git@master
+
+# pint related stuff
+numpy
+cython
+# until new release
+git+https://github.com/hgrecco/pint.git@master
+# until new release which can include pint
+git+https://github.com/pandas-dev/pandas.git@master
