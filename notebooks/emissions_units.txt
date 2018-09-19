@@ -1,0 +1,10 @@
+C = [carbon_emissions]
+CO2 = 44/12 * C = carbon_dioxide_emissions
+CH4 = [methane_emissions]
+N = [nitrogen_emissions]
+N2O = 44/14 * N = nitrous_oxide_emissions
+
+@context AR4GWP12
+    [carbon_emissions] -> [nitrogen_emissions]: 20 * N / C * value
+    [nitrogen_emissions] -> [carbon_emissions]: value * C / N / 20
+@end
