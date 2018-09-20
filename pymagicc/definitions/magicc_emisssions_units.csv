@@ -1,52 +1,72 @@
-MAGICC_variable,Emissions_units
-CO2,GtC
-CH4,MtCH4
-N2O,MtN2O-N
-SOX,MtS
-NOX,MtN
-CO,MtCO
-BC,Mt
-OC,Mt
-NMVOC,Mt
-NH3,MtN
-CF4,kt
-C2F6,kt
-C3F8,kt
-C4F10,kt
-C5F12,kt
-C6F14,kt
-C7F16,kt
-C8F18,kt
-CC4F8,kt
-HFC23,kt
-HFC32,kt
-HFC4310,kt
-HFC125,kt
-HFC134A,kt
-HFC143A,kt
-HFC152A,kt
-HFC227EA,kt
-HFC236FA,kt
-HFC245FA,kt
-HFC365MFC,kt
-NF3,kt
-SF6,kt
-SO2F2,kt
-CFC11,kt
-CFC12,kt
-CFC113,kt
-CFC114,kt
-CFC115,kt
-HCFC22,kt
-HCFC141B,kt
-HCFC142B,kt
-CH3CCL3,kt
-CCL4,kt
-CH3CL,kt
-CH2CL2,kt
-CHCL3,kt
-CH3BR,kt
-HALON1211,kt
-HALON1301,kt
-HALON2402,kt
-HALON1202,kt
+MAGICC variable,emissions units,SCEN emms code 0,SCEN emms code 1,prn emms
+CO2,Gt C,False,False,False
+CO2I,Gt C,True,True,False
+CO2B,Gt C,True,True,False
+CH4,Mt CH4,True,True,False
+CH4I,Mt CH4,False,False,False
+CH4B,Mt CH4,False,False,False
+N2O,Mt N2O-N,True,True,False
+N2OI,Mt N2O-N,False,False,False
+N2OB,Mt N2O-N,False,False,False
+SOX,Mt S,True,True,False
+SOXI,Mt S,False,False,False
+SOXB,Mt S,False,False,False
+NOX,Mt N,True,True,False
+NOXI,Mt N,False,False,False
+NOXB,Mt N,False,False,False
+CO,Mt CO,True,True,False
+COI,Mt CO,False,False,False
+COB,Mt CO,False,False,False
+BC,Mt BC,False,True,False
+BCI,Mt BC,False,False,False
+BCB,Mt BC,False,False,False
+OC,Mt OC,False,True,False
+OCI,Mt OC,False,False,False
+OCB,Mt OC,False,False,False
+NMVOC,Mt NMVOC,True,True,False
+NMVOCI,Mt NMVOC,False,False,False
+NMVOCB,Mt NMVOC,False,False,False
+NH3,MtN NH3,False,True,False
+NH3I,MtN NH3,False,False,False
+NH3B,MtN NH3,False,False,False
+CF4,kt CF4,True,True,False
+C2F6,kt C2F6,True,True,False
+C3F8,kt C3F8,False,False,False
+C4F10,kt C4F10,True,False,False
+C5F12,kt C5F12,False,False,False
+C6F14,kt C6F14,False,True,False
+C7F16,kt C7F16,False,False,False
+C8F18,kt C8F18,False,False,False
+CC4F8,kt CC4F8,False,False,False
+HFC23,kt HFC23,True,True,False
+HFC32,kt HFC32,True,True,False
+HFC4310,kt HFC4310,True,True,False
+HFC125,kt HFC125,True,True,False
+HFC134A,kt HFC134A,True,True,False
+HFC143A,kt HFC143A,True,True,False
+HFC152A,kt HFC152A,False,False,False
+HFC227EA,kt HFC227EA,True,True,False
+HFC236FA,kt HFC236FA,False,False,False
+HFC245FA,kt HFC245FA,True,True,False
+HFC365MFC,kt HFC365MFC,False,False,False
+NF3,kt NF3,False,False,False
+SF6,kt SF6,True,True,False
+SO2F2,kt SO2F2,False,False,False
+CFC11,kt CFC11,False,False,True
+CFC12,kt CFC12,False,False,True
+CFC113,kt CFC113,False,False,True
+CFC114,kt CFC114,False,False,True
+CFC115,kt CFC115,False,False,True
+HCFC22,kt HCFC22,False,False,True
+HCFC141B,kt HCFC141b,False,False,True
+HCFC142B,kt HCFC142b,False,False,True
+CH3CCL3,kt CH3CCl3,False,False,True
+CCL4,kt CCl4,False,False,True
+CH3CL,kt CH3Cl,False,False,True
+CH2CL2,kt CH2Cl2,False,False,False
+CHCL3,kt CHCl3,False,False,False
+CH3BR,kt CH3Br,False,False,True
+HALON1211,kt Halon1211,False,False,True
+HALON1301,kt Halon1301,False,False,True
+HALON2402,kt Halon2402,False,False,True
+HALON1202,kt Halon1202,False,False,True
