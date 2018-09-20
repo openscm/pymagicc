@@ -5,11 +5,15 @@ C = [carbon_emissions]
 CO2 = 12/44 * C = carbon_dioxide_emissions
 
 N = [nitrogen_emissions]
-N2O = 44/14 * N = nitrous_oxide_emissions
-NOx = 46/14 * N = nox_emissions
+N2O = 14/44 * N = nitrous_oxide_emissions
+NOx = 14/46 * N = nox_emissions
+N2ON = 14/28 * N = nitrous_oxide_farming_style_emissions
 
 S = [sulfur_emissions]
-SO2 = 64/32 * s = sulfur_dioxide_emissions
+SO2 = 32/64 * s = sulfur_dioxide_emissions
+
+VOC = [VOC_emissions] = NMVOC = non_methane_volatile_organic_compouns_emissions
+
 
 BC = [BC_emissions]
 C2F6 = [C2F6_emissions]
@@ -38,7 +42,6 @@ HFC = [HFC_emissions]
 NH3 = [NH3_emissions]
 OC = [OC_emissions]
 SF6 = [SF6_emissions]
-VOC = [VOC_emissions]
 
 @context AR4GWP12
     [carbon_emissions] -> [nitrogen_emissions]: 20 * N / C * value
