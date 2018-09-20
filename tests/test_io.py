@@ -316,7 +316,7 @@ def test_load_magicc6_conc_old_style_name_umlaut_metadata():
 
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
     assert mdata.metadata["data"] == "Global average mixing ratio"
-    generic_mdata_tests(mdata)
+    generic_loaded_mdata_tests(mdata)
     np.testing.assert_allclose(mdata.df["HFC245FA_CONC", "SET", "ppt", "GLOBAL"], 0.0)
 
 
