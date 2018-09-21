@@ -1015,16 +1015,16 @@ def test_get_scen_special_code(regions, emissions, expected):
         )
 
         with pytest.raises(ValueError, match=error_msg):
-            writer._get_special_scen_code(regions, emissions)
+            writer.get_special_scen_code(regions, emissions)
     elif expected == "unrecognised emissions":
         error_msg = re.escape(
             "Could not determine scen special code for emissions {}".format(emissions)
         )
 
         with pytest.raises(ValueError, match=error_msg):
-            writer._get_special_scen_code(regions, emissions)
+            writer.get_special_scen_code(regions, emissions)
     else:
-        result = writer._get_special_scen_code(regions, emissions)
+        result = writer.get_special_scen_code(regions, emissions)
         assert result == expected
 
 
