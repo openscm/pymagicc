@@ -1,3 +1,8 @@
+# Output files in notebooks directory
+notebooks/*.SCEN
+notebooks/*.SCEN7
+notebooks/*.IN
+
 # Auto-generated pydocmd files
 docsrc/pymagicc.*
 
