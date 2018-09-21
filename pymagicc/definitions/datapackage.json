@@ -1,0 +1,185 @@
+{
+  "resources": [
+    {
+      "name": "magicc_concentrations_units",
+      "path": "magicc_concentrations_units.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "MAGICC_variable",
+            "type": "string",
+            "description": "MAGICC variable name"
+          },
+          {
+            "name": "Concentration_units",
+            "type": "string",
+            "description": "Unit"
+          }
+        ]
+      }
+    },
+    {
+      "name": "magicc_dattype_regionmode_regions",
+      "path": "magicc_dattype_regionmode_regions.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "Notes",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "THISFILE_DATTYPE",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "THISFILE_REGIONMODE",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region1",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region2",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region3",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region4",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region5",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region6",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region7",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region8",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region9",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region10",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region11",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region12",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region13",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region14",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region15",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region16",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region17",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region18",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region19",
+            "type": "string",
+            "description": ""
+          },
+          {
+            "name": "Region20",
+            "type": "string",
+            "description": ""
+          }
+        ]
+      }
+    },
+    {
+      "name": "magicc_emisssions_units",
+      "path": "magicc_emisssions_units.csv",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "schema": {
+        "fields": [
+          {
+            "name": "MAGICC variable",
+            "type": "string",
+            "description": "MAGICC variable name"
+          },
+          {
+            "name": "emissions units",
+            "type": "string",
+            "description": "Emissions units in a format Pint can read"
+          },
+          {
+            "name": "SCEN emms code 0",
+            "type": "boolean",
+            "description": "Number of regions expected in a SCEN file"
+          },
+          {
+            "name": "SCEN emms code 1",
+            "type": "boolean",
+            "description": "Gases which are expected in a SCEN file"
+          },
+          {
+            "name": "prn emms",
+            "type": "boolean",
+            "description": ""
+          }
+        ]
+      }
+    }
+  ],
+  "name": "definitions"
+}
