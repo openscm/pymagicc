@@ -76,6 +76,9 @@ black: venv
 		echo Not trying any formatting. Working directory is dirty ... >&2; \
 	fi;
 
+validate-data: venv
+	./venv/bin/goodtables pymagicc/definitions/datapackage.json
+
 clean:
 	rm -rf venv
 
