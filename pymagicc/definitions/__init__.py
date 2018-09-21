@@ -1,14 +1,11 @@
-from os.path import dirname, join
-
 from pathlib import Path
-
 import pandas as pd
 from pandas_datapackage_reader import read_datapackage
 
 path = Path(__file__).parent
 
 
-_dtrm = pd.read_csv(join(dirname(__file__), "magicc_dattype_regionmode_regions.csv"))
+_dtrm = read_datapackage(path, "magicc_dattype_regionmode_regions")
 
 region_cols = _dtrm.columns.to_series().apply(lambda x: x.startswith("Region"))
 
@@ -39,4 +36,4 @@ scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]]["MAGICC variable
 prn_species = _emms_units[_emms_units["prn emms"]]["MAGICC variable"].tolist()
 
 
-_concs_units = pd.read_csv(join(dirname(__file__), "magicc_concentrations_units.csv"))
+_concs_units = read_datapackage(path, "magicc_concentrations_units")
