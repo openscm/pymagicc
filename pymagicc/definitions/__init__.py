@@ -1,6 +1,12 @@
 from os.path import dirname, join
 
+from pathlib import Path
+
 import pandas as pd
+from pandas_datapackage_reader import read_datapackage
+
+path = Path(__file__).parent
+
 
 _dtrm = pd.read_csv(join(dirname(__file__), "magicc_dattype_regionmode_regions.csv"))
 
@@ -26,9 +32,7 @@ dattype_regionmode_regions["Regions"] = [
 # providing concentration or emissions timeseries.
 
 
-
-
-_emms_units = pd.read_csv(join(dirname(__file__), "magicc_emisssions_units.csv"))
+_emms_units = read_datapackage(path, "magicc_emisssions_units")
 
 scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]]["MAGICC variable"].tolist()
 scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]]["MAGICC variable"].tolist()
