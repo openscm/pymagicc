@@ -30,6 +30,20 @@ dattype_regionmode_regions["Regions"] = [
 
 _emms_units = pd.read_csv(join(dirname(__file__), "magicc_emisssions_units.csv"))
 
+def get_emissions_species(variable):
+    exceptions = ["HCFC141B", "HCFC142B"]
+
+    if variable in exceptions:
+        return variable
+    elif variable.endswith(("I", "B")):
+        return variable[:-1]
+    else:
+        return variable
+
+emms_units = _emms_units[["MAGICC variable", "emissions units"]]
+emms_units["MAGICC variable"] = emms_units["MAGICC variable"].apply(get_emissions_species)
+emms_units = emms_units.drop_duplicates()
+
 scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]]["MAGICC variable"].tolist()
 scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]]["MAGICC variable"].tolist()
 prn_species = _emms_units[_emms_units["prn emms"]]["MAGICC variable"].tolist()

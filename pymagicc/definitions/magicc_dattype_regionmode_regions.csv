@@ -1,4 +1,5 @@
 Notes,THISFILE_DATTYPE,THISFILE_REGIONMODE,Region1,Region2,Region3,Region4,Region5,Region6,Region7,Region8,Region9,Region10,Region11,Region12,Region13,Region14,Region15,Region16,Region17,Region18,Region19,Region20
+DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,WORLD,WORLD,,,,,,,,,,,,,,,,,,,
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,SRES,OECD90,REF,ASIA,ALM,,,,,,,,,,,,,,,,
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,SRES,WORLD,OECD90,REF,ASIA,ALM,,,,,,,,,,,,,,,
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,RCP,R5OECD,R5REF,R5ASIA,R5MAF,R5LAM,,,,,,,,,,,,,,,
@@ -27,3 +28,4 @@ Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,NHLAND,SHLAND,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,GLOBAL,NHLAND,SHLAND,,,,,,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,NHOCEAN,NHLAND,SHOCEAN,SHLAND,,,,,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,HEMISPHERIC,NH,SH,,,,,,,,,,,,,,,,,,
+
