@@ -40,7 +40,7 @@ def get_emissions_species(variable):
     else:
         return variable
 
-emms_units = _emms_units[["MAGICC variable", "emissions units"]]
+emms_units = _emms_units[["MAGICC variable", "emissions units"]].copy()
 emms_units["MAGICC variable"] = emms_units["MAGICC variable"].apply(get_emissions_species)
 emms_units = emms_units.drop_duplicates()
 

@@ -1081,6 +1081,7 @@ class _ScenWriter(_InputWriter):
             return len(lines) - no_notes_lines
 
         region_order = self._get_region_order()
+        variable_order = [v + '_EMIS' for v in self._get_variable_order()]
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 12
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
@@ -1102,6 +1103,12 @@ class _ScenWriter(_InputWriter):
             region_block = self.minput[region]
             region_block.columns = region_block.columns.droplevel("TODO")
             region_block.columns = region_block.columns.droplevel("REGION")
+
+            region_block = region_block.reindex(
+                variable_order,
+                level='VARIABLE',
+                axis='columns',
+            )
 
             variables = region_block.columns.get_level_values("VARIABLE").tolist()
             variables = _convert_magicc7_to_magicc6_variables(
@@ -1136,6 +1143,64 @@ class _ScenWriter(_InputWriter):
         region_order = dattype_regionmode_regions["Regions"][region_dattype_row].iloc[0]
 
         return region_order
+
+    def _get_variable_order(self):
+        variables = self._get_df_header_row("VARIABLE")
+        variables = [v.replace("_EMIS", "") for v in variables]
+        special_scen_code = self._get_special_scen_code(
+            regions=self._get_df_header_row("REGION"), emissions=variables
+        )
+
+        if special_scen_code % 10 == 0:
+            return [
+                "CO2I",
+                "CO2B",
+                "CH4",
+                "N2O",
+                "SOX",
+                "CO",
+                "NMVOC",
+                "NOX",
+                "CF4",
+                "C2F6",
+                "C4F10",
+                "HFC23",
+                "HFC32",
+                "HFC4310",
+                "HFC125",
+                "HFC134A",
+                "HFC143A",
+                "HFC227EA",
+                "HFC245FA",
+                "SF6",
+            ]
+        if special_scen_code % 10 == 1:
+            return [
+                "CO2I",
+                "CO2B",
+                "CH4",
+                "N2O",
+                "SOX",
+                "CO",
+                "NMVOC",
+                "NOX",
+                "BC",
+                "OC",
+                "NH3",
+                "CF4",
+                "C2F6",
+                "C6F14",
+                "HFC23",
+                "HFC32",
+                "HFC4310",
+                "HFC125",
+                "HFC134A",
+                "HFC143A",
+                "HFC227EA",
+                "HFC245FA",
+                "SF6",
+            ]
+        raise ValueError("Invalid scen special code received")
 
 
 def _get_subdf_from_df_for_key(df, key):
