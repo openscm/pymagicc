@@ -599,3 +599,27 @@ def test_read_parameters():
         magicc.run()
         assert isinstance(magicc.config, dict)
         assert "allcfgs" in magicc.config
+
+
+def test_updates_namelist(package):
+    write_config(package)
+
+    fname = join(package.run_dir, "MAGTUNE_SIMPLE.CFG")
+    raw_conf = f90nml.read(fname)
+    assert 'test_value' not in raw_conf['nml_allcfgs']
+
+    package.update_config('MAGTUNE_SIMPLE.CFG', test_value=1.2)
+
+    updated_conf = f90nml.read(fname)
+    assert 'test_value' in updated_conf['nml_allcfgs']
+
+
+def test_updates_namelist_missing(package):
+    fname = join(package.run_dir, "MAGTUNE_NOTEXISTS.CFG")
+
+    assert not exists(fname)
+
+    package.update_config('MAGTUNE_NOTEXISTS.CFG', test_value=1.2)
+
+    updated_conf = f90nml.read(fname)
+    assert 'test_value' in updated_conf['nml_allcfgs']
