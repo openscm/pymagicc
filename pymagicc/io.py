@@ -32,10 +32,14 @@ class _InputReader(object):
         "gas",
         "source",
         "unit",
+        "magicc-version",
+        "run",
+        "run_id",
     ]
     _newline_char = "\n"
     _variable_line_keyword = "VARIABLE"
     _regexp_capture_variable = None
+    _default_todo_fill_value = "SET"
 
     def __init__(self, filename):
         self.filename = filename
@@ -99,9 +103,7 @@ class _InputReader(object):
         # TODO: replace with f90nml.reads when released (>1.0.2)
         parser = f90nml.Parser()
         nml = parser._readstream(lines, {})
-        # If there's a hyphen in the value, it gets split (which I think is
-        # sensible behaviour for Fortran as having hyphens in stuff is asking
-        # for trouble), hence we have to join everything back together
+
         # this breaks if units has a '/' in it, not sure how to fix...
         metadata = {}
         for k in nml["THISFILE_SPECIFICATIONS"]:
@@ -206,7 +208,7 @@ class _InputReader(object):
 
         column_headers = {
             "variables": [self._get_variable_from_filename()] * len(regions),
-            "todos": ["SET"] * len(regions),
+            "todos": [self._default_todo_fill_value] * len(regions),
             "units": [unit] * len(regions),
             "regions": regions,
         }
@@ -281,11 +283,15 @@ class _InputReader(object):
             "SO": "SHOCEAN",
             "NL": "NHLAND",
             "SL": "SHLAND",
+            "NH-OCEAN": "NHOCEAN",
+            "SH-OCEAN": "SHOCEAN",
+            "NH-LAND": "NHLAND",
+            "SH-LAND": "SHLAND",
         }
         return [region_mapping[r] for r in regions]
 
 
-class _NonEmisInReader(_InputReader):
+class _FourBoxReader(_InputReader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
@@ -298,7 +304,7 @@ class _NonEmisInReader(_InputReader):
         return column_headers, metadata
 
 
-class _ConcInReader(_NonEmisInReader):
+class _ConcInReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
 
     def _get_variable_from_filename(self):
@@ -310,7 +316,7 @@ class _ConcInReader(_NonEmisInReader):
         return [t.replace("_MIXINGRATIO", "") for t in tokens]
 
 
-class _OpticalThicknessInReader(_NonEmisInReader):
+class _OpticalThicknessInReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_OT)\.IN$")
 
     def _read_magicc6_style_header(self, stream, metadata):
@@ -326,7 +332,7 @@ class _OpticalThicknessInReader(_NonEmisInReader):
         return [t.replace("OT-", "") for t in tokens]
 
 
-class _RadiativeForcingInReader(_NonEmisInReader):
+class _RadiativeForcingInReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_RF)\.(IN|MON)$")
 
     def _read_data_header_line(self, stream, expected_header):
@@ -619,6 +625,11 @@ class _PrnReader(_NonStandardEmisInReader):
             notes.append(line)
 
         return notes
+
+
+class _OutReader(_FourBoxReader):
+    _regexp_capture_variable = re.compile(r"DAT\_(\w*)\.OUT$")
+    _default_todo_fill_value = "N/A"
 
 
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
@@ -1438,6 +1449,11 @@ class MAGICCData(object):
                 "regexp": r"^.*\_RF\.(IN|MON)$",
                 "reader": _RadiativeForcingInReader,
                 "writer": _RadiativeForcingInWriter,
+            },
+            "Out": {
+                "regexp": r"^.*\.OUT$",
+                "reader": _OutReader,
+                "writer": None,
             },
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
