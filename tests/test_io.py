@@ -23,6 +23,7 @@ from pymagicc.io import (
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
+TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
 
 def test_cant_find_reader_writer():
@@ -707,6 +708,44 @@ def test_load_cfg_with_slash_in_units():
     # this fails
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2"
 
+# out routines to check:
+# - DUMP_BULKOUTPUT
+#     - WRITE_PERMAFROSTDATAFIELDS
+#     - DUMP_OUTPUT
+#     - WRITEDATA
+def test_load_out():
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert (
+        "__MAGICC 6.X DATA OUTPUT FILE__"
+        in mdata.metadata["header"]
+    )
+    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
+
+    np.testing.assert_allclose(mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1767], 0.0079979091)
+    np.testing.assert_allclose(mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1965], -0.022702952)
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "NHOCEAN"][1769], 0.010526585
+    )
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "SHOCEAN"][1820], -0.25062424
+    )
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "NHLAND"][2093], 1.8515042
+    )
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "SHLAND"][1765], 0.0
+    )
+
 
 def test_load_prename():
     mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
@@ -1029,7 +1068,7 @@ def test_get_scen_special_code(regions, emissions, expected):
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in listdir(MAGICC6_DIR)])
-def test_can_read_all_files_in_magicc6_dir(file_to_read):
+def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
     if file_to_read.endswith((".exe")):
         pass
     elif file_to_read.endswith(".CFG"):
@@ -1037,6 +1076,12 @@ def test_can_read_all_files_in_magicc6_dir(file_to_read):
     else:
         mdata = MAGICCData()
         mdata.read(MAGICC6_DIR, file_to_read)
+
+
+@pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR)])
+def test_can_read_all_files_in_magicc6_out_dir(file_to_read):
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, file_to_read)
 
 
 # TODO add test of converting names for SCEN files

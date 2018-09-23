@@ -1,0 +1,38 @@
+ 
+__MAGICC 6 OUTPUT SUMMARY INDICATORS__
+ 
+OUTPUT: Emission, Concentration and Temperature indicators over the 21st century
+RUN:     MAGICC6RCP_SingleRun_Template                                                                                                 
+RUN_ID:             1
+DATE:    2018-09-23 18:33                                                                                                              
+MAGICC-VERSION:   6.8.01 BETA, 7th July 2012 - live.magicc.org                                                        
+CONTACT:   malte.meinshausen@pik-potsdam.de
+ 
+ 
+ 
+ 
+ 
+GLOBAL-MEAN SURFACE AIR TEMPERATURE CHANGE ABOVE PRE-INDUSTRIAL (K):  
+MAX (1765 TO 2100):     1.70 K
+              2100:     1.66 K
+ 
+CARBON DIOXIDE (CO2) CONCENTRATIONS:  
+MAX (1765 TO 2100):    445.7 ppm
+              2100:    425.8 ppm
+ 
+CARBON DIOXIDE EQUIVALENCE (CO2-EQ) CONCENTRATIONS (ALL ANTHROPOGENIC FORCINGS (EFF.)):  
+MAX (1765 TO 2100):    461.5 ppm
+              2100:    431.6 ppm
+ 
+RADIATIVE FORCING (ALL NATURAL & ANTHROPOGENIC FORCINGS) :  
+MAX (1765 TO 2100):     3.01 W/m2
+              2100:     2.60 W/m2
+ 
+RADIATIVE FORCING (ALL ANTHROPOGENIC FORCINGS):  
+MAX (1765 TO 2100):     2.91 W/m2
+              2100:     2.49 W/m2
+ 
+CUMULATIVE TOTAL CO2 EMISSIONS:  
+MAX (2000 TO 2100):    1585. GtCO2
+MAX (2000 TO 2050):    1445. GtCO2
+ 
