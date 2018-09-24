@@ -632,6 +632,29 @@ class _OutReader(_FourBoxReader):
     _default_todo_fill_value = "N/A"
 
 
+class _TempOceanLayersOutReader(_InputReader):
+    _regexp_capture_variable = re.compile(r"(TEMP\_OCEANLAYERS\_?\w*)\.OUT$")
+    _default_todo_fill_value = "N/A"
+
+    def _read_magicc6_style_header(self, stream, metadata):
+        column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
+
+        if set(column_headers["variables"]) == {"TEMP_OCEANLAYERS"}:
+            region = "GLOBAL"
+        elif set(column_headers["variables"]) == {"TEMP_OCEANLAYERS_NH"}:
+            region = "NHOCEAN"
+        elif set(column_headers["variables"]) == {"TEMP_OCEANLAYERS_SH"}:
+            region = "SHOCEAN"
+        else:
+            self._raise_cannot_determine_variable_from_filename_error()
+
+        column_headers["variables"] = [
+            "OCEAN_TEMP_" + l for l in column_headers["regions"]
+        ]
+        column_headers["regions"] = [region] * len(column_headers["regions"])
+
+        return column_headers, metadata
+
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings i.e. HFC4310 from
@@ -1451,8 +1474,13 @@ class MAGICCData(object):
                 "writer": _RadiativeForcingInWriter,
             },
             "Out": {
-                "regexp": r"^.*\.OUT$",
+                "regexp": r"^DAT\_.*\.OUT$",
                 "reader": _OutReader,
+                "writer": None,
+            },
+            "TempOceanLayersOut": {
+                "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
+                "reader": _TempOceanLayersOutReader,
                 "writer": None,
             },
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},

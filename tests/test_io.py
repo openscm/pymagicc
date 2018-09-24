@@ -746,6 +746,28 @@ def test_load_out():
         mdata.df["SURFACE_TEMP", "N/A", "K", "SHLAND"][1765], 0.0
     )
 
+def test_load_out_ocean_layers():
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert (
+        "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__"
+        in mdata.metadata["header"]
+    )
+    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
+
+    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
+    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
+    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
+
 
 def test_load_prename():
     mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
