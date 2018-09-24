@@ -746,6 +746,41 @@ def test_load_out():
         mdata.df["SURFACE_TEMP", "N/A", "K", "SHLAND"][1765], 0.0
     )
 
+
+def test_load_out_slash_and_caret_in_units():
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, "DAT_SOXB_RF.OUT")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert (
+        "__MAGICC 6.X DATA OUTPUT FILE__"
+        in mdata.metadata["header"]
+    )
+    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "W/m^2").all()
+
+    np.testing.assert_allclose(mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1767], -0.00025099784)
+    np.testing.assert_allclose(mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1965], -0.032466593)
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "NHOCEAN"][1769], -0.0014779559
+    )
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "SHOCEAN"][1820], -0.00039305876
+    )
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "NHLAND"][2093], -0.024316933
+    )
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "SHLAND"][1765], 0.0
+    )
+
+
 def test_load_out_ocean_layers():
     mdata = MAGICCData()
     mdata.read(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT")

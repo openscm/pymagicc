@@ -25,7 +25,9 @@ def test_can_read_all_files_in_magicc_dir(dir_to_check):
     ignored = []
     for file_to_read in listdir(dir_to_check):
         try:
-            if file_to_read.endswith((".exe", ".mod", ".mat", ".m")):
+            if file_to_read.endswith((".exe", ".mod", ".mat", ".m", ".BINOUT")):
+                ignored.append(file_to_read)
+            elif file_to_read.startswith(("PF", "PRECIP", "SUMM")):
                 ignored.append(file_to_read)
             elif file_to_read.endswith(".CFG"):
                 read_cfg_file(join(dir_to_check, file_to_read))
