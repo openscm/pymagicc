@@ -100,8 +100,18 @@ class _InputReader(object):
         return nml_end, nml_start
 
     def process_metadata(self, lines):
+        def preprocess_edge_cases(lines):
+            return [
+                l.replace("W/m^2", "Wm2").replace("W/m2", "Wm2") for l in lines
+            ]
+
+        def postprocess_edge_cases(value):
+            return value.replace("Wm2", "W/m^2")
+
         # TODO: replace with f90nml.reads when released (>1.0.2)
         parser = f90nml.Parser()
+        lines = preprocess_edge_cases(lines)
+
         nml = parser._readstream(lines, {})
 
         # this breaks if units has a '/' in it, not sure how to fix...
@@ -110,6 +120,7 @@ class _InputReader(object):
             metadata_key = k.split("_")[1]
             try:
                 metadata[metadata_key] = "".join(nml["THISFILE_SPECIFICATIONS"][k])
+                metadata[metadata_key] = postprocess_edge_cases(metadata[metadata_key])
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
 
@@ -339,6 +350,7 @@ class _RadiativeForcingInReader(_FourBoxReader):
         tokens = super()._read_data_header_line(stream, expected_header)
         return [t.replace("FORC-", "") for t in tokens]
 
+    # TODO: delete this in another PR
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
