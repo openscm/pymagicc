@@ -606,12 +606,12 @@ def test_updates_namelist(package):
 
     fname = join(package.run_dir, "MAGTUNE_SIMPLE.CFG")
     raw_conf = f90nml.read(fname)
-    assert 'test_value' not in raw_conf['nml_allcfgs']
+    assert "test_value" not in raw_conf["nml_allcfgs"]
 
-    package.update_config('MAGTUNE_SIMPLE.CFG', test_value=1.2)
+    package.update_config("MAGTUNE_SIMPLE.CFG", test_value=1.2)
 
     updated_conf = f90nml.read(fname)
-    assert 'test_value' in updated_conf['nml_allcfgs']
+    assert "test_value" in updated_conf["nml_allcfgs"]
 
 
 def test_updates_namelist_missing(package):
@@ -619,10 +619,10 @@ def test_updates_namelist_missing(package):
 
     assert not exists(fname)
 
-    package.update_config('MAGTUNE_NOTEXISTS.CFG', test_value=1.2)
+    package.update_config("MAGTUNE_NOTEXISTS.CFG", test_value=1.2)
 
     updated_conf = f90nml.read(fname)
-    assert 'test_value' in updated_conf['nml_allcfgs']
+    assert "test_value" in updated_conf["nml_allcfgs"]
 
 
 def test_ascii_output(package):
@@ -630,15 +630,15 @@ def test_ascii_output(package):
 
     package.set_output_variables(write_ascii=True, write_binary=True)
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'BOTH'
+    assert raw_conf["nml_allcfgs"]["OUT_ASCII_BINARY"] == "BOTH"
 
     package.set_output_variables(write_ascii=False, write_binary=True)
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'BINARY'
+    assert raw_conf["nml_allcfgs"]["OUT_ASCII_BINARY"] == "BINARY"
 
     package.set_output_variables()
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'ASCII'
+    assert raw_conf["nml_allcfgs"]["OUT_ASCII_BINARY"] == "ASCII"
 
     with pytest.raises(AssertionError):
         package.set_output_variables(write_ascii=False, write_binary=False)
@@ -649,13 +649,13 @@ def test_output_variables(package):
 
     package.set_output_variables()
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_TEMPERATURE'] == 0
+    assert raw_conf["nml_allcfgs"]["OUT_TEMPERATURE"] == 0
 
     package.set_output_variables(temperature=True)
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_TEMPERATURE'] == 1
+    assert raw_conf["nml_allcfgs"]["OUT_TEMPERATURE"] == 1
 
     # Even accepts invalid variable names
     package.set_output_variables(this_doesnt_exist=False)
     raw_conf = f90nml.read(fname)
-    assert raw_conf['nml_allcfgs']['OUT_THIS_DOESNT_EXIST'] == 0
+    assert raw_conf["nml_allcfgs"]["OUT_THIS_DOESNT_EXIST"] == 0

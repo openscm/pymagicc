@@ -272,7 +272,7 @@ class MAGICCBase(object):
 
     def update_config(
         self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
-        ):
+    ):
         """
         Updates a configuration file for MAGICC
 
@@ -364,48 +364,50 @@ class MAGICCBase(object):
             'keydata_2'
         """
 
-        assert write_ascii or write_binary, 'write_binary and/or write_ascii must be configured'
+        assert (
+            write_ascii or write_binary
+        ), "write_binary and/or write_ascii must be configured"
         if write_binary and write_ascii:
-            ascii_binary = 'BOTH'
+            ascii_binary = "BOTH"
         elif write_ascii:
-            ascii_binary = 'ASCII'
+            ascii_binary = "ASCII"
         else:
-            ascii_binary = 'BINARY'
+            ascii_binary = "BINARY"
 
         # defaults
         outconfig = {
-            'out_emissions': 0,
-            'out_gwpemissions': 0,
-            'out_sum_gwpemissions': 0,
-            'out_concentrations': 0,
-            'out_carboncycle': 0,
-            'out_forcing': 0,
-            'out_surfaceforcing': 0,
-            'out_permafrost': 0,
-            'out_temperature': 0,
-            'out_sealevel': 0,
-            'out_parameters': 0,
-            'out_misc': 0,
-            'out_lifetimes': 0,
-            'out_timeseriesmix': 0,
-            'out_rcpdata': 0,
-            'out_summaryidx': 0,
-            'out_inverseemis': 0,
-            'out_tempoceanlayers': 0,
-            'out_oceanarea': 0,
-            'out_heatuptake': 0,
-            'out_ascii_binary': ascii_binary,
-            'out_warnings': 0,
-            'out_precipinput': 0,
-            'out_aogcmtuning': 0,
-            'out_ccycletuning': 0,
-            'out_observationaltuning': 0,
-            'out_keydata_1': 0,
-            'out_keydata_2': 0,
+            "out_emissions": 0,
+            "out_gwpemissions": 0,
+            "out_sum_gwpemissions": 0,
+            "out_concentrations": 0,
+            "out_carboncycle": 0,
+            "out_forcing": 0,
+            "out_surfaceforcing": 0,
+            "out_permafrost": 0,
+            "out_temperature": 0,
+            "out_sealevel": 0,
+            "out_parameters": 0,
+            "out_misc": 0,
+            "out_lifetimes": 0,
+            "out_timeseriesmix": 0,
+            "out_rcpdata": 0,
+            "out_summaryidx": 0,
+            "out_inverseemis": 0,
+            "out_tempoceanlayers": 0,
+            "out_oceanarea": 0,
+            "out_heatuptake": 0,
+            "out_ascii_binary": ascii_binary,
+            "out_warnings": 0,
+            "out_precipinput": 0,
+            "out_aogcmtuning": 0,
+            "out_ccycletuning": 0,
+            "out_observationaltuning": 0,
+            "out_keydata_1": 0,
+            "out_keydata_2": 0,
         }
         for kw in kwargs:
             val = 1 if kwargs[kw] else 0  # convert values to 0/1 instead of booleans
-            outconfig['out_' + kw.lower()] = val
+            outconfig["out_" + kw.lower()] = val
 
         self.update_config(**outconfig)
 
