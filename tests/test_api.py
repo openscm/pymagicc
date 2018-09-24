@@ -623,3 +623,39 @@ def test_updates_namelist_missing(package):
 
     updated_conf = f90nml.read(fname)
     assert 'test_value' in updated_conf['nml_allcfgs']
+
+
+def test_ascii_output(package):
+    fname = join(package.run_dir, "MAGTUNE_PYMAGICC.CFG")
+
+    package.set_output_variables(write_ascii=True, write_binary=True)
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'BOTH'
+
+    package.set_output_variables(write_ascii=False, write_binary=True)
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'BINARY'
+
+    package.set_output_variables()
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_ASCII_BINARY'] == 'ASCII'
+
+    with pytest.raises(AssertionError):
+        package.set_output_variables(write_ascii=False, write_binary=False)
+
+
+def test_output_variables(package):
+    fname = join(package.run_dir, "MAGTUNE_PYMAGICC.CFG")
+
+    package.set_output_variables()
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_TEMPERATURE'] == 0
+
+    package.set_output_variables(temperature=True)
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_TEMPERATURE'] == 1
+
+    # Even accepts invalid variable names
+    package.set_output_variables(this_doesnt_exist=False)
+    raw_conf = f90nml.read(fname)
+    assert raw_conf['nml_allcfgs']['OUT_THIS_DOESNT_EXIST'] == 0
