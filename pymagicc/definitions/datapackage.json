@@ -10,12 +10,12 @@
           {
             "name": "MAGICC_variable",
             "type": "string",
-            "description": "MAGICC variable name"
+            "description": "The name of the variable as sometimes used in MAGICC. The names in MAGICC aren't always consistent hence this won't always be how it's called and so this name is a bit misleading.."
           },
           {
             "name": "Concentration_units",
             "type": "string",
-            "description": "Unit"
+            "description": "Units in which this variable is calculated and expected in MAGICC, written in a format which Pint can read."
           }
         ]
       }
@@ -30,22 +30,22 @@
           {
             "name": "Notes",
             "type": "string",
-            "description": ""
+            "description": "Some notes about how this DATTYPE and REGIONMODE combination are used in MAGICC internally. Only notes so may not actually reflect the truth."
           },
           {
             "name": "THISFILE_DATTYPE",
             "type": "string",
-            "description": ""
+            "description": "The value expected by MAGICC for the THISFILE_DATTYPE flag when the regions match the given regions."
           },
           {
             "name": "THISFILE_REGIONMODE",
             "type": "string",
-            "description": ""
+            "description": "The value expected by MAGICC for the THISFILE_REGIONMODE flag when the regions match the given regions."
           },
           {
             "name": "Region1",
             "type": "string",
-            "description": ""
+            "description": "The regions in the RegionX columns define the region set which match the given THISFILE_DATTYPE and THISFILE_REGIONMODE flags."
           },
           {
             "name": "Region2",
@@ -155,27 +155,27 @@
           {
             "name": "MAGICC variable",
             "type": "string",
-            "description": "MAGICC variable name"
+            "description": "The name of the variable as sometimes used in MAGICC. The names in MAGICC aren't always consistent hence this won't always be how it's called and so this name is a bit misleading.."
           },
           {
             "name": "emissions units",
             "type": "string",
-            "description": "Emissions units in a format Pint can read"
+            "description": "Units in which this variable is calculated and expected in MAGICC, written in a format which Pint can read."
           },
           {
             "name": "SCEN emms code 0",
             "type": "boolean",
-            "description": "Number of regions expected in a SCEN file"
+            "description": "True if this emissions species is expected in a SCEN file whose SCEN emissions code is 0 (see documentation of `pymagicc/io.py::_ScenWriter.get_special_scen_code` for further explanation)."
           },
           {
             "name": "SCEN emms code 1",
             "type": "boolean",
-            "description": "Gases which are expected in a SCEN file"
+            "description": "True if this emissions species is expected in a SCEN file whose SCEN emissions code is 1 (see documentation of `pymagicc/io.py::_ScenWriter.get_special_scen_code` for further explanation)."
           },
           {
             "name": "prn emms",
             "type": "boolean",
-            "description": ""
+            "description": "True if this emissions species is expected in a `.prn file`."
           }
         ]
       }

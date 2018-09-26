@@ -1048,21 +1048,22 @@ class _ScenWriter(_InputWriter):
 
     def get_special_scen_code(self, regions, emissions):
         """
-        Get special code for MAGICC6 style SCEN files.
+        Get special code for MAGICC6 SCEN files.
 
         # Parameters
-        region (str): MAGICC region name
-        emissions (str): Emissions species name
+        region (list-like): regions to get code for
+        emissions (list-like): emissions to get code for
 
-        At the top of every MAGICC6 compatible SCEN file there is a two digit
-        number (in the current pymagicc/__init__.py its called region_code
-        but it's actually more than that). The first digit tells MAGICC how
-        many regions data is being provided for. The second digit tells MAGICC
-        which gases are in the SCEN file.
-        This is referred to as the 'SCEN emms code'. Hence the 'SCEN emms
-        code 1' defines the gases which are expected when that 'SCEN emms code'
-        is 1. Similarly, has the header 'SCEN emms code 0' defines the gases
+        At the top of every MAGICC6 and MAGICC5 SCEN file there is a two digit
+        number. The first digit tells MAGICC how many regions data is being
+        provided for. The second digit tells MAGICC which gases are in the
+        SCEN file.
+
+        We call this second digit the 'SCEN emms code'. Hence the variable
+        `scen_emms_code_1` defines the gases which are expected when that
+        'SCEN emms code' is 1. Similarly, `scen_emms_code_0` defines the gases
         which are expected when that 'SCEN emms code' is 0.
+
         Having these definitions allows Pymagicc to check that the right
         set of emissions has been provided before writing SCEN files.
         """
