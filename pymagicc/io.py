@@ -101,9 +101,7 @@ class _InputReader(object):
 
     def process_metadata(self, lines):
         def preprocess_edge_cases(lines):
-            return [
-                l.replace("W/m^2", "Wm2").replace("W/m2", "Wm2") for l in lines
-            ]
+            return [l.replace("W/m^2", "Wm2").replace("W/m2", "Wm2") for l in lines]
 
         def postprocess_edge_cases(value):
             return value.replace("Wm2", "W/m^2")
@@ -666,6 +664,7 @@ class _TempOceanLayersOutReader(_InputReader):
         column_headers["regions"] = [region] * len(column_headers["regions"])
 
         return column_headers, metadata
+
 
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # we generate the mapping dynamically, the first name in the list
@@ -1485,11 +1484,7 @@ class MAGICCData(object):
                 "reader": _RadiativeForcingInReader,
                 "writer": _RadiativeForcingInWriter,
             },
-            "Out": {
-                "regexp": r"^DAT\_.*\.OUT$",
-                "reader": _OutReader,
-                "writer": None,
-            },
+            "Out": {"regexp": r"^DAT\_.*\.OUT$", "reader": _OutReader, "writer": None},
             "TempOceanLayersOut": {
                 "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
                 "reader": _TempOceanLayersOutReader,
