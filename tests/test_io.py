@@ -708,6 +708,7 @@ def test_load_cfg_with_slash_in_units():
     # this fails
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2"
 
+
 # out routines to check:
 # - DUMP_BULKOUTPUT
 #     - WRITE_PERMAFROSTDATAFIELDS
@@ -724,15 +725,16 @@ def test_load_out():
         mdata.metadata["magicc-version"]
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
-    assert (
-        "__MAGICC 6.X DATA OUTPUT FILE__"
-        in mdata.metadata["header"]
-    )
+    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
     assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
 
-    np.testing.assert_allclose(mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1767], 0.0079979091)
-    np.testing.assert_allclose(mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1965], -0.022702952)
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1767], 0.0079979091
+    )
+    np.testing.assert_allclose(
+        mdata.df["SURFACE_TEMP", "N/A", "K", "GLOBAL"][1965], -0.022702952
+    )
     np.testing.assert_allclose(
         mdata.df["SURFACE_TEMP", "N/A", "K", "NHOCEAN"][1769], 0.010526585
     )
@@ -758,15 +760,16 @@ def test_load_out_slash_and_caret_in_units():
         mdata.metadata["magicc-version"]
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
-    assert (
-        "__MAGICC 6.X DATA OUTPUT FILE__"
-        in mdata.metadata["header"]
-    )
+    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
     assert (mdata.df.columns.get_level_values("UNITS") == "W/m^2").all()
 
-    np.testing.assert_allclose(mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1767], -0.00025099784)
-    np.testing.assert_allclose(mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1965], -0.032466593)
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1767], -0.00025099784
+    )
+    np.testing.assert_allclose(
+        mdata.df["SOXB_RF", "N/A", "W/m^2", "GLOBAL"][1965], -0.032466593
+    )
     np.testing.assert_allclose(
         mdata.df["SOXB_RF", "N/A", "W/m^2", "NHOCEAN"][1769], -0.0014779559
     )
@@ -776,9 +779,7 @@ def test_load_out_slash_and_caret_in_units():
     np.testing.assert_allclose(
         mdata.df["SOXB_RF", "N/A", "W/m^2", "NHLAND"][2093], -0.024316933
     )
-    np.testing.assert_allclose(
-        mdata.df["SOXB_RF", "N/A", "W/m^2", "SHLAND"][1765], 0.0
-    )
+    np.testing.assert_allclose(mdata.df["SOXB_RF", "N/A", "W/m^2", "SHLAND"][1765], 0.0)
 
 
 def test_load_out_ocean_layers():
@@ -793,15 +794,47 @@ def test_load_out_ocean_layers():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert (
-        "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__"
-        in mdata.metadata["header"]
+        "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
     )
     assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
     assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
 
-    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
-    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
-    np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
+    np.testing.assert_allclose(
+        mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0
+    )
+    np.testing.assert_allclose(
+        mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213
+    )
+    np.testing.assert_allclose(
+        mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633
+    )
+
+
+xfail_msg = (
+    "CARBONCYCLE.OUT has no units and I don't want to hardcode them. "
+    "I also don't know what most of these variables are."
+)
+
+
+@pytest.mark.xfail(reason=xfail_msg)
+def test_load_out_carboncycle():
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, "CARBONCYCLE.OUT")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert "__MAGICC 6.X CARBONCYCLE DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
+
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
 
 
 def test_load_prename():
