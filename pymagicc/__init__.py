@@ -43,7 +43,12 @@ _config_path = os.path.join(
 default_config = f90nml.read(_config_path)
 
 # MAGICC's SCEN files encode the regions as follows.
-region_codes = {
+# TODO: delete this and use the readers in `pymagicc/io.py` instead to reduce
+#       duplication and to make this function stable. This file's way of doing
+#       things will fail (I think but need to write the test to confirm) if
+#       you try to run MAGICC with a scenario that doesn't contain all the
+#       expected emissions.
+scen_special_code_region_map = {
     11: ["WORLD"],
     20: ["WORLD", "OECD90", "REF", "ASIA", "ALM"],
     21: ["WORLD", "OECD90", "REF", "ASIA", "ALM"],
@@ -115,10 +120,8 @@ def _get_number_of_datapoints(scen_file):
     return int(linecache.getline(scen_file, 1))
 
 
-def _get_region_code(scen_file):
-    """
-    Get region code for a .SCEN-file.
-    """
+def _get_scen_special_code(scen_file):
+    """Return special code for a .SCEN-file."""
     return int(linecache.getline(scen_file, 2))
 
 
@@ -140,8 +143,8 @@ def read_scen_file(scen_file):
     """
     num_datapoints = _get_number_of_datapoints(scen_file)
 
-    region_code = _get_region_code(scen_file)
-    regions = region_codes[region_code]
+    scen_special_code = _get_scen_special_code(scen_file)
+    regions = scen_special_code_region_map[scen_special_code]
 
     output = {}
 
@@ -159,7 +162,7 @@ def read_scen_file(scen_file):
         )
         output[region].name = region
 
-    if region_code == 11:
+    if scen_special_code == 11:
         return output["WORLD"]
     else:
         return output
@@ -223,9 +226,9 @@ def write_scen_file(
 
     # Regions.
     num_regions = len(scenario)
-    for region_code, regions in region_codes.items():
+    for scen_special_code, regions in scen_special_code_region_map.items():
         if len(regions) == num_regions:
-            out.append(" " + str(region_code))
+            out.append(" " + str(scen_special_code))
             break
 
     # Scenario name.
@@ -250,7 +253,7 @@ def write_scen_file(
     with_digits = "{0: >11.4f}"
 
     # Regions.
-    for region in region_codes[region_code]:
+    for region in scen_special_code_region_map[scen_special_code]:
         out.append(" " + region)
 
         # Header line.

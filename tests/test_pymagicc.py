@@ -5,7 +5,7 @@ import pytest
 from pymagicc import (
     _magiccpath,
     _get_number_of_datapoints,
-    _get_region_code,
+    _get_scen_special_code,
     read_scen_file,
     write_scen_file,
     rcp26,
@@ -27,7 +27,7 @@ def test_count():
 
 
 def test_region_code():
-    assert _get_region_code(rcp26_scen_file) == 41
+    assert _get_scen_special_code(rcp26_scen_file) == 41
 
 
 def test_read_scen_file():
