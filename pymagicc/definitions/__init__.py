@@ -15,20 +15,6 @@ dattype_regionmode_regions["Regions"] = [
     for raw in _dtrm.loc[:, region_cols].values.tolist()
 ]
 
-# TODO: put this text in docs/in data package with csv or something
-
-# ------- SCEN emissions code definitions -------
-# The definitions below define the emissions species which must be in SCEN (
-# i.e. scenario i.e. emissions projection input) files and which emissions
-# code they correspond to. The emissions code is used by MAGICC to
-# pre-allocate arrays.
-
-# ------- .prn species -------
-# .prn files are MAGICC6's ozone depleting species input file. They must
-# always contain the following species, regardless of whether they are
-# providing concentration or emissions timeseries.
-
-
 _emms_units = read_datapackage(path, "magicc_emisssions_units")
 
 scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]]["MAGICC variable"].tolist()
