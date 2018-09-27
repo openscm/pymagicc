@@ -100,11 +100,20 @@ class _InputReader(object):
         return nml_end, nml_start
 
     def process_metadata(self, lines):
-        def preprocess_edge_cases(lines):
-            return [l.replace("W/m^2", "Wm2").replace("W/m2", "Wm2") for l in lines]
+        def preprocess_edge_cases(lines, inverse=False):
+            replacements = {
+                "W/m": "Wperm",
+                "^": "superscript",
+            }
+
+            return _replace_from_replacement_dict(
+                lines,
+                replacements,
+                inverse=inverse,
+            )
 
         def postprocess_edge_cases(value):
-            return value.replace("Wm2", "W/m^2")
+            return preprocess_edge_cases(value, inverse=True)
 
         # TODO: replace with f90nml.reads when released (>1.0.2)
         parser = f90nml.Parser()
@@ -112,12 +121,16 @@ class _InputReader(object):
 
         nml = parser._readstream(lines, {})
 
-        # this breaks if units has a '/' in it, not sure how to fix...
         metadata = {}
         for k in nml["THISFILE_SPECIFICATIONS"]:
             metadata_key = k.split("_")[1]
             try:
-                metadata[metadata_key] = "".join(nml["THISFILE_SPECIFICATIONS"][k])
+                # have to do this type coercion as nml reads things like
+                # 10superscript22 J into a threepart list, [10,
+                # 'superscript22', 'J'] where the first part is an int
+                metadata[metadata_key] = "".join([
+                    str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]
+                ])
                 metadata[metadata_key] = postprocess_edge_cases(metadata[metadata_key])
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
