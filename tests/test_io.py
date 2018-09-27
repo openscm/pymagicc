@@ -795,24 +795,24 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
-    assert (mdata.df.columns.get_level_values("UNITS") == "10^22 J").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "10^22J").all()
 
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "GLOBAL"][1767], 0.046263236
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1767], 0.046263236
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "GLOBAL"][1965], 3.4193050
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1965], 3.4193050
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "NHOCEAN"][1769], 0.067484257
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "NHOCEAN"][1769], 0.067484257
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "SHOCEAN"][1820], -4.2688102
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHOCEAN"][1820], -4.2688102
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "NHLAND"][2093], 0.0
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "NHLAND"][2093], 0.0
     )
-    np.testing.assert_allclose(mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22 J", "SHLAND"][1765], 0.0)
+    np.testing.assert_allclose(mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHLAND"][1765], 0.0)
 
 
 def test_load_out_ocean_layers():
@@ -847,8 +847,6 @@ xfail_msg = (
     "CARBONCYCLE.OUT has no units and I don't want to hardcode them. "
     "I also don't know what most of these variables are."
 )
-
-
 @pytest.mark.xfail(reason=xfail_msg)
 def test_load_out_carboncycle():
     mdata = MAGICCData()
@@ -873,8 +871,6 @@ def test_load_out_carboncycle():
 xfail_msg = (
     "CO2I_INVERSE_EMIS.OUT has no units and I don't want to hardcode them. "
 )
-
-
 @pytest.mark.xfail(reason=xfail_msg)
 def test_load_out_co2i_inverseemis():
     mdata = MAGICCData()
@@ -894,6 +890,76 @@ def test_load_out_co2i_inverseemis():
     # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
     # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
     # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
+
+
+xfail_msg = (
+    "Output baskets have MAGICC6 style names and variable names are inconsistent. "
+    "We should fix output rather than hacking these readers."
+)
+@pytest.mark.xfail(reason=xfail_msg)
+@pytest.mark.parametrize("basket_file", [
+    ("DATBASKET_EMISSIONS.OUT"),
+    ("DATBASKET_MIDYR_CONC.OUT"),
+    ("DATBASKET_MIDYR_RF.OUT"),
+    ("INVERSEEMIS.OUT"),
+    ("TIMESERIESMIX.OUT"),
+])
+def test_load_out_datbasket(basket_file):
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, basket_file)
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert "__MAGICC 6.X EMISSION DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
+    # assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
+
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
+    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
+
+
+def test_load_parameters_out_with_magicc_input():
+    mdata = MAGICCData()
+    test_file = "PARAMETERS.OUT"
+    expected_error_msg = (
+        r"^"
+        + re.escape("MAGCCInput cannot read PARAMETERS.OUT as it is a config style file")
+        + re.escape(", please use pymagicc.io.read_cfg_file")
+        + r"$"
+    )
+
+    with pytest.raises(ValueError, match=expected_error_msg):
+        mdata.read(TEST_OUT_DIR, test_file)
+
+
+xfail_msg = (
+    "Output files have heaps of spurious spaces, need to decide what to do "
+    "about this. If we strip them, we give the illustion that they're usable, "
+    "which they're not really..."
+)
+@pytest.mark.xfail(reason=xfail_msg)
+def test_load_parameters_out():
+    cfg = read_cfg_file(join(TEST_OUT_DIR, "PARAMETERS.OUT"))
+
+    assert cfg["NML_YEARS"]["STARTYEAR"] == 1765
+    assert cfg["NML_YEARS"]["STEPSPERYEAR"] == 12
+
+    assert cfg["NML_ALLCFGS"]["PATHNAME_OUTFILES"] == "../out/"
+    assert cfg["NML_ALLCFGS"]["CO2_FEEDBACKFACTOR_GPP"] == 0.01070037
+
+    assert cfg["NML_OUTPUTCFGS"]["RF_INTEFFICACY_CH4"] == 0.987766458278542
+    assert cfg["NML_OUTPUTCFGS"]["RF_REGIONS_AER_DIR"] == [
+        -0.819497642538182,
+        -0.804446767198558,
+        -0.02718573381799450,
+        -0.01260873055223082,
+    ]
 
 
 def test_load_prename():
@@ -1229,8 +1295,11 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
 
 @pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR)])
 def test_can_read_all_files_in_magicc6_out_dir(file_to_read):
-    mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, file_to_read)
+    if file_to_read.endswith(("PARAMETERS.OUT")):
+        read_cfg_file(join(TEST_OUT_DIR, file_to_read))
+    else:
+        mdata = MAGICCData()
+        mdata.read(TEST_OUT_DIR, file_to_read)
 
 
 # TODO add test of converting names for SCEN files

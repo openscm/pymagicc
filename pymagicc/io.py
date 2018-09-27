@@ -1525,11 +1525,19 @@ class MAGICCData(object):
                     )
                     raise KeyError(error_msg)
 
+        para_file = "PARAMETERS.OUT"
         if (filename.endswith(".CFG")) and (tool_to_get == "reader"):
             error_msg = (
                 "MAGCCInput cannot read .CFG files like {}, please use "
                 "pymagicc.io.read_cfg_file".format(filename)
             )
+
+        elif (filename.endswith(para_file)) and (tool_to_get == "reader"):
+            error_msg = (
+                "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
+                "style file, please use pymagicc.io.read_cfg_file"
+            )
+
         else:
             regexp_list_str = "\n".join(
                 [
