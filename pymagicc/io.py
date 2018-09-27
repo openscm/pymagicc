@@ -727,18 +727,24 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
                 continue
             replacements[m6v] = m7v
 
+    return _replace_from_replacement_dict(
+        variables,
+        replacements,
+        inverse=inverse
+    )
+
+def _replace_from_replacement_dict(inputs, replacements, inverse=False):
     if inverse:
         replacements = {v: k for k, v in replacements.items()}
 
-    variables_return = deepcopy(variables)
+    inputs_return = deepcopy(inputs)
     for old, new in replacements.items():
-        if isinstance(variables_return, list):
-            variables_return = [v.replace(old, new) for v in variables_return]
+        if isinstance(inputs_return, list):
+            inputs_return = [v.replace(old, new) for v in inputs_return]
         else:
-            variables_return = variables_return.replace(old, new)
+            inputs_return = inputs_return.replace(old, new)
 
-    return variables_return
-
+    return inputs_return
 
 def _convert_magicc7_to_magicc6_variables(variables):
     return _convert_magicc6_to_magicc7_variables(variables, inverse=True)
