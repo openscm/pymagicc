@@ -19,11 +19,30 @@ from pymagicc.io import (
     _ScenWriter,
     read_cfg_file,
     get_special_scen_code,
+    NoReaderWriterError,
+    InvalidTemporalResError
 )
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
 TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
+
+# Not all files can be read in
+TEST_OUT_FILES = listdir(TEST_OUT_DIR)
+
+invalid_out_files = [
+    r"CARBONCYCLE\.BINOUT",
+    r".*SUBANN.*BINOUT",
+    r"DAT_VOLCANIC_RF\.BINOUT",
+    r"PF_.*\.BINOUT",
+    r"DATBASKET_.*",
+    r"INVERSEEMIS\.BINOUT",
+    r"PRECIPINPUT\.BINOUT",
+    r"TEMP_OCEANLAYERS\.BINOUT",
+    r"TIMESERIESMIX\.BINOUT",
+]
+
+
 
 
 def test_cant_find_reader_writer():
@@ -1293,19 +1312,48 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
         mdata.read(MAGICC6_DIR, file_to_read)
 
 
-@pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR)])
-def test_can_read_all_files_in_magicc6_out_dir(file_to_read):
+@pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
+def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
     if file_to_read.endswith(("PARAMETERS.OUT")):
         read_cfg_file(join(TEST_OUT_DIR, file_to_read))
     else:
-        mdata = MAGICCData()
-        mdata.read(TEST_OUT_DIR, file_to_read)
+        # Check if the file is on the list of invalid files
+        for p in invalid_out_files:
+            if re.match(p, file_to_read):
+                # Return early as this file is marked as ignored.
+                return
+
+        mdata = MAGICCData(file_to_read)
+        mdata.read(TEST_OUT_DIR)
+
+
+@pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
+def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
+    # Check if the file is on the list of invalid files
+    valid_filename = True
+    for p in invalid_out_files:
+        if re.match(p, file_to_read):
+            valid_filename = False
+    # Skip files not marked as invalid
+    if valid_filename:
+        return
+
+    mdata = MAGICCData(file_to_read)
+    try:
+        with pytest.raises(NoReaderWriterError):
+            mdata.read(TEST_OUT_DIR)
+    except InvalidTemporalResError:
+        pass
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR) if f.endswith('BINOUT') and f.startswith('DAT_')])
 def test_bin_and_ascii_equal(file_to_read):
-    mdata_bin = MAGICCData(file_to_read)
-    mdata_bin.read(TEST_OUT_DIR)
+    try:
+        mdata_bin = MAGICCData(file_to_read)
+        mdata_bin.read(TEST_OUT_DIR)
+    except InvalidTemporalResError:
+        # Some BINOUT files are on a subannual time scale and cannot be read (yet)
+        return
 
     mdata_ascii = MAGICCData(file_to_read.replace('BINOUT', 'OUT'))
     mdata_ascii.read(TEST_OUT_DIR)

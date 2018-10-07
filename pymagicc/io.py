@@ -22,6 +22,20 @@ from .definitions import (
 )
 
 
+class NoReaderWriterError(ValueError):
+    """
+    Exception raised when an valid Reader or Writer could not be found for the file
+    """
+    pass
+
+
+class InvalidTemporalResError(ValueError):
+    """
+    Exception raised when an valid Reader or Writer could not be found for the file
+    """
+    pass
+
+
 class _InputReader(object):
     header_tags = [
         "compiled by",
@@ -782,9 +796,10 @@ class _BinaryOutReader(_InputReader):
             "lastyear": data.read_chunk("I"),
             "annualsteps": data.read_chunk("I"),
         }
-        assert (
-            metadata["annualsteps"] == 1
-        ), "Only annual binary files can currently be processed"
+        if metadata['annualsteps'] != 1:
+            raise InvalidTemporalResError(
+                "{}: Only annual binary files can currently be processed".format(self.filename)
+            )
 
         return metadata
 
@@ -1662,7 +1677,7 @@ class MAGICCData(object):
                 "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
             )
 
-        raise ValueError(error_msg)
+        raise NoReaderWriterError(error_msg)
 
 
 def _check_file_exists(file_to_read):
