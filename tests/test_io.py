@@ -1302,5 +1302,17 @@ def test_can_read_all_files_in_magicc6_out_dir(file_to_read):
         mdata.read(TEST_OUT_DIR, file_to_read)
 
 
+@pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR) if f.endswith('BINOUT') and f.startswith('DAT_')])
+def test_bin_and_ascii_equal(file_to_read):
+    mdata_bin = MAGICCData(file_to_read)
+    mdata_bin.read(TEST_OUT_DIR)
+
+    mdata_ascii = MAGICCData(file_to_read.replace('BINOUT', 'OUT'))
+    mdata_ascii.read(TEST_OUT_DIR)
+
+    # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
+    mdata_ascii.df.columns = mdata_ascii.df.columns.droplevel('UNITS').droplevel('TODO')
+    pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
+
 # TODO add test of converting names for SCEN files
 # TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
