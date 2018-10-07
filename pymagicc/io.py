@@ -679,6 +679,115 @@ class _TempOceanLayersOutReader(_InputReader):
         return column_headers, metadata
 
 
+class BinData(object):
+    def __init__(self, filename):
+        # read the entire file into memory
+        self.data = open(filename, "rb").read()
+        self.data = memoryview(self.data)
+        self.pos = 0
+
+    def read_chunk(self, t):
+        """
+        Read out the next chunk of memory
+
+        Values in fortran binary streams begin and end with the number of bytes
+        :param t: Data type (same format as used by struct).
+        :return: Numpy array if the variable is an array, otherwise a scalar.
+        """
+        size = self.data[self.pos : self.pos + 4].cast("i")[0]
+        d = self.data[self.pos + 4 : self.pos + 4 + size]
+
+        assert (
+            self.data[self.pos + 4 + size : self.pos + 4 + size + 4].cast("i")[0]
+            == size
+        )
+        self.pos = self.pos + 4 + size + 4
+
+        res = np.array(d.cast(t))
+
+        # Return as a variable or a numpy array if it is an array
+        if res.size == 1:
+            return res[0]
+        return res
+
+
+class _BinaryOutReader(_InputReader):
+    _regexp_capture_variable = re.compile(r"DAT\_(.*)\.BINOUT$")
+    _default_todo_fill_value = "N/A"
+
+    def read(self):
+        # Read the entire file into memory
+        data = BinData(self.filename)
+
+        metadata = self.process_header(data)
+        df, metadata = self.process_data(data, metadata)
+
+        return metadata, df
+
+    def process_data(self, stream, metadata):
+        """
+        Extract the tabulated data from the input file
+
+        # Arguments
+        stream (Streamlike object): A Streamlike object (nominally StringIO)
+            containing the table to be extracted
+        metadata (dict): metadata read in from the header and the namelist
+
+        # Returns
+        df (pandas.DataFrame): contains the data, processed to the standard
+            MAGICCData format
+        metadata (dict): updated metadata based on the processing performed
+        """
+        index = np.arange(metadata["firstyear"], metadata["lastyear"] + 1)
+
+        # The first variable is the global values
+        globe = stream.read_chunk("d")
+
+        assert len(globe) == len(index)
+
+        regions = stream.read_chunk("d")
+        num_regions = int(len(regions) / len(index))
+        regions = regions.reshape((-1, num_regions), order="F")
+
+        data = np.concatenate((globe[:, np.newaxis], regions), axis=1)
+
+        df = pd.DataFrame(data, index=index)
+
+        if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
+            df.index = df.index.to_series().round(3)
+
+        df.index.name = "YEAR"
+
+        column_headers = {
+            "variable": [self._get_variable_from_filename()] * (num_regions + 1),
+            "region": ["GLOBAL", "NHOCEAN", "NHLAND", "SHOCEAN", "SHLAND"],
+        }
+        df.columns = pd.MultiIndex.from_arrays(
+            [column_headers["variable"], column_headers["region"]],
+            names=("VARIABLE", "REGION"),
+        )
+
+        return df, metadata
+
+    def process_header(self, data):
+        """
+        Reads the first part of the file to get some essential metadata
+
+        # Returns
+        return (dict): the metadata in the header
+        """
+        metadata = {
+            "datacolumns": data.read_chunk("I"),
+            "firstyear": data.read_chunk("I"),
+            "lastyear": data.read_chunk("I"),
+            "annualsteps": data.read_chunk("I"),
+        }
+        assert (
+            metadata["annualsteps"] == 1
+        ), "Only annual binary files can currently be processed"
+
+        return metadata
+
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings i.e. HFC4310 from
@@ -1509,6 +1618,7 @@ class MAGICCData(object):
                 "reader": _TempOceanLayersOutReader,
                 "writer": None,
             },
+            "BinOut": {"regexp": r"^DAT\_.*\.BINOUT$", "reader": _BinaryOutReader, "writer": None},
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
 
