@@ -12,6 +12,7 @@ venv: dev-requirements.txt
 	./venv/bin/pip install --upgrade pip
 	./venv/bin/pip install wheel
 	./venv/bin/pip install -Ur dev-requirements.txt
+	./venv/bin/pip install -Ur docs/requirements.txt
 	./venv/bin/jupyter serverextension enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension     enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension enable --py widgetsnbextension
