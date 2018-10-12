@@ -2,7 +2,6 @@ Developing
 ==========
 
 Updating the Docs
------------------
 
 The docs use Sphinx and can be rebuilt locally in the "docs" directory with
 
@@ -12,7 +11,6 @@ The docs use Sphinx and can be rebuilt locally in the "docs" directory with
 
 
 Releasing
----------
 
 The ``make black`` and ``make flake8`` tasks should require no changes.
 
