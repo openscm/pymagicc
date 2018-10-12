@@ -1,5 +1,18 @@
 Pymagicc
 ========
 
-.. include:: file_conventions.rst
-.. include:: developing.rst
+.. toctree::
+  :maxdepth: 2
+  :caption: Documentation
+
+  file_conventions
+  developing
+
+.. toctree::
+  :maxdepth: 2
+  :caption: API Docs
+
+  pymagicc
+  pymagicc.api
+  pymagicc.io
+  pymagicc.definitions

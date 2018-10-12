@@ -1,0 +1,4 @@
+pymagicc
+--------
+
+.. automodule:: pymagicc

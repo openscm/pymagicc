@@ -2,7 +2,6 @@ MAGICC file conventions
 =======================
 
 Input files
------------
 
 The MAGICC ``run`` directory contains all of MAGICC’s input files. At
 the moment, we have only tested reading of these files. Hence whilst we
