@@ -18,7 +18,7 @@ from _version import get_versions
 
 # -- Project information -----------------------------------------------------
 
-project = "Pymagiccn"
+project = "Pymagic"
 copyright = "2018, Pymagicc Authors"
 author = "Robert Gieseke, Zeb Nicholls, Jared Lewis, Sven Willner, Matthias Mengel"
 
