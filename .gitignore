@@ -1,9 +1,3 @@
-# Auto-generated pydocmd files
-docsrc/pymagicc.*
-
-# Auto-generated pydocmd file which is binary and not really needed
-docs/sitemap.xml.gz
-
 # Virtualenv
 venv/
 ENV/
