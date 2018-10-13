@@ -35,7 +35,7 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
-with open(os.path.join(path, "README.md"), "r") as f:
+with open(os.path.join(path, "README.rst"), "r") as f:
     readme = f.read()
 
 
