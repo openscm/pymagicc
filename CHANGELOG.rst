@@ -14,6 +14,7 @@ master
     - Deleted ``pymagicc/MAGICC6/run/HIST_SEALEVEL_CHURCHWHITE2006_RF.IN`` as it's empty
     - Added ``scripts/check_run_dir_file_read.py`` so we can quickly check which files in a MAGICC ``run`` directory can be read by ``pymagicc``
     - Added new section to docs, ``docs/file_conventions.rst`` which will document all of the relevant information related to MAGICC's file conventions
+- (`#142 <https://github.com/openclimatedata/pymagicc/pull/143>`_) Only read ``PARAMETERS.OUT`` file if it exists. ``MAGICCBase.config`` now defaults to ``None`` until a valid ``PARAMETERS.OUT`` file is read.
 
 
 1.3.2
