@@ -14,7 +14,7 @@ Pymagicc
 .. sec-begin-index
 
 Pymagicc is a Python wrapper around the reduced complexity climate model
-`MAGICC6 <http://magicc.org/>_. It wraps the CC-BY-NC-SA licensed
+`MAGICC6 <http://magicc.org/>`_. It wraps the CC-BY-NC-SA licensed
 `MAGICC6 binary <http://www.magicc.org/download6>`_. Pymagicc itself is AGPL licensed.
 
 MAGICC (Model for the Assessment of Greenhouse Gas Induced Climate Change)
@@ -72,7 +72,7 @@ Installation
     pip install pymagicc
 
 On Linux and OS X the original compiled Windows binary available on
-`http://www.magicc.org/`_ and included in Pymagicc
+`<http://www.magicc.org/>`_ and included in Pymagicc
 can run using `Wine <https://www.winehq.org/>`_.
 
 On modern 64-bit systems one needs to use the 32-bit version of Wine
@@ -218,11 +218,11 @@ Using a different MAGICC version
 
 A custom version of MAGICC may be used with ``pymagicc`` using the
 ``MAGICC_EXECUTABLE_6`` and ``MAGICC_EXECUTABLE_7`` environment variables for MAGICC6
- and MAGICC7 respectively. These environment variables should be set to the
- location of the magicc executable (either ``magicc`` for linux/mac or
- ``magicc.exe`` for Windows).
+and MAGICC7 respectively. These environment variables should be set to the
+location of the magicc executable (either ``magicc`` for linux/mac or
+``magicc.exe`` for Windows).
 For example, a custom MAGICC7 folder located at ``/tmp/magicc`` can be used on
- under Linux by setting ``MAGICC_EXECUTABLE_7`` to ``/tmp/magicc/run/magicc``.
+under Linux by setting ``MAGICC_EXECUTABLE_7`` to ``/tmp/magicc/run/magicc``.
 
 Example usage in Bash:
 
@@ -249,12 +249,12 @@ Please report issues or discuss feature requests on Pymagicc's
 `issue tracker <https://github.com/openclimatedata/pymagicc/issues>`_.
 
 When creating a pull request, please append the pull request url with either ``?expand=1&template=new_feature.md`` or ``?expand=1&template=bug_fix.md`` in order to use the templates we provide for pull requests.
-For example, when you land on the page with title 'Open a pull request' (either after hitting 'New Pull Request' --> 'Create Pull Request' or by some other means), your url will look something like 'https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template'.
+For example, when you land on the page with title 'Open a pull request' (either after hitting 'New Pull Request' --> 'Create Pull Request' or by some other means), your url will look something like ``https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template``.
 Adding ``?expand=1&template=bug_fix.md`` to this makes it ``https://github.com/openclimatedata/pymagicc/compare/update-readme-to-explain-pr-template?expand=1&template=new_feature.md``.
 If you then refresh the page, you will then see that the template is automatically added to the pull request for you.
 
 You can also contact the `pymagicc` authors via email
-`robert.gieseke@pik-potsdam.de`_.
+`<robert.gieseke@pik-potsdam.de>`_.
 
 .. sec-end-contributing
 .. sec-begin-license
@@ -263,17 +263,17 @@ License
 -------
 
 The `compiled MAGICC binary <http://www.magicc.org/download6>`_ by Tom Wigley,
-Sarah Raper, and Malte Meinshausen included in this package is licensed under a `Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License <https://creativecommons.org/licenses/by-nc-sa/3.0/>_.
+Sarah Raper, and Malte Meinshausen included in this package is licensed under a `Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License <https://creativecommons.org/licenses/by-nc-sa/3.0/>`_.
 
 The ``pymagicc`` wrapper is free software under the GNU Affero General Public
-License v3, see `LICENSE <./LICENSE>_.
+License v3, see `LICENSE <./LICENSE>`_.
 
 If you make any use of MAGICC, please cite:
 
-> M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled
-atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I
-"Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456.
-`doi:10.5194/acp-11-1417-2011 <https://dx.doi.org/10.5194/acp-11-1417-2011>_
+    M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled
+    atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I
+    "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456.
+    `doi:10.5194/acp-11-1417-2011 <https://dx.doi.org/10.5194/acp-11-1417-2011>`_
 
 See also the `MAGICC website <http://magicc.org/>`_ and
 `Wiki <http://wiki.magicc.org/index.php?title=Main_Page>`_
