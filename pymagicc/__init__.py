@@ -109,26 +109,34 @@ units = {
 
 
 def _get_number_of_datapoints(scen_file):
-    """Return number of timeseries datapoints from a .SCEN-file."""
+    """
+    Get number of timeseries datapoints from a .SCEN-file.
+    """
     return int(linecache.getline(scen_file, 1))
 
 
 def _get_region_code(scen_file):
-    """Return region code for a .SCEN-file."""
+    """
+    Get region code for a .SCEN-file.
+    """
     return int(linecache.getline(scen_file, 2))
 
 
 def read_scen_file(scen_file):
     """
-    Read a MAGICC .SCEN file
+    Read a MAGICC .SCEN file.
 
-    # Parameters
-    scen_file (str): Path to scen_file to read
+    Parameters
+    ----------
+    scen_file : str
+        Path to scen_file to read
 
-    # Returns
-    output (DataFrame or Dict of DataFrames): For World only scenarios, a
-    single DataFrame with the data from the SCEN file. For scenarios with more
-    than one region, a dictionary containing one DataFrame for each region.
+    Returns
+    -------
+    DataFrame or Dict of DataFrames
+        For World only scenarios, a single DataFrame with the data
+        from the SCEN file. For scenarios with more than one region,
+        a dictionary containing one DataFrame for each region.
     """
     num_datapoints = _get_number_of_datapoints(scen_file)
 
@@ -166,7 +174,9 @@ scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
 
 
 def _get_date_time_string():
-    """Return a timestamp with current date and time."""
+    """
+    Return a timestamp with current date and time.
+    """
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M")
 
@@ -175,22 +185,28 @@ def write_scen_file(
     scenario, path_or_buf=None, description1=None, description2=None, comment=None
 ):
     """
-    Write a Dictionary of DataFrames or a DataFrame to a MAGICC `.SCEN` file.
+    Write a Dictionary of DataFrames or a DataFrame to a MAGICC ``.SCEN`` file.
 
     Note that it is assumed that your units match the ones which are defined
     in the units variable. This function provides no ability to convert units
     or read units from a DataFrame attribute or column.
 
-    # Parameters
-    scenario (DataFrame or Dict of DataFrames): If a single DataFrame is
+    Parameters
+    ----------
+    scenario : DataFrame or Dict of DataFrames
+        If a single DataFrame is
         supplied, the data is assumed to be for the WORLD region. If a Dict of
         DataFrames is supplied then it is assumed that each DataFrame
         containes data for one region.
-    path_or_buf (str or buffer): Pathname or file-like object to which to write
-        the scenario.
-    description_1 (str): Optional description line.
-    description_2 (str): Optional second description line.
-    comment(str): Optional comment at end of scenario file.
+    path_or_buf : str or buffer
+        Pathname or file-like object to which to write
+        the scenario
+    description_1 : str
+        Optional description line
+    description_2 : str
+        Optional second description line
+    comment : str
+        Optional comment at end of scenario file
     """
 
     if not isinstance(scenario, dict):
@@ -282,18 +298,23 @@ def write_scen_file(
 
 def run(scenario, return_config=False, **kwargs):
     """
-    Run a MAGICC scenario and return output data and (optionally) config parameters
+    Run a MAGICC scenario and return output data and (optionally) config parameters.
 
-    # Parameters
-    return_config (bool): If True, return the full list of parameters used. default False
-    kwargs:
-        Parameters overwriting default parameters.
+    Parameters
+    ----------
+    return_config : bool
+        If True, return the full list of parameters used (default: False)
+    kwargs
+        Parameters overwriting default parameters
 
-    # Returns
-    output (dict): Dictionary with all data from the MAGICC output files in
+    Returns
+    -------
+    output : dict
+        Dictionary with all data from the MAGICC output files in
         DataFrames
-    parameters (dict): Parameters used in the MAGICC run. Only returned when
-        `return_config` is set to True
+    parameters : dict
+        Parameters used in the MAGICC run. Only returned when
+        ``return_config`` is set to True
     """
 
     with MAGICC6() as magicc:

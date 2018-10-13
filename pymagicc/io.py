@@ -74,10 +74,12 @@ class _InputReader(object):
 
     def _find_nml(self):
         """
-        Find the start and end of the embedded namelist
+        Find the start and end of the embedded namelist.
 
-        # Returns
-        start, end (int): indexes for the namelist
+        Returns
+        -------
+        (int, int)
+            start and end index for the namelist
         """
         nml_start = None
         nml_end = None
@@ -114,17 +116,22 @@ class _InputReader(object):
 
     def process_data(self, stream, metadata):
         """
-        Extract the tabulated data from the input file
+        Extract the tabulated data from the input file.
 
-        # Arguments
-        stream (Streamlike object): A Streamlike object (nominally StringIO)
+        Parameters
+        ----------
+        stream : Streamlike object
+            A Streamlike object (nominally StringIO)
             containing the table to be extracted
-        metadata (dict): metadata read in from the header and the namelist
+        metadata : dict
+            Metadata read in from the header and the namelist
 
-        # Returns
-        df (pandas.DataFrame): contains the data, processed to the standard
-            MAGICCData format
-        metadata (dict): updated metadata based on the processing performed
+        Returns
+        -------
+        (pandas.DataFrame, dict)
+            The first element contains the data, processed to the standard
+            MAGICCData format.
+            The second element is th updated metadata based on the processing performed.
         """
         ch, metadata = self._get_column_headers_update_metadata(stream, metadata)
 
@@ -215,10 +222,12 @@ class _InputReader(object):
 
     def _get_variable_from_filename(self):
         """
-        Determine the file variable from the filename
+        Determine the file variable from the filename.
 
-        # Returns
-        return (str): best guess of variable name from the filename
+        Returns
+        -------
+        str
+            Best guess of variable name from the filename
         """
         try:
             return self.regexp_capture_variable.search(self.filename).group(1)
@@ -237,13 +246,17 @@ class _InputReader(object):
 
     def process_header(self, header):
         """
-        Parse the header for additional metadata
+        Parse the header for additional metadata.
 
-        # Arguments
-        header (str): all the lines in the header
+        Parameters
+        ----------
+        header : str
+            All the lines in the header.
 
-        # Returns
-        return (dict): the metadata in the header
+        Returns
+        -------
+        dict
+            The metadata in the header.
         """
         metadata = {}
         for line in header.split("\n"):
@@ -1076,7 +1089,7 @@ class _ScenWriter(_InputWriter):
 
         def _gip(lines, no_notes_lines):
             """
-            get the point where we should insert the data block
+            Get the point where we should insert the data block.
             """
             return len(lines) - no_notes_lines
 
@@ -1175,28 +1188,30 @@ class MAGICCData(object):
     treated as a Pandas DataFrame. All the methods available to a DataFrame
     can be called on MAGICCData.
 
-    ```python
-    >>> with MAGICC6() as magicc:
-    >>>     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    >>>     mdata.read(magicc.run_dir)
-    >>>     mdata.plot()
-    ```
+    .. code:: python
+
+        with MAGICC6() as magicc:
+            mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+            mdata.read(magicc.run_dir)
+            mdata.plot()
 
     A MAGICCData instance can also be used to write files e.g.
 
-    ```python
-    >>> with MAGICC6() as magicc:
-    >>>     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    >>>     mdata.read(magicc.run_dir)
-    >>>     mdata.write("EXAMPLE_CO2I_EMIS.IN", "./")
-    ```
+    .. code:: python
 
-    See `notebooks/Input-Examples.ipynb` for further usage examples.
+        with MAGICC6() as magicc:
+            mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
+            mdata.read(magicc.run_dir)
+            mdata.write("EXAMPLE_CO2I_EMIS.IN", "./")
 
-    # Initialisation parameters
-    filename (str): Optional file name, including extension, for the target
+    See ``notebooks/Input-Examples.ipynb`` for further usage examples.
+
+    Parameters
+    ----------
+    filename : str
+        Optional file name, including extension, for the target
         file, i.e. 'HISTRCP_CO2I_EMIS.IN'. The file is not read until the search
-        directory is provided in `read`. This allows for MAGICCData files to be
+        directory is provided in ``read``. This allows for MAGICCData files to be
         lazy-loaded once the appropriate MAGICC run directory is known.
     """
 
@@ -1210,9 +1225,9 @@ class MAGICCData(object):
 
     def __getitem__(self, item):
         """
-        Allow for simplified indexing
+        Allow for simplified indexing.
 
-        # TODO: double check or delete below
+        TODO: double check or delete below
         >>> inpt = MAGICCData('HISTRCP_CO2_CONC.IN')
         >>> inpt.read('./')
         >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
@@ -1223,7 +1238,7 @@ class MAGICCData(object):
 
     def __getattr__(self, item):
         """
-        Proxy any attributes/functions on the dataframe
+        Proxy any attributes/functions on the dataframe.
         """
         if not self.is_loaded:
             self._raise_not_loaded_error()
@@ -1238,14 +1253,17 @@ class MAGICCData(object):
 
     def read(self, filepath=None, filename=None):
         """
-        Read an input file from disk
+        Read an input file from disk.
 
-        # Parameters
-        filepath (str): The directory to read the file from. This is often the
+        Parameters
+        ----------
+        filepath : str
+            The directory to read the file from. This is often the
             run directory for a magicc instance. If None is passed,
             the run directory for the version of MAGICC6 included in pymagicc
             is used.
-        filename (str): The filename to read. Overrides any existing values.
+        filename : str
+            The filename to read. Overrides any existing values.
             If None is passed, the filename used to initialise the MAGICCData
             instance is used.
         """
@@ -1263,13 +1281,16 @@ class MAGICCData(object):
 
     def write(self, filename_to_write, filepath=None):
         """
-        Write an input file from disk
+        Write an input file from disk.
 
-        # Parameters
-        filename_to_write (str): The name of the file to write. The filename
+        Parameters
+        ----------
+        filename_to_write : str
+            The name of the file to write. The filename
             is critically important as it tells MAGICC what kind of file to
             write.
-        filepath_to_write (str): The directory to write the file to. This is
+        filepath_to_write : str
+            The directory to write the file to. This is
             often the run directory for a magicc instance. If None is passed,
             the current working directory is used.
         """
@@ -1278,7 +1299,7 @@ class MAGICCData(object):
 
     def determine_tool(self, filename, tool_to_get):
         """
-        Determine the tool to use for reading/writing
+        Determine the tool to use for reading/writing.
 
         The function uses an internally defined set of mappings between filenames,
         regular expresions and readers/writers to work out which tool to use
@@ -1290,19 +1311,22 @@ class MAGICCData(object):
         If it fails, it will give clear error messages about why and what the
         available regular expressions are.
 
-        ```python
-        >>> mdata = MAGICCData()
-        >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
-        ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
-        The file must be one of the following types and the filename must match its corresponding regular expression:
-        SCEN: ^.*\\.SCEN$
-        SCEN7: ^.*\\.SCEN7$
-        prn: ^.*\\.prn$
-        ```
+        .. code:: python
 
-        # Parameters
-        filename (str): Name of the file to read/write, including extension
-        tool_to_get (str): The tool to get, valid options are "reader", "writer".
+            >>> mdata = MAGICCData()
+            >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
+            ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
+            The file must be one of the following types and the filename must match its corresponding regular expression:
+            SCEN: ^.*\\.SCEN$
+            SCEN7: ^.*\\.SCEN7$
+            prn: ^.*\\.prn$
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file to read/write, including extension
+        tool_to_get : str
+            The tool to get, valid options are "reader", "writer".
             Invalid values will throw a KeyError.
         """
 

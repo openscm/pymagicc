@@ -15,9 +15,9 @@ IS_WINDOWS = config["is_windows"]
 
 def _copy_files(source, target):
     """
-    Copy all the files in source directory to target
+    Copy all the files in source directory to target.
 
-    Ignores subdirectories
+    Ignores subdirectories.
     """
     source_files = listdir(source)
     if not exists(target):
@@ -47,15 +47,17 @@ class MAGICCBase(object):
     MAGICC copy can then be edited without impacting other instances or your
     original MAGICC distribution.
 
-    A `MAGICC` instance first has to be setup by calling
-    `create_copy`. If many model runs are being performed this step only has
-    to be performed once. The `run` method can then be called many times
-    without re-copying the files each time. Between each call to `run`, the
+    A ``MAGICC`` instance first has to be setup by calling
+    ``create_copy``. If many model runs are being performed this step only has
+    to be performed once. The ``run`` method can then be called many times
+    without re-copying the files each time. Between each call to ``run``, the
     configuration files can be updated to perform runs with different
     configurations.
 
-    # Parameters
-    root_dir (str): If `root_dir` is supplied, an existing MAGICC 'setup' is
+    Parameters
+    ----------
+    root_dir : str
+        If ``root_dir`` is supplied, an existing MAGICC 'setup' is
         used.
     """
 
@@ -149,12 +151,19 @@ class MAGICCBase(object):
         """
         Run MAGICC and parse the output.
 
-        If the run completes successfully, the configuration values used by MAGICC can be
-        accessed using the `config` attribute. The configuration is only read if the
-        MAGICC configuration parameter `out_parameters` is 1 (default).
+        Parameters
+        ----------
+        only
+            If not None, only extract variables in this list
 
-        :param only: If not None, only extract variables in this list
-        :return: Dict containing DataFrames for each of the extracted variables
+        Returns
+        -------
+        dict
+            Dict containing DataFrames for each of the extracted variables
+            If the run completes successfully, the configuration values used by
+            MAGICC can be accessed using the `config` attribute. The
+            configuration is only read if the MAGICC configuration parameter
+            "out_parameters" is 1 (default).
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -231,19 +240,25 @@ class MAGICCBase(object):
         self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
     ):
         """
-        Create a configuration file for MAGICC
+        Create a configuration file for MAGICC.
 
         Writes a fortran namelist in run_dir.
 
-        # Parameters
-        filename (str): Name of configuration file to write
-        top_level_key (str): Name of namelist to be written in the
+        Parameters
+        ----------
+        filename : str
+            Name of configuration file to write
+        top_level_key : str
+            Name of namelist to be written in the
             configuration file
-        kwargs: Other parameters to pass to the configuration file. No
+        kwargs
+            Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
 
-        # Returns
-        data (dict): The contents of the namelist which was written to file
+        Returns
+        -------
+        dict
+            The contents of the namelist which was written to file
         """
         fname = join(self.run_dir, filename)
         data = {top_level_key: kwargs}
@@ -253,11 +268,19 @@ class MAGICCBase(object):
 
     def set_years(self, startyear=1765, endyear=2100):
         """
-        Set the start and end dates of the simulations
+        Set the start and end dates of the simulations.
 
-        :param startyear: Start year of the simulation
-        :param endyear: End year of the simulation
-        :return: The contents of the namelist
+        Parameters
+        ----------
+        startyear : int
+            Start year of the simulation
+        endyear : int
+            End year of the simulation
+
+        Returns
+        -------
+        dict
+            The contents of the namelist
         """
         # stepsperyear is required and should never be overridden
         return self.set_config(
