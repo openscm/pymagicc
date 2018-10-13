@@ -2,6 +2,9 @@
     :start-after: sec-begin-development
     :end-before: sec-end-development
 
+Contributing
+************
+
 .. include:: ../README.rst
     :start-after: sec-begin-contributing
     :end-before: sec-end-contributing
