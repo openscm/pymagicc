@@ -13,7 +13,7 @@ master
         - ``pymagicc/MAGICC6/run/MARLAND_CO2_EMIS_FOSSIL&IND.IN`` => ``pymagicc/MAGICC6/run/MARLAND_CO2I_EMIS.IN``
     - Deleted ``pymagicc/MAGICC6/run/HIST_SEALEVEL_CHURCHWHITE2006_RF.IN`` as it's empty
     - Added ``scripts/check_run_dir_file_read.py`` so we can quickly check which files in a MAGICC ``run`` directory can be read by ``pymagicc``
-    - Added new section to docs, ``docsrc/file_conventions.md`` which will document all of the relevant information related to MAGICC's file conventions
+    - Added new section to docs, ``docs/file_conventions.rst`` which will document all of the relevant information related to MAGICC's file conventions
 
 
 1.3.2
