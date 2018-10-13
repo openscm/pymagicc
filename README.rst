@@ -114,7 +114,7 @@ editable version for local development:
     ./venv/bin/pip install --editable .
     ./venv/bin/jupyter-notebook notebooks/Example.ipynb
 
-.. sec-begin-installation
+.. sec-end-installation
 .. sec-begin-development
 
 Development
