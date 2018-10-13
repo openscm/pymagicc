@@ -68,7 +68,7 @@ def test_run_failure(package):
     with pytest.raises(CalledProcessError):
         package.run()
 
-    assert len(package.config.keys()) == 0
+    assert package.config is None
 
 
 def test_run_success(package):
@@ -581,3 +581,21 @@ def test_integration_diagnose_tcr_ecs(package):
         # MAGICC6 shipped with pymagicc should be stable
         np.testing.assert_allclose(actual_result["tcr"], 1.9733976)
         np.testing.assert_allclose(actual_result["ecs"], 2.9968448)
+
+
+def test_read_parameters():
+    with MAGICC6() as magicc:
+        # parameters don't exist
+        with pytest.raises(FileNotFoundError):
+            magicc.read_parameters()
+
+        # Don't read config if it doesn't exist
+        magicc.set_config(out_parameters=0)
+        magicc.run()
+
+        assert magicc.config is None
+
+    with MAGICC6() as magicc:
+        magicc.run()
+        assert isinstance(magicc.config, dict)
+        assert 'allcfgs' in magicc.config

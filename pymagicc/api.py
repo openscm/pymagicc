@@ -63,7 +63,7 @@ class MAGICCBase(object):
 
     def __init__(self, root_dir=None):
         self.root_dir = root_dir
-        self.config = {}
+        self.config = None
         self.executable = self.get_executable()
 
         if root_dir is not None:
@@ -187,7 +187,25 @@ class MAGICCBase(object):
                     engine="python",
                 )
 
-        with open(join(self.out_dir, "PARAMETERS.OUT")) as nml_file:
+        try:
+            self.read_parameters()
+        except FileNotFoundError:
+            # Ignore a missing PARAMETERS.out file
+            pass
+
+        return results
+
+    def read_parameters(self):
+        """
+        Read a parameters.out file
+        :return: A dict containing all the configuration used by MAGICC
+        """
+        param_fname = join(self.out_dir, "PARAMETERS.OUT")
+
+        if not exists(param_fname):
+            raise FileNotFoundError('No PARAMETERS.OUT found')
+
+        with open(param_fname) as nml_file:
             parameters = dict(f90nml.read(nml_file))
             for group in ["nml_years", "nml_allcfgs", "nml_outputcfgs"]:
                 parameters[group] = dict(parameters[group])
@@ -195,8 +213,7 @@ class MAGICCBase(object):
                     parameters[group][k] = _clean_value(v)
                 parameters[group.replace("nml_", "")] = parameters.pop(group)
             self.config = parameters
-
-        return results
+        return parameters
 
     def remove_temp_copy(self):
         """
