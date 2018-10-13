@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Master
+master
 ------
 
 - Added ability to read all files in MAGICC6 run folder (``pymagicc/MAGICC6/run``) to a common format (`#108 <https://github.com/openclimatedata/pymagicc/pull/108>`_)
