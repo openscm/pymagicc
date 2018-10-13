@@ -5,7 +5,7 @@ Master
 ------
 
 - Added ability to read all files in MAGICC6 run folder (``pymagicc/MAGICC6/run``) to a common format (`#108 <https://github.com/openclimatedata/pymagicc/pull/108>`_)
-    - Note that this change means that only files which follow the MAGICC6 or MAGICC7 naming convention are supported. These are very similar to MAGICC5 except that emissions files must be named in the form ``.*\.SCEN``, ``.*\.SCEN7`` or ``.*EMISX\.IN`` where ``X`` is ``I`` if the file contains fossil and industrial emissions and 'B' if the file contains agriculture, land-use and land-use change emissions. The suffixes ``FOSSIL&IND`` and ``LANDUSE`` are no longer supported.
+    - Note that this change means that only files which follow the MAGICC6 or MAGICC7 naming convention are supported. These are very similar to MAGICC5 except that emissions files must be named in the form ``.*\.SCEN``, ``.*\.SCEN7`` or ``.*EMISX\.IN`` where ``X`` is ``I`` if the file contains fossil and industrial emissions and ``B`` if the file contains agriculture, land-use and land-use change emissions. The suffixes ``FOSSIL&IND`` and ``LANDUSE`` are no longer supported.
     - The renamed files are
         - ``pymagicc/MAGICC6/run/EDGAR_NOX_EMIS_LANDUSE.IN`` => ``pymagicc/MAGICC6/run/EDGAR_NOXB_EMIS.IN``
         - ``pymagicc/MAGICC6/run/EDGAR_NOX_EMIS_FOSSIL&IND.IN`` => ``pymagicc/MAGICC6/run/EDGAR_NOXI_EMIS.IN``
@@ -77,7 +77,7 @@ Master
 -----
 
 - workaround for bug in Pandas
-  (`https://github.com/pandas-dev/pandas/issues/18692`_) when reading
+  (`<https://github.com/pandas-dev/pandas/issues/18692>`_) when reading
   some files from alternative MAGICC builds
 - improve documentation
 
