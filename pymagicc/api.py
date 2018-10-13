@@ -149,6 +149,10 @@ class MAGICCBase(object):
         """
         Run MAGICC and parse the output.
 
+        If the run completes successfully, the configuration values used by MAGICC can be
+        accessed using the `config` attribute. The configuration is only read if the
+        MAGICC configuration parameter `out_parameters` is 1 (default).
+
         :param only: If not None, only extract variables in this list
         :return: Dict containing DataFrames for each of the extracted variables
         """
