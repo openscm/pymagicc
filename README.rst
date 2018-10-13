@@ -28,10 +28,11 @@ In climate research it can, for example, be used in the analysis of mitigation s
 See `www.magicc.org <http://www.magicc.org/>`_ and `Meinshausen et al. 2011 <https://doi.org/10.5194/acp-11-1417-2011>`_ for further information.
 
 .. sec-end-index
-.. sec-begin-usage
 
 Basic Usage
 -----------
+
+.. sec-begin-usage
 
 .. code:: python
 
@@ -162,10 +163,11 @@ The docs use Sphinx and can be rebuilt locally in the ``docs`` directory with
     make html
 
 .. sec-end-development
-.. sec-begin-more-usage
 
 More usage examples
 -------------------
+
+.. sec-begin-more-usage
 
 Use an included scenario
 ************************
@@ -240,10 +242,11 @@ Or in a script:
     python generate_plots.py
 
 .. sec-end-more-usage
-.. sec-begin-contributing
 
 Contributing
 ------------
+
+.. sec-begin-contributing
 
 Please report issues or discuss feature requests on Pymagicc's
 `issue tracker <https://github.com/openclimatedata/pymagicc/issues>`_.
@@ -257,10 +260,11 @@ You can also contact the `pymagicc` authors via email
 `<robert.gieseke@pik-potsdam.de>`_.
 
 .. sec-end-contributing
-.. sec-begin-license
 
 License
 -------
+
+.. sec-begin-license
 
 The `compiled MAGICC binary <http://www.magicc.org/download6>`_ by Tom Wigley,
 Sarah Raper, and Malte Meinshausen included in this package is licensed under a `Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License <https://creativecommons.org/licenses/by-nc-sa/3.0/>`_.

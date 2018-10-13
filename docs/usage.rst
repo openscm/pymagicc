@@ -1,3 +1,6 @@
+Usage
+-----
+
 .. include:: ../README.rst
     :start-after: sec-begin-usage
     :end-before: sec-begin-example-plot
