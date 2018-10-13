@@ -4,7 +4,11 @@ Changelog
 master
 ------
 
-- Added ability to read all files in MAGICC6 run folder (``pymagicc/MAGICC6/run``) to a common format (`#108 <https://github.com/openclimatedata/pymagicc/pull/108>`_)
+- (`#146 <https://github.com/openclimatedata/pymagicc/pull/146>`_) Removed path alteration from docs buiding
+- (`#143 <https://github.com/openclimatedata/pymagicc/pull/143>`_) Only read ``PARAMETERS.OUT`` file if it exists. ``MAGICCBase.config`` now defaults to ``None`` until a valid ``PARAMETERS.OUT`` file is read.
+- (`#133 <https://github.com/openclimatedata/pymagicc/pull/133>`_) Put definitions of MAGICC6's expected emissions into a standalone module
+- (`#102 <https://github.com/openclimatedata/pymagicc/pull/102>`_) Added ability to read and write SCEN7 files
+- (`#108 <https://github.com/openclimatedata/pymagicc/pull/108>`_) Added ability to read all files in MAGICC6 run folder (``pymagicc/MAGICC6/run``) to a common format
     - Note that this change means that only files which follow the MAGICC6 or MAGICC7 naming convention are supported. These are very similar to MAGICC5 except that emissions files must be named in the form ``*.SCEN``, ``*.SCEN7`` or ``*EMISX.IN`` where ``X`` is ``I`` if the file contains fossil and industrial emissions and ``B`` if the file contains agriculture, land-use and land-use change emissions. The suffixes ``FOSSIL&IND`` and ``LANDUSE`` are no longer supported.
     - The renamed files are
         - ``pymagicc/MAGICC6/run/EDGAR_NOX_EMIS_LANDUSE.IN`` => ``pymagicc/MAGICC6/run/EDGAR_NOXB_EMIS.IN``
@@ -14,8 +18,6 @@ master
     - Deleted ``pymagicc/MAGICC6/run/HIST_SEALEVEL_CHURCHWHITE2006_RF.IN`` as it's empty
     - Added ``scripts/check_run_dir_file_read.py`` so we can quickly check which files in a MAGICC ``run`` directory can be read by ``pymagicc``
     - Added new section to docs, ``docs/file_conventions.rst`` which will document all of the relevant information related to MAGICC's file conventions
-- (`#142 <https://github.com/openclimatedata/pymagicc/pull/143>`_) Only read ``PARAMETERS.OUT`` file if it exists. ``MAGICCBase.config`` now defaults to ``None`` until a valid ``PARAMETERS.OUT`` file is read.
-
 
 1.3.2
 -----
