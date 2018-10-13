@@ -1,16 +1,13 @@
-Developing
-==========
+.. include:: ../README.rst
+    :start-after: sec-begin-development
+    :end-before: sec-end-development
 
-Updating the Docs
-
-The docs use Sphinx and can be rebuilt locally in the "docs" directory with
-
-::
-
-    make html
-
+.. include:: ../README.rst
+    :start-after: sec-begin-contributing
+    :end-before: sec-end-contributing
 
 Releasing
+*********
 
 The ``make black`` and ``make flake8`` tasks should require no changes.
 
