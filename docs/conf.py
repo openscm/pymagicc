@@ -6,8 +6,16 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-import pymagicc
-from pymagicc._version import get_versions
+# -- Path setup --------------------------------------------------------------
+# We have to do this to keep Read the Docs happy as it doesn't install the package
+
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../pymagicc"))
+
+from _version import get_versions
 
 # -- Project information -----------------------------------------------------
 
