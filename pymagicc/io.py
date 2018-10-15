@@ -699,6 +699,82 @@ def _convert_magicc7_to_magicc6_variables(variables):
     return _convert_magicc6_to_magicc7_variables(variables, inverse=True)
 
 
+def get_dattype_regionmode(regions, scen7=False):
+    """
+    Get the THISFILE_DATTYPE and THISFILE_REGIONMODE flags for a given region set.
+
+    In all MAGICC input files, there are two flags: THISFILE_DATTYPE and
+    THISFILE_REGIONMODE. These tell MAGICC how to read in a given input file. This
+    function maps the regions which are in a given file to the value of these flags
+    expected by MAGICC.
+
+    Parameters
+    ----------
+    regions : list_like
+        The regions to get THISFILE_DATTYPE and THISFILE_REGIONMODE flags for.
+
+    scen7 : bool, optional
+        Whether the file we are getting the flags for is a SCEN7 file or not.
+
+    Returns
+    -------
+    dict
+        Dictionary where the flags are the keys and the values are the value they
+        should be set to for the given inputs.
+    """
+    dattype_flag = "THISFILE_DATTYPE"
+    regionmode_flag = "THISFILE_REGIONMODE"
+    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
+
+
+    dattype = dattype_regionmode_regions[dattype_flag][region_dattype_row].iloc[0]
+    regionmode = dattype_regionmode_regions[regionmode_flag][region_dattype_row].iloc[0]
+
+    return {dattype_flag: dattype, regionmode_flag: regionmode}
+
+
+def get_region_order(regions, scen7=False):
+    """
+    Get the region order expected by MAGICC.
+
+    Parameters
+    ----------
+    regions : list_like
+        The regions to get THISFILE_DATTYPE and THISFILE_REGIONMODE flags for.
+
+    scen7 : bool, optional
+        Whether the file we are getting the flags for is a SCEN7 file or not.
+
+    Returns
+    -------
+    list
+        Region order expected by MAGICC for the given region set.
+    """
+    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
+    region_order = dattype_regionmode_regions["Regions"][region_dattype_row].iloc[0]
+
+    return region_order
+
+
+def _get_dattype_regionmode_regions_row(regions, scen7=False):
+    regions_unique = set(regions)
+
+    def find_region(x):
+        return set(x) == regions_unique
+
+    region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
+
+    # TODO: move this to a constants module or something
+    dattype_flag = "THISFILE_DATTYPE"
+    scen7_rows = dattype_regionmode_regions[dattype_flag] == "SCEN7"
+    dattype_rows = scen7_rows if scen7 else ~scen7_rows
+
+    region_dattype_row = region_rows & dattype_rows
+    assert sum(region_dattype_row) == 1
+
+    return region_dattype_row
+
+
 class _InputWriter(object):
     # need this for the _get_initial_nml_and_data_block routine as SCEN7
     # files have a special, contradictory set of region flags
@@ -829,16 +905,10 @@ class _InputWriter(object):
             units_unique[0] if len(units_unique) == 1 else "MISC"
         )
 
-        region_dattype_row = self._get_dattype_regionmode_regions_row()
-
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = dattype_regionmode_regions[
-            "THISFILE_DATTYPE"
-        ][region_dattype_row].iloc[0]
-        nml["THISFILE_SPECIFICATIONS"][
-            "THISFILE_REGIONMODE"
-        ] = dattype_regionmode_regions["THISFILE_REGIONMODE"][region_dattype_row].iloc[
-            0
-        ]
+        nml["THISFILE_SPECIFICATIONS"].update(get_dattype_regionmode(
+            self._get_df_header_row("REGION"),
+            scen7=self._scen_7,
+        ))
 
         return nml, data_block
 
@@ -860,23 +930,6 @@ class _InputWriter(object):
         ]
 
         return data_block
-
-    def _get_dattype_regionmode_regions_row(self):
-        regions_unique = set(self._get_df_header_row("REGION"))
-
-        def find_region(x):
-            return set(x) == regions_unique
-
-        region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
-
-        if self._scen_7:
-            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] == "SCEN7"
-        else:
-            dattype_rows = dattype_regionmode_regions["THISFILE_DATTYPE"] != "SCEN7"
-
-        region_dattype_row = region_rows & dattype_rows
-        assert sum(region_dattype_row) == 1
-        return region_dattype_row
 
     def _get_df_header_row(self, col_name):
         return self.minput.df.columns.get_level_values(col_name).tolist()
@@ -1063,7 +1116,7 @@ class _ScenWriter(_InputWriter):
             """
             return len(lines) - no_notes_lines
 
-        region_order = self._get_region_order()
+        region_order = get_region_order(self._get_df_header_row("REGION"), scen7=self._scen_7)
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 12
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
@@ -1113,12 +1166,6 @@ class _ScenWriter(_InputWriter):
         output.seek(0)
         output.write(self._newline_char.join(lines))
         return output
-
-    def _get_region_order(self):
-        region_dattype_row = self._get_dattype_regionmode_regions_row()
-        region_order = dattype_regionmode_regions["Regions"][region_dattype_row].iloc[0]
-
-        return region_order
 
 
 def get_special_scen_code(regions, emissions):
