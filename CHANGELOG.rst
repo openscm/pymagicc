@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#135 <https://github.com/openclimatedata/pymagicc/pull/135>`_) Moved emissions definitions to a single csv and packaged all of the definitions files using the `data package standard <https://frictionlessdata.io/docs/creating-tabular-data-packages-in-python/>`_
 - (`#79 <https://github.com/openclimatedata/pymagicc/pull/79>`_) Confirmed that keeping track of config state works and added example to TCR/ECS diagnosis notebook
 - (`#146 <https://github.com/openclimatedata/pymagicc/pull/146>`_) Removed path alteration from docs buiding
 - (`#143 <https://github.com/openclimatedata/pymagicc/pull/143>`_) Only read ``PARAMETERS.OUT`` file if it exists. ``MAGICCBase.config`` now defaults to ``None`` until a valid ``PARAMETERS.OUT`` file is read.
