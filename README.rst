@@ -251,8 +251,8 @@ Contributing
 Please report issues or discuss feature requests on Pymagicc's
 `issue tracker <https://github.com/openclimatedata/pymagicc/issues>`_.
 
-You can also contact the `pymagicc` authors via email
-`<robert.gieseke@pik-potsdam.de>`_.
+You can also contact the `pymagicc` authors via email:
+`<mailto:robert.gieseke@pik-potsdam.de, zebedee.nicholls@climate-energy-college.org>`_
 
 .. sec-end-contributing
 
