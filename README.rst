@@ -290,10 +290,11 @@ If you use Pymagicc in your research, please additionaly cite
 For proper reproducibility please reference the version of Pymagicc used. In
 Python it can be printed with
 
-    ```python
+.. code:: python
+
     import pymagicc
-    pymagicc.__version__
-    ```
+    print(pymagicc.__version__)
+
 
 Pymagicc releases are archived at Zenodo and the version used should also be cited.
 
