@@ -47,7 +47,7 @@ setup(
     version=versioneer.get_version(),
     description="Python wrapper for the simple climate model MAGICC",
     long_description=readme,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     author="Robert Gieseke",
     author_email="robert.gieseke@pik-potsdam.de",
     url="https://github.com/openclimatedata/pymagicc",
