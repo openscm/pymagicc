@@ -10,14 +10,14 @@ import re
 from six import StringIO
 
 from pymagicc import MAGICC6
+# Not used yet:
+# emissions_units,
+# concentrations_units,
 from .definitions import (
     dattype_regionmode_regions,
     scen_emms_code_0,
     scen_emms_code_1,
     prn_species,
-    # Not used yet:
-    # emissions_units,
-    # concentrations_units,
 )
 
 
