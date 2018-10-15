@@ -18,6 +18,7 @@ from pymagicc.io import (
     _ConcInReader,
     _ScenWriter,
     read_cfg_file,
+    get_special_scen_code,
 )
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
@@ -1008,23 +1009,22 @@ rcp_regions_plus_bunkers = [
     ],
 )
 def test_get_scen_special_code(regions, emissions, expected):
-    writer = _ScenWriter()
     if expected == "unrecognised regions":
         error_msg = re.escape(
             "Could not determine scen special code for regions {}".format(regions)
         )
 
         with pytest.raises(ValueError, match=error_msg):
-            writer.get_special_scen_code(regions, emissions)
+            get_special_scen_code(regions, emissions)
     elif expected == "unrecognised emissions":
         error_msg = re.escape(
             "Could not determine scen special code for emissions {}".format(emissions)
         )
 
         with pytest.raises(ValueError, match=error_msg):
-            writer.get_special_scen_code(regions, emissions)
+            get_special_scen_code(regions, emissions)
     else:
-        result = writer.get_special_scen_code(regions, emissions)
+        result = get_special_scen_code(regions, emissions)
         assert result == expected
 
 

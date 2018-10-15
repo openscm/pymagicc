@@ -1,3 +1,21 @@
+"""
+This module contains all of the relevant definitions for handling MAGICC data.
+
+The definitions are given in `data packages <https://frictionlessdata.io/docs/
+creating-tabular-data-packages-in-python/>`_. These store the data in an easy to read
+csv file whilst providing comprehensive metadata in the accompanying
+``datapackage.json`` file.
+
+
+Attributes
+----------
+
+scen_emms_code_1 : list
+
+
+see documentation of `pymagicc/io.py::_ScenWriter.get_special_scen_code` for further explanation
+"""
+
 from pathlib import Path
 import pandas as pd
 from pandas_datapackage_reader import read_datapackage
