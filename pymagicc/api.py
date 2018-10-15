@@ -211,7 +211,11 @@ class MAGICCBase(object):
     def read_parameters(self):
         """
         Read a parameters.out file
-        :return: A dict containing all the configuration used by MAGICC
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the configuration used by MAGICC
         """
         param_fname = join(self.out_dir, "PARAMETERS.OUT")
 
