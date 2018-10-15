@@ -84,7 +84,7 @@ def test_load_magicc6_emis():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.768_202_7e000
+        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.7682027e+000
     )
 
 
@@ -95,7 +95,7 @@ def test_load_magicc6_emis_hyphen_in_units():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "R5ASIA"][2000], 0.288_028_519
+        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "R5ASIA"][2000], 0.288028519
     )
 
 
@@ -106,10 +106,10 @@ def test_load_magicc5_emis():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "NH"][2000], 6.204_036_98
+        mdata.df["CO2I_EMIS", "SET", "GtC", "NH"][2000], 6.20403698
     )
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][2002], 0.495_812_385
+        mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][2002], 0.495812385
     )
     np.testing.assert_allclose(mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][1751], 0.0)
 
@@ -136,7 +136,7 @@ def test_load_magicc6_conc():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
     generic_mdata_tests(mdata)
     np.testing.assert_allclose(
-        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.804_357_33e002
+        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e+002
     )
 
 
@@ -208,16 +208,16 @@ def test_load_ot():
     assert (mdata.df.columns.get_level_values("VARIABLE") == "NOXI_OT").all()
 
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.006_681_156_49
+        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.00668115649
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526_135_104
+        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526135104
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612_718_845
+        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612718845
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.703_779_80
+        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.70377980
     )
 
 
@@ -248,13 +248,13 @@ def test_load_rf():
 
     np.testing.assert_allclose(mdata.df["BCB_RF", "SET", "W/m2", "NHOCEAN"][1765], 0.0)
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "NHLAND"][1865], 0.268_436_597
+        mdata.df["BCB_RF", "SET", "W/m2", "NHLAND"][1865], 0.268436597
     )
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "SHOCEAN"][1965], 0.443_357_552
+        mdata.df["BCB_RF", "SET", "W/m2", "SHOCEAN"][1965], 0.443357552
     )
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "SHLAND"][2000], 1.539_872_44
+        mdata.df["BCB_RF", "SET", "W/m2", "SHLAND"][2000], 1.53987244
     )
 
 
@@ -286,19 +286,19 @@ def test_load_solar_rf():
     assert (mdata.df.columns.get_level_values("REGION") == "GLOBAL").all()
 
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1610], 0.014_979_239_1
+        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1610], 0.0149792391
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1865], -0.001_602_010_87
+        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1865], -0.00160201087
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1965], 0.065_291_739_1
+        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1965], 0.0652917391
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2183], 0.044_632_989_1
+        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2183], 0.0446329891
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2600], 0.121_325_148
+        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2600], 0.121325148
     )
 
 
@@ -329,7 +329,7 @@ def test_load_volcanic_rf():
         mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHLAND"][1000.042], 0.0
     )
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHLAND"][1002.542], -0.018_750_000_0
+        mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHLAND"][1002.542], -0.0187500000
     )
     np.testing.assert_allclose(
         mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHOCEAN"][1013.208], 0.0
@@ -513,7 +513,7 @@ def test_load_prn():
         mdata.df["HALON1301_EMIS", "SET", "t", "WORLD"][2017], 1062
     )
     np.testing.assert_allclose(
-        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2500], 3_511_082
+        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2500], 3511082
     )
 
 
@@ -535,10 +535,10 @@ def test_load_prn_no_units():
     assert (mdata.df.columns.get_level_values("UNITS") == "t").all()
 
     np.testing.assert_allclose(
-        mdata.df["CFC12_EMIS", "SET", "t", "WORLD"][1950], 139_965
+        mdata.df["CFC12_EMIS", "SET", "t", "WORLD"][1950], 139965
     )
     np.testing.assert_allclose(
-        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2100], 3_511_082
+        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2100], 3511082
     )
 
 
