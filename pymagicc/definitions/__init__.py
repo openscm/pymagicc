@@ -1,9 +1,9 @@
 """
 This module contains all of the relevant definitions for handling MAGICC data.
 
-The definitions are given in `data packages <https://frictionlessdata.io/docs/
+The definitions are given in `Data Packages <https://frictionlessdata.io/docs/
 creating-tabular-data-packages-in-python/>`_. These store the data in an easy to read
-csv file whilst providing comprehensive metadata describing the data (column meanings
+CSV file whilst providing comprehensive metadata describing the data (column meanings
 and expected types) in the accompanying ``datapackage.json`` file. Please see this
 metadata for further details.
 
