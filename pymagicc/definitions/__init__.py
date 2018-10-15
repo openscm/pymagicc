@@ -37,13 +37,17 @@ dattype_regionmode_regions["Regions"] = [
 
 _emms_units = read_datapackage(path, "magicc_emisssions_units")
 
-scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]]["MAGICC variable"].tolist()
+scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]][
+    "MAGICC variable"
+].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]]["MAGICC variable"].tolist()
+scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]][
+    "MAGICC variable"
+].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 0.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
