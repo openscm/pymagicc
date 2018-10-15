@@ -84,7 +84,7 @@ def test_load_magicc6_emis():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.7682027e+000
+        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.7682027e000
     )
 
 
@@ -136,7 +136,7 @@ def test_load_magicc6_conc():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
     generic_mdata_tests(mdata)
     np.testing.assert_allclose(
-        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e+002
+        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e002
     )
 
 

@@ -214,7 +214,7 @@ def valid_tcr_ecs_diagnosis_results():
     rising_time = 70
     tcr_yr = startyear + spin_up_time + rising_time
     ecs_yr = endyear
-    fake_PI_conc = 278.
+    fake_PI_conc = 278.0
     eqm_time = endyear - startyear - spin_up_time - rising_time
 
     fake_time = np.arange(startyear, endyear + 1)
@@ -225,8 +225,8 @@ def valid_tcr_ecs_diagnosis_results():
             fake_PI_conc * 1.01 ** (rising_time) * np.ones(eqm_time),
         )
     )
-    fake_rf = 2. * np.log(fake_concs / fake_PI_conc)
-    fake_temp = np.log(fake_rf + 1.) + fake_time / fake_time[1400]
+    fake_rf = 2.0 * np.log(fake_concs / fake_PI_conc)
+    fake_temp = np.log(fake_rf + 1.0) + fake_time / fake_time[1400]
 
     mock_results = {}
     mock_results["CO2_CONC"] = pd.DataFrame({"GLOBAL": fake_concs}, index=fake_time)
@@ -428,7 +428,7 @@ def valid_tcr_ecs_diagnosis_results():
     rising_time = 70
     tcr_yr = startyear + spin_up_time + rising_time
     ecs_yr = endyear
-    fake_PI_conc = 278.
+    fake_PI_conc = 278.0
     eqm_time = endyear - startyear - spin_up_time - rising_time
 
     fake_time = np.arange(startyear, endyear + 1)
@@ -439,8 +439,8 @@ def valid_tcr_ecs_diagnosis_results():
             fake_PI_conc * 1.01 ** (rising_time) * np.ones(eqm_time),
         )
     )
-    fake_rf = 2. * np.log(fake_concs / fake_PI_conc)
-    fake_temp = np.log(fake_rf + 1.) + fake_time / fake_time[1400]
+    fake_rf = 2.0 * np.log(fake_concs / fake_PI_conc)
+    fake_temp = np.log(fake_rf + 1.0) + fake_time / fake_time[1400]
 
     mock_results = {}
     mock_results["CO2_CONC"] = pd.DataFrame({"GLOBAL": fake_concs}, index=fake_time)
@@ -598,4 +598,4 @@ def test_read_parameters():
     with MAGICC6() as magicc:
         magicc.run()
         assert isinstance(magicc.config, dict)
-        assert 'allcfgs' in magicc.config
+        assert "allcfgs" in magicc.config
