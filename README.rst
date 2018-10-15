@@ -264,19 +264,41 @@ License
 The `compiled MAGICC binary <http://www.magicc.org/download6>`_ by Tom Wigley,
 Sarah Raper, and Malte Meinshausen included in this package is licensed under a `Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License <https://creativecommons.org/licenses/by-nc-sa/3.0/>`_.
 
+See also the `MAGICC website <http://magicc.org/>`_ and
+`Wiki <http://wiki.magicc.org/index.php?title=Main_Page>`_
+for further information.
+
 The ``pymagicc`` wrapper is free software under the GNU Affero General Public
 License v3, see `LICENSE <./LICENSE>`_.
 
-If you make any use of MAGICC, please cite:
+Citation
+--------
+
+If you make any use of MAGICC, its license requires citing of:
 
     M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled
     atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I
     "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456.
-    `doi:10.5194/acp-11-1417-2011 <https://dx.doi.org/10.5194/acp-11-1417-2011>`_
+    `https://doi.org/10.5194/acp-11-1417-2011 <https://dx.doi.org/10.5194/acp-11-1417-2011>`_
 
-See also the `MAGICC website <http://magicc.org/>`_ and
-`Wiki <http://wiki.magicc.org/index.php?title=Main_Page>`_
-for further information.
+If you use Pymagicc in your research, please additionaly cite
+
+    R. Gieseke, S. N. Willner and M. Mengel, (2018). Pymagicc: A Python wrapper
+    for the simple climate model MAGICC. Journal of Open Source Software, 3(22),
+    516, `https://doi.org/10.21105/joss.00516 <https://doi.org/10.21105/joss.00516>`_
+
+For proper reproducibility please reference the version of Pymagicc used. In
+Python it can be printed with
+
+    ```python
+    import pymagicc
+    pymagicc.__version__
+    ```
+
+Pymagicc releases are archived at Zenodo and the version used should also be cited.
+
+See https://doi.org/10.5281/zenodo.1111815
+
 
 .. sec-end-license
 
