@@ -230,7 +230,7 @@ Example usage in Bash:
 
 .. code:: bash
 
-    MAGICC_EXECUTABLE_7=/tmp/magicc/run/magicc.exe python run_tests.py
+    MAGICC_EXECUTABLE_7=/tmp/magicc/run/magicc.exe make test
 
 Or in a script:
 
@@ -238,8 +238,7 @@ Or in a script:
 
     #!/bin/bash
     export MAGICC_EXECUTABLE_7=tmp/magicc/run/magicc.exe
-    python run_tests.py
-    python generate_plots.py
+    make test
 
 .. sec-end-more-usage
 
