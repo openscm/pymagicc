@@ -216,7 +216,7 @@ class MAGICCBase(object):
         param_fname = join(self.out_dir, "PARAMETERS.OUT")
 
         if not exists(param_fname):
-            raise FileNotFoundError('No PARAMETERS.OUT found')
+            raise FileNotFoundError("No PARAMETERS.OUT found")
 
         with open(param_fname) as nml_file:
             parameters = dict(f90nml.read(nml_file))
@@ -367,7 +367,7 @@ class MAGICCBase(object):
 
         total_rf_max = df_total_rf.max()
         actual_rise_rf = df_total_rf.loc[tcr_yr - 70 : tcr_yr].values
-        expected_rise_rf = total_rf_max / 70. * np.arange(71)
+        expected_rise_rf = total_rf_max / 70.0 * np.arange(71)
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
             raise ValueError(

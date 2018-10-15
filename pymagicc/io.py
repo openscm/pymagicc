@@ -10,6 +10,7 @@ import re
 from six import StringIO
 
 from pymagicc import MAGICC6
+
 # Not used yet:
 # emissions_units,
 # concentrations_units,
@@ -91,9 +92,7 @@ class _InputReader(object):
                 nml_end = i
         assert (
             nml_start is not None and nml_end is not None
-        ), "Could not find namelist within {}".format(
-            self.filename
-        )
+        ), "Could not find namelist within {}".format(self.filename)
         return nml_end, nml_start
 
     def process_metadata(self, lines):
@@ -272,9 +271,7 @@ class _InputReader(object):
         tokens = stream.readline().split()
         assert (
             tokens[0] == expected_header
-        ), "Expected a header token of {}, got {}".format(
-            expected_header, tokens[0]
-        )
+        ), "Expected a header token of {}, got {}".format(expected_header, tokens[0])
         return tokens[1:]
 
     def _map_magicc_regions(self, regions):
