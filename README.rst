@@ -281,7 +281,7 @@ If you make any use of MAGICC, its license requires citing of:
     "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456.
     `https://doi.org/10.5194/acp-11-1417-2011 <https://dx.doi.org/10.5194/acp-11-1417-2011>`_
 
-If you use Pymagicc in your research, please additionaly cite
+If you use Pymagicc in your research, please additionally cite
 
     R. Gieseke, S. N. Willner and M. Mengel, (2018). Pymagicc: A Python wrapper
     for the simple climate model MAGICC. Journal of Open Source Software, 3(22),
