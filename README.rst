@@ -156,11 +156,11 @@ To format the files in ``pymagicc`` and ``tests`` as well as ``setup.py`` run
 Building the documentation
 **************************
 
-The docs use Sphinx and can be rebuilt locally in the ``docs`` directory with
+The docs use Sphinx and can be rebuilt locally in ``docs/builds/html/`` with
 
 ::
 
-    make html
+    make docs
 
 .. sec-end-development
 
