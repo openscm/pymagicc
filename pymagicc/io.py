@@ -726,7 +726,6 @@ def get_dattype_regionmode(regions, scen7=False):
     regionmode_flag = "THISFILE_REGIONMODE"
     region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
 
-
     dattype = dattype_regionmode_regions[dattype_flag][region_dattype_row].iloc[0]
     regionmode = dattype_regionmode_regions[regionmode_flag][region_dattype_row].iloc[0]
 
@@ -905,10 +904,11 @@ class _InputWriter(object):
             units_unique[0] if len(units_unique) == 1 else "MISC"
         )
 
-        nml["THISFILE_SPECIFICATIONS"].update(get_dattype_regionmode(
-            self._get_df_header_row("REGION"),
-            scen7=self._scen_7,
-        ))
+        nml["THISFILE_SPECIFICATIONS"].update(
+            get_dattype_regionmode(
+                self._get_df_header_row("REGION"), scen7=self._scen_7
+            )
+        )
 
         return nml, data_block
 
@@ -1116,7 +1116,9 @@ class _ScenWriter(_InputWriter):
             """
             return len(lines) - no_notes_lines
 
-        region_order = get_region_order(self._get_df_header_row("REGION"), scen7=self._scen_7)
+        region_order = get_region_order(
+            self._get_df_header_row("REGION"), scen7=self._scen_7
+        )
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 12
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
@@ -1207,18 +1209,14 @@ def get_special_scen_code(regions, emissions):
     elif set(scen_emms_code_1) == set(emissions):
         emms_code = 1
     else:
-        msg = "Could not determine scen special code for emissions {}".format(
-            emissions
-        )
+        msg = "Could not determine scen special code for emissions {}".format(emissions)
         raise ValueError(msg)
 
     if set(regions) == set(["WORLD"]):
         return 10 + emms_code
     elif set(regions) == set(["WORLD", "OECD90", "REF", "ASIA", "ALM"]):
         return 20 + emms_code
-    elif set(regions) == set(
-        ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
-    ):
+    elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]):
         return 30 + emms_code
     elif set(regions) == set(
         ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
