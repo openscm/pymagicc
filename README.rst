@@ -256,10 +256,10 @@ You can also contact the `pymagicc` authors via email
 
 .. sec-end-contributing
 
+.. sec-begin-license
 License
 -------
 
-.. sec-begin-license
 
 The `compiled MAGICC binary <http://www.magicc.org/download6>`_ by Tom Wigley,
 Sarah Raper, and Malte Meinshausen included in this package is licensed under a `Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License <https://creativecommons.org/licenses/by-nc-sa/3.0/>`_.
@@ -298,7 +298,6 @@ Python it can be printed with
 Pymagicc releases are archived at Zenodo and the version used should also be cited.
 
 See https://doi.org/10.5281/zenodo.1111815
-
 
 .. sec-end-license
 
