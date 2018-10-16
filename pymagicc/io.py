@@ -1173,14 +1173,14 @@ def get_special_scen_code(regions, emissions):
     Get special code for MAGICC6 SCEN files.
 
     At the top of every MAGICC6 and MAGICC5 SCEN file there is a two digit
-    number. The first digit tells MAGICC how many regions data is being
-    provided for. The second digit tells MAGICC which gases are in the
-    SCEN file.
+    number. The first digit, the 'scenfile_region_code' tells MAGICC how many regions
+    data is being provided for. The second digit, the 'scenfile_emissions_code', tells
+    MAGICC which gases are in the SCEN file.
 
-    We call this second digit the 'SCEN emms code'. Hence the variable
-    ``part_of_scenfile_with_emissions_code_1`` defines the gases which are expected when the
-    'SCEN emms code' is 1. Similarly, ``part_of_scenfile_with_emissions_code_0`` defines the gases
-    which are expected when the 'SCEN emms code' is 0.
+    The variables which are part of ``part_of_scenfile_with_emissions_code_1`` are the
+    emissions species which are expected when scenfile_emissions_code is 1. Similarly,
+    ``part_of_scenfile_with_emissions_code_0`` defines the emissions species which are
+    expected when scenfile_emissions_code is 0.
 
     Having these definitions allows Pymagicc to check that the right
     set of emissions has been provided before writing SCEN files.
@@ -1203,26 +1203,28 @@ def get_special_scen_code(regions, emissions):
         The special scen code for the regions-emissions combination provided.
     """
     if set(part_of_scenfile_with_emissions_code_0) == set(emissions):
-        emms_code = 0
+        scenfile_emissions_code = 0
     elif set(part_of_scenfile_with_emissions_code_1) == set(emissions):
-        emms_code = 1
+        scenfile_emissions_code = 1
     else:
         msg = "Could not determine scen special code for emissions {}".format(emissions)
         raise ValueError(msg)
 
     if set(regions) == set(["WORLD"]):
-        return 10 + emms_code
+        scenfile_region_code = 1
     elif set(regions) == set(["WORLD", "OECD90", "REF", "ASIA", "ALM"]):
-        return 20 + emms_code
+        scenfile_region_code = 2
     elif set(regions) == set(["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]):
-        return 30 + emms_code
+        scenfile_region_code = 3
     elif set(regions) == set(
         ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM", "BUNKERS"]
     ):
-        return 40 + emms_code
-
-    msg = "Could not determine scen special code for regions {}".format(regions)
-    raise ValueError(msg)
+        scenfile_region_code = 4
+    try:
+        return scenfile_region_code * 10 + scenfile_emissions_code
+    except NameError:
+        msg = "Could not determine scen special code for regions {}".format(regions)
+        raise ValueError(msg)
 
 
 def _get_subdf_from_df_for_key(df, key):
