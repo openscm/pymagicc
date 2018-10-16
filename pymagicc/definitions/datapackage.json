@@ -8,12 +8,12 @@
       "schema": {
         "fields": [
           {
-            "name": "MAGICC_variable",
+            "name": "magicc_variable",
             "type": "string",
             "description": "The name of the variable as sometimes used in MAGICC. The names in MAGICC aren't always consistent hence this won't always be how it's called and so this name is a bit misleading.."
           },
           {
-            "name": "Concentration_units",
+            "name": "concentrations_unit",
             "type": "string",
             "description": "Units in which this variable is calculated and expected in MAGICC, written in a format which Pint can read."
           }
@@ -28,117 +28,117 @@
       "schema": {
         "fields": [
           {
-            "name": "Notes",
+            "name": "notes",
             "type": "string",
             "description": "Some notes about how this DATTYPE and REGIONMODE combination are used in MAGICC internally. Only notes so may not actually reflect the truth."
           },
           {
-            "name": "THISFILE_DATTYPE",
+            "name": "thisfile_dattype",
             "type": "string",
             "description": "The value expected by MAGICC for the THISFILE_DATTYPE flag when the regions match the given regions."
           },
           {
-            "name": "THISFILE_REGIONMODE",
+            "name": "thisfile_regionmode",
             "type": "string",
             "description": "The value expected by MAGICC for the THISFILE_REGIONMODE flag when the regions match the given regions."
           },
           {
-            "name": "Region1",
+            "name": "region_1",
             "type": "string",
             "description": "The regions in the RegionX columns define the region set which match the given THISFILE_DATTYPE and THISFILE_REGIONMODE flags."
           },
           {
-            "name": "Region2",
+            "name": "region_2",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region3",
+            "name": "region_3",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region4",
+            "name": "region_4",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region5",
+            "name": "region_5",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region6",
+            "name": "region_6",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region7",
+            "name": "region_7",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region8",
+            "name": "region_8",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region9",
+            "name": "region_9",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region10",
+            "name": "region_10",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region11",
+            "name": "region_11",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region12",
+            "name": "region_12",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region13",
+            "name": "region_13",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region14",
+            "name": "region_14",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region15",
+            "name": "region_15",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region16",
+            "name": "region_16",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region17",
+            "name": "region_17",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region18",
+            "name": "region_18",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region19",
+            "name": "region_19",
             "type": "string",
             "description": ""
           },
           {
-            "name": "Region20",
+            "name": "region_20",
             "type": "string",
             "description": ""
           }
@@ -153,27 +153,27 @@
       "schema": {
         "fields": [
           {
-            "name": "MAGICC variable",
+            "name": "magicc_variable",
             "type": "string",
             "description": "The name of the variable as sometimes used in MAGICC. The names in MAGICC aren't always consistent hence this won't always be how it's called and so this name is a bit misleading.."
           },
           {
-            "name": "emissions units",
+            "name": "emissions_unit",
             "type": "string",
             "description": "Units in which this variable is calculated and expected in MAGICC, written in a format which Pint can read."
           },
           {
-            "name": "SCEN emms code 0",
+            "name": "part_of_scenfile_with_emissions_code_0",
             "type": "boolean",
             "description": "True if this emissions species is expected in a SCEN file whose SCEN emissions code is 0 (see documentation of `pymagicc/io.py::_ScenWriter.get_special_scen_code` for further explanation)."
           },
           {
-            "name": "SCEN emms code 1",
+            "name": "part_of_scenfile_with_emissions_code_1",
             "type": "boolean",
             "description": "True if this emissions species is expected in a SCEN file whose SCEN emissions code is 1 (see documentation of `pymagicc/io.py::_ScenWriter.get_special_scen_code` for further explanation)."
           },
           {
-            "name": "prn emms",
+            "name": "part_of_prnfile",
             "type": "boolean",
             "description": "True if this emissions species is expected in a `.prn file`."
           }

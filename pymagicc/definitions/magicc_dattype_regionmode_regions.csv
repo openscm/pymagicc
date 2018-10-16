@@ -1,4 +1,4 @@
-Notes,THISFILE_DATTYPE,THISFILE_REGIONMODE,Region1,Region2,Region3,Region4,Region5,Region6,Region7,Region8,Region9,Region10,Region11,Region12,Region13,Region14,Region15,Region16,Region17,Region18,Region19,Region20
+notes,thisfile_dattype,thisfile_regionmode,region_1,region_2,region_3,region_4,region_5,region_6,region_7,region_8,region_9,region_10,region_11,region_12,region_13,region_14,region_15,region_16,region_17,region_18,region_19,region_20
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,SRES,OECD90,REF,ASIA,ALM,,,,,,,,,,,,,,,,
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,SRES,WORLD,OECD90,REF,ASIA,ALM,,,,,,,,,,,,,,,
 DATTYPE not used by MAGICC.F90 for SCEN7. Order matters for non SCEN7 files.,REGIONDATA,RCP,R5OECD,R5REF,R5ASIA,R5MAF,R5LAM,,,,,,,,,,,,,,,
