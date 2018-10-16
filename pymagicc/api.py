@@ -445,8 +445,6 @@ class MAGICCBase(object):
         fully equilibrate and hence the ECS value might not be what you expect (it
         should match the value of ``core_climatesensitivity``).
 
-        .. |CO2| replace:: CO\ :sub:`2`\
-
         Parameters
         ----------
         **kwargs
