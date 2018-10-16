@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#79 <https://github.com/openclimatedata/pymagicc/pull/79>`_) Confirmed that keeping track of config state works and added example to TCR/ECS diagnosis notebook
 - (`#146 <https://github.com/openclimatedata/pymagicc/pull/146>`_) Removed path alteration from docs buiding
 - (`#143 <https://github.com/openclimatedata/pymagicc/pull/143>`_) Only read ``PARAMETERS.OUT`` file if it exists. ``MAGICCBase.config`` now defaults to ``None`` until a valid ``PARAMETERS.OUT`` file is read.
 - (`#133 <https://github.com/openclimatedata/pymagicc/pull/133>`_) Put definitions of MAGICC6's expected emissions into a standalone module
