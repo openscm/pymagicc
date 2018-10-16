@@ -22,16 +22,54 @@ from .definitions import (
 )
 
 
+UNSUPPORTED_OUT_FILES = [
+    r".*CARBONCYCLE.*OUT",
+    r".*SUBANN.*BINOUT",
+    r".*DAT_VOLCANIC_RF\.BINOUT",
+    r".*PF\_.*OUT",
+    r".*DATBASKET_.*",
+    r".*INVERSE.*EMIS.*OUT",
+    r".*PRECIPINPUT.*OUT",
+    r".*TEMP_OCEANLAYERS\.BINOUT",
+    r".*TIMESERIESMIX.*OUT",
+    r".*SUMMARY_INDICATORS.OUT",
+]
+"""list: these files are nasty to read and not that useful hence are unsupported
+
+The solution for these files is to fix the output format rather than hacking the
+readers. Obviously that doesn't help for the released MAGICC6 binary but there is
+nothing we can do there. For MAGICC7, we should have a much nicer set.
+
+Some more explanation on why these files are not supported:
+
+- CARBONCYCLE.OUT has no units and we don't want to hardcode them
+- Sub annual binary files (including volcanic RF) are asking for trouble
+- Permafrost output files don't make any sense right now
+- Output baskets have inconsistent variable names from other outputs
+- Inverse emissions files have no units and we don't want to hardcode them
+- We have no idea what the precipitation input is
+- Temp ocean layers is hard to predict because it has many layers
+- Time series mix output files don't have units or regions
+- Summary indicator files are a brand new format for little gain
+"""
+
+
+def _unsupported_file(filename):
+    for uns in UNSUPPORTED_OUT_FILES:
+        if re.match(uns, filename):
+            return True
+
+    return False
+
+
 class NoReaderWriterError(ValueError):
-    """
-    Exception raised when an valid Reader or Writer could not be found for the file
+    """Exception raised when a valid Reader or Writer could not be found for the file
     """
     pass
 
 
 class InvalidTemporalResError(ValueError):
-    """
-    Exception raised when an valid Reader or Writer could not be found for the file
+    """Exception raised when a file has a temporal resolution which cannot be processed
     """
     pass
 
@@ -719,7 +757,7 @@ class BinData(object):
 
         res = np.array(d.cast(t))
 
-        # Return as a variable or a numpy array if it is an array
+        # Return as a scalar or a numpy array if it is an array
         if res.size == 1:
             return res[0]
         return res
@@ -772,13 +810,16 @@ class _BinaryOutReader(_InputReader):
 
         df.index.name = "YEAR"
 
+        regions = ["GLOBAL", "NHOCEAN", "NHLAND", "SHOCEAN", "SHLAND"]
         column_headers = {
             "variable": [self._get_variable_from_filename()] * (num_regions + 1),
-            "region": ["GLOBAL", "NHOCEAN", "NHLAND", "SHOCEAN", "SHLAND"],
+            "region": regions,
+            "units": ["unknown"] * len(regions),
+            "todo": ["SET"] * len(regions),
         }
         df.columns = pd.MultiIndex.from_arrays(
-            [column_headers["variable"], column_headers["region"]],
-            names=("VARIABLE", "REGION"),
+            [column_headers["variable"], column_headers["todo"], column_headers["units"], column_headers["region"]],
+            names=("VARIABLE", "TODO", "UNITS", "REGION"),
         )
 
         return df, metadata
@@ -1593,7 +1634,6 @@ class MAGICCData(object):
             The tool to get, valid options are "reader", "writer".
             Invalid values will throw a KeyError.
         """
-
         file_regexp_reader_writer = {
             "SCEN": {
                 "regexp": r"^.*\.SCEN$",
@@ -1662,6 +1702,9 @@ class MAGICCData(object):
                 "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
                 "style file, please use pymagicc.io.read_cfg_file"
             )
+
+        elif _unsupported_file(filename):
+            error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(filename)
 
         else:
             regexp_list_str = "\n".join(
