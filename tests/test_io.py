@@ -89,7 +89,10 @@ def generic_mdata_tests(mdata):
     "Resusable tests to ensure data format."
     assert mdata.is_loaded == True
     assert isinstance(mdata.df, pd.DataFrame)
-    assert mdata.df.columns.names == ["year", "variable", "todo", "unit", "region"]
+    pd.testing.assert_index_equal(
+        mdata.df.columns,
+        pd.Index(["variable", "todo", "unit", "region", "time", "value"]),
+    )
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
             mdata.metadata[key]
@@ -102,15 +105,15 @@ def test_load_magicc6_emis():
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN")
     generic_mdata_tests(mdata)
 
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|CO2|MAGICC Fossil and Industrial",
-            "SET",
-            "Gt C / yr",
-            "World|R5ASIA",
-        ][2000],
-        1.7682027e000,
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World|R5ASIA")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "Gt C / yr")
+        & (mdata.df["todo"] == "SET")
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 1.7682027e000)
 
 
 def test_load_magicc6_emis_hyphen_in_units():
@@ -119,15 +122,15 @@ def test_load_magicc6_emis_hyphen_in_units():
     mdata.read(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN")
     generic_mdata_tests(mdata)
 
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|N2O|MAGICC Fossil and Industrial",
-            "SET",
-            "Mt N2ON / yr",
-            "World|R5ASIA",
-        ][2000],
-        0.288028519,
+    row = (
+        (mdata.df["variable"] == "Emissions|N2O|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World|R5ASIA")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "Mt N2ON / yr")
+        & (mdata.df["todo"] == "SET")
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.288028519)
 
 
 def test_load_magicc5_emis():
@@ -136,24 +139,31 @@ def test_load_magicc5_emis():
     mdata.read(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN")
     generic_mdata_tests(mdata)
 
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|CO2|MAGICC Fossil and Industrial", "SET", "Gt C / yr", "NH"
-        ][2000],
-        6.20403698,
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World|Northern Hemisphere")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "Gt C / yr")
+        & (mdata.df["todo"] == "SET")
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|CO2|MAGICC Fossil and Industrial", "SET", "Gt C / yr", "SH"
-        ][2002],
-        0.495812385,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value.values, 6.20403698)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World|Southern Hemisphere")
+        & (mdata.df["time"] == 2002)
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|CO2|MAGICC Fossil and Industrial", "SET", "Gt C / yr", "SH"
-        ][1751],
-        0.0,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value.values, 0.495812385)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World|Southern Hemisphere")
+        & (mdata.df["time"] == 1751)
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value.values, 0.0)
 
 
 def test_load_magicc5_emis_not_renamed_error():
@@ -175,11 +185,17 @@ def test_load_magicc6_conc():
     mdata = MAGICCData()
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
 
-    assert (mdata.df.columns.get_level_values("units") == "ppm").all()
+    assert (mdata.df.unit == "ppm").all()
     generic_mdata_tests(mdata)
-    np.testing.assert_allclose(
-        mdata.df["CO2_CONC", "SET", "ppm", "World"][1048], 2.80435733e002
+    row = (
+        (mdata.df["variable"] == "Atmospheric Concentrations|CO2")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1048)
+        & (mdata.df["unit"] == "ppm")
+        & (mdata.df["todo"] == "SET")
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 2.80435733e002)
 
 
 def test_load_magicc6_conc_old_style_name_umlaut_metadata():

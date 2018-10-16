@@ -19,8 +19,16 @@ from .definitions import (
     part_of_scenfile_with_emissions_code_0,
     part_of_scenfile_with_emissions_code_1,
     part_of_prnfile,
+    magicc7_emissions_units,
+    magicc7_concentrations_units,
 )
 
+
+DATA_HIERARCHY_SEPARATOR = "|"
+"""str: String used to define different levels in our data hierarchies.
+
+We copy this straight from Pyam to maintain easy compatibility.
+"""
 
 UNSUPPORTED_OUT_FILES = [
     r".*CARBONCYCLE.*OUT",
@@ -217,11 +225,12 @@ class _InputReader(object):
         if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
             df.index = df.index.to_series().round(3)
 
-        df.index.name = "YEAR"
+        df.index.name = "time"
         df.columns = pd.MultiIndex.from_arrays(
             [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
-            names=("VARIABLE", "TODO", "UNITS", "REGION"),
+            names=("variable", "todo", "unit", "region"),
         )
+        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
         return df, metadata
 
@@ -231,6 +240,10 @@ class _InputReader(object):
         else:
             column_headers, metadata = self._read_magicc6_style_header(stream, metadata)
 
+        column_headers["variables"] = _convert_magicc7_to_openscm_variables(column_headers["variables"])
+        column_headers["regions"] = _convert_magicc_region_to_openscm_region(
+            column_headers["regions"]
+        )
         return column_headers, metadata
 
     def _magicc7_style_header(self):
@@ -436,9 +449,23 @@ class _EmisInReader(_InputReader):
             else:
                 tmp_vars.append(v + "_EMIS")
 
-        column_headers["variables"] = tmp_vars
-
+        column_headers["units"] = [
+            self._tidy_up_units(u) for u in column_headers["units"]
+        ]
         return column_headers, metadata
+
+    def _tidy_up_units(self, in_unit):
+        in_unit = in_unit.replace("-", "")
+        if in_unit.startswith("Gt"):
+            mass = "Gt"
+        elif in_unit.startswith("Mt"):
+            mass = "Mt"
+        elif in_unit.startswith("t"):
+            mass = "t"
+        else:
+            raise ValueError("Unexpected emissions unit")
+
+        return " ".join([mass, in_unit.replace(mass, ""), "/ yr"])
 
 
 class _HistEmisInReader(_EmisInReader):
@@ -848,10 +875,108 @@ class _BinaryOutReader(_InputReader):
         return metadata
 
 
+def _convert_magicc_region_to_openscm_region(regions, inverse=False):
+    def get_openscm_replacement(in_region):
+        world = "World"
+        if in_region in ("WORLD", "GLOBAL"):
+            return world
+        elif in_region.startswith(("NH", "SH")):
+            in_region = in_region.replace("-", "")
+            hem = "Northern Hemisphere" if "NH" in in_region else "Southern Hemisphere"
+            if in_region in ("NH", "SH"):
+                return DATA_HIERARCHY_SEPARATOR.join([world, hem])
+
+            land_ocean = "Land" if "LAND" in in_region else "Ocean"
+            return DATA_HIERARCHY_SEPARATOR.join([world, hem, land_ocean])
+        else:
+            return DATA_HIERARCHY_SEPARATOR.join([world, in_region])
+
+    # we generate the mapping dynamically, the first name in the list
+    # is the one which will be used for inverse mappings i.e. NH-LAND from
+    # MAGICC will be mapped back to NHLAND, not NH-LAND
+    # TODO: make this a constant and put it somewhere so we don't regenerate the
+    # mapping everytime. Also makes it easier to doc.
+    magicc_regions = [
+        "WORLD",
+        "GLOBAL",
+        "R5ASIA",
+        "R5OECD",
+        "R5REF",
+        "R5MAF",
+        "R5LAM",
+        "R6OECD90",
+        "R6REF",
+        "R6LAM",
+        "R6MAF",
+        "R6ASIA",
+        "NHOCEAN",
+        "SHOCEAN",
+        "NHLAND",
+        "SHLAND",
+        "NH-OCEAN",
+        "SH-OCEAN",
+        "NH-LAND",
+        "SH-LAND",
+        "SH",
+        "NH",
+        "BUNKERS",
+    ]
+
+    replacements = {}
+    for magicc_region in magicc_regions:
+        openscm_region = get_openscm_replacement(magicc_region)
+        # i.e. if we've already got a value for the inverse, we don't want to overwrite
+        if (openscm_region in replacements.values()) and inverse:
+            continue
+        replacements[magicc_region] = openscm_region
+
+    return _replace_from_replacement_dict(regions, replacements, inverse=inverse)
+
+
+def _convert_magicc7_to_openscm_variables(variables, inverse=False):
+    def get_openscm_replacement(in_var):
+        if in_var.endswith("_EMIS"):
+            prefix = "Emissions"
+        elif in_var.endswith("_CONC"):
+            prefix = "Atmospheric Concentrations"
+        elif in_var.endswith("_RF"):
+            prefix = "Radiative Forcing"
+        elif in_var.endswith("_OT"):
+            prefix = "Optical Thickness"
+        else:
+            raise ValueError("This shouldn't happen")
+
+        variable = in_var.split("_")[0]
+        if variable.endswith("I"):
+            variable = DATA_HIERARCHY_SEPARATOR.join(
+                [variable[:-1], "MAGICC Fossil and Industrial"]
+            )
+        elif variable.endswith("B"):
+            variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
+
+        return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
+
+    # TODO: make this a constant and put it somewhere so we don't regenerate the
+    # mapping everytime. Also makes it easier to doc.
+    magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT"]
+    magicc7_base_vars = magicc7_emissions_units.magicc_variable.tolist() + ["SOLAR", "VOLCANIC"]
+    magicc7_vars = [
+        base_var + suffix
+        for base_var in magicc7_base_vars
+        for suffix in magicc7_suffixes
+    ]
+
+    replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
+
+    return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
+
+
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings i.e. HFC4310 from
     # MAGICC7 will be mapped back to HFC43-10, not HFC-43-10
+    # TODO: make this a constant and put it somewhere so we don't regenerate the
+    # mapping everytime. Also makes it easier to doc.
     magicc6_vars = [
         "FossilCO2",
         "OtherCO2",
