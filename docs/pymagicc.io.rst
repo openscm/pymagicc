@@ -1,3 +1,5 @@
+.. _pymagicc.io:
+
 pymagicc.io
 -----------
 

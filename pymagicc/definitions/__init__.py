@@ -10,7 +10,7 @@ metadata for further details.
 For more details about how these constants are used, see the documentation of
 ``pymagicc.io``. In particular, the documentation of
 ``pymagicc.io.get_special_scen_code``, ``pymagicc.io.get_dattype_regionmode`` and
-``pymagicc.io.get_region_order``.
+``pymagicc.io.get_region_order`` in :ref:`pymagicc.io`.
 """
 from pathlib import Path
 
@@ -36,7 +36,7 @@ dattype_regionmode_regions["regions"] = [
 ]
 
 magicc7_emissions_units = read_datapackage(path, "magicc_emisssions_units")
-""":obj:`pandas.DataFrame` Definitions of emissions variables and their expected units in MAGICC7
+""":obj:`pandas.DataFrame` Definitions of emissions variables and their expected units in MAGICC7.
 """
 
 part_of_scenfile_with_emissions_code_0 = magicc7_emissions_units[
@@ -62,5 +62,5 @@ part_of_prnfile = magicc7_emissions_units[magicc7_emissions_units["part_of_prnfi
 """
 
 magicc7_concentrations_units = read_datapackage(path, "magicc_concentrations_units")
-""":obj:`pandas.DataFrame` Definitions of concentrations variables and their expected units in MAGICC7
+""":obj:`pandas.DataFrame` Definitions of concentrations variables and their expected units in MAGICC7.
 """
