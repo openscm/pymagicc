@@ -240,7 +240,9 @@ class _InputReader(object):
         else:
             column_headers, metadata = self._read_magicc6_style_header(stream, metadata)
 
-        column_headers["variables"] = _convert_magicc7_to_openscm_variables(column_headers["variables"])
+        column_headers["variables"] = _convert_magicc7_to_openscm_variables(
+            column_headers["variables"]
+        )
         column_headers["regions"] = _convert_magicc_region_to_openscm_region(
             column_headers["regions"]
         )
@@ -959,7 +961,10 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     # TODO: make this a constant and put it somewhere so we don't regenerate the
     # mapping everytime. Also makes it easier to doc.
     magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT"]
-    magicc7_base_vars = magicc7_emissions_units.magicc_variable.tolist() + ["SOLAR", "VOLCANIC"]
+    magicc7_base_vars = magicc7_emissions_units.magicc_variable.tolist() + [
+        "SOLAR",
+        "VOLCANIC",
+    ]
     magicc7_vars = [
         base_var + suffix
         for base_var in magicc7_base_vars
