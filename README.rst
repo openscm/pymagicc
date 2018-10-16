@@ -120,12 +120,18 @@ editable version for local development:
 Development
 -----------
 
+Setup
+*****
+
 For local development, install dependencies and an editable version of Pymagicc from a clone or download of the Pymagicc repository with
 
 ::
 
     make venv
     ./venv/bin/pip install --editable .
+
+Running the tests
+*****************
 
 To run the tests run
 
@@ -145,13 +151,20 @@ To get a test coverage report, run
 
     ./venv/bin/pytest --cov
 
-To unify coding style `black <https://github.com/ambv/black>`_ is used.
+Conventions
+***********
+
+To unify coding style, allowing us to focus more on writing useful code and less time worrying about formatting, `black <https://github.com/ambv/black>`_ is used.
 
 To format the files in ``pymagicc`` and ``tests`` as well as ``setup.py`` run
 
 ::
 
     make black
+
+In our miscellaneous csv's, for example the definitional csv's, we follow the following conventions to make our lives easier:
+
+- column names are all lower case, with underscores as separators (i.e. no spaces)
 
 Building the documentation
 **************************
