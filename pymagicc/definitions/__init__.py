@@ -24,37 +24,37 @@ path = Path(__file__).parent
 
 _dtrm = read_datapackage(path, "magicc_dattype_regionmode_regions")
 
-_region_cols = _dtrm.columns.to_series().apply(lambda x: x.startswith("Region"))
+_region_cols = _dtrm.columns.to_series().apply(lambda x: x.startswith("region"))
 
 dattype_regionmode_regions = _dtrm.loc[:, ~_region_cols].copy()
 """pandas.DataFrame: Mapping between regions and whether a file is SCEN7 or not and the expected values of THISFILE_DATTYPE and THISFILE_REGIONMODE flags in MAGICC.
 """
 
-dattype_regionmode_regions["Regions"] = [
+dattype_regionmode_regions["regions"] = [
     [r for r in raw if not pd.isnull(r)]
     for raw in _dtrm.loc[:, _region_cols].values.tolist()
 ]
 
-_emms_units = read_datapackage(path, "magicc_emisssions_units")
+_emms_units_defs = read_datapackage(path, "magicc_emisssions_units")
 
-scen_emms_code_1 = _emms_units[_emms_units["SCEN emms code 1"]][
-    "MAGICC variable"
-].tolist()
-"""list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
-
-See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
-"""
-
-scen_emms_code_0 = _emms_units[_emms_units["SCEN emms code 0"]][
-    "MAGICC variable"
+part_of_scenfile_with_emissions_code_0 = _emms_units_defs[_emms_units_defs["part_of_scenfile_with_emissions_code_0"]][
+    "magicc_variable"
 ].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 0.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-prn_species = _emms_units[_emms_units["prn emms"]]["MAGICC variable"].tolist()
+part_of_scenfile_with_emissions_code_1 = _emms_units_defs[_emms_units_defs["part_of_scenfile_with_emissions_code_1"]][
+    "magicc_variable"
+].tolist()
+"""list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
+
+See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
+"""
+
+part_of_prnfile = _emms_units_defs[_emms_units_defs["part_of_prnfile"]]["magicc_variable"].tolist()
 """list: The emissions which are included in a ``.prn`` file.
 """
 
-_concs_units = read_datapackage(path, "magicc_concentrations_units")
+_concs_units_defs = read_datapackage(path, "magicc_concentrations_units")
