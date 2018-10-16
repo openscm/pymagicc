@@ -66,12 +66,14 @@ def _unsupported_file(filename):
 class NoReaderWriterError(ValueError):
     """Exception raised when a valid Reader or Writer could not be found for the file
     """
+
     pass
 
 
 class InvalidTemporalResError(ValueError):
     """Exception raised when a file has a temporal resolution which cannot be processed
     """
+
     pass
 
 
@@ -154,16 +156,9 @@ class _InputReader(object):
 
     def process_metadata(self, lines):
         def preprocess_edge_cases(lines, inverse=False):
-            replacements = {
-                "W/m": "Wperm",
-                "^": "superscript",
-            }
+            replacements = {"W/m": "Wperm", "^": "superscript"}
 
-            return _replace_from_replacement_dict(
-                lines,
-                replacements,
-                inverse=inverse,
-            )
+            return _replace_from_replacement_dict(lines, replacements, inverse=inverse)
 
         def postprocess_edge_cases(value):
             return preprocess_edge_cases(value, inverse=True)
@@ -181,9 +176,9 @@ class _InputReader(object):
                 # have to do this type coercion as nml reads things like
                 # 10superscript22 J into a threepart list, [10,
                 # 'superscript22', 'J'] where the first part is an int
-                metadata[metadata_key] = "".join([
-                    str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]
-                ])
+                metadata[metadata_key] = "".join(
+                    [str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]]
+                )
                 metadata[metadata_key] = postprocess_edge_cases(metadata[metadata_key])
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
@@ -819,7 +814,12 @@ class _BinaryOutReader(_InputReader):
             "todo": ["SET"] * len(regions),
         }
         df.columns = pd.MultiIndex.from_arrays(
-            [column_headers["variable"], column_headers["todo"], column_headers["units"], column_headers["region"]],
+            [
+                column_headers["variable"],
+                column_headers["todo"],
+                column_headers["units"],
+                column_headers["region"],
+            ],
             names=("VARIABLE", "TODO", "UNITS", "REGION"),
         )
 
@@ -838,12 +838,15 @@ class _BinaryOutReader(_InputReader):
             "lastyear": data.read_chunk("I"),
             "annualsteps": data.read_chunk("I"),
         }
-        if metadata['annualsteps'] != 1:
+        if metadata["annualsteps"] != 1:
             raise InvalidTemporalResError(
-                "{}: Only annual binary files can currently be processed".format(self.filename)
+                "{}: Only annual binary files can currently be processed".format(
+                    self.filename
+                )
             )
 
         return metadata
+
 
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     # we generate the mapping dynamically, the first name in the list
@@ -906,11 +909,8 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
                 continue
             replacements[m6v] = m7v
 
-    return _replace_from_replacement_dict(
-        variables,
-        replacements,
-        inverse=inverse
-    )
+    return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
+
 
 def _replace_from_replacement_dict(inputs, replacements, inverse=False):
     if inverse:
@@ -924,6 +924,7 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
             inputs_return = inputs_return.replace(old, new)
 
     return inputs_return
+
 
 def _convert_magicc7_to_magicc6_variables(variables):
     return _convert_magicc6_to_magicc7_variables(variables, inverse=True)
@@ -956,8 +957,12 @@ def get_dattype_regionmode(regions, scen7=False):
     regionmode_flag = "THISFILE_REGIONMODE"
     region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
 
-    dattype = dattype_regionmode_regions[dattype_flag.lower()][region_dattype_row].iloc[0]
-    regionmode = dattype_regionmode_regions[regionmode_flag.lower()][region_dattype_row].iloc[0]
+    dattype = dattype_regionmode_regions[dattype_flag.lower()][region_dattype_row].iloc[
+        0
+    ]
+    regionmode = dattype_regionmode_regions[regionmode_flag.lower()][
+        region_dattype_row
+    ].iloc[0]
 
     return {dattype_flag: dattype, regionmode_flag: regionmode}
 
@@ -1674,7 +1679,11 @@ class MAGICCData(object):
                 "reader": _TempOceanLayersOutReader,
                 "writer": None,
             },
-            "BinOut": {"regexp": r"^DAT\_.*\.BINOUT$", "reader": _BinaryOutReader, "writer": None},
+            "BinOut": {
+                "regexp": r"^DAT\_.*\.BINOUT$",
+                "reader": _BinaryOutReader,
+                "writer": None,
+            },
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
 
@@ -1705,7 +1714,9 @@ class MAGICCData(object):
             )
 
         elif _unsupported_file(filename):
-            error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(filename)
+            error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
+                filename
+            )
 
         else:
             regexp_list_str = "\n".join(

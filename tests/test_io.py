@@ -20,7 +20,7 @@ from pymagicc.io import (
     read_cfg_file,
     get_special_scen_code,
     NoReaderWriterError,
-    InvalidTemporalResError
+    InvalidTemporalResError,
 )
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
@@ -811,21 +811,27 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert (mdata.df.columns.get_level_values("UNITS") == "10^22J").all()
 
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1767], 0.046263236
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1767],
+        0.046263236,
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1965], 3.4193050
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "GLOBAL"][1965],
+        3.4193050,
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "NHOCEAN"][1769], 0.067484257
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "NHOCEAN"][1769],
+        0.067484257,
     )
     np.testing.assert_allclose(
-        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHOCEAN"][1820], -4.2688102
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHOCEAN"][1820],
+        -4.2688102,
     )
     np.testing.assert_allclose(
         mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "NHLAND"][2093], 0.0
     )
-    np.testing.assert_allclose(mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHLAND"][1765], 0.0)
+    np.testing.assert_allclose(
+        mdata.df["HEATCONTENT_AGGREG_DEPTH1", "N/A", "10^22J", "SHLAND"][1765], 0.0
+    )
 
 
 def test_load_out_ocean_layers():
@@ -861,7 +867,9 @@ def test_load_parameters_out_with_magicc_input():
     test_file = "PARAMETERS.OUT"
     expected_error_msg = (
         r"^"
-        + re.escape("MAGCCInput cannot read PARAMETERS.OUT as it is a config style file")
+        + re.escape(
+            "MAGCCInput cannot read PARAMETERS.OUT as it is a config style file"
+        )
         + re.escape(", please use pymagicc.io.read_cfg_file")
         + r"$"
     )
@@ -875,6 +883,8 @@ xfail_msg = (
     "about this. If we strip them, we give the illustion that they're usable, "
     "which they're not really..."
 )
+
+
 @pytest.mark.xfail(reason=xfail_msg)
 def test_load_parameters_out():
     cfg = read_cfg_file(join(TEST_OUT_DIR, "PARAMETERS.OUT"))
@@ -1250,16 +1260,29 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
 
     mdata = MAGICCData(file_to_read)
     if ("SUBANN" in file_to_read) or ("VOLCANIC_RF.BINOUT" in file_to_read):
-        error_msg = (r"^.*" + re.escape(": Only annual binary files can currently be processed") + r".*$")
+        error_msg = (
+            r"^.*"
+            + re.escape(": Only annual binary files can currently be processed")
+            + r".*$"
+        )
         with pytest.raises(InvalidTemporalResError, match=error_msg):
             mdata.read(TEST_OUT_DIR)
     else:
-        error_msg = (r"^.*" + re.escape("is in an odd format for which we will never provide a reader/writer") + r".*$")
+        error_msg = (
+            r"^.*"
+            + re.escape(
+                "is in an odd format for which we will never provide a reader/writer"
+            )
+            + r".*$"
+        )
         with pytest.raises(NoReaderWriterError, match=error_msg):
             mdata.read(TEST_OUT_DIR)
 
 
-@pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR) if f.endswith('BINOUT') and f.startswith('DAT_')])
+@pytest.mark.parametrize(
+    "file_to_read",
+    [f for f in listdir(TEST_OUT_DIR) if f.endswith("BINOUT") and f.startswith("DAT_")],
+)
 def test_bin_and_ascii_equal(file_to_read):
     try:
         mdata_bin = MAGICCData(file_to_read)
@@ -1271,13 +1294,14 @@ def test_bin_and_ascii_equal(file_to_read):
     assert (mdata_bin.df.columns.get_level_values("UNITS") == "unknown").all()
     assert (mdata_bin.df.columns.get_level_values("TODO") == "SET").all()
 
-    mdata_ascii = MAGICCData(file_to_read.replace('BINOUT', 'OUT'))
+    mdata_ascii = MAGICCData(file_to_read.replace("BINOUT", "OUT"))
     mdata_ascii.read(TEST_OUT_DIR)
 
     # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
-    mdata_ascii.df.columns = mdata_ascii.df.columns.droplevel('UNITS').droplevel('TODO')
-    mdata_bin.df.columns = mdata_bin.df.columns.droplevel('UNITS').droplevel('TODO')
+    mdata_ascii.df.columns = mdata_ascii.df.columns.droplevel("UNITS").droplevel("TODO")
+    mdata_bin.df.columns = mdata_bin.df.columns.droplevel("UNITS").droplevel("TODO")
     pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
+
 
 # TODO add test of converting names for SCEN files
 # TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
