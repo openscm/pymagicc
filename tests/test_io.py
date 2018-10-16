@@ -115,7 +115,7 @@ def test_load_magicc6_emis_hyphen_in_units():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "R5ASIA"][2000], 0.288028519
+        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "WORLD|R5ASIA"][2000], 0.288028519
     )
 
 
