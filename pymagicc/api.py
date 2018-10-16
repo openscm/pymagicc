@@ -440,7 +440,7 @@ class MAGICCBase(object):
             startyear=1750, endyear=4200
         )  # 4200 seems to be the max I can push too without an error
 
-        self.set_config(
+        self.update_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,

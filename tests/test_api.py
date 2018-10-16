@@ -12,20 +12,18 @@ from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
 from .test_config import config_override  #  noqa
 
 
-magicc_classes = [MAGICC6, MAGICC7]
-
-
 @pytest.fixture(scope="function")
 def magicc_base():
     yield MAGICCBase()
 
 
-@pytest.fixture(scope="module", params=[MAGICC6, MAGICC7])
+@pytest.fixture(scope="function", params=[MAGICC6, MAGICC7])
 def package(request):
     MAGICC_cls = request.param
     p = MAGICC_cls()
-    check_available(p)
 
+    if p.executable is None or not exists(p.original_dir):
+        pytest.skip("MAGICC {} is not available".format(p.version))
     p.create_copy()
     root_dir = p.root_dir
     yield p
@@ -196,12 +194,12 @@ def test_diagnose_tcr_ecs(
     assert isinstance(results["timeseries"], pd.DataFrame)
 
 
-@patch.object(MAGICCBase, "set_config")
+@patch.object(MAGICCBase, "update_config")
 @patch.object(MAGICCBase, "set_years")
-def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_set_config, magicc_base):
+def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_update_config, magicc_base):
     magicc_base._diagnose_tcr_ecs_config_setup()
     mock_set_years.assert_called_with(startyear=1750, endyear=4200)
-    mock_set_config.assert_called_with(
+    mock_update_config.assert_called_with(
         FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
         RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
@@ -663,11 +661,8 @@ def test_output_variables(package):
     assert raw_conf["nml_allcfgs"]["OUT_THIS_DOESNT_EXIST"] == 0
 
 
-def test_persistant_state(magicc_class):
-    with magicc_class() as magicc:
-        test_ecs = 1.75
-        magicc.set_config(CORE_CLIMATESENSITIVITY=test_ecs)
-        actual_results = magicc.diagnose_tcr_ecs()
-        assert (
-            actual_results["ecs"] == test_ecs
-        )  # test will need to change to handle numerical precision when fixed
+def test_persistant_state(package):
+    test_ecs = 1.75
+    package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
+    actual_results = package.diagnose_tcr_ecs()
+    np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
