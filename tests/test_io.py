@@ -104,7 +104,7 @@ def test_load_magicc6_emis():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "R5ASIA"][2000], 1.7682027e000
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global|R5ASIA"][2000], 1.7682027e000
     )
 
 
@@ -115,7 +115,7 @@ def test_load_magicc6_emis_hyphen_in_units():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "WORLD|R5ASIA"][2000], 0.288028519
+        mdata.df["Emissions|N2O|Industrial & Fossil", "SET", "MtN2O-N", "Global|R5ASIA"][2000], 0.288028519
     )
 
 
@@ -126,12 +126,12 @@ def test_load_magicc5_emis():
     generic_mdata_tests(mdata)
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "NH"][2000], 6.20403698
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "NH"][2000], 6.20403698
     )
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][2002], 0.495812385
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "SH"][2002], 0.495812385
     )
-    np.testing.assert_allclose(mdata.df["CO2I_EMIS", "SET", "GtC", "SH"][1751], 0.0)
+    np.testing.assert_allclose(mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "SH"][1751], 0.0)
 
 
 def test_load_magicc5_emis_not_renamed_error():
@@ -156,7 +156,7 @@ def test_load_magicc6_conc():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
     generic_mdata_tests(mdata)
     np.testing.assert_allclose(
-        mdata.df["CO2_CONC", "SET", "ppm", "GLOBAL"][1048], 2.80435733e002
+        mdata.df["CO2_CONC", "SET", "ppm", "Global"][1048], 2.80435733e002
     )
 
 
@@ -167,7 +167,7 @@ def test_load_magicc6_conc_old_style_name_umlaut_metadata():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
     assert mdata.metadata["data"] == "Global average mixing ratio"
     generic_mdata_tests(mdata)
-    np.testing.assert_allclose(mdata.df["HFC245FA_CONC", "SET", "ppt", "GLOBAL"], 0.0)
+    np.testing.assert_allclose(mdata.df["HFC245FA_CONC", "SET", "ppt", "Global"], 0.0)
 
 
 def test_load_magicc6_conc_old_style_name_with_hyphen():
@@ -177,7 +177,7 @@ def test_load_magicc6_conc_old_style_name_with_hyphen():
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
     generic_mdata_tests(mdata)
 
-    np.testing.assert_allclose(mdata.df["HFC4310_CONC", "SET", "ppt", "GLOBAL"], 0.0)
+    np.testing.assert_allclose(mdata.df["HFC4310_CONC", "SET", "ppt", "Global"], 0.0)
 
 
 def test_load_magicc7_emis_umlaut_metadata():
@@ -191,13 +191,13 @@ def test_load_magicc7_emis_umlaut_metadata():
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert mdata.metadata["description"] == "Test line by näme with ümlauts ëh ça"
-    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "Gt C / yr").all()
     # change read in to CO2I_EMIS
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "R6REF"][2013], 0.6638
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "R6REF"][2013], 0.6638
     )
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "R6ASIA"][2000], 1.6911
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "R6ASIA"][2000], 1.6911
     )
 
 
@@ -223,21 +223,21 @@ def test_load_ot():
     assert mdata.metadata["date"] == "18-Jul-2006 11:02:48"
     assert mdata.metadata["unit normalisation"] == "Normalized to 1 in year 2000"
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "DIMENSIONLESS").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "dimensionless").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("VARIABLE") == "NOXI_OT").all()
+    assert (mdata.df.columns.get_level_values("VARIABLE") == "Optical thickness|NOX|Fossil & Industrial").all()
 
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHOCEAN"][1765], 0.00668115649
+        mdata.df["Optical thickness|NOX|Fossil & Industrial", "SET", "dimensionless", "Global|Northern Hemisphere|Ocean"][1765], 0.00668115649
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "NHLAND"][1865], 0.526135104
+        mdata.df["Optical thickness|NOX|Fossil & Industrial", "SET", "dimensionless", "Global|Northern Hemisphere|Land"][1865], 0.526135104
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHOCEAN"][1965], 0.612718845
+        mdata.df["Optical thickness|NOX|Fossil & Industrial", "SET", "dimensionless", "Global|Southern Hemisphere|Ocean"][1965], 0.612718845
     )
     np.testing.assert_allclose(
-        mdata.df["NOXI_OT", "SET", "DIMENSIONLESS", "SHLAND"][2000], 3.70377980
+        mdata.df["Optical thickness|NOX|Fossil & Industrial", "SET", "dimensionless", "Global|Southern Hemisphere|Land"][2000], 3.70377980
     )
 
 
@@ -262,19 +262,19 @@ def test_load_rf():
     )
     assert mdata.metadata["date"] == "18-Jul-2006 11:05:18"
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "W/m2").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "W / m^2").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("VARIABLE") == "BCB_RF").all()
+    assert (mdata.df.columns.get_level_values("VARIABLE") == "Radiative Forcing|BC").all()
 
-    np.testing.assert_allclose(mdata.df["BCB_RF", "SET", "W/m2", "NHOCEAN"][1765], 0.0)
+    np.testing.assert_allclose(mdata.df["Radiative Forcing|BC", "SET", "W / m^2", "Global|Northern Hemisphere|Ocean"][1765], 0.0)
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "NHLAND"][1865], 0.268436597
+        mdata.df["Radiative Forcing|BC", "SET", "W / m^2", "Global|Northern Hemisphere|Land"][1865], 0.268436597
     )
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "SHOCEAN"][1965], 0.443357552
+        mdata.df["Radiative Forcing|BC", "SET", "W / m^2", "Global|Southern Hemisphere|Ocean"][1965], 0.443357552
     )
     np.testing.assert_allclose(
-        mdata.df["BCB_RF", "SET", "W/m2", "SHLAND"][2000], 1.53987244
+        mdata.df["Radiative Forcing|BC", "SET", "W / m^2", "Global|Southern Hemisphere|Land"][2000], 1.53987244
     )
 
 
@@ -300,25 +300,25 @@ def test_load_solar_rf():
     )
     assert mdata.metadata["date"] == "24-Jul-2009 17:05:30"
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "W/m2").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "W / m^2").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("VARIABLE") == "SOLAR_RF").all()
-    assert (mdata.df.columns.get_level_values("REGION") == "GLOBAL").all()
+    assert (mdata.df.columns.get_level_values("VARIABLE") == "Radiative Forcing|Solar").all()
+    assert (mdata.df.columns.get_level_values("REGION") == "Global").all()
 
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1610], 0.0149792391
+        mdata.df["Radiative Forcing|Solar", "SET", "W / m^2", "Global"][1610], 0.0149792391
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1865], -0.00160201087
+        mdata.df["Radiative Forcing|Solar", "SET", "W / m^2", "Global"][1865], -0.00160201087
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][1965], 0.0652917391
+        mdata.df["Radiative Forcing|Solar", "SET", "W / m^2", "Global"][1965], 0.0652917391
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2183], 0.0446329891
+        mdata.df["Radiative Forcing|Solar", "SET", "W / m^2", "Global"][2183], 0.0446329891
     )
     np.testing.assert_allclose(
-        mdata.df["SOLAR_RF", "SET", "W/m2", "GLOBAL"][2600], 0.121325148
+        mdata.df["Radiative Forcing|Solar", "SET", "W / m^2", "Global"][2600], 0.121325148
     )
 
 
@@ -341,24 +341,24 @@ def test_load_volcanic_rf():
     )
     assert mdata.metadata["date"] == "15-Jun-2006 00:20:54"
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "W/m2").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "W / m^2").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("VARIABLE") == "VOLCANIC_RF").all()
+    assert (mdata.df.columns.get_level_values("VARIABLE") == "Radiative Forcing|Volcanic").all()
 
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHLAND"][1000.042], 0.0
+        mdata.df["Radiative Forcing|Volcanic", "SET", "W / m^2", "Global|Northern Hemisphere|Land"][1000.042], 0.0
     )
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHLAND"][1002.542], -0.0187500000
+        mdata.df["Radiative Forcing|Volcanic", "SET", "W / m^2", "Global|Northern Hemisphere|Land"][1002.542], -0.0187500000
     )
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "NHOCEAN"][1013.208], 0.0
+        mdata.df["Radiative Forcing|Volcanic", "SET", "W / m^2", "Global|Northern Hemisphere|Ocean"][1013.208], 0.0
     )
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "SHOCEAN"][1994.125], -0.6345
+        mdata.df["Radiative Forcing|Volcanic", "SET", "W / m^2", "Global|Southern Hemisphere|Ocean"][1994.125], -0.6345
     )
     np.testing.assert_allclose(
-        mdata.df["VOLCANIC_RF", "SET", "W/m2", "SHLAND"][2006.958], 0.0
+        mdata.df["Radiative Forcing|Volcanic", "SET", "W / m^2", "Global|Southern Hemisphere|Land"][2006.958], 0.0
     )
 
 
@@ -375,42 +375,42 @@ def test_load_scen():
     assert "Final RCP3PD with constant emissions" in mdata.metadata["header"]
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "WORLD"][2000], 6.7350
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global"][2000], 6.7350
     )
     np.testing.assert_allclose(
-        mdata.df["N2O_EMIS", "SET", "MtN2O-N", "WORLD"][2002], 7.5487
+        mdata.df["Emissions|N2O", "SET", "MtN2O-N", "Global"][2002], 7.5487
     )
     np.testing.assert_allclose(
-        mdata.df["HFC4310_EMIS", "SET", "kt", "WORLD"][2001], 0.6470
+        mdata.df["Emissions|HFC-43-10", "SET", "kt", "Global"][2001], 0.6470
     )
     np.testing.assert_allclose(
-        mdata.df["SOX_EMIS", "SET", "MtS", "R5OECD"][2005], 11.9769
+        mdata.df["Emissions|SOX", "SET", "MtS", "R5OECD"][2005], 11.9769
     )
     np.testing.assert_allclose(
-        mdata.df["NMVOC_EMIS", "SET", "Mt", "R5OECD"][2050], 18.2123
+        mdata.df["Emissions|NMVOC", "SET", "Mt", "R5OECD"][2050], 18.2123
     )
-    np.testing.assert_allclose(mdata.df["HFC23_EMIS", "SET", "kt", "R5REF"][2100], 0.0)
+    np.testing.assert_allclose(mdata.df["Emissions|HFC23", "SET", "kt", "Global|R5REF"][2100], 0.0)
     np.testing.assert_allclose(
-        mdata.df["HFC125_EMIS", "SET", "kt", "R5REF"][2125], 5.2133
-    )
-    np.testing.assert_allclose(
-        mdata.df["HFC143A_EMIS", "SET", "kt", "R5ASIA"][2040], 33.3635
+        mdata.df["Emissions|HFC-125", "SET", "kt", "Global|R5REF"][2125], 5.2133
     )
     np.testing.assert_allclose(
-        mdata.df["SF6_EMIS", "SET", "kt", "R5ASIA"][2040], 0.8246
+        mdata.df["Emissions|HFC143a", "SET", "kt", "Global|R5ASIA"][2040], 33.3635
     )
     np.testing.assert_allclose(
-        mdata.df["CO2B_EMIS", "SET", "GtC", "R5MAF"][2050], -0.0125
+        mdata.df["Emissions|SF6", "SET", "kt", "Global|R5ASIA"][2040], 0.8246
     )
     np.testing.assert_allclose(
-        mdata.df["CH4_EMIS", "SET", "MtCH4", "R5MAF"][2070], 37.6218
+        mdata.df["Emissions|CO2|Agriculture & Land-use change", "SET", "Gt C / yr", "Global|R5MAF"][2050], -0.0125
     )
     np.testing.assert_allclose(
-        mdata.df["NOX_EMIS", "SET", "MtN", "R5LAM"][2080], 1.8693
+        mdata.df["Emissions|CH4", "SET", "MtCH4", "Global|R5MAF"][2070], 37.6218
     )
-    np.testing.assert_allclose(mdata.df["BC_EMIS", "SET", "Mt", "R5LAM"][2090], 0.4254)
-    np.testing.assert_allclose(mdata.df["NH3_EMIS", "SET", "MtN", "BUNKERS"][2000], 0.0)
-    np.testing.assert_allclose(mdata.df["SF6_EMIS", "SET", "kt", "BUNKERS"][2002], 0.0)
+    np.testing.assert_allclose(
+        mdata.df["Emissions|NOX", "SET", "MtN", "Global|R5LAM"][2080], 1.8693
+    )
+    np.testing.assert_allclose(mdata.df["Emissions|BC", "SET", "Mt", "Global|R5LAM"][2090], 0.4254)
+    np.testing.assert_allclose(mdata.df["Emissions|NH3", "SET", "MtN", "Global|Bunkers"][2000], 0.0)
+    np.testing.assert_allclose(mdata.df["Emissions|SF6", "SET", "kt", "Global|Bunkers"][2002], 0.0)
 
 
 def test_load_scen_sres():
@@ -422,31 +422,31 @@ def test_load_scen_sres():
     assert "Antero Hot Springs" in mdata.metadata["header"]
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "WORLD"][2000], 6.8963
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global"][2000], 6.8963
     )
     np.testing.assert_allclose(
-        mdata.df["N2O_EMIS", "SET", "MtN2O-N", "WORLD"][1990], 6.6751
+        mdata.df["Emissions|N2O", "SET", "MtN2O-N", "Global"][1990], 6.6751
     )
     np.testing.assert_allclose(
-        mdata.df["HFC4310_EMIS", "SET", "kt", "WORLD"][2000], 0.0000
+        mdata.df["Emissions|HFC-43-10", "SET", "kt", "Global"][2000], 0.0000
     )
     np.testing.assert_allclose(
-        mdata.df["SOX_EMIS", "SET", "MtS", "OECD90"][2010], 9.8762
+        mdata.df["Emissions|SOX", "SET", "MtS", "OECD90"][2010], 9.8762
     )
     np.testing.assert_allclose(
-        mdata.df["NMVOC_EMIS", "SET", "Mt", "OECD90"][2050], 28.1940
+        mdata.df["Emissions|NMVOC", "SET", "Mt", "OECD90"][2050], 28.1940
     )
-    np.testing.assert_allclose(mdata.df["HFC23_EMIS", "SET", "kt", "REF"][2100], 0.0624)
+    np.testing.assert_allclose(mdata.df["Emissions|HFC23", "SET", "kt", "REF"][2100], 0.0624)
     np.testing.assert_allclose(
-        mdata.df["HFC125_EMIS", "SET", "kt", "REF"][2100], 5.4067
+        mdata.df["Emissions|HFC-125", "SET", "kt", "REF"][2100], 5.4067
     )
     np.testing.assert_allclose(
-        mdata.df["HFC143A_EMIS", "SET", "kt", "ASIA"][2040], 15.4296
+        mdata.df["Emissions|HFC143a", "SET", "kt", "ASIA"][2040], 15.4296
     )
-    np.testing.assert_allclose(mdata.df["SF6_EMIS", "SET", "kt", "ASIA"][2040], 6.4001)
-    np.testing.assert_allclose(mdata.df["CO2B_EMIS", "SET", "GtC", "ALM"][2050], 0.2613)
+    np.testing.assert_allclose(mdata.df["Emissions|SF6", "SET", "kt", "ASIA"][2040], 6.4001)
+    np.testing.assert_allclose(mdata.df["Emissions|CO2|Agriculture & Land-use change", "SET", "Gt C / yr", "ALM"][2050], 0.2613)
     np.testing.assert_allclose(
-        mdata.df["CH4_EMIS", "SET", "MtCH4", "ALM"][2070], 130.1256
+        mdata.df["Emissions|CH4", "SET", "MtCH4", "ALM"][2070], 130.1256
     )
 
 
@@ -463,43 +463,43 @@ def test_load_scen7():
     assert "Some notes" in mdata.metadata["header"]
 
     np.testing.assert_allclose(
-        mdata.df["CO2I_EMIS", "SET", "GtC", "WORLD"][2000], 6.7350
+        mdata.df["Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global"][2000], 6.7350
     )
     np.testing.assert_allclose(
-        mdata.df["N2OI_EMIS", "SET", "MtN2O-N", "WORLD"][2002], 7.5487
+        mdata.df["Emissions|N2O|Industrial & Fossil", "SET", "MtN2O-N", "Global"][2002], 7.5487
     )
     np.testing.assert_allclose(
-        mdata.df["HFC23_EMIS", "SET", "kt", "WORLD"][2001], 10.4328
+        mdata.df["Emissions|HFC23", "SET", "kt", "Global"][2001], 10.4328
     )
     np.testing.assert_allclose(
-        mdata.df["SOX_EMIS", "SET", "MtS", "R6OECD90"][2005], 11.9769
+        mdata.df["Emissions|SOX", "SET", "MtS", "R6OECD90"][2005], 11.9769
     )
     np.testing.assert_allclose(
-        mdata.df["NMVOC_EMIS", "SET", "Mt", "R6OECD90"][2050], 18.2123
+        mdata.df["Emissions|NMVOC", "SET", "Mt", "R6OECD90"][2050], 18.2123
     )
-    np.testing.assert_allclose(mdata.df["HFC23_EMIS", "SET", "kt", "R6REF"][2100], 0.0)
+    np.testing.assert_allclose(mdata.df["Emissions|HFC23", "SET", "kt", "R6REF"][2100], 0.0)
     np.testing.assert_allclose(
-        mdata.df["CH2Cl2_EMIS", "SET", "kt", "R6REF"][2125], 5.2133
-    )
-    np.testing.assert_allclose(
-        mdata.df["HFC143A_EMIS", "SET", "kt", "R6ASIA"][2040], 33.3635
+        mdata.df["Emissions|CH2Cl2", "SET", "kt", "R6REF"][2125], 5.2133
     )
     np.testing.assert_allclose(
-        mdata.df["SO2F2_EMIS", "SET", "kt", "R6ASIA"][2040], 0.8246
+        mdata.df["Emissions|HFC143a", "SET", "kt", "R6ASIA"][2040], 33.3635
     )
     np.testing.assert_allclose(
-        mdata.df["CO2B_EMIS", "SET", "GtC", "R6MAF"][2050], -0.0125
+        mdata.df["Emissions|SO2F2", "SET", "kt", "R6ASIA"][2040], 0.8246
     )
     np.testing.assert_allclose(
-        mdata.df["CH4_EMIS", "SET", "MtCH4", "R6MAF"][2070], 37.6218
+        mdata.df["Emissions|CO2|Agriculture & Land-use change", "SET", "Gt C / yr", "R6MAF"][2050], -0.0125
     )
     np.testing.assert_allclose(
-        mdata.df["NOX_EMIS", "SET", "MtN", "R6LAM"][2080], 1.8693
+        mdata.df["Emissions|CH4", "SET", "MtCH4", "R6MAF"][2070], 37.6218
     )
-    np.testing.assert_allclose(mdata.df["BCB_EMIS", "SET", "Mt", "R6LAM"][2090], 0.4254)
-    np.testing.assert_allclose(mdata.df["NH3_EMIS", "SET", "MtN", "BUNKERS"][2000], 0.0)
     np.testing.assert_allclose(
-        mdata.df["SO2F2_EMIS", "SET", "kt", "BUNKERS"][2002], 0.0
+        mdata.df["Emissions|NOX", "SET", "MtN", "R6LAM"][2080], 1.8693
+    )
+    np.testing.assert_allclose(mdata.df["Emissions|BC|Agriculture & Land-use change", "SET", "Mt", "R6LAM"][2090], 0.4254)
+    np.testing.assert_allclose(mdata.df["Emissions|NH3", "SET", "MtN", "Global|Bunkers"][2000], 0.0)
+    np.testing.assert_allclose(
+        mdata.df["Emissions|SO2F2", "SET", "kt", "Global|Bunkers"][2002], 0.0
     )
 
 
@@ -520,20 +520,20 @@ def test_load_prn():
         "ons have been adapted to match mixing ratio observations by Butler et al. 1999 with emissions starting in 1850. HCFC-142b from 2005 to 2007 adapted to Montzka et al. 2009 with emission growth/decline rates kept the same after 2007."
         in mdata.metadata["header"]
     )
-    assert (mdata.df.columns.get_level_values("REGION") == "WORLD").all()
+    assert (mdata.df.columns.get_level_values("REGION") == "Global").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("UNITS") == "t").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "t / yr").all()
 
-    np.testing.assert_allclose(mdata.df["CFC11_EMIS", "SET", "t", "WORLD"][1850], 0.0)
-    np.testing.assert_allclose(mdata.df["CFC115_EMIS", "SET", "t", "WORLD"][1965], 444)
+    np.testing.assert_allclose(mdata.df["Emissions|CFC11", "SET", "t / yr", "Global"][1850], 0.0)
+    np.testing.assert_allclose(mdata.df["Emissions|CFC115", "SET", "t / yr", "Global"][1965], 444)
     np.testing.assert_allclose(
-        mdata.df["HALON1211_EMIS", "SET", "t", "WORLD"][1996], 10743
+        mdata.df["Emissions|Halon-1211", "SET", "t / yr", "Global"][1996], 10743
     )
     np.testing.assert_allclose(
-        mdata.df["HALON1301_EMIS", "SET", "t", "WORLD"][2017], 1062
+        mdata.df["Emissions|Halon-1301", "SET", "t / yr", "Global"][2017], 1062
     )
     np.testing.assert_allclose(
-        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2500], 3511082
+        mdata.df["Emissions|CH3Cl", "SET", "t / yr", "Global"][2500], 3511082
     )
 
 
@@ -550,15 +550,15 @@ def test_load_prn_no_units():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df.columns.get_level_values("REGION") == "WORLD").all()
+    assert (mdata.df.columns.get_level_values("REGION") == "Global").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
-    assert (mdata.df.columns.get_level_values("UNITS") == "t").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "t / yr").all()
 
     np.testing.assert_allclose(
-        mdata.df["CFC12_EMIS", "SET", "t", "WORLD"][1950], 139965
+        mdata.df["Emissions|CFC12", "SET", "t / yr", "Global"][1950], 139965
     )
     np.testing.assert_allclose(
-        mdata.df["CH3CL_EMIS", "SET", "t", "WORLD"][2100], 3511082
+        mdata.df["Emissions|CH3Cl", "SET", "t / yr", "Global"][2100], 3511082
     )
 
 
@@ -575,24 +575,24 @@ def test_load_prn_mixing_ratios_years_label():
         mdata.metadata["description"]
         == "1951-2100 Baseline mixing ratio file generated by John Daniel and Guus Velders for WMO2006, Chapter 8. (2/3/06); CH3CL updated to reflect MAGICC6 timeseries after 1955 and lower 2000 concentrations closer to 535ppt in line with"
     )
-    assert (mdata.df.columns.get_level_values("REGION") == "GLOBAL").all()
+    assert (mdata.df.columns.get_level_values("REGION") == "Global").all()
     assert (mdata.df.columns.get_level_values("TODO") == "SET").all()
     assert (mdata.df.columns.get_level_values("UNITS") == "ppt").all()
 
     np.testing.assert_allclose(
-        mdata.df["CFC12_CONC", "SET", "ppt", "GLOBAL"][1850], 0.0
+        mdata.df["Atmospheric Concentrations|CFC12", "SET", "ppt", "Global"][1850], 0.0
     )
     np.testing.assert_allclose(
-        mdata.df["CFC114_CONC", "SET", "ppt", "GLOBAL"][1965], 5.058
+        mdata.df["Atmospheric Concentrations|CFC114", "SET", "ppt", "Global"][1965], 5.058
     )
     np.testing.assert_allclose(
-        mdata.df["HCFC141B_CONC", "SET", "ppt", "GLOBAL"][2059], 13.81
+        mdata.df["Atmospheric Concentrations|HCFC-141b", "SET", "ppt", "Global"][2059], 13.81
     )
     np.testing.assert_allclose(
-        mdata.df["HALON2402_CONC", "SET", "ppt", "GLOBAL"][2091], 0.007
+        mdata.df["Atmospheric Concentrations|Halon-2402", "SET", "ppt", "Global"][2091], 0.007
     )
     np.testing.assert_allclose(
-        mdata.df["CH3CL_CONC", "SET", "ppt", "GLOBAL"][2100], 538
+        mdata.df["Atmospheric Concentrations|CH3Cl", "SET", "ppt", "Global"][2100], 538
     )
 
 
@@ -724,7 +724,7 @@ def test_load_cfg_with_slash_in_units():
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] == 12
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] == 21
     # this fails
-    assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2"
+    assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W / m^2"
 
 
 def test_load_out():
@@ -908,38 +908,38 @@ def test_load_prename():
     mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
     mdata.read(TEST_DATA_DIR)
 
-    assert (mdata.df.columns.get_level_values("UNITS") == "GtC").all()
+    assert (mdata.df.columns.get_level_values("UNITS") == "Gt C / yr").all()
 
     mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
     assert (mdata.df.columns.get_level_values("UNITS") == "ppm").all()
-    assert not (mdata.df.columns.get_level_values("UNITS") == "GtC").any()
+    assert not (mdata.df.columns.get_level_values("UNITS") == "Gt C / yr").any()
 
 
 def test_direct_access():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
     mdata.read(MAGICC6_DIR)
 
-    result = mdata["CO2I_EMIS", "R5LAM", 1983]
+    result = mdata["Emissions|CO2|Industrial & Fossil", "Global|R5LAM", 1983]
     expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        ("Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global|R5LAM"),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     ).loc[[1983]]
     pd.testing.assert_frame_equal(result, expected)
 
-    result = mdata["CO2I_EMIS", "R5LAM"]
+    result = mdata["Emissions|CO2|Industrial & Fossil", "Global|R5LAM"]
     expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", "R5LAM"),
+        ("Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", "Global|R5LAM"),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
     )
     pd.testing.assert_frame_equal(result, expected)
 
-    result = mdata["CO2I_EMIS"]
+    result = mdata["Emissions|CO2|Industrial & Fossil"]
     expected = mdata.df.xs(
-        ("CO2I_EMIS", "SET", "GtC", slice(None)),
+        ("Emissions|CO2|Industrial & Fossil", "SET", "Gt C / yr", slice(None)),
         level=["VARIABLE", "TODO", "UNITS", "REGION"],
         axis=1,
         drop_level=False,
@@ -973,7 +973,7 @@ def test_early_call():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
 
     with pytest.raises(ValueError):
-        mdata["CO2I_EMIS"]["R5LAM"]
+        mdata["Emissions|CO2|Industrial & Fossil"]["Global|R5LAM"]
 
     with pytest.raises(ValueError):
         mdata.plot()
@@ -1065,7 +1065,6 @@ def test_set_lines():
     ],
 )
 def test_conc_in_reader_get_variable_from_filename(test_filename, expected_variable):
-
     conc_reader = _ConcInReader(test_filename)
     if expected_variable is None:
         expected_message = re.escape(
@@ -1177,19 +1176,19 @@ emissions_valid = [
     "HFC245FA",
     "SF6",
 ]
-global_only = ["WORLD"]
-sres_regions = ["WORLD", "OECD90", "REF", "ASIA", "ALM"]
-rcp_regions = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
+global_only = ["Global"]
+sres_regions = ["Global", "OECD90", "REF", "ASIA", "ALM"]
+rcp_regions = ["Global", "R5OECD", "Global|R5REF", "Global|R5ASIA", "Global|R5MAF", "Global|R5LAM"]
 # the fact these are valid for SCEN files but not for other data files is
 # unbelievably confusing
 rcp_regions_plus_bunkers = [
-    "WORLD",
+    "Global",
     "R5OECD",
-    "R5REF",
-    "R5ASIA",
-    "R5MAF",
-    "R5LAM",
-    "BUNKERS",
+    "Global|R5REF",
+    "Global|R5ASIA",
+    "Global|R5MAF",
+    "Global|R5LAM",
+    "Global|Bunkers",
 ]
 
 
