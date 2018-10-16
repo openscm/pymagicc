@@ -34,15 +34,16 @@ UNSUPPORTED_OUT_FILES = [
     r".*TIMESERIESMIX.*OUT",
     r".*SUMMARY_INDICATORS.OUT",
 ]
-"""list: these files are nasty to read and not that useful hence are unsupported
+"""list: List of regular expressions which define output files we cannot read.
 
-The solution for these files is to fix the output format rather than hacking the
-readers. Obviously that doesn't help for the released MAGICC6 binary but there is
-nothing we can do there. For MAGICC7, we should have a much nicer set.
+These files are nasty to read and not that useful hence are unsupported. The solution
+for these files is to fix the output format rather than hacking the readers. Obviously
+that doesn't help for the released MAGICC6 binary but there is nothing we can do
+there. For MAGICC7, we should have a much nicer set.
 
-Some more explanation on why these files are not supported:
+Some more details about why these files are not supported:
 
-- CARBONCYCLE.OUT has no units and we don't want to hardcode them
+- ``CARBONCYCLE.OUT`` has no units and we don't want to hardcode them
 - Sub annual binary files (including volcanic RF) are asking for trouble
 - Permafrost output files don't make any sense right now
 - Output baskets have inconsistent variable names from other outputs
@@ -1729,5 +1730,19 @@ def _check_file_exists(file_to_read):
 
 
 def read_cfg_file(fullfilename):
+    """Read a MAGICC ``.CFG`` file, or any other Fortran namelist
+
+    Parameters
+    ----------
+    fullfilename : str
+        Full path (filepath and filename) to the file to read
+
+    Returns
+    -------
+    :obj:`f90nml.Namelist`
+        An `f90nml <https://github.com/marshallward/f90nml>`_ ``Namelist`` instance
+        which contains the namelists in the file. A ``Namelist`` can be accessed just
+        like a dictionary.
+    """
     _check_file_exists(fullfilename)
     return f90nml.read(fullfilename)
