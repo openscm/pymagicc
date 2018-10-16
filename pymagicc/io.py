@@ -731,7 +731,7 @@ class _TempOceanLayersOutReader(_InputReader):
         return column_headers, metadata
 
 
-class BinData(object):
+class _BinData(object):
     def __init__(self, filename):
         # read the entire file into memory
         self.data = open(filename, "rb").read()
@@ -769,7 +769,7 @@ class _BinaryOutReader(_InputReader):
 
     def read(self):
         # Read the entire file into memory
-        data = BinData(self.filename)
+        data = _BinData(self.filename)
 
         metadata = self.process_header(data)
         df, metadata = self.process_data(data, metadata)
