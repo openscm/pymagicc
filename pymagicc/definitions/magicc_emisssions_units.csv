@@ -1,4 +1,4 @@
-MAGICC variable,emissions units,SCEN emms code 0,SCEN emms code 1,prn emms
+magicc_variable,emissions_unit,part_of_scenfile_with_emissions_code_0,part_of_scenfile_with_emissions_code_1,part_of_prnfile
 CO2,Gt C / yr,FALSE,FALSE,FALSE
 CO2I,Gt C / yr,TRUE,TRUE,FALSE
 CO2B,Gt C / yr,TRUE,TRUE,FALSE
