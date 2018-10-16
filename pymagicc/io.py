@@ -27,7 +27,7 @@ from .definitions import (
 DATA_HIERARCHY_SEPARATOR = "|"
 """str: String used to define different levels in our data hierarchies.
 
-We copy this straight from Pyam to maintain easy compatibility.
+We copy this straight from pyam_ to maintain easy compatibility.
 """
 
 UNSUPPORTED_OUT_FILES = [
