@@ -37,23 +37,25 @@ dattype_regionmode_regions["regions"] = [
 
 _emms_units_defs = read_datapackage(path, "magicc_emisssions_units")
 
-part_of_scenfile_with_emissions_code_0 = _emms_units_defs[_emms_units_defs["part_of_scenfile_with_emissions_code_0"]][
-    "magicc_variable"
-].tolist()
+part_of_scenfile_with_emissions_code_0 = _emms_units_defs[
+    _emms_units_defs["part_of_scenfile_with_emissions_code_0"]
+]["magicc_variable"].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 0.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-part_of_scenfile_with_emissions_code_1 = _emms_units_defs[_emms_units_defs["part_of_scenfile_with_emissions_code_1"]][
-    "magicc_variable"
-].tolist()
+part_of_scenfile_with_emissions_code_1 = _emms_units_defs[
+    _emms_units_defs["part_of_scenfile_with_emissions_code_1"]
+]["magicc_variable"].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-part_of_prnfile = _emms_units_defs[_emms_units_defs["part_of_prnfile"]]["magicc_variable"].tolist()
+part_of_prnfile = _emms_units_defs[_emms_units_defs["part_of_prnfile"]][
+    "magicc_variable"
+].tolist()
 """list: The emissions which are included in a ``.prn`` file.
 """
 
