@@ -30,19 +30,18 @@ TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 # Not all files can be read in
 TEST_OUT_FILES = listdir(TEST_OUT_DIR)
 
-invalid_out_files = [
-    r"CARBONCYCLE\.BINOUT",
+INVALID_OUT_FILES = [
+    r"CARBONCYCLE.*OUT",
     r".*SUBANN.*BINOUT",
     r"DAT_VOLCANIC_RF\.BINOUT",
-    r"PF_.*\.BINOUT",
+    r"PF.*OUT",
     r"DATBASKET_.*",
-    r"INVERSEEMIS\.BINOUT",
-    r"PRECIPINPUT\.BINOUT",
+    r".*INVERSE.*EMIS.*OUT",
+    r"PRECIPINPUT.*OUT",
     r"TEMP_OCEANLAYERS\.BINOUT",
-    r"TIMESERIESMIX\.BINOUT",
+    r"TIMESERIESMIX.*OUT",
+    r"SUMMARY_INDICATORS.OUT",
 ]
-
-
 
 
 def test_cant_find_reader_writer():
@@ -728,11 +727,6 @@ def test_load_cfg_with_slash_in_units():
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W/m2"
 
 
-# out routines to check:
-# - DUMP_BULKOUTPUT
-#     - WRITE_PERMAFROSTDATAFIELDS
-#     - DUMP_OUTPUT
-#     - WRITEDATA
 def test_load_out():
     mdata = MAGICCData()
     mdata.read(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT")
@@ -860,87 +854,6 @@ def test_load_out_ocean_layers():
     np.testing.assert_allclose(
         mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633
     )
-
-
-xfail_msg = (
-    "CARBONCYCLE.OUT has no units and I don't want to hardcode them. "
-    "I also don't know what most of these variables are."
-)
-@pytest.mark.xfail(reason=xfail_msg)
-def test_load_out_carboncycle():
-    mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "CARBONCYCLE.OUT")
-
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["date"] == "2018-09-23 18:33"
-    assert (
-        mdata.metadata["magicc-version"]
-        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
-    )
-    assert "__MAGICC 6.X CARBONCYCLE DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
-    # assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
-
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
-
-
-xfail_msg = (
-    "CO2I_INVERSE_EMIS.OUT has no units and I don't want to hardcode them. "
-)
-@pytest.mark.xfail(reason=xfail_msg)
-def test_load_out_co2i_inverseemis():
-    mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "CO2I_INVERSE_EMIS.OUT")
-
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["date"] == "2018-09-23 18:33"
-    assert (
-        mdata.metadata["magicc-version"]
-        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
-    )
-    assert "__MAGICC 6.X INVERSE FOSSIL CO2 EMISSIONS__" in mdata.metadata["header"]
-    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
-    # assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
-
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
-
-
-xfail_msg = (
-    "Output baskets have MAGICC6 style names and variable names are inconsistent. "
-    "We should fix output rather than hacking these readers."
-)
-@pytest.mark.xfail(reason=xfail_msg)
-@pytest.mark.parametrize("basket_file", [
-    ("DATBASKET_EMISSIONS.OUT"),
-    ("DATBASKET_MIDYR_CONC.OUT"),
-    ("DATBASKET_MIDYR_RF.OUT"),
-    ("INVERSEEMIS.OUT"),
-    ("TIMESERIESMIX.OUT"),
-])
-def test_load_out_datbasket(basket_file):
-    mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, basket_file)
-
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["date"] == "2018-09-23 18:33"
-    assert (
-        mdata.metadata["magicc-version"]
-        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
-    )
-    assert "__MAGICC 6.X EMISSION DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.columns.get_level_values("TODO") == "N/A").all()
-    # assert (mdata.df.columns.get_level_values("UNITS") == "K").all()
-
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_001", "N/A", "K", "GLOBAL"][1765], 0.0)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_003", "N/A", "K", "GLOBAL"][1973], 0.10679213)
-    # np.testing.assert_allclose(mdata.df["OCEAN_TEMP_LAYER_050", "N/A", "K", "GLOBAL"][2100], 0.13890633)
 
 
 def test_load_parameters_out_with_magicc_input():
@@ -1317,10 +1230,8 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
     if file_to_read.endswith(("PARAMETERS.OUT")):
         read_cfg_file(join(TEST_OUT_DIR, file_to_read))
     else:
-        # Check if the file is on the list of invalid files
-        for p in invalid_out_files:
+        for p in INVALID_OUT_FILES:
             if re.match(p, file_to_read):
-                # Return early as this file is marked as ignored.
                 return
 
         mdata = MAGICCData(file_to_read)
@@ -1329,21 +1240,23 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
 def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
-    # Check if the file is on the list of invalid files
     valid_filename = True
-    for p in invalid_out_files:
+    for p in INVALID_OUT_FILES:
         if re.match(p, file_to_read):
             valid_filename = False
-    # Skip files not marked as invalid
+
     if valid_filename:
         return
 
     mdata = MAGICCData(file_to_read)
-    try:
-        with pytest.raises(NoReaderWriterError):
+    if ("SUBANN" in file_to_read) or ("VOLCANIC_RF.BINOUT" in file_to_read):
+        error_msg = (r"^.*" + re.escape(": Only annual binary files can currently be processed") + r".*$")
+        with pytest.raises(InvalidTemporalResError, match=error_msg):
             mdata.read(TEST_OUT_DIR)
-    except InvalidTemporalResError:
-        pass
+    else:
+        error_msg = (r"^.*" + re.escape("is in an odd format for which we will never provide a reader/writer") + r".*$")
+        with pytest.raises(NoReaderWriterError, match=error_msg):
+            mdata.read(TEST_OUT_DIR)
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in listdir(TEST_OUT_DIR) if f.endswith('BINOUT') and f.startswith('DAT_')])
@@ -1355,11 +1268,15 @@ def test_bin_and_ascii_equal(file_to_read):
         # Some BINOUT files are on a subannual time scale and cannot be read (yet)
         return
 
+    assert (mdata_bin.df.columns.get_level_values("UNITS") == "unknown").all()
+    assert (mdata_bin.df.columns.get_level_values("TODO") == "SET").all()
+
     mdata_ascii = MAGICCData(file_to_read.replace('BINOUT', 'OUT'))
     mdata_ascii.read(TEST_OUT_DIR)
 
     # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
     mdata_ascii.df.columns = mdata_ascii.df.columns.droplevel('UNITS').droplevel('TODO')
+    mdata_bin.df.columns = mdata_bin.df.columns.droplevel('UNITS').droplevel('TODO')
     pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
 
 # TODO add test of converting names for SCEN files
