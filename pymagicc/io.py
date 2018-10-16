@@ -16,9 +16,9 @@ from pymagicc import MAGICC6
 # concentrations_units,
 from .definitions import (
     dattype_regionmode_regions,
-    scen_emms_code_0,
-    scen_emms_code_1,
-    prn_species,
+    part_of_scenfile_with_emissions_code_0,
+    part_of_scenfile_with_emissions_code_1,
+    part_of_prnfile,
 )
 
 
@@ -726,8 +726,8 @@ def get_dattype_regionmode(regions, scen7=False):
     regionmode_flag = "THISFILE_REGIONMODE"
     region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
 
-    dattype = dattype_regionmode_regions[dattype_flag][region_dattype_row].iloc[0]
-    regionmode = dattype_regionmode_regions[regionmode_flag][region_dattype_row].iloc[0]
+    dattype = dattype_regionmode_regions[dattype_flag.lower()][region_dattype_row].iloc[0]
+    regionmode = dattype_regionmode_regions[regionmode_flag.lower()][region_dattype_row].iloc[0]
 
     return {dattype_flag: dattype, regionmode_flag: regionmode}
 
@@ -750,7 +750,7 @@ def get_region_order(regions, scen7=False):
         Region order expected by MAGICC for the given region set.
     """
     region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
-    region_order = dattype_regionmode_regions["Regions"][region_dattype_row].iloc[0]
+    region_order = dattype_regionmode_regions["regions"][region_dattype_row].iloc[0]
 
     return region_order
 
@@ -761,11 +761,9 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
     def find_region(x):
         return set(x) == regions_unique
 
-    region_rows = dattype_regionmode_regions["Regions"].apply(find_region)
+    region_rows = dattype_regionmode_regions["regions"].apply(find_region)
 
-    # TODO: move this to a constants module or something
-    dattype_flag = "THISFILE_DATTYPE"
-    scen7_rows = dattype_regionmode_regions[dattype_flag] == "SCEN7"
+    scen7_rows = dattype_regionmode_regions["thisfile_dattype"] == "SCEN7"
     dattype_rows = scen7_rows if scen7 else ~scen7_rows
 
     region_dattype_row = region_rows & dattype_rows
@@ -1046,9 +1044,9 @@ class _PrnWriter(_InputWriter):
 
         emms_assert_msg = (
             "Prn files must have, and only have, "
-            "the following species: ".format(prn_species)
+            "the following species: ".format(part_of_prnfile)
         )
-        assert set(data_block.columns) == set(prn_species), emms_assert_msg
+        assert set(data_block.columns) == set(part_of_prnfile), emms_assert_msg
 
         data_block.index.name = "Years"
         data_block.reset_index(inplace=True)
@@ -1180,8 +1178,8 @@ def get_special_scen_code(regions, emissions):
     SCEN file.
 
     We call this second digit the 'SCEN emms code'. Hence the variable
-    ``scen_emms_code_1`` defines the gases which are expected when the
-    'SCEN emms code' is 1. Similarly, ``scen_emms_code_0`` defines the gases
+    ``part_of_scenfile_with_emissions_code_1`` defines the gases which are expected when the
+    'SCEN emms code' is 1. Similarly, ``part_of_scenfile_with_emissions_code_0`` defines the gases
     which are expected when the 'SCEN emms code' is 0.
 
     Having these definitions allows Pymagicc to check that the right
@@ -1204,9 +1202,9 @@ def get_special_scen_code(regions, emissions):
     int
         The special scen code for the regions-emissions combination provided.
     """
-    if set(scen_emms_code_0) == set(emissions):
+    if set(part_of_scenfile_with_emissions_code_0) == set(emissions):
         emms_code = 0
-    elif set(scen_emms_code_1) == set(emissions):
+    elif set(part_of_scenfile_with_emissions_code_1) == set(emissions):
         emms_code = 1
     else:
         msg = "Could not determine scen special code for emissions {}".format(emissions)
