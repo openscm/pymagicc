@@ -246,6 +246,7 @@ class _InputReader(object):
         column_headers["regions"] = _convert_magicc_region_to_openscm_region(
             column_headers["regions"]
         )
+
         return column_headers, metadata
 
     def _magicc7_style_header(self):
@@ -408,7 +409,7 @@ class _OpticalThicknessInReader(_FourBoxReader):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
         metadata["unit normalisation"] = column_headers["units"][0]
-        column_headers["units"] = ["DIMENSIONLESS"] * len(column_headers["units"])
+        column_headers["units"] = ["dimensionless"] * len(column_headers["units"])
 
         return column_headers, metadata
 
@@ -430,6 +431,24 @@ class _RadiativeForcingInReader(_FourBoxReader):
 
         return column_headers, metadata
 
+    def _get_column_headers_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_update_metadata(
+            stream, metadata
+        )
+
+        column_headers["units"] = [
+            self._tidy_up_units(u) for u in column_headers["units"]
+        ]
+
+        return column_headers, metadata
+
+    def _tidy_up_units(self, in_unit):
+        in_unit = in_unit.replace("-", "")
+        if in_unit == "W/m2":
+            return "W / m^2"
+        else:
+            raise ValueError("Unexpected emissions unit")
+
 
 class _EmisInReader(_InputReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_EMIS)\.IN$")
@@ -446,14 +465,18 @@ class _EmisInReader(_InputReader):
 
         tmp_vars = []
         for v in column_headers["variables"]:
-            if v.endswith("_EMIS"):
+            # TODO: work out a way to avoid this fragile check and calling the
+            # conversion once in the superclass method and again below
+            if v.endswith("_EMIS") or v.startswith("Emissions"):
                 tmp_vars.append(v)
             else:
                 tmp_vars.append(v + "_EMIS")
 
+        column_headers["variables"] = _convert_magicc7_to_openscm_variables(tmp_vars)
         column_headers["units"] = [
             self._tidy_up_units(u) for u in column_headers["units"]
         ]
+
         return column_headers, metadata
 
     def _tidy_up_units(self, in_unit):
@@ -958,7 +981,7 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
 
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
-    # TODO: make this a constant and put it somewhere so we don't regenerate the
+    # TODO: make this a constant and put it in definitions so we don't regenerate the
     # mapping everytime. Also makes it easier to doc.
     magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT"]
     magicc7_base_vars = magicc7_emissions_units.magicc_variable.tolist() + [
@@ -972,6 +995,32 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     ]
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
+    edge_cases = {
+        "SOX": "SOx",
+        "NOX": "NOx",
+        "HFC134A": "HFC134a",
+        "HFC143A": "HFC143a",
+        "HFC152A": "HFC152a",
+        "HFC227EA": "HFC227ea",
+        "HFC236FA": "HFC236fa",
+        "HFC245FA": "HFC245fa",
+        "HFC365MFC": "HFC365mfc",
+        "HCFC141B": "HFC141b",
+        "HCFC142B": "HFC142b",
+        "CH3CCL3": "CH3CCl3",
+        "CCL4": "CCl4",
+        "CH3CL": "CH3Cl",
+        "CH2CL2": "CH2Cl2",
+        "CHCL3": "CHCl3",
+        "CH3BR": "CH3Br",
+        "HALON1211": "Halon1211",
+        "HALON1301": "Halon1301",
+        "HALON2402": "Halon2402",
+        "HALON1202": "Halon1202",
+        "SOLAR": "Solar",
+        "VOLCANIC": "Volcanic",
+    }
+    replacements.update(edge_cases)
 
     return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
 
