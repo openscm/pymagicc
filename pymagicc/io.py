@@ -265,10 +265,7 @@ class _InputReader(object):
         column_headers["regions"] = _convert_magicc_region_to_openscm_region(
             column_headers["regions"]
         )
-        if "SURFACE" in column_headers["variables"][0]:
-            import pdb
 
-            pdb.set_trace()
         return column_headers, metadata
 
     def _magicc7_style_header(self):
@@ -490,7 +487,7 @@ class _EmisInReader(_InputReader):
             if not emissions_unit:
                 emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[1]
 
-            unit = " ".join([mass, emissions_unit, "/ yr"])
+            unit = re.sub(r"(\S)\s?/\s?yr", r"\1 / yr", unit)
 
             units[i] = unit
             variables[i] = variable
@@ -1073,7 +1070,26 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     ]
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
+
     replacements.update({"SURFACE_TEMP": "Surface Temperature"})
+
+    agg_ocean_heat_top = "Aggregated Ocean Heat Content"
+    heat_content_aggreg_depths = {
+        "HEATCONTENT_AGGREG_DEPTH{}".format(i): "{}{}Depth {}".format(
+            agg_ocean_heat_top, DATA_HIERARCHY_SEPARATOR, i
+        )
+        for i in range(1, 4)
+    }
+    replacements.update(heat_content_aggreg_depths)
+    replacements.update({"HEATCONTENT_AGGREG_TOTAL": agg_ocean_heat_top})
+
+    ocean_temp_layer = {
+        "OCEAN_TEMP_LAYER_{0:03d}".format(i): "Ocean Temperature{}Layer {}".format(
+            DATA_HIERARCHY_SEPARATOR, i
+        )
+        for i in range(1, 999)
+    }
+    replacements.update(ocean_temp_layer)
 
     return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
 
@@ -1145,17 +1161,7 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
 
 
 def _replace_from_replacement_dict(inputs, replacements, inverse=False):
-    def careful_replacement(in_str, old, new):
-        # For now I think these are the only edge cases, may have to be smarter in
-        # future...
-        edge_cases = (
-            ("NMVOC", "OC"),
-            ("R5ASIA", "ASIA"),
-            ("R6ASIA", "ASIA"),
-            ("R5REF", "REF"),
-            ("R6REF", "REF"),
-            ("R6OECD90", "OECD90"),
-        )
+    def careful_replacement(in_str, old, new, edge_cases):
         for (full_string, sub_string) in edge_cases:
             avoid_partial_replacement = (
                 (full_string in in_str)
@@ -1170,12 +1176,23 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
     if inverse:
         replacements = {v: k for k, v in replacements.items()}
 
+    # Find any edge cases i.e. cases where our old key is a substring of a
+    # different old key and if we replace the substring, we will miss the full
+    # string we intended to replace e.g. we want to replace "NMVOC" with "nmvoc"
+    # but instead replace "OC" and so end up with "NMVoc", which isn't what we
+    # wanted.
+    edge_cases = []
+    for r in replacements.keys():
+        for k in replacements.keys():
+            if (r in k) and (r != k):
+                edge_cases.append((k, r))
+
     inputs_return = deepcopy(inputs)
     for old, new in replacements.items():
         if isinstance(inputs_return, list):
-            inputs_return = [careful_replacement(v, old, new) for v in inputs_return]
+            inputs_return = [careful_replacement(v, old, new, edge_cases) for v in inputs_return]
         else:
-            inputs_return = careful_replacement(inputs_return, old, new)
+            inputs_return = careful_replacement(inputs_return, old, new, edge_cases)
 
     return inputs_return
 
@@ -1245,7 +1262,10 @@ def get_region_order(regions, scen7=False):
 
 
 def _get_dattype_regionmode_regions_row(regions, scen7=False):
-    regions_unique = set(regions)
+    regions_unique = set([
+        _convert_magicc_region_to_openscm_region(r, inverse=True)
+        for r in set(regions)
+    ])
 
     def find_region(x):
         return set(x) == regions_unique
@@ -1280,7 +1300,17 @@ class _InputWriter(object):
         filepath (str): path in which to write file. If not provided,
            the file will be written in the current directory (TODO: check this is true...)
         """
-        self.minput = magicc_input
+        # TODO: make copy attribute for MAGICCData
+        self.minput = type(magicc_input)()
+        self.minput.df = magicc_input.df.copy()
+        self.minput.metadata = deepcopy(magicc_input.metadata)
+
+        # pivot the data table before moving on
+        self.minput.df = self.minput.df.pivot_table(
+            values="value",
+            index="time",
+            columns=["variable", "todo", "unit", "region"]
+        )
 
         if filepath is not None:
             file_to_write = join(filepath, filename)
@@ -1386,28 +1416,34 @@ class _InputWriter(object):
             annual_steps if annual_steps % 1 == 0 else 0
         )
 
-        units_unique = list(set(self._get_df_header_row("UNITS")))
+        units_unique = list(set(self._get_df_header_row("unit")))
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = (
             units_unique[0] if len(units_unique) == 1 else "MISC"
         )
 
         nml["THISFILE_SPECIFICATIONS"].update(
             get_dattype_regionmode(
-                self._get_df_header_row("REGION"), scen7=self._scen_7
+                self._get_df_header_row("region"), scen7=self._scen_7
             )
         )
 
         return nml, data_block
 
     def _get_data_block(self):
-        regions = self._get_df_header_row("REGION")
-        variables = self._get_df_header_row("VARIABLE")
-        units = self._get_df_header_row("UNITS")
-        todos = self._get_df_header_row("TODO")
+        regions = _convert_magicc_region_to_openscm_region(
+            self._get_df_header_row("region"),
+            inverse=True,
+        )
+        variables = _convert_magicc7_to_openscm_variables(
+            self._get_df_header_row("variable"),
+            inverse=True,
+        )
+        units = [u.replace(" ", "") for u in self._get_df_header_row("unit")]
+        todos = self._get_df_header_row("todo")
 
         data_block = self.minput.df.copy()
         # probably not necessary but a sensible check
-        assert data_block.columns.names == ["VARIABLE", "TODO", "UNITS", "REGION"]
+        assert data_block.columns.names == ["variable", "todo", "unit", "region"]
         data_block.reset_index(inplace=True)
         data_block.columns = [
             [self._variable_header_row_name] + variables,
@@ -1548,10 +1584,10 @@ class _ScenWriter(_InputWriter):
         header_lines = []
         header_lines.append("{}".format(len(self.minput.df)))
 
-        variables = self._get_df_header_row("VARIABLE")
+        variables = self._get_df_header_row("variable")
         variables = [v.replace("_EMIS", "") for v in variables]
         special_scen_code = get_special_scen_code(
-            regions=self._get_df_header_row("REGION"), emissions=variables
+            regions=self._get_df_header_row("region"), emissions=variables
         )
         header_lines.append("{}".format(special_scen_code))
 
@@ -1604,7 +1640,7 @@ class _ScenWriter(_InputWriter):
             return len(lines) - no_notes_lines
 
         region_order = get_region_order(
-            self._get_df_header_row("REGION"), scen7=self._scen_7
+            self._get_df_header_row("region"), scen7=self._scen_7
         )
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 12

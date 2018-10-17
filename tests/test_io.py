@@ -1336,51 +1336,55 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata.df.todo == "N/A").all()
     assert (mdata.df.unit == "10^22J").all()
+    assert (mdata.df.variable == "Aggregated Ocean Heat Content|Depth 1").all()
 
-    np.testing.assert_allclose(
-        mdata.df["Aggregated Heat Content|Depth 1", "N/A", "10^22J", "World"][1767],
-        0.046263236,
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
     )
-    np.testing.assert_allclose(
-        mdata.df["Aggregated Heat Content|Depth 1", "N/A", "10^22J", "World"][1965],
-        3.4193050,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.046263236)
+
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1965)
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Aggregated Heat Content|Depth 1",
-            "N/A",
-            "10^22J",
-            "World|Northern Hemisphere|Ocean",
-        ][1769],
-        0.067484257,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 3.4193050)
+
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1769)
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Aggregated Heat Content|Depth 1",
-            "N/A",
-            "10^22J",
-            "World|Southern Hemisphere|Ocean",
-        ][1820],
-        -4.2688102,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.067484257)
+
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1820)
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Aggregated Heat Content|Depth 1",
-            "N/A",
-            "10^22J",
-            "World|Northern Hemisphere|Land",
-        ][2093],
-        0.0,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, -4.2688102)
+
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
+        & (mdata.df["time"] == 2093)
     )
-    np.testing.assert_allclose(
-        mdata.df[
-            "Aggregated Heat Content|Depth 1",
-            "N/A",
-            "10^22J",
-            "World|Southern Hemisphere|Land",
-        ][1765],
-        0.0,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
+        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
+        & (mdata.df["time"] == 1765)
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_out_ocean_layers():
@@ -1400,15 +1404,71 @@ def test_load_out_ocean_layers():
     assert (mdata.df.todo == "N/A").all()
     assert (mdata.df.unit == "K").all()
 
-    np.testing.assert_allclose(
-        mdata.df["Ocean Temperature|Layer 1", "N/A", "K", "World"][1765], 0.0
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 1")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1765)
     )
-    np.testing.assert_allclose(
-        mdata.df["Ocean Temperature|Layer 3", "N/A", "K", "World"][1973], 0.10679213
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 3")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1973)
     )
-    np.testing.assert_allclose(
-        mdata.df["Ocean Temperature|Layer 50", "N/A", "K", "World"][2100], 0.13890633
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10679213)
+
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 50")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2100)
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.13890633)
+
+
+def test_load_out_ocean_layers_hemisphere():
+    mdata = MAGICCData()
+    mdata.read(TEST_OUT_DIR, "TEMP_OCEANLAYERS_NH.OUT")
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert (
+        "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
+    )
+    assert (mdata.df.todo == "N/A").all()
+    assert (mdata.df.unit == "K").all()
+
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 1")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1765)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 3")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1973)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10679213)
+
+    row = (
+        (mdata.df["variable"] == "Ocean Temperature|Layer 50")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
+        & (mdata.df["time"] == 2100)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.13890633)
 
 
 def test_load_parameters_out_with_magicc_input():
@@ -1464,49 +1524,24 @@ def test_load_prename():
     assert not (mdata.df.unit == "Gt C / yr").any()
 
 
+@pytest.mark.xfail(reason="Direct access not available in v2.0.0, will update with Pyam DataFrame")
 def test_direct_access():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
     mdata.read(MAGICC6_DIR)
 
-    result = mdata["Emissions|CO2|MAGICC Fossil and Industrial", "World|R5LAM", 1983]
-    expected = mdata.df.xs(
-        (
-            "Emissions|CO2|MAGICC Fossil and Industrial",
-            "SET",
-            "Gt C / yr",
-            "World|R5LAM",
-        ),
-        level=["variable", "todo", "units", "region"],
-        axis=1,
-        drop_level=False,
-    ).loc[[1983]]
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata["Emissions|CO2|MAGICC Fossil and Industrial", "World|R5LAM"]
-    expected = mdata.df.xs(
-        (
-            "Emissions|CO2|MAGICC Fossil and Industrial",
-            "SET",
-            "Gt C / yr",
-            "World|R5LAM",
-        ),
-        level=["variable", "todo", "units", "region"],
-        axis=1,
-        drop_level=False,
+    tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
+    tregion = "World|R5LAM"
+    tyear = 1983
+    result = mdata.filter(
+        variable=tvariable,
+        region=tregion,
+        year=tyear,
     )
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata["Emissions|CO2|MAGICC Fossil and Industrial"]
-    expected = mdata.df.xs(
-        ("Emissions|CO2|MAGICC Fossil and Industrial", "SET", "Gt C / yr", slice(None)),
-        level=["variable", "todo", "units", "region"],
-        axis=1,
-        drop_level=False,
-    )
-    pd.testing.assert_frame_equal(result, expected)
-
-    result = mdata[1994]
-    expected = mdata.df.loc[[1994]]
+    expected = mdata.df[
+        (mdata.df.variable == tvariable)
+        & (mdata.df.region == tregion)
+        & (mdata.df.year == tyear)
+    ]
     pd.testing.assert_frame_equal(result, expected)
 
 
@@ -1680,7 +1715,7 @@ def temp_dir():
         (TEST_DATA_DIR, "TESTSCEN7.SCEN7", False),
     ],
 )
-def test_conc_in_file_read_write_functionally_identical(
+def test_in_file_read_write_functionally_identical(
     starting_fpath, starting_fname, confusing_metadata, temp_dir
 ):
     mi_writer = MAGICCData()
@@ -1707,7 +1742,10 @@ def test_conc_in_file_read_write_functionally_identical(
     if not confusing_metadata:
         assert mi_written.metadata == mi_initial.metadata
 
-    pd.testing.assert_frame_equal(mi_written.df, mi_initial.df)
+    pd.testing.assert_frame_equal(
+        mi_written.df.sort_values(by=mi_written.df.columns.tolist()).reset_index(drop=True),
+        mi_initial.df.sort_values(by=mi_initial.df.columns.tolist()).reset_index(drop=True),
+    )
 
 
 emissions_valid = [
