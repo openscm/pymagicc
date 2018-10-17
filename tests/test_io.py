@@ -669,44 +669,104 @@ def test_load_scen_sres():
 
     assert "Antero Hot Springs" in mdata.metadata["header"]
 
-    np.testing.assert_allclose(
-        mdata.df[
-            "Emissions|CO2|MAGICC Fossil and Industrial", "SET", "Gt C / yr", "World"
-        ][2000],
-        6.8963,
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "Gt C / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|N2O", "SET", "Mt N2ON / yr", "World"][1990], 6.6751
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 6.8963)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|N2O")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1990)
+        & (mdata.df["unit"] == "Mt N2ON / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|HFC4310", "SET", "kt HFC4310 / yr", "World"][2000], 0.0000
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 6.6751)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|HFC4310")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "kt HFC4310 / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|SOx", "SET", "Mt S / yr", "World|OECD90"][2010], 9.8762
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0000)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|SOx")
+        & (mdata.df["region"] == "World|OECD90")
+        & (mdata.df["time"] == 2010)
+        & (mdata.df["unit"] == "Mt S / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|NMVOC", "SET", "Mt NMVOC / yr", "World|OECD90"][2050],
-        28.1940,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 9.8762)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|NMVOC")
+        & (mdata.df["region"] == "World|OECD90")
+        & (mdata.df["time"] == 2050)
+        & (mdata.df["unit"] == "Mt NMVOC / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|HFC23", "SET", "kt HFC23 / yr", "World|REF"][2100], 0.0624
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 28.1940)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|HFC23")
+        & (mdata.df["region"] == "World|REF")
+        & (mdata.df["time"] == 2100)
+        & (mdata.df["unit"] == "kt HFC23 / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|HFC125", "SET", "kt / yr", "World|REF"][2100], 5.4067
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0624)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|HFC125")
+        & (mdata.df["region"] == "World|REF")
+        & (mdata.df["time"] == 2100)
+        & (mdata.df["unit"] == "kt / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|HFC143a", "SET", "kt / yr", "World|ASIA"][2040], 15.4296
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 5.4067)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|HFC143a")
+        & (mdata.df["region"] == "World|ASIA")
+        & (mdata.df["time"] == 2040)
+        & (mdata.df["unit"] == "kt / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|SF6", "SET", "kt / yr", "World|ASIA"][2040], 6.4001
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 15.4296)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|SF6")
+        & (mdata.df["region"] == "World|ASIA")
+        & (mdata.df["time"] == 2040)
+        & (mdata.df["unit"] == "kt / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|CO2|MAGICC AFOLU", "SET", "Gt C / yr", "World|ALM"][2050],
-        0.2613,
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 6.4001)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC AFOLU")
+        & (mdata.df["region"] == "World|ALM")
+        & (mdata.df["time"] == 2050)
+        & (mdata.df["unit"] == "Gt C / yr")
     )
-    np.testing.assert_allclose(
-        mdata.df["Emissions|CH4", "SET", "Mt CH4 / yr", "World|ALM"][2070], 130.1256
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.2613)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CH4")
+        & (mdata.df["region"] == "World|ALM")
+        & (mdata.df["time"] == 2070)
+        & (mdata.df["unit"] == "Mt CH4 / yr")
     )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 130.1256)
 
 
 def test_load_scen7():

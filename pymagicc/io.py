@@ -955,6 +955,10 @@ def _convert_magicc_region_to_openscm_region(regions, inverse=False):
     magicc_regions = [
         "WORLD",
         "GLOBAL",
+        "OECD90",
+        "ALM",
+        "REF",
+        "ASIA",
         "R5ASIA",
         "R5OECD",
         "R5REF",
@@ -1126,10 +1130,19 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
     def careful_replacement(in_str, old, new):
         # For now I think this is the only edge case. If it's not, will have to be
         # smarter
-        if ("NMVOC" in in_str) and ("OC" in old) and (not "NMVOC" in old):
-            # don't do replacement as it will do a partial replacement, which we don't
-            # want
-            return in_str
+        edge_cases = (
+            ("NMVOC", "OC"),
+            ("R5ASIA", "ASIA"),
+            ("R6ASIA", "ASIA"),
+            ("R5REF", "REF"),
+            ("R6REF", "REF"),
+            ("R6OECD90", "OECD90"),
+        )
+        for (full_string, sub_string) in edge_cases:
+            if (full_string in in_str) and (sub_string in old) and (not full_string in old):
+                # don't do replacement as it will do a partial replacement, which we don't
+                # want
+                return in_str
         return in_str.replace(old, new)
 
     if inverse:
