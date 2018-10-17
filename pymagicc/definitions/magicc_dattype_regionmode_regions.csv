@@ -23,6 +23,7 @@ SCEN7 files. Order doesn't matter. WORLD values ignored. If you give this to a n
 SCEN7 files. Order doesn't matter. WORLD values ignored. If you give this to a non-SCEN7 file then it will incorrectly guess you have supplied FOURBOX data then find 8 columns and do nothing.,SCEN7,RCPPLUSSPLITBUNKERS,R6OECD90,R6REF,R6ASIA,R6MAF,R6LAM,AVIATION,SHIPPING,,,,,,,,,,,,,
 SCEN7 files. Order doesn't matter. WORLD values ignored. If you give this to a non-SCEN7 file then it will incorrectly guess you have supplied FOURBOX data then find 8 columns and do nothing.,SCEN7,RCPPLUSSPLITBUNKERS,WORLD,R6OECD90,R6REF,R6ASIA,R6MAF,R6LAM,AVIATION,SHIPPING,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,GLOBAL,,,,,,,,,,,,,,,,,,,
+Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,WORLD,,,,,,,,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,NHLAND,SHLAND,,,,,,,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,GLOBAL,NHLAND,SHLAND,,,,,,,,,,,,,,,,,
 Not SCEN7 or SCEN files. Order matters.,NOTUSED,FOURBOX,NHOCEAN,NHLAND,SHOCEAN,SHLAND,,,,,,,,,,,,,,,,
