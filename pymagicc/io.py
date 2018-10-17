@@ -1014,6 +1014,33 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
         elif variable.endswith("B"):
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
 
+        case_adjustments = {
+            "SOX": "SOx",
+            "NOX": "NOx",
+            "HFC134A": "HFC134a",
+            "HFC143A": "HFC143a",
+            "HFC152A": "HFC152a",
+            "HFC227EA": "HFC227ea",
+            "HFC236FA": "HFC236fa",
+            "HFC245FA": "HFC245fa",
+            "HFC365MFC": "HFC365mfc",
+            "HCFC141B": "HFC141b",
+            "HCFC142B": "HFC142b",
+            "CH3CCL3": "CH3CCl3",
+            "CCL4": "CCl4",
+            "CH3CL": "CH3Cl",
+            "CH2CL2": "CH2Cl2",
+            "CHCL3": "CHCl3",
+            "CH3BR": "CH3Br",
+            "HALON1211": "Halon1211",
+            "HALON1301": "Halon1301",
+            "HALON2402": "Halon2402",
+            "HALON1202": "Halon1202",
+            "SOLAR": "Solar",
+            "VOLCANIC": "Volcanic",
+        }
+        variable = _replace_from_replacement_dict(variable, case_adjustments)
+
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
     # TODO: make this a constant and put it in definitions so we don't regenerate the
@@ -1030,32 +1057,6 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     ]
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
-    edge_cases = {
-        "SOX": "SOx",
-        "NOX": "NOx",
-        "HFC134A": "HFC134a",
-        "HFC143A": "HFC143a",
-        "HFC152A": "HFC152a",
-        "HFC227EA": "HFC227ea",
-        "HFC236FA": "HFC236fa",
-        "HFC245FA": "HFC245fa",
-        "HFC365MFC": "HFC365mfc",
-        "HCFC141B": "HFC141b",
-        "HCFC142B": "HFC142b",
-        "CH3CCL3": "CH3CCl3",
-        "CCL4": "CCl4",
-        "CH3CL": "CH3Cl",
-        "CH2CL2": "CH2Cl2",
-        "CHCL3": "CHCl3",
-        "CH3BR": "CH3Br",
-        "HALON1211": "Halon1211",
-        "HALON1301": "Halon1301",
-        "HALON2402": "Halon2402",
-        "HALON1202": "Halon1202",
-        "SOLAR": "Solar",
-        "VOLCANIC": "Volcanic",
-    }
-    replacements.update(edge_cases)
 
     return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
 
@@ -1128,8 +1129,8 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
 
 def _replace_from_replacement_dict(inputs, replacements, inverse=False):
     def careful_replacement(in_str, old, new):
-        # For now I think this is the only edge case. If it's not, will have to be
-        # smarter
+        # For now I think these are the only edge cases, may have to be smarter in
+        # future...
         edge_cases = (
             ("NMVOC", "OC"),
             ("R5ASIA", "ASIA"),
@@ -1139,10 +1140,14 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
             ("R6OECD90", "OECD90"),
         )
         for (full_string, sub_string) in edge_cases:
-            if (full_string in in_str) and (sub_string in old) and (not full_string in old):
-                # don't do replacement as it will do a partial replacement, which we don't
-                # want
+            avoid_partial_replacement = (
+                (full_string in in_str)
+                and (sub_string in old)
+                and (not full_string in old)
+            )
+            if avoid_partial_replacement:
                 return in_str
+
         return in_str.replace(old, new)
 
     if inverse:
