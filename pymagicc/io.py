@@ -213,7 +213,23 @@ class _InputReader(object):
             The second element is th updated metadata based on the processing performed.
         """
         ch, metadata = self._get_column_headers_update_metadata(stream, metadata)
+        df = self._convert_data_block_and_headers_to_df(stream, ch)
+        return df, metadata
 
+    def _convert_data_block_and_headers_to_df(self, stream, ch):
+        """
+        stream : Streamlike object
+            A Streamlike object (nominally StringIO) containing the data to be
+            extracted
+
+        ch : dict
+            Column headers to use for the output pd.DataFrame
+
+        Returns
+        -------
+        :obj:`pd.DataFrame`
+            Dataframe with processed datablock
+        """
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
@@ -232,7 +248,7 @@ class _InputReader(object):
         )
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
-        return df, metadata
+        return df
 
     def _get_column_headers_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -436,21 +452,53 @@ class _RadiativeForcingInReader(_FourBoxReader):
             stream, metadata
         )
 
-        column_headers["units"] = [
-            self._tidy_up_units(u) for u in column_headers["units"]
-        ]
+        column_headers = self._tidy_up_units(column_headers)
 
         return column_headers, metadata
 
-    def _tidy_up_units(self, in_unit):
-        in_unit = in_unit.replace("-", "")
-        if in_unit == "W/m2":
-            return "W / m^2"
-        else:
-            raise ValueError("Unexpected emissions unit")
+    def _tidy_up_units(self, column_headers):
+        for i, unit in enumerate(column_headers["units"]):
+            if unit == "W/m2":
+                column_headers["units"][i] = "W / m^2"
+            else:
+                raise ValueError("Unexpected unit")
+
+        return column_headers
 
 
 class _EmisInReader(_InputReader):
+    def _tidy_up_units(self, column_headers):
+        units = column_headers["units"]
+        variables = column_headers["variables"]
+        for i, (unit, variable) in enumerate(zip(units, variables)):
+            unit = unit.replace("-", "")
+            if unit.startswith("Gt"):
+                mass = "Gt"
+            elif unit.startswith("Mt"):
+                mass = "Mt"
+            elif unit.startswith("kt"):
+                mass = "kt"
+            elif unit.startswith("t"):
+                mass = "t"
+            else:
+                raise ValueError("Unexpected emissions unit")
+
+            emissions_unit = unit.replace(mass, "")
+            if not emissions_unit:
+                emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[1]
+
+            unit = " ".join([mass, emissions_unit, "/ yr"])
+
+            units[i] = unit
+            variables[i] = variable
+
+        column_headers["units"] = units
+        column_headers["variables"] = variables
+
+        return column_headers
+
+
+class _StandardEmisInReader(_EmisInReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\_EMIS)\.IN$")
     _variable_line_keyword = "GAS"
 
@@ -473,35 +521,20 @@ class _EmisInReader(_InputReader):
                 tmp_vars.append(v + "_EMIS")
 
         column_headers["variables"] = _convert_magicc7_to_openscm_variables(tmp_vars)
-        column_headers["units"] = [
-            self._tidy_up_units(u) for u in column_headers["units"]
-        ]
+        column_headers = self._tidy_up_units(column_headers)
 
         return column_headers, metadata
 
-    def _tidy_up_units(self, in_unit):
-        in_unit = in_unit.replace("-", "")
-        if in_unit.startswith("Gt"):
-            mass = "Gt"
-        elif in_unit.startswith("Mt"):
-            mass = "Mt"
-        elif in_unit.startswith("t"):
-            mass = "t"
-        else:
-            raise ValueError("Unexpected emissions unit")
 
-        return " ".join([mass, in_unit.replace(mass, ""), "/ yr"])
-
-
-class _HistEmisInReader(_EmisInReader):
+class _HistEmisInReader(_StandardEmisInReader):
     pass
 
 
-class _Scen7Reader(_EmisInReader):
+class _Scen7Reader(_StandardEmisInReader):
     pass
 
 
-class _NonStandardEmisInReader(_InputReader):
+class _NonStandardEmisInReader(_EmisInReader):
     def read(self):
         self._set_lines()
         self._stream = self._get_stream()
@@ -560,8 +593,12 @@ class _ScenReader(_NonStandardEmisInReader):
 
         # go through datablocks until there are none left
         while True:
+            ch = {}
             pos_block = self._stream.tell()
-            region = self._stream.readline().strip()
+            region = _convert_magicc_region_to_openscm_region(
+                self._stream.readline().strip()
+            )
+
             try:
                 variables = _convert_magicc6_to_magicc7_variables(
                     self._read_data_header_line(self._stream, "YEARS")
@@ -571,39 +608,31 @@ class _ScenReader(_NonStandardEmisInReader):
             except AssertionError:  # tried to get variables from a notes line
                 break
 
-            variables = [v + "_EMIS" for v in variables]
+            ch["variables"] = _convert_magicc7_to_openscm_variables(
+                [v + "_EMIS" for v in variables]
+            )
 
             try:
                 pos_units = self._stream.tell()
-                units = self._read_data_header_line(self._stream, "Yrs")
+                ch["units"] = self._read_data_header_line(self._stream, "Yrs")
             except AssertionError:
                 # for SRES SCEN files
                 self._stream.seek(pos_units)
-                units = self._read_data_header_line(self._stream, "YEARS")
+                ch["units"] = self._read_data_header_line(self._stream, "YEARS")
 
-            todos = ["SET"] * len(variables)
-            regions = [region] * len(variables)
+            ch = self._tidy_up_units(ch)
+            ch["todos"] = ["SET"] * len(variables)
+            ch["regions"] = [region] * len(variables)
 
             region_block = StringIO()
             for i in range(no_years):
                 region_block.write(self._stream.readline())
             region_block.seek(0)
 
-            region_df = pd.read_csv(
-                region_block,
-                skip_blank_lines=True,
-                delim_whitespace=True,
-                header=None,
-                index_col=0,
-            )
-            region_df.index.name = "YEAR"
-            region_df.columns = pd.MultiIndex.from_arrays(
-                [variables, todos, units, regions],
-                names=("VARIABLE", "TODO", "UNITS", "REGION"),
-            )
+            region_df = self._convert_data_block_and_headers_to_df(region_block, ch)
 
             try:
-                df = df.join(region_df)
+                df = pd.concat([region_df, df], axis="rows")
             except NameError:
                 df = region_df
 
@@ -905,6 +934,8 @@ def _convert_magicc_region_to_openscm_region(regions, inverse=False):
         world = "World"
         if in_region in ("WORLD", "GLOBAL"):
             return world
+        if in_region in ("BUNKERS"):
+            return DATA_HIERARCHY_SEPARATOR.join([world, "Bunkers"])
         elif in_region.startswith(("NH", "SH")):
             in_region = in_region.replace("-", "")
             hem = "Northern Hemisphere" if "NH" in in_region else "Southern Hemisphere"
@@ -1092,15 +1123,24 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
 
 
 def _replace_from_replacement_dict(inputs, replacements, inverse=False):
+    def careful_replacement(in_str, old, new):
+        # For now I think this is the only edge case. If it's not, will have to be
+        # smarter
+        if ("NMVOC" in in_str) and ("OC" in old) and (not "NMVOC" in old):
+            # don't do replacement as it will do a partial replacement, which we don't
+            # want
+            return in_str
+        return in_str.replace(old, new)
+
     if inverse:
         replacements = {v: k for k, v in replacements.items()}
 
     inputs_return = deepcopy(inputs)
     for old, new in replacements.items():
         if isinstance(inputs_return, list):
-            inputs_return = [v.replace(old, new) for v in inputs_return]
+            inputs_return = [careful_replacement(v, old, new) for v in inputs_return]
         else:
-            inputs_return = inputs_return.replace(old, new)
+            inputs_return = careful_replacement(inputs_return, old, new)
 
     return inputs_return
 
