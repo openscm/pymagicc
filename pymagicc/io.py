@@ -216,7 +216,7 @@ class _InputReader(object):
         df = self._convert_data_block_and_headers_to_df(stream, ch)
         return df, metadata
 
-    def _convert_data_block_and_headers_to_df(self, stream, ch):
+    def _convert_data_block_and_headers_to_df(self, stream, column_headers):
         """
         stream : Streamlike object
             A Streamlike object (nominally StringIO) containing the data to be
@@ -242,13 +242,16 @@ class _InputReader(object):
             df.index = df.index.to_series().round(3)
 
         df.index.name = "time"
-        df.columns = pd.MultiIndex.from_arrays(
-            [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
-            names=("variable", "todo", "unit", "region"),
-        )
+        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
         return df
+
+    def _get_columns_multiindex_from_column_headers(self, ch):
+        return pd.MultiIndex.from_arrays(
+            [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
+            names=("variable", "todo", "unit", "region"),
+        )
 
     def _get_column_headers_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -262,7 +265,10 @@ class _InputReader(object):
         column_headers["regions"] = _convert_magicc_region_to_openscm_region(
             column_headers["regions"]
         )
+        if "SURFACE" in column_headers["variables"][0]:
+            import pdb
 
+            pdb.set_trace()
         return column_headers, metadata
 
     def _magicc7_style_header(self):
@@ -405,6 +411,13 @@ class _FourBoxReader(_InputReader):
 
         return column_headers, metadata
 
+    def _tidy_up_units(self, column_headers):
+        for i, unit in enumerate(column_headers["units"]):
+            if unit in ("W/m2", "W/m^2"):
+                column_headers["units"][i] = "W / m^2"
+
+        return column_headers
+
 
 class _ConcInReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
@@ -451,19 +464,9 @@ class _RadiativeForcingInReader(_FourBoxReader):
         column_headers, metadata = super()._get_column_headers_update_metadata(
             stream, metadata
         )
-
         column_headers = self._tidy_up_units(column_headers)
 
         return column_headers, metadata
-
-    def _tidy_up_units(self, column_headers):
-        for i, unit in enumerate(column_headers["units"]):
-            if unit == "W/m2":
-                column_headers["units"][i] = "W / m^2"
-            else:
-                raise ValueError("Unexpected unit")
-
-        return column_headers
 
 
 class _EmisInReader(_InputReader):
@@ -655,10 +658,11 @@ class _PrnReader(_NonStandardEmisInReader):
     def read(self):
         metadata, df = super().read()
 
-        # now fix labelling, have to copy index :()
+        # now fix labelling, have to copy index :(
         variables = df.columns.get_level_values("VARIABLE").tolist()
         variables = _convert_magicc6_to_magicc7_variables(variables)
         todos = ["SET"] * len(variables)
+        region = _convert_magicc_region_to_openscm_region("WORLD")
 
         concs = False
         emms = False
@@ -678,20 +682,22 @@ class _PrnReader(_NonStandardEmisInReader):
 
         if concs:
             unit = "ppt"
-            region = "GLOBAL"
             variables = [v + "_CONC" for v in variables]
         elif emms:
             unit = "t"
-            region = "WORLD"
             variables = [v + "_EMIS" for v in variables]
 
-        units = [unit] * len(variables)
-        regions = [region] * len(variables)
+        column_headers = {
+            "variables": _convert_magicc7_to_openscm_variables(variables),
+            "todos": todos,
+            "units": [unit] * len(variables),
+            "regions": [region] * len(variables),
+        }
+        if emms:
+            column_headers = self._tidy_up_units(column_headers)
 
-        df.columns = pd.MultiIndex.from_arrays(
-            [variables, todos, units, regions],
-            names=("VARIABLE", "TODO", "UNITS", "REGION"),
-        )
+        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
+        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
         for k in ["gas", "unit"]:
             try:
@@ -757,7 +763,7 @@ class _PrnReader(_NonStandardEmisInReader):
         col_widths = [yr_col_width] + [10] * len(variables)
         data_block_stream.seek(0)
         df = pd.read_fwf(data_block_stream, widths=col_widths, header=None, index_col=0)
-        df.index.name = "YEAR"
+        df.index.name = "time"
         df.columns = pd.MultiIndex.from_arrays(
             [variables, todos, units, regions],
             names=("VARIABLE", "TODO", "UNITS", "REGION"),
@@ -782,6 +788,14 @@ class _PrnReader(_NonStandardEmisInReader):
 class _OutReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r"DAT\_(\w*)\.OUT$")
     _default_todo_fill_value = "N/A"
+
+    def _get_column_headers_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_update_metadata(
+            stream, metadata
+        )
+        column_headers = self._tidy_up_units(column_headers)
+
+        return column_headers, metadata
 
 
 class _TempOceanLayersOutReader(_InputReader):
@@ -1007,11 +1021,13 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
             raise ValueError("This shouldn't happen")
 
         variable = in_var.split("_")[0]
+        # I hate edge cases
+        edge_case_B = variable.upper() in ("HCFC141B", "HCFC142B")
         if variable.endswith("I"):
             variable = DATA_HIERARCHY_SEPARATOR.join(
                 [variable[:-1], "MAGICC Fossil and Industrial"]
             )
-        elif variable.endswith("B"):
+        elif variable.endswith("B") and not edge_case_B:
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
 
         case_adjustments = {
@@ -1024,8 +1040,8 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
             "HFC236FA": "HFC236fa",
             "HFC245FA": "HFC245fa",
             "HFC365MFC": "HFC365mfc",
-            "HCFC141B": "HFC141b",
-            "HCFC142B": "HFC142b",
+            "HCFC141B": "HCFC141b",
+            "HCFC142B": "HCFC142b",
             "CH3CCL3": "CH3CCl3",
             "CCL4": "CCl4",
             "CH3CL": "CH3Cl",
@@ -1057,6 +1073,7 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     ]
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
+    replacements.update({"SURFACE_TEMP": "Surface Temperature"})
 
     return _replace_from_replacement_dict(variables, replacements, inverse=inverse)
 
