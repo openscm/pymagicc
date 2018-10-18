@@ -2,6 +2,7 @@ from os.path import basename, exists, join
 from shutil import copyfileobj
 from copy import deepcopy
 
+
 import numpy as np
 import f90nml
 from f90nml.namelist import Namelist
@@ -9,11 +10,9 @@ import pandas as pd
 import re
 from six import StringIO
 
-from pymagicc import MAGICC6
 
-# Not used yet:
-# emissions_units,
-# concentrations_units,
+from pymagicc import MAGICC6
+from pymagicc.utils import _replace_from_replacement_dict
 from .definitions import (
     dattype_regionmode_regions,
     part_of_scenfile_with_emissions_code_0,
@@ -25,7 +24,6 @@ from .definitions import (
     _convert_magicc7_to_openscm_variables,
     _convert_magicc6_to_magicc7_variables,
     _convert_pint_units_to_fortran_safe_units,
-    _replace_from_replacement_dict,
     DATA_HIERARCHY_SEPARATOR,
 )
 
