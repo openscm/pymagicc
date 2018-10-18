@@ -4,7 +4,6 @@ Changelog
 master
 ------
 
-- (`#159 <https://github.com/openclimatedata/pymagicc/pull/159>`_) Made notebooks CI more opinionated (`#158 <https://github.com/openclimatedata/pymagicc/issues/158>`_)
 - (`#139 <https://github.com/openclimatedata/pymagicc/pull/139>`_) Added the ability to read all MAGICC output files/throw an explanatory error with ``pymagicc.io.MAGICCData``
 - (`#135 <https://github.com/openclimatedata/pymagicc/pull/135>`_) Moved emissions definitions to a single csv and packaged all of the definitions files using the `data package standard <https://frictionlessdata.io/docs/creating-tabular-data-packages-in-python/>`_
 - (`#79 <https://github.com/openclimatedata/pymagicc/pull/79>`_) Confirmed that keeping track of config state works and added example to TCR/ECS diagnosis notebook
