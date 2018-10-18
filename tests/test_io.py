@@ -88,11 +88,18 @@ def test_get_invalid_tool():
 def generic_mdata_tests(mdata):
     "Resusable tests to ensure data format."
     assert mdata.is_loaded == True
+
     assert isinstance(mdata.df, pd.DataFrame)
     pd.testing.assert_index_equal(
         mdata.df.columns,
         pd.Index(["variable", "todo", "unit", "region", "time", "value"]),
     )
+
+    assert mdata.df.variable.dtype == "category"
+    assert mdata.df.todo.dtype == "category"
+    assert mdata.df.unit.dtype == "category"
+    assert mdata.df.region.dtype == "category"
+
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
             mdata.metadata[key]
