@@ -6,4 +6,5 @@ if [ "$TRAVIS" = true ]; then
   PYTEST=pytest
 fi
 
-$PYTEST --nbval notebooks --sanitize notebooks/tests_sanitize.cfg
+# We don't want to test the Demo notebook as installing the widget is a pain
+$PYTEST --nbval $(find ./notebooks -name "*.ipynb" ! -name "*Demo*" -maxdepth 1) --sanitize notebooks/tests_sanitize.cfg
