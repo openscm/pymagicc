@@ -9,6 +9,7 @@ def _compile_replacement_regexp(rep_dict):
         flags=re.DOTALL,
     )
 
+
 def _multiple_replace(in_str, rep_dict, compiled_regexp):
     out_str = compiled_regexp.sub(lambda x: rep_dict[x.group(0)], in_str)
     return out_str
@@ -39,6 +40,8 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
         # inputs_return = [
         #     multiple_replace(v, old, new, edge_cases) for v in inputs_return
         # ]
-        inputs_return = [_multiple_replace(v, replacements, compiled_regexp) for v in inputs_return]
+        inputs_return = [
+            _multiple_replace(v, replacements, compiled_regexp) for v in inputs_return
+        ]
 
     return inputs_return

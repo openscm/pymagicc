@@ -243,6 +243,14 @@ class _InputReader(object):
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
+        self._convert_to_categorical_columns(df)
+
+        return df
+
+    def _convert_to_categorical_columns(self, df):
+        for categorical_column in ["variable", "todo", "unit", "region"]:
+            df[categorical_column] = df[categorical_column].astype("category")
+
         return df
 
     def _get_columns_multiindex_from_column_headers(self, ch):
@@ -651,7 +659,7 @@ class _ScenReader(_NonStandardEmisInReader):
 
         self._stream.seek(pos_block)
 
-        return df
+        return self._convert_to_categorical_columns(df)
 
     def _read_notes(self):
         notes = []
@@ -708,6 +716,7 @@ class _PrnReader(_NonStandardEmisInReader):
 
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
+        df = self._convert_to_categorical_columns(df)
 
         for k in ["gas", "unit"]:
             try:
@@ -931,6 +940,7 @@ class _BinaryOutReader(_InputReader):
         }
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
+        df = self._convert_to_categorical_columns(df)
 
         return df, metadata
 
@@ -1200,7 +1210,7 @@ class _InputWriter(object):
         data_block = self.minput.df.copy()
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
-        data_block.reset_index(inplace=True)
+        data_block = data_block.rename(columns=str).reset_index()
         data_block.columns = [
             [self._variable_header_row_name] + variables,
             ["TODO"] + todos,
@@ -1337,6 +1347,7 @@ class _PrnWriter(_InputWriter):
         assert set(data_block.columns) == set(part_of_prnfile), emms_assert_msg
 
         data_block.index.name = "Years"
+
         data_block.reset_index(inplace=True)
 
         return data_block
@@ -1445,7 +1456,7 @@ class _ScenWriter(_InputWriter):
             )
 
             assert region_block.columns.names == ["variable", "unit"]
-            region_block.reset_index(inplace=True)
+            region_block = region_block.rename(columns=str).reset_index()
             region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 
             # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
