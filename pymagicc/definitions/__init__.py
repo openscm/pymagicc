@@ -20,6 +20,8 @@ import pandas as pd
 from pandas_datapackage_reader import read_datapackage
 
 
+from pymagicc.utils import _replace_from_replacement_dict
+
 DATA_HIERARCHY_SEPARATOR = "|"
 """str: String used to define different levels in our data hierarchies.
 
@@ -71,45 +73,6 @@ part_of_prnfile = magicc7_emissions_units[magicc7_emissions_units["part_of_prnfi
 magicc7_concentrations_units = read_datapackage(path, "magicc_concentrations_units")
 """:obj:`pandas.DataFrame` Definitions of concentrations variables and their expected units in MAGICC7.
 """
-
-
-def careful_replacement(in_str, old, new, edge_cases):
-    if old in edge_cases.values():
-        for full_str, sub_str in edge_cases.items():
-            avoid_partial_replacement = (
-                (full_str in in_str) and (sub_str in old) and (not full_str in old)
-            )
-            if avoid_partial_replacement:
-                return in_str
-
-    return in_str.replace(old, new)
-
-
-def _replace_from_replacement_dict(inputs, replacements, inverse=False):
-    if inverse:
-        replacements = {v: k for k, v in replacements.items()}
-
-    # Find any edge cases i.e. cases where our old key is a substring of a
-    # different old key and if we replace the substring, we will miss the full
-    # string we intended to replace e.g. we want to replace "NMVOC" with "nmvoc"
-    # but instead replace "OC" and so end up with "NMVoc", which isn't what we
-    # wanted.
-    edge_cases = {}
-    for j, r in enumerate(replacements.keys()):
-        for k in list(replacements.keys())[j:]:
-            if (r in k) and (r != k):
-                edge_cases[k] = r
-
-    inputs_return = deepcopy(inputs)
-    for old, new in replacements.items():
-        if isinstance(inputs_return, str):
-            inputs_return = careful_replacement(inputs_return, old, new, edge_cases)
-        else:
-            inputs_return = [
-                careful_replacement(v, old, new, edge_cases) for v in inputs_return
-            ]
-
-    return inputs_return
 
 
 def _get_magicc_region_to_openscm_region_mapping(inverse=False):
