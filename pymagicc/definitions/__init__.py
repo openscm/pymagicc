@@ -78,9 +78,7 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
         if old in edge_cases.values():
             for full_str, sub_str in edge_cases.items():
                 avoid_partial_replacement = (
-                    (full_str in in_str)
-                    and (sub_str in old)
-                    and (not full_str in old)
+                    (full_str in in_str) and (sub_str in old) and (not full_str in old)
                 )
                 if avoid_partial_replacement:
                     return in_str
@@ -103,10 +101,12 @@ def _replace_from_replacement_dict(inputs, replacements, inverse=False):
 
     inputs_return = deepcopy(inputs)
     for old, new in replacements.items():
-        if isinstance(inputs_return, list):
-            inputs_return = [careful_replacement(v, old, new, edge_cases) for v in inputs_return]
-        else:
+        if isinstance(inputs_return, str):
             inputs_return = careful_replacement(inputs_return, old, new, edge_cases)
+        else:
+            inputs_return = [
+                careful_replacement(v, old, new, edge_cases) for v in inputs_return
+            ]
 
     return inputs_return
 
@@ -175,10 +175,13 @@ def _get_magicc_region_to_openscm_region_mapping(inverse=False):
     else:
         return replacements
 
+
 MAGICC_REGION_TO_OPENSCM_REGION_MAPPING = _get_magicc_region_to_openscm_region_mapping()
 """dict: Mappings from MAGICC regions to openscm regions"""
 
-OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = _get_magicc_region_to_openscm_region_mapping(inverse=True)
+OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = _get_magicc_region_to_openscm_region_mapping(
+    inverse=True
+)
 """dict: Mappings from openscm regions to MAGICC regions
 
 This is not a pure inverse of the other way around. For example, we never provide
@@ -187,11 +190,16 @@ have "WORLD". Fortunately MAGICC doesn't ever read the name "GLOBAL" so this sho
 matter.
 """
 
+
 def _convert_magicc_region_to_openscm_region(regions, inverse=False):
     if inverse:
-        return _replace_from_replacement_dict(regions, OPENSCM_REGION_TO_MAGICC_REGION_MAPPING)
+        return _replace_from_replacement_dict(
+            regions, OPENSCM_REGION_TO_MAGICC_REGION_MAPPING
+        )
     else:
-        return _replace_from_replacement_dict(regions, MAGICC_REGION_TO_OPENSCM_REGION_MAPPING)
+        return _replace_from_replacement_dict(
+            regions, MAGICC_REGION_TO_OPENSCM_REGION_MAPPING
+        )
 
 
 def _get_magicc7_to_openscm_variable_mapping(inverse=False):
@@ -280,7 +288,7 @@ def _get_magicc7_to_openscm_variable_mapping(inverse=False):
     replacements.update(ocean_temp_layer)
 
     if inverse:
-        return {v: k for k,v in replacements.items()}
+        return {v: k for k, v in replacements.items()}
     else:
         return replacements
 
@@ -288,16 +296,22 @@ def _get_magicc7_to_openscm_variable_mapping(inverse=False):
 MAGICC7_TO_OPENSCM_VARIABLES_MAPPING = _get_magicc7_to_openscm_variable_mapping()
 """dict: Mappings from MAGICC7 variables to openscm variables"""
 
-OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = _get_magicc7_to_openscm_variable_mapping(inverse=True)
+OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = _get_magicc7_to_openscm_variable_mapping(
+    inverse=True
+)
 """dict: Mappings from openscm variables to MAGICC7 variables
 """
 
 
 def _convert_magicc7_to_openscm_variables(variables, inverse=False):
     if inverse:
-        return _replace_from_replacement_dict(variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING)
+        return _replace_from_replacement_dict(
+            variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING
+        )
     else:
-        return _replace_from_replacement_dict(variables, MAGICC7_TO_OPENSCM_VARIABLES_MAPPING)
+        return _replace_from_replacement_dict(
+            variables, MAGICC7_TO_OPENSCM_VARIABLES_MAPPING
+        )
 
 
 def _get_magicc6_to_magicc7_variable_mapping(inverse=False):
@@ -373,12 +387,45 @@ MAGICC6_TO_MAGICC7_VARIABLES_MAPPING = _get_magicc6_to_magicc7_variable_mapping(
 """dict: Mappings from MAGICC6 variables to MAGICC7 variables
 """
 
-MAGICC7_TO_MAGICC6_VARIABLES_MAPPING = _get_magicc6_to_magicc7_variable_mapping(inverse=True)
+MAGICC7_TO_MAGICC6_VARIABLES_MAPPING = _get_magicc6_to_magicc7_variable_mapping(
+    inverse=True
+)
 """dict: Mappings from MAGICC7 variables to MAGICC6 variables
 """
 
+
 def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
     if inverse:
-        return _replace_from_replacement_dict(variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING)
+        return _replace_from_replacement_dict(
+            variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING
+        )
     else:
-        return _replace_from_replacement_dict(variables, MAGICC6_TO_MAGICC7_VARIABLES_MAPPING)
+        return _replace_from_replacement_dict(
+            variables, MAGICC6_TO_MAGICC7_VARIABLES_MAPPING
+        )
+
+
+PINT_TO_FORTRAN_SAFE_UNITS_MAPPING = {"^": "super", "/": "per", " ": ""}
+"""dict: mappings required to make Pint units Fortran safe.
+
+Fortran can't handle special characters like "^" or "/" in names, but we need these in
+Pint so provide this mapping to handle the conversion.
+"""
+
+_fortran_safe_to_pint_units_mapping_tmp = {
+    v: k for k, v in PINT_TO_FORTRAN_SAFE_UNITS_MAPPING.items()
+}
+_fortran_safe_to_pint_units_mapping_tmp.pop("")
+FORTRAN_SAFE_TO_PINT_UNITS_MAPPING = _fortran_safe_to_pint_units_mapping_tmp
+"""dict: mappings required to convert our Fortran safe units to Pint.
+
+Fortran can't handle special characters like "^" or "/" in names, but we need these in
+Pint so provide this mapping to handle the conversion.
+"""
+
+
+def _convert_pint_units_to_fortran_safe_units(units, inverse=False):
+    if inverse:
+        return _replace_from_replacement_dict(units, FORTRAN_SAFE_TO_PINT_UNITS_MAPPING)
+    else:
+        return _replace_from_replacement_dict(units, PINT_TO_FORTRAN_SAFE_UNITS_MAPPING)

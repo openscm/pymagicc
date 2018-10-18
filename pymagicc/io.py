@@ -24,6 +24,7 @@ from .definitions import (
     _convert_magicc_region_to_openscm_region,
     _convert_magicc7_to_openscm_variables,
     _convert_magicc6_to_magicc7_variables,
+    _convert_pint_units_to_fortran_safe_units,
     _replace_from_replacement_dict,
     DATA_HIERARCHY_SEPARATOR,
 )
@@ -380,7 +381,7 @@ class _InputReader(object):
         ), "Expected a header token of {}, got {}".format(expected_header, tokens[0])
         return tokens[1:]
 
-    def _map_magicc_regions(self, regions):
+    def _unify_magicc_regions(self, regions):
         region_mapping = {
             "GLOBAL": "GLOBAL",
             "NO": "NHOCEAN",
@@ -394,25 +395,31 @@ class _InputReader(object):
         }
         return [region_mapping[r] for r in regions]
 
+    def _read_units(self, column_headers):
+        column_headers["units"] = _convert_pint_units_to_fortran_safe_units(
+            column_headers["units"], inverse=True
+        )
+
+        for i, unit in enumerate(column_headers["units"]):
+            if unit in ("W/m2", "W/m^2"):
+                column_headers["units"][i] = "W / m^2"
+
+        return column_headers
+
 
 class _FourBoxReader(_InputReader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
-        column_headers["regions"] = self._map_magicc_regions(column_headers["regions"])
+        column_headers["regions"] = self._unify_magicc_regions(
+            column_headers["regions"]
+        )
 
         assert (
             len(set(column_headers["units"])) == 1
         ), "Only one unit should be found for a MAGICC6 style file"
 
         return column_headers, metadata
-
-    def _tidy_up_units(self, column_headers):
-        for i, unit in enumerate(column_headers["units"]):
-            if unit in ("W/m2", "W/m^2"):
-                column_headers["units"][i] = "W / m^2"
-
-        return column_headers
 
 
 class _ConcInReader(_FourBoxReader):
@@ -460,13 +467,15 @@ class _RadiativeForcingInReader(_FourBoxReader):
         column_headers, metadata = super()._get_column_headers_update_metadata(
             stream, metadata
         )
-        column_headers = self._tidy_up_units(column_headers)
+        column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
 
 
 class _EmisInReader(_InputReader):
-    def _tidy_up_units(self, column_headers):
+    def _read_units(self, column_headers):
+        column_headers = super()._read_units(column_headers)
+
         units = column_headers["units"]
         variables = column_headers["variables"]
         for i, (unit, variable) in enumerate(zip(units, variables)):
@@ -524,7 +533,7 @@ class _StandardEmisInReader(_EmisInReader):
                 tmp_vars.append(v + "_EMIS")
 
         column_headers["variables"] = _convert_magicc7_to_openscm_variables(tmp_vars)
-        column_headers = self._tidy_up_units(column_headers)
+        column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
 
@@ -623,7 +632,7 @@ class _ScenReader(_NonStandardEmisInReader):
                 self._stream.seek(pos_units)
                 ch["units"] = self._read_data_header_line(self._stream, "YEARS")
 
-            ch = self._tidy_up_units(ch)
+            ch = self._read_units(ch)
             ch["todos"] = ["SET"] * len(variables)
             ch["regions"] = [region] * len(variables)
 
@@ -694,7 +703,7 @@ class _PrnReader(_NonStandardEmisInReader):
             "regions": [region] * len(variables),
         }
         if emms:
-            column_headers = self._tidy_up_units(column_headers)
+            column_headers = self._read_units(column_headers)
 
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
@@ -793,7 +802,7 @@ class _OutReader(_FourBoxReader):
         column_headers, metadata = super()._get_column_headers_update_metadata(
             stream, metadata
         )
-        column_headers = self._tidy_up_units(column_headers)
+        column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
 
@@ -1004,10 +1013,12 @@ def get_region_order(regions, scen7=False):
 
 
 def _get_dattype_regionmode_regions_row(regions, scen7=False):
-    regions_unique = set([
-        _convert_magicc_region_to_openscm_region(r, inverse=True)
-        for r in set(regions)
-    ])
+    regions_unique = set(
+        [
+            _convert_magicc_region_to_openscm_region(r, inverse=True)
+            for r in set(regions)
+        ]
+    )
 
     def find_region(x):
         return set(x) == regions_unique
@@ -1049,9 +1060,7 @@ class _InputWriter(object):
 
         # pivot the data table before moving on
         self.minput.df = self.minput.df.pivot_table(
-            values="value",
-            index="time",
-            columns=["variable", "todo", "unit", "region"]
+            values="value", index="time", columns=["variable", "todo", "unit", "region"]
         )
 
         if filepath is not None:
@@ -1173,14 +1182,14 @@ class _InputWriter(object):
 
     def _get_data_block(self):
         regions = _convert_magicc_region_to_openscm_region(
-            self._get_df_header_row("region"),
-            inverse=True,
+            self._get_df_header_row("region"), inverse=True
         )
         variables = _convert_magicc7_to_openscm_variables(
-            self._get_df_header_row("variable"),
-            inverse=True,
+            self._get_df_header_row("variable"), inverse=True
         )
-        units = [u.replace(" ", "") for u in self._get_df_header_row("unit")]
+        units = _convert_pint_units_to_fortran_safe_units(
+            self._get_df_header_row("unit")
+        )
         todos = self._get_df_header_row("todo")
 
         data_block = self.minput.df.copy()
@@ -1236,13 +1245,18 @@ class _PrnWriter(_InputWriter):
         lines = output.getvalue().split(self._newline_char)
         data_block = self._get_data_block()
 
-        unit = self.minput.df.columns.get_level_values("UNITS").unique()
-        assert len(unit) == 1, "Prn file with more than one unit won't work"
-        unit = unit[0]
+        units = self.minput.df.columns.get_level_values("unit").unique()
+        unit = units[0].split(" ")[0]
         if unit == "t":
+            assert all(
+                [u.startswith("t ") and u.endswith(" / yr") for u in units]
+            ), "Prn emissions file with non tonne per year units won't work"
             lines.append("Unit: metric tons")
             other_col_format_str = "{:9.0f}".format
         elif unit == "ppt":
+            assert all(
+                [u == "ppt" for u in units]
+            ), "Prn concentrations file with non ppt units won't work"
             lines.append("Unit: {}".format(unit))
             other_col_format_str = "{:9.3e}".format
         else:
@@ -1301,11 +1315,13 @@ class _PrnWriter(_InputWriter):
     def _get_data_block(self):
         data_block = self.minput.df.copy()
 
-        data_block.columns = data_block.columns.get_level_values("VARIABLE")
+        data_block.columns = data_block.columns.get_level_values("variable")
+        magicc7_vars = _convert_magicc7_to_openscm_variables(
+            data_block.columns.get_level_values("variable"), inverse=True
+        )
 
         old_style_vars = [
-            v.replace("_EMIS", "").replace("_CONC", "")
-            for v in data_block.columns.get_level_values("VARIABLE")
+            v.replace("_EMIS", "").replace("_CONC", "") for v in magicc7_vars
         ]
         data_block.columns = old_style_vars
 
@@ -1408,8 +1424,7 @@ class _ScenWriter(_InputWriter):
 
             variables = region_block.columns.get_level_values("VARIABLE").tolist()
             variables = _convert_magicc6_to_magicc7_variables(
-                [v.replace("_EMIS", "") for v in variables],
-                inverse=True
+                [v.replace("_EMIS", "") for v in variables], inverse=True
             )
 
             units = region_block.columns.get_level_values("UNITS").tolist()

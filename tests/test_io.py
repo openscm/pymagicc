@@ -1524,7 +1524,9 @@ def test_load_prename():
     assert not (mdata.df.unit == "Gt C / yr").any()
 
 
-@pytest.mark.xfail(reason="Direct access not available in v2.0.0, will update with Pyam DataFrame")
+@pytest.mark.xfail(
+    reason="Direct access not available in v2.0.0, will update with Pyam DataFrame"
+)
 def test_direct_access():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
     mdata.read(MAGICC6_DIR)
@@ -1532,11 +1534,7 @@ def test_direct_access():
     tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
     tregion = "World|R5LAM"
     tyear = 1983
-    result = mdata.filter(
-        variable=tvariable,
-        region=tregion,
-        year=tyear,
-    )
+    result = mdata.filter(variable=tvariable, region=tregion, year=tyear)
     expected = mdata.df[
         (mdata.df.variable == tvariable)
         & (mdata.df.region == tregion)
@@ -1743,8 +1741,12 @@ def test_in_file_read_write_functionally_identical(
         assert mi_written.metadata == mi_initial.metadata
 
     pd.testing.assert_frame_equal(
-        mi_written.df.sort_values(by=mi_written.df.columns.tolist()).reset_index(drop=True),
-        mi_initial.df.sort_values(by=mi_initial.df.columns.tolist()).reset_index(drop=True),
+        mi_written.df.sort_values(by=mi_written.df.columns.tolist()).reset_index(
+            drop=True
+        ),
+        mi_initial.df.sort_values(by=mi_initial.df.columns.tolist()).reset_index(
+            drop=True
+        ),
     )
 
 
