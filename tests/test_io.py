@@ -1901,8 +1901,8 @@ def test_bin_and_ascii_equal(file_to_read):
     mdata_ascii.read(TEST_OUT_DIR)
 
     # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
-    mdata_ascii.df.columns = mdata_ascii.df.columns.droplevel("units").droplevel("todo")
-    mdata_bin.df.columns = mdata_bin.df.columns.droplevel("units").droplevel("todo")
+    mdata_ascii.df.columns = mdata_ascii.df.drop("unit").drop("todo")
+    mdata_bin.df.columns = mdata_bin.df.columns.drop("unit").drop("todo")
     pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
 
 
