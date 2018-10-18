@@ -29,6 +29,8 @@ Pymagicc
     pymagicc.api
     pymagicc.io
     pymagicc.definitions
+    pymagicc.config
+    pymagicc.utils
 
 .. toctree::
     :maxdepth: 2
