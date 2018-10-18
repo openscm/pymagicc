@@ -73,18 +73,19 @@ magicc7_concentrations_units = read_datapackage(path, "magicc_concentrations_uni
 """
 
 
+def careful_replacement(in_str, old, new, edge_cases):
+    if old in edge_cases.values():
+        for full_str, sub_str in edge_cases.items():
+            avoid_partial_replacement = (
+                (full_str in in_str) and (sub_str in old) and (not full_str in old)
+            )
+            if avoid_partial_replacement:
+                return in_str
+
+    return in_str.replace(old, new)
+
+
 def _replace_from_replacement_dict(inputs, replacements, inverse=False):
-    def careful_replacement(in_str, old, new, edge_cases):
-        if old in edge_cases.values():
-            for full_str, sub_str in edge_cases.items():
-                avoid_partial_replacement = (
-                    (full_str in in_str) and (sub_str in old) and (not full_str in old)
-                )
-                if avoid_partial_replacement:
-                    return in_str
-
-        return in_str.replace(old, new)
-
     if inverse:
         replacements = {v: k for k, v in replacements.items()}
 

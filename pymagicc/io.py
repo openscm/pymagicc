@@ -38,7 +38,7 @@ UNSUPPORTED_OUT_FILES = [
     r".*DATBASKET_.*",
     r".*INVERSE.*EMIS.*OUT",
     r".*PRECIPINPUT.*OUT",
-    r".*TEMP_OCEANLAYERS\.BINOUT",
+    r".*TEMP_OCEANLAYERS.*\.BINOUT",
     r".*TIMESERIESMIX.*OUT",
     r".*SUMMARY_INDICATORS.OUT",
 ]
@@ -311,8 +311,11 @@ class _InputReader(object):
             regexp_capture_unit = re.compile(r".*\((.*)\)\s*$")
             unit = regexp_capture_unit.search(unit).group(1)
 
+        variable = _convert_magicc6_to_magicc7_variables(
+            self._get_variable_from_filename()
+        )
         column_headers = {
-            "variables": [self._get_variable_from_filename()] * len(regions),
+            "variables": [variable] * len(regions),
             "todos": [self._default_todo_fill_value] * len(regions),
             "units": [unit] * len(regions),
             "regions": regions,
@@ -908,24 +911,28 @@ class _BinaryOutReader(_InputReader):
         if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
             df.index = df.index.to_series().round(3)
 
-        df.index.name = "YEAR"
+        df.index.name = "time"
 
-        regions = ["GLOBAL", "NHOCEAN", "NHLAND", "SHOCEAN", "SHLAND"]
-        column_headers = {
-            "variable": [self._get_variable_from_filename()] * (num_regions + 1),
-            "region": regions,
-            "units": ["unknown"] * len(regions),
-            "todo": ["SET"] * len(regions),
-        }
-        df.columns = pd.MultiIndex.from_arrays(
-            [
-                column_headers["variable"],
-                column_headers["todo"],
-                column_headers["units"],
-                column_headers["region"],
-            ],
-            names=("VARIABLE", "TODO", "UNITS", "REGION"),
+        regions = [
+            "World",
+            "World|Northern Hemisphere|Ocean",
+            "World|Northern Hemisphere|Land",
+            "World|Southern Hemisphere|Ocean",
+            "World|Southern Hemisphere|Land",
+        ]
+
+        variable = _convert_magicc6_to_magicc7_variables(
+            self._get_variable_from_filename()
         )
+        variable = _convert_magicc7_to_openscm_variables(variable)
+        column_headers = {
+            "variables": [variable] * (num_regions + 1),
+            "regions": regions,
+            "units": ["unknown"] * len(regions),
+            "todos": ["SET"] * len(regions),
+        }
+        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
+        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
         return df, metadata
 
@@ -1343,10 +1350,14 @@ class _ScenWriter(_InputWriter):
         header_lines.append("{}".format(len(self.minput.df)))
 
         variables = self._get_df_header_row("variable")
+        variables = _convert_magicc7_to_openscm_variables(variables, inverse=True)
         variables = [v.replace("_EMIS", "") for v in variables]
-        special_scen_code = get_special_scen_code(
-            regions=self._get_df_header_row("region"), emissions=variables
-        )
+
+        regions = self._get_df_header_row("region")
+        regions = _convert_magicc_region_to_openscm_region(regions, inverse=True)
+
+        special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
+
         header_lines.append("{}".format(special_scen_code))
 
         # for a scen file, the convention is (although all these lines are
@@ -1418,18 +1429,24 @@ class _ScenWriter(_InputWriter):
         formatters[0] = first_col_format_str
 
         for region in region_order:
-            region_block = self.minput[region]
-            region_block.columns = region_block.columns.droplevel("TODO")
-            region_block.columns = region_block.columns.droplevel("REGION")
+            region_block_region = _convert_magicc_region_to_openscm_region(region)
+            region_block = self.minput.df.xs(
+                region_block_region, axis=1, level="region", drop_level=False
+            )
+            region_block.columns = region_block.columns.droplevel("todo")
+            region_block.columns = region_block.columns.droplevel("region")
 
-            variables = region_block.columns.get_level_values("VARIABLE").tolist()
+            variables = region_block.columns.get_level_values("variable").tolist()
+            variables = _convert_magicc7_to_openscm_variables(variables, inverse=True)
             variables = _convert_magicc6_to_magicc7_variables(
                 [v.replace("_EMIS", "") for v in variables], inverse=True
             )
 
-            units = region_block.columns.get_level_values("UNITS").tolist()
+            units = _convert_pint_units_to_fortran_safe_units(
+                region_block.columns.get_level_values("unit").tolist()
+            )
 
-            assert region_block.columns.names == ["VARIABLE", "UNITS"]
+            assert region_block.columns.names == ["variable", "unit"]
             region_block.reset_index(inplace=True)
             region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 

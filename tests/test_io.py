@@ -38,7 +38,7 @@ INVALID_OUT_FILES = [
     r"DATBASKET_.*",
     r".*INVERSE.*EMIS.*OUT",
     r"PRECIPINPUT.*OUT",
-    r"TEMP_OCEANLAYERS\.BINOUT",
+    r"TEMP_OCEANLAYERS.*\.BINOUT",
     r"TIMESERIESMIX.*OUT",
     r"SUMMARY_INDICATORS.OUT",
 ]
@@ -1775,26 +1775,19 @@ emissions_valid = [
     "HFC245FA",
     "SF6",
 ]
-global_only = ["World"]
-sres_regions = ["World", "World|OECD90", "World|REF", "World|ASIA", "World|ALM"]
-rcp_regions = [
-    "World",
-    "World|R5OECD",
-    "World|R5REF",
-    "World|R5ASIA",
-    "World|R5MAF",
-    "World|R5LAM",
-]
+global_only = ["WORLD"]
+sres_regions = ["WORLD", "OECD90", "REF", "ASIA", "ALM"]
+rcp_regions = ["WORLD", "R5OECD", "R5REF", "R5ASIA", "R5MAF", "R5LAM"]
 # the fact these are valid for SCEN files but not for other data files is
 # unbelievably confusing
 rcp_regions_plus_bunkers = [
-    "World",
-    "World|R5OECD",
-    "World|R5REF",
-    "World|R5ASIA",
-    "World|R5MAF",
-    "World|R5LAM",
-    "World|Bunkers",
+    "WORLD",
+    "R5OECD",
+    "R5REF",
+    "R5ASIA",
+    "R5MAF",
+    "R5LAM",
+    "BUNKERS",
 ]
 
 
@@ -1896,15 +1889,19 @@ def test_bin_and_ascii_equal(file_to_read):
         # Some BINOUT files are on a subannual time scale and cannot be read (yet)
         return
 
-    assert (mdata_bin.df.columns.get_level_values("units") == "unknown").all()
-    assert (mdata_bin.df.columns.get_level_values("todo") == "SET").all()
+    assert (mdata_bin.df.unit == "unknown").all()
+    assert (mdata_bin.df.todo == "SET").all()
 
     mdata_ascii = MAGICCData(file_to_read.replace("BINOUT", "OUT"))
     mdata_ascii.read(TEST_OUT_DIR)
 
     # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
-    mdata_ascii.df.columns = mdata_ascii.df.drop("unit").drop("todo")
-    mdata_bin.df.columns = mdata_bin.df.columns.drop("unit").drop("todo")
+    mdata_ascii.df = mdata_ascii.df.drop("unit", axis="columns").drop(
+        "todo", axis="columns"
+    )
+    mdata_bin.df = mdata_bin.df.drop("unit", axis="columns").drop(
+        "todo", axis="columns"
+    )
     pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
 
 
