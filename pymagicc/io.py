@@ -12,7 +12,7 @@ from six import StringIO
 
 
 from pymagicc import MAGICC6
-from pymagicc.utils import _replace_from_replacement_dict
+from pymagicc.utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
     PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
@@ -164,7 +164,7 @@ class _InputReader(object):
         def preprocess_edge_cases(lines, inverse=False):
             replacements = {"W/m": "Wperm", "^": "superscript"}
 
-            return _replace_from_replacement_dict(lines, replacements, inverse=inverse)
+            return apply_string_substitutions(lines, replacements, inverse=inverse)
 
         def postprocess_edge_cases(value):
             return preprocess_edge_cases(value, inverse=True)

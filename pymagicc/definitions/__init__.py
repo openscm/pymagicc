@@ -20,7 +20,7 @@ import pandas as pd
 from pandas_datapackage_reader import read_datapackage
 
 
-from pymagicc.utils import _replace_from_replacement_dict
+from pymagicc.utils import apply_string_substitutions
 
 DATA_HIERARCHY_SEPARATOR = "|"
 """str: String used to define different levels in our data hierarchies.
@@ -187,11 +187,11 @@ def convert_magicc_to_openscm_regions(regions, inverse=False):
         Set of converted regions
     """
     if inverse:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             regions, OPENSCM_REGION_TO_MAGICC_REGION_MAPPING
         )
     else:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             regions, MAGICC_REGION_TO_OPENSCM_REGION_MAPPING
         )
 
@@ -257,7 +257,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "SOLAR": "Solar",
             "VOLCANIC": "Volcanic",
         }
-        variable = _replace_from_replacement_dict(variable, case_adjustments)
+        variable = apply_string_substitutions(variable, case_adjustments)
 
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
@@ -330,11 +330,11 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
         Set of converted variables
     """
     if inverse:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING
         )
     else:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             variables, MAGICC7_TO_OPENSCM_VARIABLES_MAPPING
         )
 
@@ -451,11 +451,11 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
         Set of converted variables
     """
     if inverse:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING
         )
     else:
-        return _replace_from_replacement_dict(
+        return apply_string_substitutions(
             variables, MAGICC6_TO_MAGICC7_VARIABLES_MAPPING
         )
 
@@ -517,6 +517,6 @@ def convert_pint_to_fortran_safe_units(units, inverse=False):
         Set of converted units
     """
     if inverse:
-        return _replace_from_replacement_dict(units, FORTRAN_SAFE_TO_PINT_UNITS_MAPPING)
+        return apply_string_substitutions(units, FORTRAN_SAFE_TO_PINT_UNITS_MAPPING)
     else:
-        return _replace_from_replacement_dict(units, PINT_TO_FORTRAN_SAFE_UNITS_MAPPING)
+        return apply_string_substitutions(units, PINT_TO_FORTRAN_SAFE_UNITS_MAPPING)
