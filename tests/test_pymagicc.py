@@ -7,10 +7,7 @@ import pytest
 
 from pymagicc import (
     _magiccpath,
-    _get_number_of_datapoints,
-    _get_scen_special_code,
     read_scen_file,
-    write_scen_file,
     rcp26,
     rcp45,
     rcp60,

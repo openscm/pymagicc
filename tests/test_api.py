@@ -735,10 +735,10 @@ def test_pymagicc_writing_compatibility(
 
     ttweak_factor = 0.9
 
-    mdata = MAGICCData(filename=test_filename)
-    mdata.read(package.run_dir)
+    mdata = MAGICCData()
+    mdata.read(join(package.run_dir, test_filename))
     mdata.df.value *= ttweak_factor
-    mdata.write(test_filename, package.run_dir, magicc_version=package.version)
+    mdata.write(join(package.run_dir, test_filename), package.version)
 
     tweaked_results = package.run()
 

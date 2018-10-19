@@ -1633,13 +1633,13 @@ class MAGICCData(object):
         The file the data was loaded from.
     """
 
-    def __init__(self, filename=None):
+    def __init__(self):
         """
         Initialise a MAGICCData object.
         """
         self.df = None
         self.metadata = {}
-        self.filename = filename
+        self.filename = None
 
     def __getitem__(self, item):
         """
