@@ -94,6 +94,7 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
+
     def get_openscm_replacement(in_region):
         world = "World"
         if in_region in ("WORLD", "GLOBAL"):
@@ -208,6 +209,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
+
     def get_openscm_replacement(in_var):
         if in_var.endswith("_EMIS"):
             prefix = "Emissions"
@@ -418,6 +420,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     else:
         return replacements
 
+
 MAGICC6_TO_MAGICC7_VARIABLES_MAPPING = get_magicc6_to_magicc7_variable_mapping()
 """dict: Mappings from MAGICC6 variables to MAGICC7 variables
 """
@@ -484,11 +487,14 @@ def get_pint_to_fortran_safe_units_mapping(inverse=False):
 
     return replacements
 
+
 PINT_TO_FORTRAN_SAFE_UNITS_MAPPING = get_pint_to_fortran_safe_units_mapping()
 """dict: mappings required to make Pint units Fortran safe.
 """
 
-FORTRAN_SAFE_TO_PINT_UNITS_MAPPING = get_pint_to_fortran_safe_units_mapping(inverse=True)
+FORTRAN_SAFE_TO_PINT_UNITS_MAPPING = get_pint_to_fortran_safe_units_mapping(
+    inverse=True
+)
 """dict: mappings required to convert our Fortran safe units to Pint.
 """
 
