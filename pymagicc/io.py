@@ -61,9 +61,9 @@ Some more details about why these files are not supported:
 """
 
 
-def _unsupported_file(filename):
+def _unsupported_file(filepath):
     for uns in UNSUPPORTED_OUT_FILES:
-        if re.match(uns, filename):
+        if re.match(uns, filepath):
             return True
 
     return False
@@ -102,8 +102,8 @@ class _InputReader(object):
     _regexp_capture_variable = None
     _default_todo_fill_value = "SET"
 
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self, filepath):
+        self.filepath = filepath
 
     def _set_lines(self):
         # TODO document this choice
@@ -111,7 +111,7 @@ class _InputReader(object):
         # umlauts. The standard seems to be utf-8 hence we set things up to
         # only work if the encoding is utf-8.
         with open(
-            self.filename, "r", encoding="utf-8", newline=self._newline_char
+            self.filepath, "r", encoding="utf-8", newline=self._newline_char
         ) as f:
             self.lines = f.readlines()
 
@@ -157,7 +157,7 @@ class _InputReader(object):
                 nml_end = i
         assert (
             nml_start is not None and nml_end is not None
-        ), "Could not find namelist within {}".format(self.filename)
+        ), "Could not find namelist within {}".format(self.filepath)
         return nml_end, nml_start
 
     def process_metadata(self, lines):
@@ -318,7 +318,7 @@ class _InputReader(object):
             unit = regexp_capture_unit.search(unit).group(1)
 
         variable = convert_magicc6_to_magicc7_variables(
-            self._get_variable_from_filename()
+            self._get_variable_from_filepath()
         )
         column_headers = {
             "variables": [variable] * len(regions),
@@ -335,19 +335,19 @@ class _InputReader(object):
 
         return column_headers, metadata
 
-    def _get_variable_from_filename(self):
+    def _get_variable_from_filepath(self):
         """
-        Determine the file variable from the filename.
+        Determine the file variable from the filepath.
 
         Returns
         -------
         str
-            Best guess of variable name from the filename
+            Best guess of variable name from the filepath
         """
         try:
-            return self.regexp_capture_variable.search(self.filename).group(1)
+            return self.regexp_capture_variable.search(self.filepath).group(1)
         except AttributeError:
-            self._raise_cannot_determine_variable_from_filename_error()
+            self._raise_cannot_determine_variable_from_filepath_error()
 
     @property
     def regexp_capture_variable(self):
@@ -355,8 +355,8 @@ class _InputReader(object):
             raise NotImplementedError()
         return self._regexp_capture_variable
 
-    def _raise_cannot_determine_variable_from_filename_error(self):
-        error_msg = "Cannot determine variable from filename: {}".format(self.filename)
+    def _raise_cannot_determine_variable_from_filepath_error(self):
+        error_msg = "Cannot determine variable from filepath: {}".format(self.filepath)
         raise ValueError(error_msg)
 
     def process_header(self, header):
@@ -434,8 +434,8 @@ class _FourBoxReader(_InputReader):
 class _ConcInReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*\_CONC)\.IN$")
 
-    def _get_variable_from_filename(self):
-        variable = super()._get_variable_from_filename()
+    def _get_variable_from_filepath(self):
+        variable = super()._get_variable_from_filepath()
         return convert_magicc6_to_magicc7_variables(variable)
 
     def _read_data_header_line(self, stream, expected_header):
@@ -689,7 +689,7 @@ class _PrnReader(_NonStandardEmisInReader):
                 emms = True
             else:
                 error_msg = "I do not recognise the unit, {}, in file{}".format(
-                    metadata["unit"], self.filename
+                    metadata["unit"], self.filepath
                 )
                 raise ValueError(error_msg)
         else:
@@ -829,7 +829,7 @@ class _TempOceanLayersOutReader(_InputReader):
         elif set(column_headers["variables"]) == {"TEMP_OCEANLAYERS_SH"}:
             region = "SHOCEAN"
         else:
-            self._raise_cannot_determine_variable_from_filename_error()
+            self._raise_cannot_determine_variable_from_filepath_error()
 
         column_headers["variables"] = [
             "OCEAN_TEMP_" + l for l in column_headers["regions"]
@@ -840,9 +840,9 @@ class _TempOceanLayersOutReader(_InputReader):
 
 
 class _BinData(object):
-    def __init__(self, filename):
+    def __init__(self, filepath):
         # read the entire file into memory
-        self.data = open(filename, "rb").read()
+        self.data = open(filepath, "rb").read()
         self.data = memoryview(self.data)
         self.pos = 0
 
@@ -877,7 +877,7 @@ class _BinaryOutReader(_InputReader):
 
     def read(self):
         # Read the entire file into memory
-        data = _BinData(self.filename)
+        data = _BinData(self.filepath)
 
         metadata = self.process_header(data)
         df, metadata = self.process_data(data, metadata)
@@ -927,7 +927,7 @@ class _BinaryOutReader(_InputReader):
         ]
 
         variable = convert_magicc6_to_magicc7_variables(
-            self._get_variable_from_filename()
+            self._get_variable_from_filepath()
         )
         variable = convert_magicc7_to_openscm_variables(variable)
         column_headers = {
@@ -958,7 +958,7 @@ class _BinaryOutReader(_InputReader):
         if metadata["annualsteps"] != 1:
             raise InvalidTemporalResError(
                 "{}: Only annual binary files can currently be processed".format(
-                    self.filename
+                    self.filepath
                 )
             )
 
@@ -1067,16 +1067,17 @@ class _InputWriter(object):
     def __init__(self, magicc_version=7):
         self._magicc_version = magicc_version
 
-    def write(self, magicc_input, filename, filepath=None):
+    def write(self, magicc_input, filepath):
         """
         Write a MAGICC input file from df and metadata
 
-        # Arguments
-        magicc_input (MAGICCData): a MAGICCData object which holds the data
-            to write
-        filename (str): name of file to write to
-        filepath (str): path in which to write file. If not provided,
-           the file will be written in the current directory (TODO: check this is true...)
+        Parameters
+        ----------
+        magicc_input : :obj:`pymagicc.io.MAGICCData`
+            MAGICCData object which holds the data to write
+
+        filepath : str
+            Filepath of the file to write to.
         """
         # TODO: make copy attribute for MAGICCData
         self.minput = type(magicc_input)()
@@ -1088,11 +1089,6 @@ class _InputWriter(object):
             values="value", index="time", columns=["variable", "todo", "unit", "region"]
         )
 
-        if filepath is not None:
-            file_to_write = join(filepath, filename)
-        else:
-            file_to_write = filename
-
         output = StringIO()
 
         output = self._write_header(output)
@@ -1100,7 +1096,7 @@ class _InputWriter(object):
         output = self._write_datablock(output)
 
         with open(
-            file_to_write, "w", encoding="utf-8", newline=self._newline_char
+            filepath, "w", encoding="utf-8", newline=self._newline_char
         ) as output_file:
             output.seek(0)
             copyfileobj(output, output_file)
@@ -1617,7 +1613,7 @@ class MAGICCData(object):
 
     Parameters
     ----------
-    filename : str
+    filepath : str
         Optional file name, including extension, for the target
         file, i.e. 'HISTRCP_CO2I_EMIS.IN'. The file is not read until the search
         directory is provided in ``read``. This allows for MAGICCData files to be
@@ -1629,7 +1625,7 @@ class MAGICCData(object):
         A pandas dataframe with the data.
     metadata : dict
         Metadata for the data in ``self.df``.
-    filename : str
+    filepath : str
         The file the data was loaded from.
     """
 
@@ -1639,7 +1635,7 @@ class MAGICCData(object):
         """
         self.df = None
         self.metadata = {}
-        self.filename = None
+        self.filepath = None
 
     def __getitem__(self, item):
         """
@@ -1699,13 +1695,13 @@ class MAGICCData(object):
         writer = self.determine_tool(filepath, "writer")(magicc_version=magicc_version)
         writer.write(self, filepath)
 
-    def determine_tool(self, filename, tool_to_get):
+    def determine_tool(self, filepath, tool_to_get):
         """
         Determine the tool to use for reading/writing.
 
-        The function uses an internally defined set of mappings between filenames,
+        The function uses an internally defined set of mappings between filepaths,
         regular expresions and readers/writers to work out which tool to use
-        for a given task, given the filename.
+        for a given task, given the filepath.
 
         It is intended for internal use only, but is public because of its
         importance to the input/output of pymagicc.
@@ -1718,14 +1714,14 @@ class MAGICCData(object):
             >>> mdata = MAGICCData()
             >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
             ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
-            The file must be one of the following types and the filename must match its corresponding regular expression:
+            The file must be one of the following types and the filepath must match its corresponding regular expression:
             SCEN: ^.*\\.SCEN$
             SCEN7: ^.*\\.SCEN7$
             prn: ^.*\\.prn$
 
         Parameters
         ----------
-        filename : str
+        filepath : str
             Name of the file to read/write, including extension
         tool_to_get : str
             The tool to get, valid options are "reader", "writer".
@@ -1778,7 +1774,7 @@ class MAGICCData(object):
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
 
-        fbase = basename(filename)
+        fbase = basename(filepath)
         for file_type, file_tools in file_regexp_reader_writer.items():
             if re.match(file_tools["regexp"], fbase):
                 try:
@@ -1792,21 +1788,21 @@ class MAGICCData(object):
                     raise KeyError(error_msg)
 
         para_file = "PARAMETERS.OUT"
-        if (filename.endswith(".CFG")) and (tool_to_get == "reader"):
+        if (filepath.endswith(".CFG")) and (tool_to_get == "reader"):
             error_msg = (
                 "MAGCCInput cannot read .CFG files like {}, please use "
-                "pymagicc.io.read_cfg_file".format(filename)
+                "pymagicc.io.read_cfg_file".format(filepath)
             )
 
-        elif (filename.endswith(para_file)) and (tool_to_get == "reader"):
+        elif (filepath.endswith(para_file)) and (tool_to_get == "reader"):
             error_msg = (
                 "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
                 "style file, please use pymagicc.io.read_cfg_file"
             )
 
-        elif _unsupported_file(filename):
+        elif _unsupported_file(filepath):
             error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
-                filename
+                filepath
             )
 
         else:
@@ -1818,7 +1814,7 @@ class MAGICCData(object):
             )
             error_msg = (
                 "Couldn't find appropriate {} for {}.\nThe file must be one "
-                "of the following types and the filename must match its "
+                "of the following types and the filepath must match its "
                 "corresponding regular "
                 "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
             )
@@ -1828,16 +1824,16 @@ class MAGICCData(object):
 
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
-        raise ValueError("Cannot find {}".format(file_to_read))
+        raise FileNotFoundError("Cannot find {}".format(file_to_read))
 
 
-def read_cfg_file(fullfilename):
+def read_cfg_file(filepath):
     """Read a MAGICC ``.CFG`` file, or any other Fortran namelist
 
     Parameters
     ----------
-    fullfilename : str
-        Full path (filepath and filename) to the file to read
+    filepath : str
+        Full path (path and name) to the file to read
 
     Returns
     -------
@@ -1846,5 +1842,5 @@ def read_cfg_file(fullfilename):
         which contains the namelists in the file. A ``Namelist`` can be accessed just
         like a dictionary.
     """
-    _check_file_exists(fullfilename)
-    return f90nml.read(fullfilename)
+    _check_file_exists(filepath)
+    return f90nml.read(filepath)
