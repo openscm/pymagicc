@@ -16,7 +16,6 @@ from pymagicc.definitions import (
         ("FossilCO2", "CO2I"),
         ("SOx", "SOX"),
         ("Halon1211", "HALON1211"),
-        ("Halon1211", "HALON1211"),
     ],
 )
 def test_convert_magicc6_to_magicc7_variables(magicc6, magicc7):
@@ -30,6 +29,21 @@ def test_convert_magicc6_to_magicc7_variables_hfc245ca_warning(magicc6):
     )
     with pytest.warns(UserWarning, match=warning_msg):
         convert_magicc6_to_magicc7_variables(magicc6)
+
+
+@pytest.mark.parametrize(
+    "magicc7, magicc6",
+    [
+        ("HCFC141B", "HCFC-141b"),
+        ("CO2B", "OtherCO2"),
+        ("CO2I", "FossilCO2"),
+        ("SOX", "SOx"),
+        ("HALON1211", "Halon 1211"),
+        ("HFC245FA", "HFC245fa"),
+    ],
+)
+def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
+    assert convert_magicc6_to_magicc7_variables(magicc7, inverse=True) == magicc6
 
 
 @pytest.mark.parametrize(

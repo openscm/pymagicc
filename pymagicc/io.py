@@ -1461,8 +1461,14 @@ class _ScenWriter(_InputWriter):
         formatters[0] = first_col_format_str
 
         # we need this to do the variable ordering
-        regions = convert_magicc_to_openscm_regions(self._get_df_header_row("region"), inverse=True)
-        variables = convert_magicc7_to_openscm_variables(self._get_df_header_row("variable"), inverse=True)
+        regions = convert_magicc_to_openscm_regions(
+            self._get_df_header_row("region"), inverse=True
+        )
+        variables = convert_magicc7_to_openscm_variables(
+            self._get_df_header_row("variable"), inverse=True
+        )
+        variables = [v.replace("_EMIS", "") for v in variables]
+
         special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
         if special_scen_code % 10:
             variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0
@@ -1483,8 +1489,6 @@ class _ScenWriter(_InputWriter):
                 levels=[v.replace("_EMIS", "") for v in variables], level="variable"
             )
 
-            import pdb
-            pdb.set_trace()
             region_block = region_block.reindex(
                 variable_order, axis=1, level="variable"
             )
@@ -1554,9 +1558,9 @@ def get_special_scen_code(regions, emissions):
     int
         The special scen code for the regions-emissions combination provided.
     """
-    if set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0) == set(emissions):
+    if sorted(set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0)) == sorted(set(emissions)):
         scenfile_emissions_code = 0
-    elif set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1) == set(emissions):
+    elif sorted(set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1)) == sorted(set(emissions)):
         scenfile_emissions_code = 1
     else:
         msg = "Could not determine scen special code for emissions {}".format(emissions)

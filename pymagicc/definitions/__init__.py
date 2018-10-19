@@ -412,6 +412,9 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     special_case_replacements = {
         "FossilCO2": "CO2I",
         "OtherCO2": "CO2B",
+    }
+
+    one_way_replacements = {
         "HFC-245ca": "HFC245FA",
         "HFC245ca": "HFC245FA",
     }
@@ -420,11 +423,14 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         magicc6_simple_mapping_vars
         + magicc6_sometimes_hyphen_vars
         + list(special_case_replacements.keys())
+        + list(one_way_replacements.keys())
     )
     replacements = {}
     for m6v in all_possible_magicc6_vars:
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
+        elif (m6v in one_way_replacements) and not inverse:
+            replacements[m6v] = m7v
         else:
             m7v = m6v.replace("-", "").replace(" ", "").upper()
             # i.e. if we've already got a value for the inverse, we don't # want to overwrite
