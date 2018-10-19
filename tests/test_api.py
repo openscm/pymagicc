@@ -9,6 +9,7 @@ import pandas as pd
 import f90nml
 
 from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
+from pymagicc.io import MAGICCData
 from .test_config import config_override  #  noqa
 
 
@@ -669,3 +670,27 @@ def test_persistant_state(package):
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     actual_results = package.diagnose_tcr_ecs()
     np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
+
+
+# TODO: move to integration tests folder
+@pytest.mark.parametrize(
+    "test_filename, relevant_config",
+    [
+        ("HISTRCP_N2OI_EMIS.IN", {"FILE_N2OI_EMIS": "HISTRCP_N2OI_EMIS.IN"}),
+        ("HISTRCP_CH4_CONC.IN", {"file_ch4_conc": "HISTRCP_CH4_CONC.IN"}),
+    ],
+)
+def test_writing_compatibility(package, test_filename, relevant_config):
+    mdata = MAGICCData(filename=test_filename)
+    mdata.read(package.run_dir)
+    mdata.df.value *= 0.9
+    mdata.write(test_filename, package.run_dir)
+
+    package.set_config(**relevant_config)
+
+    print(package.run_dir)
+    import pdb
+
+    pdb.set_trace()
+    results = package.run()
+    assert False
