@@ -1446,7 +1446,7 @@ class _ScenWriter(_InputWriter):
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 12
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
-        other_col_format_str = "{:11.4f}".format
+        other_col_format_str = "{:10.4f}".format
 
         # TODO: doing it this way, out of the loop,  should ensure things
         # explode if your regions don't all have the same number of emissions
@@ -1470,7 +1470,7 @@ class _ScenWriter(_InputWriter):
         variables = [v.replace("_EMIS", "") for v in variables]
 
         special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
-        if special_scen_code % 10:
+        if special_scen_code % 10 == 0:
             variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0
         else:
             variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1
@@ -1501,6 +1501,8 @@ class _ScenWriter(_InputWriter):
             units = convert_pint_to_fortran_safe_units(
                 region_block.columns.get_level_values("unit").tolist()
             )
+            # column widths don't work with expressive units
+            units = [u.replace("peryr", "") for u in units]
 
             assert region_block.columns.names == ["variable", "unit"]
             region_block = region_block.rename(columns=str).reset_index()
@@ -1508,7 +1510,7 @@ class _ScenWriter(_InputWriter):
 
             # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
             pd_pad = " " * (
-                time_col_length - len(self.minput.df.columns.get_level_values(0)[0]) - 2
+                time_col_length - len(region_block.columns.get_level_values(0)[0]) - 1
             )
             region_block_str = region + self._newline_char
             region_block_str += pd_pad
