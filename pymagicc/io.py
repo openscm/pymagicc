@@ -1460,6 +1460,15 @@ class _ScenWriter(_InputWriter):
         )
         formatters[0] = first_col_format_str
 
+        # we need this to do the variable ordering
+        regions = convert_magicc_to_openscm_regions(self._get_df_header_row("region"), inverse=True)
+        variables = convert_magicc7_to_openscm_variables(self._get_df_header_row("variable"), inverse=True)
+        special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
+        if special_scen_code % 10:
+            variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0
+        else:
+            variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1
+
         for region in region_order:
             region_block_region = convert_magicc_to_openscm_regions(region)
             region_block = self.minput.df.xs(
@@ -1470,6 +1479,17 @@ class _ScenWriter(_InputWriter):
 
             variables = region_block.columns.get_level_values("variable").tolist()
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
+            region_block.columns = region_block.columns.set_levels(
+                levels=[v.replace("_EMIS", "") for v in variables], level="variable"
+            )
+
+            import pdb
+            pdb.set_trace()
+            region_block = region_block.reindex(
+                variable_order, axis=1, level="variable"
+            )
+
+            variables = region_block.columns.get_level_values("variable").tolist()
             variables = convert_magicc6_to_magicc7_variables(
                 [v.replace("_EMIS", "") for v in variables], inverse=True
             )
