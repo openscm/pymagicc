@@ -1665,7 +1665,7 @@ class MAGICCData(object):
         """bool: Whether the data has been loaded yet."""
         return self.df is not None
 
-    def read(self, filepath=None, filename=None):
+    def read(self, filepath):
         """
         Read an input file from disk.
 
@@ -1675,50 +1675,29 @@ class MAGICCData(object):
         Parameters
         ----------
         filepath : str
-            The directory to read the file from. This is often the
-            run directory for a magicc instance. If None is passed,
-            the run directory for the version of MAGICC6 included in pymagicc
-            is used.
-        filename : str
-            The filename to read. Overrides any existing values.
-            If None is passed, the filename used to initialise the MAGICCData
-            instance is used.
+            Filepath of the file to read.
         """
-        if filepath is None:
-            filepath = MAGICC6().original_dir
-        if filename is not None:
-            self.filename = filename
-        assert self.filename is not None
+        _check_file_exists(filepath)
 
-        file_to_read = join(filepath, self.filename)
-        _check_file_exists(file_to_read)
-
-        reader = self.determine_tool(file_to_read, "reader")(file_to_read)
+        reader = self.determine_tool(filepath, "reader")(filepath)
         self.metadata, self.df = reader.read()
 
-    def write(self, filename_to_write, filepath=None, magicc_version=7):
+    def write(self, filepath, magicc_version):
         """
         Write an input file from disk.
 
         Parameters
         ----------
-        filename_to_write : str
-            The name of the file to write. The filename
-            is critically important as it tells MAGICC what kind of file to
-            write.
-        filepath_to_write : str
-            The directory to write the file to. This is
-            often the run directory for a magicc instance. If None is passed,
-            the current working directory is used.
+        filepath : str
+            Filepath of the file to write.
+
         magicc_version : int
             The MAGICC version for which we want to write files. MAGICC7 and MAGICC6
             namelists are incompatible hence we need to know which one we're writing
             for.
         """
-        writer = self.determine_tool(filename_to_write, "writer")(
-            magicc_version=magicc_version
-        )
-        writer.write(self, filename_to_write, filepath)
+        writer = self.determine_tool(filepath, "writer")(magicc_version=magicc_version)
+        writer.write(self, filepath)
 
     def determine_tool(self, filename, tool_to_get):
         """

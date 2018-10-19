@@ -10,6 +10,7 @@ project to make it easier for ourselves and others to re-use them.
 
 from copy import deepcopy
 import re
+import datetime
 
 
 # Thank you https://stackoverflow.com/a/15448887/10473080
@@ -90,3 +91,11 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
         ]
 
     return inputs_return
+
+
+def get_date_time_string():
+    """
+    Return a timestamp with current date and time.
+    """
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M")
