@@ -4,7 +4,8 @@ Changelog
 master
 ------
 
-- (`#154 <https://github.com/openclimatedata/pymagicc/pull/154>`_) Change to using openscm variables for all user facing data
+- (`#154 <https://github.com/openclimatedata/pymagicc/pull/154>`_) Change to using openscm variables for all user facing data as well as preparing to move to using OpenSM dataframes
+  - Note that this change breaks previously considered direct access but that we will gain a lot of features once we start using the capabilities of pyam as part of an OpenSCM dataframe
 - (`#160 <https://github.com/openclimatedata/pymagicc/pull/159>`_) Made notebooks CI more opinionated (`#158 <https://github.com/openclimatedata/pymagicc/issues/158>`_)
 - (`#139 <https://github.com/openclimatedata/pymagicc/pull/139>`_) Added the ability to read all MAGICC output files/throw an explanatory error with ``pymagicc.io.MAGICCData``
 - (`#135 <https://github.com/openclimatedata/pymagicc/pull/135>`_) Moved emissions definitions to a single csv and packaged all of the definitions files using the `data package standard <https://frictionlessdata.io/docs/creating-tabular-data-packages-in-python/>`_
