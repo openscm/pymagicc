@@ -46,15 +46,15 @@ INVALID_OUT_FILES = [
 
 def test_cant_find_reader_writer():
     mdata = MAGICCData()
-    test_filename = "HISTRCP_CO2I_EMIS.txt"
+    test_name = "HISTRCP_CO2I_EMIS.txt"
 
     expected_message = (
         r"^"
-        + re.escape("Couldn't find appropriate reader for {}.".format(test_filename))
+        + re.escape("Couldn't find appropriate reader for {}.".format(test_name))
         + r"\n"
         + re.escape(
             "The file must be one "
-            "of the following types and the filename must match its "
+            "of the following types and the filepath must match its "
             "corresponding regular expression:"
         )
         + r"(\n.*)*"  # dicts aren't ordered in Python3.5
@@ -63,11 +63,11 @@ def test_cant_find_reader_writer():
     )
 
     with pytest.raises(NoReaderWriterError, match=expected_message):
-        mdata.read(TEST_DATA_DIR, test_filename)
+        mdata.read(join(TEST_DATA_DIR, test_name))
 
     expected_message = expected_message.replace("reader", "writer")
     with pytest.raises(NoReaderWriterError, match=expected_message):
-        mdata.write(test_filename)
+        mdata.write(test_name, magicc_version=6)
 
 
 def test_get_invalid_tool():
@@ -109,7 +109,7 @@ def generic_mdata_tests(mdata):
 def test_load_magicc6_emis():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
-    mdata.read(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
     generic_mdata_tests(mdata)
 
     row = (
@@ -126,7 +126,7 @@ def test_load_magicc6_emis():
 def test_load_magicc6_emis_hyphen_in_units():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
-    mdata.read(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN"))
     generic_mdata_tests(mdata)
 
     row = (
@@ -143,7 +143,7 @@ def test_load_magicc6_emis_hyphen_in_units():
 def test_load_magicc5_emis():
     mdata = MAGICCData()
     assert mdata.is_loaded == False
-    mdata.read(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN")
+    mdata.read(join(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN"))
     generic_mdata_tests(mdata)
 
     row = (
@@ -176,21 +176,21 @@ def test_load_magicc5_emis():
 def test_load_magicc5_emis_not_renamed_error():
     mdata = MAGICCData()
 
-    test_filepath = TEST_DATA_DIR
-    test_filename = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
+    test_path = TEST_DATA_DIR
+    test_name = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
 
     expected_error_msg = re.escape(
-        "Cannot determine variable from filename: {}".format(
-            join(test_filepath, test_filename)
+        "Cannot determine variable from filepath: {}".format(
+            join(test_path, test_name)
         )
     )
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(test_filepath, test_filename)
+        mdata.read(join(test_path, test_name))
 
 
 def test_load_magicc6_conc():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"))
 
     assert (mdata.df.unit == "ppm").all()
     generic_mdata_tests(mdata)
@@ -207,7 +207,7 @@ def test_load_magicc6_conc():
 
 def test_load_magicc6_conc_old_style_name_umlaut_metadata():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN"))
 
     assert (mdata.df.unit == "ppt").all()
     assert mdata.metadata["data"] == "Global average mixing ratio"
@@ -224,7 +224,7 @@ def test_load_magicc6_conc_old_style_name_umlaut_metadata():
 
 def test_load_magicc6_conc_old_style_name_with_hyphen():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN"))
 
     assert (mdata.df.unit == "ppt").all()
     generic_mdata_tests(mdata)
@@ -240,7 +240,7 @@ def test_load_magicc6_conc_old_style_name_with_hyphen():
 
 def test_load_magicc7_emis_umlaut_metadata():
     mdata = MAGICCData()
-    mdata.read(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
+    mdata.read(join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -272,7 +272,7 @@ def test_load_magicc7_emis_umlaut_metadata():
 
 def test_load_ot():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "MIXED_NOXI_OT.IN")
+    mdata.read(join(MAGICC6_DIR, "MIXED_NOXI_OT.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -341,7 +341,7 @@ def test_load_ot():
 
 def test_load_rf():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "GISS_BCB_RF.IN")
+    mdata.read(join(MAGICC6_DIR, "GISS_BCB_RF.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -399,7 +399,7 @@ def test_load_rf():
 
 def test_load_solar_rf():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "HISTRCP6SCP6to45_SOLAR_RF.IN")
+    mdata.read(join(MAGICC6_DIR, "HISTRCP6SCP6to45_SOLAR_RF.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -457,7 +457,7 @@ def test_load_solar_rf():
 
 def test_load_volcanic_rf():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON")
+    mdata.read(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
 
     generic_mdata_tests(mdata)
 
@@ -522,7 +522,7 @@ def test_load_volcanic_rf():
 
 def test_load_scen():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "RCP26.SCEN")
+    mdata.read(join(MAGICC6_DIR, "RCP26.SCEN"))
 
     generic_mdata_tests(mdata)
 
@@ -670,7 +670,7 @@ def test_load_scen():
 
 def test_load_scen_sres():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "SRESA1B.SCEN")
+    mdata.read(join(MAGICC6_DIR, "SRESA1B.SCEN"))
 
     generic_mdata_tests(mdata)
 
@@ -778,7 +778,7 @@ def test_load_scen_sres():
 
 def test_load_scen7():
     mdata = MAGICCData()
-    mdata.read(TEST_DATA_DIR, "TESTSCEN7.SCEN7")
+    mdata.read(join(TEST_DATA_DIR, "TESTSCEN7.SCEN7"))
 
     generic_mdata_tests(mdata)
 
@@ -926,7 +926,7 @@ def test_load_scen7():
 
 def test_load_prn():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn")
+    mdata.read(join(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -988,7 +988,7 @@ def test_load_prn():
 
 def test_load_prn_no_units():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "WMO2006_ODS_A1Baseline.prn")
+    mdata.read(join(MAGICC6_DIR, "WMO2006_ODS_A1Baseline.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -1022,7 +1022,7 @@ def test_load_prn_no_units():
 
 def test_load_prn_mixing_ratios_years_label():
     mdata = MAGICCData()
-    mdata.read(MAGICC6_DIR, "RCPODS_WMO2006_MixingRatios_A1.prn")
+    mdata.read(join(MAGICC6_DIR, "RCPODS_WMO2006_MixingRatios_A1.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -1080,7 +1080,7 @@ def test_load_cfg_with_magicc_input():
     )
 
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(MAGICC6_DIR, test_file)
+        mdata.read(join(MAGICC6_DIR, test_file))
 
 
 def test_load_cfg():
@@ -1201,7 +1201,7 @@ def test_load_cfg_with_slash_in_units():
 
 def test_load_out():
     mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT")
+    mdata.read(join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1266,7 +1266,7 @@ def test_load_out():
 
 def test_load_out_slash_and_caret_in_rf_units():
     mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "DAT_SOXB_RF.OUT")
+    mdata.read(join(TEST_OUT_DIR, "DAT_SOXB_RF.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1331,7 +1331,7 @@ def test_load_out_slash_and_caret_in_rf_units():
 
 def test_load_out_slash_and_caret_in_heat_content_units():
     mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "DAT_HEATCONTENT_AGGREG_DEPTH1.OUT")
+    mdata.read(join(TEST_OUT_DIR, "DAT_HEATCONTENT_AGGREG_DEPTH1.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1396,7 +1396,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
 
 def test_load_out_ocean_layers():
     mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT")
+    mdata.read(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1438,7 +1438,7 @@ def test_load_out_ocean_layers():
 
 def test_load_out_ocean_layers_hemisphere():
     mdata = MAGICCData()
-    mdata.read(TEST_OUT_DIR, "TEMP_OCEANLAYERS_NH.OUT")
+    mdata.read(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS_NH.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1491,7 +1491,7 @@ def test_load_parameters_out_with_magicc_input():
     )
 
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(TEST_OUT_DIR, test_file)
+        mdata.read(join(TEST_OUT_DIR, test_file))
 
 
 xfail_msg = (
@@ -1520,23 +1520,12 @@ def test_load_parameters_out():
     ]
 
 
-def test_load_prename():
-    mdata = MAGICCData("HISTSSP_CO2I_EMIS.IN")
-    mdata.read(TEST_DATA_DIR)
-
-    assert (mdata.df.unit == "Gt C / yr").all()
-
-    mdata.read(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN")
-    assert (mdata.df.unit == "ppm").all()
-    assert not (mdata.df.unit == "Gt C / yr").any()
-
-
 @pytest.mark.xfail(
     reason="Direct access not available in v2.0.0, will update with OpenSCM DataFrame in v2.1.0"
 )
 def test_direct_access():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
+    mdata.read(join(MAGICC6_DIR))
 
     tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
     tregion = "World|R5LAM"
@@ -1550,49 +1539,28 @@ def test_direct_access():
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_lazy_load():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    # I don't know where the file is yet..
-    with MAGICC6() as magicc:
-        # and now load the data
-        mdata.read(magicc.run_dir)
-        assert mdata.df is not None
-
-
 def test_proxy():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(MAGICC6_DIR)
+    mdata = MAGICCData()
+    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
 
     # Get an attribute from the pandas DataFrame
     plot = mdata.plot
     assert plot.__module__ == "pandas.plotting._core"
 
 
-def test_early_call():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-
-    with pytest.raises(ValueError):
-        mdata["Emissions|CO2|MAGICC Fossil and Industrial"]["World|R5LAM"]
-
-    with pytest.raises(ValueError):
-        mdata.plot()
-
-
-def test_no_name():
+def test_incomplete_filepath():
     mdata = MAGICCData()
-    with pytest.raises(AssertionError):
-        mdata.read("/tmp")
+    with pytest.raises(NoReaderWriterError):
+        mdata.read(join("/tmp"))
+
+    with pytest.raises(FileNotFoundError):
+        mdata.read(join("RCP26.SCEN"))
 
 
 def test_invalid_name():
     mdata = MAGICCData()
-    with pytest.raises(ValueError):
-        mdata.read("/tmp", "MYNONEXISTANT.IN")
-
-
-def test_default_path():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read()
+    with pytest.raises(FileNotFoundError):
+        mdata.read(join("/tmp", "MYNONEXISTANT.IN"))
 
 
 def test_header_metadata():
@@ -1629,17 +1597,12 @@ def test_header_metadata():
     ) == {"compiled by": "Zebedee Nicholls, Australian-German Climate & Energy College"}
 
 
-@pytest.mark.parametrize("test_filename", [(None), ("test/filename.OUT")])
-def test_magicc_input_init(test_filename):
-    if test_filename is None:
-        mdata = MAGICCData()
-        assert mdata.filename is None
-    else:
-        mdata = MAGICCData(test_filename)
-        assert mdata.filename is test_filename
+def test_magicc_input_init():
+    mdata = MAGICCData()
 
     assert mdata.df is None
     assert mdata.metadata == {}
+    assert mdata.filepath is None
 
 
 def test_set_lines():
@@ -1657,22 +1620,22 @@ def test_set_lines():
 
 
 @pytest.mark.parametrize(
-    "test_filename, expected_variable",
+    "test_filepath, expected_variable",
     [
         ("/test/filename/paths/HISTABCD_CH4_CONC.IN", "CH4_CONC"),
         ("test/filename.OUT", None),
     ],
 )
-def test_conc_in_reader_get_variable_from_filename(test_filename, expected_variable):
-    conc_reader = _ConcInReader(test_filename)
+def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_variable):
+    conc_reader = _ConcInReader(test_filepath)
     if expected_variable is None:
         expected_message = re.escape(
-            "Cannot determine variable from filename: {}".format(test_filename)
+            "Cannot determine variable from filepath: {}".format(test_filepath)
         )
         with pytest.raises(ValueError, match=expected_message):
-            conc_reader._get_variable_from_filename()
+            conc_reader._get_variable_from_filepath()
     else:
-        assert conc_reader._get_variable_from_filename() == expected_variable
+        assert conc_reader._get_variable_from_filepath() == expected_variable
 
 
 @pytest.fixture
@@ -1724,15 +1687,15 @@ def test_in_file_read_write_functionally_identical(
     starting_fpath, starting_fname, confusing_metadata, temp_dir
 ):
     mi_writer = MAGICCData()
-    mi_writer.read(filepath=starting_fpath, filename=starting_fname)
+    mi_writer.read(join(starting_fpath, starting_fname))
 
-    mi_writer.write(join(temp_dir, starting_fname))
+    mi_writer.write(join(temp_dir, starting_fname), magicc_version=6)
 
     mi_written = MAGICCData()
-    mi_written.read(filepath=temp_dir, filename=starting_fname)
+    mi_written.read(join(temp_dir, starting_fname))
 
     mi_initial = MAGICCData()
-    mi_initial.read(filepath=starting_fpath, filename=starting_fname)
+    mi_initial.read(join(starting_fpath, starting_fname))
 
     if not starting_fname.endswith((".SCEN", ".prn")):
         nml_written = f90nml.read(join(temp_dir, starting_fname))
@@ -1837,7 +1800,7 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
         read_cfg_file(join(MAGICC6_DIR, file_to_read))
     else:
         mdata = MAGICCData()
-        mdata.read(MAGICC6_DIR, file_to_read)
+        mdata.read(join(MAGICC6_DIR, file_to_read))
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
@@ -1848,22 +1811,21 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
         for p in INVALID_OUT_FILES:
             if re.match(p, file_to_read):
                 return
-
-        mdata = MAGICCData(file_to_read)
-        mdata.read(TEST_OUT_DIR)
+        mdata = MAGICCData()
+        mdata.read(join(TEST_OUT_DIR, file_to_read))
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
 def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
-    valid_filename = True
+    valid_filepath = True
     for p in INVALID_OUT_FILES:
         if re.match(p, file_to_read):
-            valid_filename = False
+            valid_filepath = False
 
-    if valid_filename:
+    if valid_filepath:
         return
 
-    mdata = MAGICCData(file_to_read)
+    mdata = MAGICCData()
     if ("SUBANN" in file_to_read) or ("VOLCANIC_RF.BINOUT" in file_to_read):
         error_msg = (
             r"^.*"
@@ -1871,7 +1833,7 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
             + r".*$"
         )
         with pytest.raises(InvalidTemporalResError, match=error_msg):
-            mdata.read(TEST_OUT_DIR)
+            mdata.read(join(TEST_OUT_DIR, file_to_read))
     else:
         error_msg = (
             r"^.*"
@@ -1881,7 +1843,7 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
             + r".*$"
         )
         with pytest.raises(NoReaderWriterError, match=error_msg):
-            mdata.read(TEST_OUT_DIR)
+            mdata.read(join(TEST_OUT_DIR, file_to_read))
 
 
 @pytest.mark.parametrize(
@@ -1890,8 +1852,8 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
 )
 def test_bin_and_ascii_equal(file_to_read):
     try:
-        mdata_bin = MAGICCData(file_to_read)
-        mdata_bin.read(TEST_OUT_DIR)
+        mdata_bin = MAGICCData()
+        mdata_bin.read(join(TEST_OUT_DIR, file_to_read))
     except InvalidTemporalResError:
         # Some BINOUT files are on a subannual time scale and cannot be read (yet)
         return
@@ -1899,8 +1861,8 @@ def test_bin_and_ascii_equal(file_to_read):
     assert (mdata_bin.df.unit == "unknown").all()
     assert (mdata_bin.df.todo == "SET").all()
 
-    mdata_ascii = MAGICCData(file_to_read.replace("BINOUT", "OUT"))
-    mdata_ascii.read(TEST_OUT_DIR)
+    mdata_ascii = MAGICCData()
+    mdata_ascii.read(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 
     # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
     drop_axes = ["unit", "todo"]

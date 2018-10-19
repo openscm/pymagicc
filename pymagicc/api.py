@@ -9,6 +9,8 @@ import pandas as pd
 import f90nml
 
 from .config import config
+from .utils import get_date_time_string
+from .io import MAGICCData
 
 IS_WINDOWS = config["is_windows"]
 
@@ -147,7 +149,7 @@ class MAGICCBase(object):
             return None
         return join(self.root_dir, "out")
 
-    def run(self, only=None):
+    def run(self, only=None, **kwargs):
         """
         Run MAGICC and parse the output.
 
@@ -168,6 +170,20 @@ class MAGICCBase(object):
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
 
+        if self.executable is None:
+            raise ValueError("MAGICC executable not found, try setting an environment variable `MAGICC_EXECUTABLE_{}=/path/to/binary`".format(self.version))
+
+        year_cfg = {}
+        if "startyear" in kwargs:
+            year_cfg["startyear"] = kwargs.pop("startyear")
+        if "endyear" in kwargs:
+            year_cfg["endyear"] = kwargs.pop("endyear")
+        self.set_years(**year_cfg)
+
+        # should be able to do some other nice metadata stuff here
+        kwargs.setdefault("rundate", get_date_time_string())
+        self.set_config(**kwargs)
+
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
 
@@ -179,32 +195,20 @@ class MAGICCBase(object):
 
         results = {}
 
+        # widen this constraint
         outfiles = [
             f
             for f in listdir(self.out_dir)
-            if f.startswith(("DAT_", "CARBONCYCLE")) and f.endswith(".OUT")
+            if f != "PARAMETERS.OUT"
         ]
 
+        # Replace with actual readers and work something out for metadata and joining
+        failblog
+        mdata = MAGICCData()
         for filename in outfiles:
-            name = filename.replace("DAT_", "").replace(".OUT", "")
-            if self.version == 6:
-                skiprows = 19
-            else:
-                skiprows = 21
-            if only is None or name in only:
-                results[name] = pd.read_csv(
-                    join(self.out_dir, filename),
-                    delim_whitespace=True,
-                    skiprows=skiprows,
-                    index_col=0,
-                    engine="python",
-                )
+            mdata.update(join(self.out_dir, filename))
 
-        try:
-            self.read_parameters()
-        except FileNotFoundError:
-            # Ignore a missing PARAMETERS.out file
-            pass
+        parameters = self.read_parameters()
 
         return results
 
