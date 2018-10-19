@@ -701,7 +701,7 @@ def test_persistant_state(package):
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
-            ["CO2I_EMIS", "CO2B_EMIS", "CH4_EMIS", "BC_EMIS", "SOX_EMIS", "HFC32_EMIS"],
+            ["CO2I_EMIS", "CO2B_EMIS", "CH4I_EMIS", "BCI_EMIS", "SOXB_EMIS", "HFC32_EMIS"],
             2030,
             20000,
         ),
@@ -712,7 +712,7 @@ def test_persistant_state(package):
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
-            ["CO2I_EMIS", "CO2B_EMIS", "CH4_EMIS", "BC_EMIS", "SOX_EMIS", "HFC32_EMIS"],
+            ["CO2I_EMIS", "CO2B_EMIS", "CH4I_EMIS", "SOXB_EMIS", "HFC32_EMIS"],
             2030,
             20000,
         ),
@@ -739,10 +739,6 @@ def test_pymagicc_writing_compatibility(
     mdata.read(package.run_dir)
     mdata.df.value *= ttweak_factor
     mdata.write(test_filename, package.run_dir, magicc_version=package.version)
-    if test_filename.endswith("SCEN"):
-        import pdb
-
-        pdb.set_trace()
 
     tweaked_results = package.run()
 
@@ -758,4 +754,5 @@ def test_pymagicc_writing_compatibility(
             .loc[time_check_min:time_check_max]
             .values
         )
-        np.testing.assert_allclose(result, expected, rtol=1e-5)
+        abstol = np.max([result, expected]) * 10**-3
+        np.testing.assert_allclose(result, expected, rtol=1e-5, atol=abstol)
