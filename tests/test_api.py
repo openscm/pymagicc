@@ -674,21 +674,42 @@ def test_persistant_state(package):
 
 # TODO: move to integration tests folder
 @pytest.mark.parametrize(
-    "test_filename, relevant_config",
+    "test_filename, relevant_config, output_to_check",
     [
-        ("HISTRCP_N2OI_EMIS.IN", {"FILE_N2OI_EMIS": "HISTRCP_N2OI_EMIS.IN"}),
-        ("HISTRCP_CH4_CONC.IN", {"file_ch4_conc": "HISTRCP_CH4_CONC.IN"}),
+        (
+            "HISTRCP_N2OI_EMIS.IN",
+            {
+                "file_n2oi_emis": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            "N2OI_EMIS",
+        ),
+        ("HISTRCP_CH4_CONC.IN", {"file_ch4_conc": "test_filename"}, "CH4_CONC"),
     ],
 )
-def test_writing_compatibility(package, test_filename, relevant_config):
-    mdata = MAGICCData(filename=test_filename)
-    mdata.read(package.run_dir)
-    mdata.df.value *= 0.9
-    mdata.write(test_filename, package.run_dir, magicc_version=package.version)
+def test_hist_writing_compatibility(
+    package, test_filename, relevant_config, output_to_check
+):
+    hist_end = 1999  # separate test for scenario impact
+    for key, value in relevant_config.items():
+        if value == "test_filename":
+            relevant_config[key] = test_filename
 
     package.set_config(**relevant_config)
+    initial_results = package.run()
 
-    results = package.run()
-    import pdb
-    pdb.set_trace()
-    assert False
+    ttweak_factor = 0.9
+
+    mdata = MAGICCData(filename=test_filename)
+    mdata.read(package.run_dir)
+    mdata.df.value *= ttweak_factor
+    mdata.write(test_filename, package.run_dir, magicc_version=package.version)
+
+    tweaked_results = package.run()
+
+    result = tweaked_results[output_to_check]["GLOBAL"].loc[:hist_end].values
+    expected = (
+        ttweak_factor * initial_results[output_to_check]["GLOBAL"].loc[:hist_end].values
+    )
+    np.testing.assert_allclose(result, expected, rtol=1e-5)

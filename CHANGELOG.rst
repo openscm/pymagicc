@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#162 <https://github.com/openclimatedata/pymagicc/pull/162>`_) Added basic tests of integration with MAGICC binaries
 - (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
   - fixed this naming in the SRES scenarios
   - removed ``pymagicc/MAGICC6/run/HISTRCP_HFC245ca_CONC.IN`` to avoid repeating this confusion
