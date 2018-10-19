@@ -14,6 +14,7 @@ For more details about how these constants are used, see the documentation of
 """
 from pathlib import Path
 from copy import deepcopy
+import warnings
 
 
 import pandas as pd
@@ -367,26 +368,13 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "NOx",
         "HFC43-10",
         "HFC-43-10",
+        "HFC4310",
         "HFC134a",
         "HFC143a",
         "HFC227ea",
-        "CFC-11",
-        "CFC-12",
-        "CFC-113",
-        "CFC-114",
-        "CFC-115",
         "CCl4",
         "CH3CCl3",
-        "HCFC-22",
-        "HFC-23",
-        "HFC-32",
-        "HFC-125",
-        "HFC-134a",
-        "HFC-143a",
-        "HCFC-141b",
-        "HCFC-142b",
-        "HFC-227ea",
-        "HFC-245ca",
+        "HFC245fa",
         "Halon 1211",
         "Halon 1202",
         "Halon 1301",
@@ -399,6 +387,27 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "CH3Cl",
     ]
 
+    magicc6_sometimes_hyphen_vars = [
+        "CFC-11",
+        "CFC-12",
+        "CFC-113",
+        "CFC-114",
+        "CFC-115",
+        "HCFC-22",
+        "HFC-23",
+        "HFC-32",
+        "HFC-125",
+        "HFC-134a",
+        "HFC-143a",
+        "HCFC-141b",
+        "HCFC-142b",
+        "HFC-227ea",
+        "HFC-245fa",
+    ]
+    magicc6_sometimes_hyphen_vars += [
+        v.replace("-", "") for v in magicc6_sometimes_hyphen_vars
+    ]
+
     # special case replacements
     special_case_replacements = {
         "FossilCO2": "CO2I",
@@ -406,8 +415,14 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "HFC-245ca": "HFC245FA",
         "HFC245ca": "HFC245FA",
     }
+
+    all_possible_magicc6_vars = (
+        magicc6_simple_mapping_vars
+        + magicc6_sometimes_hyphen_vars
+        + list(special_case_replacements.keys())
+    )
     replacements = {}
-    for m6v in magicc6_simple_mapping_vars + list(special_case_replacements.keys()):
+    for m6v in all_possible_magicc6_vars:
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
         else:
@@ -447,11 +462,31 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
         If True, convert the other way i.e. convert MAGICC7 variables to MAGICC6
         variables
 
+    Raises
+    ------
+    ValueError
+        If you try to convert HFC245ca, or some variant thereof, you will get a
+        ValueError. The reason is that this variable was never meant to be included in
+        MAGICC6, it was just an accident. See, for example, the text in the
+        description section of ``pymagicc/MAGICC6/run/HISTRCP_HFC245fa_CONC.IN``:
+        "...HFC245fa, rather than HFC245ca, is the actually used isomer.".
+
     Returns
     -------
     ``type(variables)``
         Set of converted variables
     """
+
+    def hfc245ca_included(variables):
+        variables = [variables] if isinstance(variables, str) else variables
+        return any([v.replace("-", "").lower() == "hfc245ca" for v in variables])
+
+    if hfc245ca_included(variables):
+        error_msg = (
+            "HFC245ca wasn't meant to be included in MAGICC6. Renaming to HFC245fa."
+        )
+        warnings.warn(error_msg)
+
     if inverse:
         return apply_string_substitutions(
             variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING
