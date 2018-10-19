@@ -155,7 +155,7 @@
           {
             "name": "magicc_variable",
             "type": "string",
-            "description": "The name of the variable as sometimes used in MAGICC. The names in MAGICC aren't always consistent hence this won't always be how it's called and so this name is a bit misleading.."
+            "description": "The name of the variable as sometimes used in MAGICC. Note that the ordering is super important as it defines the order the variables will appear in when writing SCEN and prn files. The names in MAGICC aren't always consistent hence this won't always be how it's called in every part of the code. As a result, this name is somewhat misleading, maybe better thought of as 'most common name for this variable in MAGICC'..."
           },
           {
             "name": "emissions_unit",

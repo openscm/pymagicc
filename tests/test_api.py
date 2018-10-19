@@ -689,9 +689,7 @@ def test_persistant_state(package):
         ),
         (
             "HISTRCP_CH4_CONC.IN",
-            {
-                "file_ch4_conc": "test_filename"
-            },
+            {"file_ch4_conc": "test_filename"},
             ["CH4_CONC"],
             1,
             1999,
@@ -720,8 +718,13 @@ def test_persistant_state(package):
         ),
     ],
 )
-def test_hist_writing_compatibility(
-    package, test_filename, relevant_config, outputs_to_check, time_check_min, time_check_max
+def test_pymagicc_writing_compatibility(
+    package,
+    test_filename,
+    relevant_config,
+    outputs_to_check,
+    time_check_min,
+    time_check_max,
 ):
     for key, value in relevant_config.items():
         if value == "test_filename":
@@ -738,13 +741,21 @@ def test_hist_writing_compatibility(
     mdata.write(test_filename, package.run_dir, magicc_version=package.version)
     if test_filename.endswith("SCEN"):
         import pdb
+
         pdb.set_trace()
 
     tweaked_results = package.run()
 
     for output_to_check in outputs_to_check:
-        result = tweaked_results[output_to_check]["GLOBAL"].loc[time_check_min:time_check_max].values
+        result = (
+            tweaked_results[output_to_check]["GLOBAL"]
+            .loc[time_check_min:time_check_max]
+            .values
+        )
         expected = (
-            ttweak_factor * initial_results[output_to_check]["GLOBAL"].loc[time_check_min:time_check_max].values
+            ttweak_factor
+            * initial_results[output_to_check]["GLOBAL"]
+            .loc[time_check_min:time_check_max]
+            .values
         )
         np.testing.assert_allclose(result, expected, rtol=1e-5)
