@@ -1045,12 +1045,34 @@ def _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=False):
 
 
 class _InputWriter(object):
-    # need this for the _get_initial_nml_and_data_block routine as SCEN7
-    # files have a special, contradictory set of region flags
-    # would be nice to be able to remove in future
+    """
+
+    We need the MAGICC related attributes in order to be able to make sure that we set the right flas. In particular, the  and the region flags are different
+
+
+    need this for the _get_initial_nml_and_data_block routine as SCEN7
+    files have a special, contradictory set of region flags
+    would be nice to be able to remove in future
+
+    Attributes
+    ----------
+    _magicc_version : int
+        The MAGICC version for which we want to write files. MAGICC7 and MAGICC6
+        namelists are incompatible hence we need to know which one we're writing for.
+
+    _scen_7 : bool
+        Whether this writer writes SCEN7 files or not. We need this as SCEN7 files
+        have a unique definition of what the THISFILE_REGIONMODE flag should be set to
+        which is contradictory to all other files.
+    """
+
+    _magicc_version = 7
     _scen_7 = False
     _newline_char = "\n"
     _variable_header_row_name = "VARIABLE"
+
+    def __init__(self, magicc_version=7):
+        self._magicc_version = magicc_version
 
     def write(self, magicc_input, filename, filepath=None):
         """
@@ -1097,7 +1119,7 @@ class _InputWriter(object):
     def _get_header(self):
         return self.minput.metadata["header"]
 
-    def _write_namelist(self, output):
+    def _write_namelist(self, output, magicc_version=7):
         nml_initial, data_block = self._get_initial_nml_and_data_block()
         nml = nml_initial.copy()
 
@@ -1110,6 +1132,10 @@ class _InputWriter(object):
         except AttributeError:
             assert isinstance(data_block.columns, pd.core.indexes.base.Index)
             no_col_headers = 1
+
+        if magicc_version == 6:
+            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
+            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
 
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split(self._newline_char))
@@ -1179,7 +1205,8 @@ class _InputWriter(object):
 
         units_unique = list(set(self._get_df_header_row("unit")))
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = (
-            units_unique[0] if len(units_unique) == 1 else "MISC"
+            convert_pint_to_fortran_safe_units(units_unique[0])
+            if len(units_unique) == 1 else "MISC"
         )
 
         nml["THISFILE_SPECIFICATIONS"].update(
@@ -1191,18 +1218,28 @@ class _InputWriter(object):
         return nml, data_block
 
     def _get_data_block(self):
-        regions = convert_magicc_to_openscm_regions(
-            self._get_df_header_row("region"), inverse=True
-        )
-        variables = convert_magicc7_to_openscm_variables(
-            self._get_df_header_row("variable"), inverse=True
-        )
-        units = convert_pint_to_fortran_safe_units(self._get_df_header_row("unit"))
-        todos = self._get_df_header_row("todo")
-
         data_block = self.minput.df.copy()
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
+
+        regions = data_block.columns.get_level_values("region").tolist()
+        region_order = convert_magicc_to_openscm_regions(
+            get_region_order(regions, self._scen_7)
+        )
+        data_block = data_block.reindex_axis(region_order, axis=1, level="region")
+
+        regions = convert_magicc_to_openscm_regions(
+            data_block.columns.get_level_values("region").tolist(),
+            inverse=True,
+        )
+        variables = convert_magicc7_to_openscm_variables(
+            data_block.columns.get_level_values("variable").tolist(), inverse=True
+        )
+        units = convert_pint_to_fortran_safe_units(
+            data_block.columns.get_level_values("unit").tolist()
+        )
+        todos = data_block.columns.get_level_values("todo").tolist()
+
         data_block = data_block.rename(columns=str).reset_index()
         data_block.columns = [
             [self._variable_header_row_name] + variables,
@@ -1640,7 +1677,7 @@ class MAGICCData(object):
         reader = self.determine_tool(file_to_read, "reader")(file_to_read)
         self.metadata, self.df = reader.read()
 
-    def write(self, filename_to_write, filepath=None):
+    def write(self, filename_to_write, filepath=None, magicc_version=7):
         """
         Write an input file from disk.
 
@@ -1654,8 +1691,12 @@ class MAGICCData(object):
             The directory to write the file to. This is
             often the run directory for a magicc instance. If None is passed,
             the current working directory is used.
+        magicc_version : int
+            The MAGICC version for which we want to write files. MAGICC7 and MAGICC6
+            namelists are incompatible hence we need to know which one we're writing
+            for.
         """
-        writer = self.determine_tool(filename_to_write, "writer")()
+        writer = self.determine_tool(filename_to_write, "writer")(magicc_version=magicc_version)
         writer.write(self, filename_to_write, filepath)
 
     def determine_tool(self, filename, tool_to_get):
