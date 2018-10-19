@@ -674,7 +674,7 @@ def test_persistant_state(package):
 
 # TODO: move to integration tests folder
 @pytest.mark.parametrize(
-    "test_filename, relevant_config, output_to_check",
+    "test_filename, relevant_config, outputs_to_check, time_check_min, time_check_max",
     [
         (
             "HISTRCP_N2OI_EMIS.IN",
@@ -683,15 +683,46 @@ def test_persistant_state(package):
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
-            "N2OI_EMIS",
+            ["N2OI_EMIS"],
+            1,
+            1999,
         ),
-        ("HISTRCP_CH4_CONC.IN", {"file_ch4_conc": "test_filename"}, "CH4_CONC"),
+        (
+            "HISTRCP_CH4_CONC.IN",
+            {
+                "file_ch4_conc": "test_filename"
+            },
+            ["CH4_CONC"],
+            1,
+            1999,
+        ),
+        (
+            "RCP26.SCEN",
+            {
+                "file_emissionscenario": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            ["CO2I_EMIS", "CO2B_EMIS", "CH4_EMIS", "BC_EMIS", "SOX_EMIS", "HFC32_EMIS"],
+            2030,
+            20000,
+        ),
+        (
+            "SRESA2.SCEN",
+            {
+                "file_emissionscenario": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            ["CO2I_EMIS", "CO2B_EMIS", "CH4_EMIS", "BC_EMIS", "SOX_EMIS", "HFC32_EMIS"],
+            2030,
+            20000,
+        ),
     ],
 )
 def test_hist_writing_compatibility(
-    package, test_filename, relevant_config, output_to_check
+    package, test_filename, relevant_config, outputs_to_check, time_check_min, time_check_max
 ):
-    hist_end = 1999  # separate test for scenario impact
     for key, value in relevant_config.items():
         if value == "test_filename":
             relevant_config[key] = test_filename
@@ -705,11 +736,15 @@ def test_hist_writing_compatibility(
     mdata.read(package.run_dir)
     mdata.df.value *= ttweak_factor
     mdata.write(test_filename, package.run_dir, magicc_version=package.version)
+    if test_filename.endswith("SCEN"):
+        import pdb
+        pdb.set_trace()
 
     tweaked_results = package.run()
 
-    result = tweaked_results[output_to_check]["GLOBAL"].loc[:hist_end].values
-    expected = (
-        ttweak_factor * initial_results[output_to_check]["GLOBAL"].loc[:hist_end].values
-    )
-    np.testing.assert_allclose(result, expected, rtol=1e-5)
+    for output_to_check in outputs_to_check:
+        result = tweaked_results[output_to_check]["GLOBAL"].loc[time_check_min:time_check_max].values
+        expected = (
+            ttweak_factor * initial_results[output_to_check]["GLOBAL"].loc[time_check_min:time_check_max].values
+        )
+        np.testing.assert_allclose(result, expected, rtol=1e-5)
