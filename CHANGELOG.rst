@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#164 <https://github.com/openclimatedata/pymagicc/pull/164>`_) Improved missing MAGICC binary message in tests as discussed in `#124 <https://github.com/openclimatedata/pymagicc/issues/124>`_
 - (`#154 <https://github.com/openclimatedata/pymagicc/pull/154>`_) Change to using OpenSCM variables for all user facing data as well as preparing to move to using OpenSCM dataframes
   - Note that this change breaks previously considered direct access but that we will gain a lot of features once we start using the capabilities of pyam as part of an OpenSCM dataframe
 - (`#160 <https://github.com/openclimatedata/pymagicc/pull/159>`_) Made notebooks CI more opinionated (`#158 <https://github.com/openclimatedata/pymagicc/issues/158>`_)
