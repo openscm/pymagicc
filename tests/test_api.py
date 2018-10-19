@@ -684,13 +684,11 @@ def test_writing_compatibility(package, test_filename, relevant_config):
     mdata = MAGICCData(filename=test_filename)
     mdata.read(package.run_dir)
     mdata.df.value *= 0.9
-    mdata.write(test_filename, package.run_dir)
+    mdata.write(test_filename, package.run_dir, magicc_version=package.version)
 
     package.set_config(**relevant_config)
 
-    print(package.run_dir)
-    import pdb
-
-    pdb.set_trace()
     results = package.run()
+    import pdb
+    pdb.set_trace()
     assert False
