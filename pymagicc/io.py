@@ -210,7 +210,7 @@ class _InputReader(object):
             MAGICCData format.
             The second element is th updated metadata based on the processing performed.
         """
-        ch, metadata = self._get_column_headers_update_metadata(stream, metadata)
+        ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
         df = self._convert_data_block_and_headers_to_df(stream, ch)
         return df, metadata
 
@@ -259,7 +259,7 @@ class _InputReader(object):
             names=("variable", "todo", "unit", "region"),
         )
 
-    def _get_column_headers_update_metadata(self, stream, metadata):
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
             column_headers, metadata = self._read_magicc7_style_header(stream, metadata)
         else:
@@ -472,8 +472,8 @@ class _RadiativeForcingInReader(_FourBoxReader):
 
         return column_headers, metadata
 
-    def _get_column_headers_update_metadata(self, stream, metadata):
-        column_headers, metadata = super()._get_column_headers_update_metadata(
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_and_update_metadata(
             stream, metadata
         )
         column_headers = self._read_units(column_headers)
@@ -527,8 +527,8 @@ class _StandardEmisInReader(_EmisInReader):
         tokens = super()._read_data_header_line(stream, expected_header)
         return [t.replace("EMIS-", "") for t in tokens]
 
-    def _get_column_headers_update_metadata(self, stream, metadata):
-        column_headers, metadata = super()._get_column_headers_update_metadata(
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_and_update_metadata(
             stream, metadata
         )
 
@@ -806,8 +806,8 @@ class _OutReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r"DAT\_(\w*)\.OUT$")
     _default_todo_fill_value = "N/A"
 
-    def _get_column_headers_update_metadata(self, stream, metadata):
-        column_headers, metadata = super()._get_column_headers_update_metadata(
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_and_update_metadata(
             stream, metadata
         )
         column_headers = self._read_units(column_headers)
