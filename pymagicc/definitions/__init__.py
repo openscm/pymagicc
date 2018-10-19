@@ -347,8 +347,8 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     MAGICC7 maps back to "HFC43-10".
 
     Note that HFC-245fa was mistakenly labelled as HFC-245ca in MAGICC6. In reality,
-    they are not the same thing but the MAGICC6 labelling was an error and it is meant
-    to be HFC-245fa.
+    they are not the same thing. However, the MAGICC6 labelling was merely a typo so
+    the mapping between the two is one-to-one.
 
     Parameters
     ----------
