@@ -1532,7 +1532,7 @@ def test_load_prename():
 
 
 @pytest.mark.xfail(
-    reason="Direct access not available in v2.0.0, will update with Pyam DataFrame"
+    reason="Direct access not available in v2.0.0, will update with OpenSCM DataFrame in v2.1.0"
 )
 def test_direct_access():
     mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")

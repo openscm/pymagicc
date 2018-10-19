@@ -1,4 +1,4 @@
-from os import remove
+from os import remove, environ
 from os.path import exists, join
 from subprocess import CalledProcessError
 
@@ -23,7 +23,10 @@ def package(request):
     p = MAGICC_cls()
 
     if p.executable is None or not exists(p.original_dir):
-        pytest.skip("MAGICC {} is not available".format(p.version))
+        magicc_x_unavailable = "MAGICC {} is not available.".format(p.version)
+        env_text = "Pymagicc related variables in your current environment are: {}.".format(";".join(["{}: {}".format(k, v) for (k,v) in environ.items() if k.startswith("MAGICC_")]))
+        env_help = "If you set MAGICC_EXECUTABLE_X=/path/to/MAGICCX/binary then you will be able to run the tests with that binary for MAGICC_X."
+        pytest.skip("\n".join([magicc_x_unavailable, env_text, env_help]))
     p.create_copy()
     root_dir = p.root_dir
     yield p
