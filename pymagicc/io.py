@@ -616,9 +616,7 @@ class _ScenReader(_NonStandardEmisInReader):
         while True:
             ch = {}
             pos_block = self._stream.tell()
-            region = convert_magicc_to_openscm_regions(
-                self._stream.readline().strip()
-            )
+            region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
 
             try:
                 variables = convert_magicc6_to_magicc7_variables(
@@ -1029,10 +1027,7 @@ def get_region_order(regions, scen7=False):
 
 def _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=False):
     regions_unique = set(
-        [
-            convert_magicc_to_openscm_regions(r, inverse=True)
-            for r in set(regions)
-        ]
+        [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
     )
 
     def find_region(x):
@@ -1202,9 +1197,7 @@ class _InputWriter(object):
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        units = convert_pint_to_fortran_safe_units(
-            self._get_df_header_row("unit")
-        )
+        units = convert_pint_to_fortran_safe_units(self._get_df_header_row("unit"))
         todos = self._get_df_header_row("todo")
 
         data_block = self.minput.df.copy()
