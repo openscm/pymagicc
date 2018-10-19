@@ -113,10 +113,13 @@ def run(scenario, magicc_version=6, **kwargs):
         raise ValueError("MAGICC version {} is not available".format(magicc_version))
 
     with magicc_cls() as magicc:
+        ###############################################################################
+        # nasty, should be able to do this better within MAGICCBase class
         if magicc.executable is None:
             raise ValueError("MAGICC executable not found, try setting an environment variable `MAGICC_EXECUTABLE_{}=/path/to/binary`".format(magicc_version))
 
-        # nasty, should be able to do this better within MAGICCBase class
+
+
         year_cfg = {}
         if "startyear" in kwargs:
             year_cfg["startyear"] = kwargs.pop("startyear")
@@ -127,8 +130,6 @@ def run(scenario, magicc_version=6, **kwargs):
         # should be able to do some other nice metadata stuff here
         kwargs.setdefault("rundate", get_date_time_string())
         magicc.set_config(**kwargs)
+        ################################################################################
 
         results = magicc.run()
-
-        import pdb
-        pdb.set_trace()
