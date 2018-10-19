@@ -1119,7 +1119,7 @@ class _InputWriter(object):
     def _get_header(self):
         return self.minput.metadata["header"]
 
-    def _write_namelist(self, output, magicc_version=7):
+    def _write_namelist(self, output):
         nml_initial, data_block = self._get_initial_nml_and_data_block()
         nml = nml_initial.copy()
 
@@ -1133,7 +1133,7 @@ class _InputWriter(object):
             assert isinstance(data_block.columns, pd.core.indexes.base.Index)
             no_col_headers = 1
 
-        if magicc_version == 6:
+        if self._magicc_version == 6:
             nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
             nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
 
@@ -1206,7 +1206,8 @@ class _InputWriter(object):
         units_unique = list(set(self._get_df_header_row("unit")))
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = (
             convert_pint_to_fortran_safe_units(units_unique[0])
-            if len(units_unique) == 1 else "MISC"
+            if len(units_unique) == 1
+            else "MISC"
         )
 
         nml["THISFILE_SPECIFICATIONS"].update(
@@ -1229,8 +1230,7 @@ class _InputWriter(object):
         data_block = data_block.reindex_axis(region_order, axis=1, level="region")
 
         regions = convert_magicc_to_openscm_regions(
-            data_block.columns.get_level_values("region").tolist(),
-            inverse=True,
+            data_block.columns.get_level_values("region").tolist(), inverse=True
         )
         variables = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable").tolist(), inverse=True
@@ -1696,7 +1696,9 @@ class MAGICCData(object):
             namelists are incompatible hence we need to know which one we're writing
             for.
         """
-        writer = self.determine_tool(filename_to_write, "writer")(magicc_version=magicc_version)
+        writer = self.determine_tool(filename_to_write, "writer")(
+            magicc_version=magicc_version
+        )
         writer.write(self, filename_to_write, filepath)
 
     def determine_tool(self, filename, tool_to_get):
