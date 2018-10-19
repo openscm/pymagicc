@@ -24,11 +24,11 @@ def test_convert_magicc6_to_magicc7_variables(magicc6, magicc7):
 
 
 @pytest.mark.parametrize("magicc6", [("HFC-245ca"), ("HFC245ca")])
-def test_convert_magicc6_to_magicc7_variables_hfc245ca_error(magicc6):
-    error_msg = re.escape(
+def test_convert_magicc6_to_magicc7_variables_hfc245ca_warning(magicc6):
+    warning_msg = re.escape(
         "HFC245ca wasn't meant to be included in MAGICC6. Renaming to HFC245fa."
     )
-    with pytest.warns(UserWarning, match=error_msg):
+    with pytest.warns(UserWarning, match=warning_msg):
         convert_magicc6_to_magicc7_variables(magicc6)
 
 

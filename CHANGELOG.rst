@@ -4,7 +4,10 @@ Changelog
 master
 ------
 
-- (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6
+- (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
+  - fixed this naming in the SRES scenarios
+  - removed ``pymagicc/MAGICC6/run/HISTRCP_HFC245ca_CONC.IN`` to avoid repeating this confusion
+  - ensured that anyone who finds a file with "HFC-245ca" in it in future will get a warning, see ``tests/test_definitions.py``
 - (`#164 <https://github.com/openclimatedata/pymagicc/pull/164>`_) Improved missing MAGICC binary message in tests as discussed in `#124 <https://github.com/openclimatedata/pymagicc/issues/124>`_
 - (`#154 <https://github.com/openclimatedata/pymagicc/pull/154>`_) Change to using OpenSCM variables for all user facing data as well as preparing to move to using OpenSCM dataframes
   - Note that this change breaks previously considered direct access but that we will gain a lot of features once we start using the capabilities of pyam as part of an OpenSCM dataframe
