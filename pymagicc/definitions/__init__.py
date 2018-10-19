@@ -362,9 +362,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     """
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings
-    magicc6_vars = [
-        "FossilCO2",
-        "OtherCO2",
+    magicc6_simple_mapping_vars = [
         "SOx",
         "NOx",
         "HFC43-10",
@@ -372,7 +370,6 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "HFC134a",
         "HFC143a",
         "HFC227ea",
-        "HFC245fa",
         "CFC-11",
         "CFC-12",
         "CFC-113",
@@ -406,10 +403,11 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     special_case_replacements = {
         "FossilCO2": "CO2I",
         "OtherCO2": "CO2B",
-        "HFC-245ca": "HFC245FA",  # need to check with Malte if this is right...
+        "HFC-245ca": "HFC245FA",
+        "HFC245ca": "HFC245FA",
     }
     replacements = {}
-    for m6v in magicc6_vars:
+    for m6v in magicc6_simple_mapping_vars + list(special_case_replacements.keys()):
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
         else:
