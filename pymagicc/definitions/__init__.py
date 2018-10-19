@@ -1,11 +1,11 @@
 """
 This module contains all of the relevant definitions for handling MAGICC data.
 
-The definitions are given in `Data Packages <https://frictionlessdata.io/docs/
-creating-tabular-data-packages-in-python/>`_. These store the data in an easy to read
-CSV file whilst providing comprehensive metadata describing the data (column meanings
-and expected types) in the accompanying ``datapackage.json`` file. Please see this
-metadata for further details.
+When we store the data in csv's, we use `Data Packages <https://frictionlessdata.io/
+docs/creating-tabular-data-packages-in-python/>`_. These store the data in an easy to
+read csv file whilst providing comprehensive metadata describing the data (column
+meanings and expected types) in the accompanying ``datapackage.json`` file. Please see
+this metadata for further details.
 
 For more details about how these constants are used, see the documentation of
 ``pymagicc.io``. In particular, the documentation of
@@ -25,6 +25,8 @@ from pymagicc.utils import _replace_from_replacement_dict
 DATA_HIERARCHY_SEPARATOR = "|"
 """str: String used to define different levels in our data hierarchies.
 
+For example, "Emissions|CO2|Energy|Coal".
+
 We copy this straight from pyam_ to maintain easy compatibility.
 """
 
@@ -35,47 +37,63 @@ _dtrm = read_datapackage(path, "magicc_dattype_regionmode_regions")
 
 _region_cols = _dtrm.columns.to_series().apply(lambda x: x.startswith("region"))
 
-dattype_regionmode_regions = _dtrm.loc[:, ~_region_cols].copy()
+DATTYPE_REGIONMODE_REGIONS = _dtrm.loc[:, ~_region_cols].copy()
 """:obj:`pandas.DataFrame` Mapping between regions and whether a file is SCEN7 or not and the expected values of THISFILE_DATTYPE and THISFILE_REGIONMODE flags in MAGICC.
 """
 
-dattype_regionmode_regions["regions"] = [
+DATTYPE_REGIONMODE_REGIONS["regions"] = [
     [r for r in raw if not pd.isnull(r)]
     for raw in _dtrm.loc[:, _region_cols].values.tolist()
 ]
 
-magicc7_emissions_units = read_datapackage(path, "magicc_emisssions_units")
+MAGICC7_EMISSIONS_UNITS = read_datapackage(path, "magicc_emisssions_units")
 """:obj:`pandas.DataFrame` Definitions of emissions variables and their expected units in MAGICC7.
 """
 
-part_of_scenfile_with_emissions_code_0 = magicc7_emissions_units[
-    magicc7_emissions_units["part_of_scenfile_with_emissions_code_0"]
+PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0 = MAGICC7_EMISSIONS_UNITS[
+    MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_0"]
 ]["magicc_variable"].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 0.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-part_of_scenfile_with_emissions_code_1 = magicc7_emissions_units[
-    magicc7_emissions_units["part_of_scenfile_with_emissions_code_1"]
+PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1 = MAGICC7_EMISSIONS_UNITS[
+    MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_1"]
 ]["magicc_variable"].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-part_of_prnfile = magicc7_emissions_units[magicc7_emissions_units["part_of_prnfile"]][
+PART_OF_PRNFILE = MAGICC7_EMISSIONS_UNITS[MAGICC7_EMISSIONS_UNITS["part_of_prnfile"]][
     "magicc_variable"
 ].tolist()
 """list: The emissions which are included in a ``.prn`` file.
 """
 
-magicc7_concentrations_units = read_datapackage(path, "magicc_concentrations_units")
+MAGICC7_CONCENTRATIONS_UNITS = read_datapackage(path, "magicc_concentrations_units")
 """:obj:`pandas.DataFrame` Definitions of concentrations variables and their expected units in MAGICC7.
 """
 
 
-def _get_magicc_region_to_openscm_region_mapping(inverse=False):
+def get_magicc_region_to_openscm_region_mapping(inverse=False):
+    """Get the mappings from MAGICC to OpenSCM regions.
+
+    This is not a pure inverse of the other way around. For example, we never provide
+    "GLOBAL" as a MAGICC return value because it's unnecesarily confusing when we also
+    have "World". Fortunately MAGICC doesn't ever read the name "GLOBAL" so this
+    shouldn't matter.
+
+    Parameters
+    ----------
+    inverse : bool
+        If True, return the inverse mappings i.e. MAGICC to OpenSCM mappings
+    Returns
+    -------
+    dict
+        Dictionary of mappings
+    """
     def get_openscm_replacement(in_region):
         world = "World"
         if in_region in ("WORLD", "GLOBAL"):
@@ -94,8 +112,7 @@ def _get_magicc_region_to_openscm_region_mapping(inverse=False):
             return DATA_HIERARCHY_SEPARATOR.join([world, in_region])
 
     # we generate the mapping dynamically, the first name in the list
-    # is the one which will be used for inverse mappings i.e. NH-LAND from
-    # MAGICC will be mapped back to NHLAND, not NH-LAND
+    # is the one which will be used for inverse mappings
     _magicc_regions = [
         "WORLD",
         "GLOBAL",
@@ -140,22 +157,34 @@ def _get_magicc_region_to_openscm_region_mapping(inverse=False):
         return replacements
 
 
-MAGICC_REGION_TO_OPENSCM_REGION_MAPPING = _get_magicc_region_to_openscm_region_mapping()
-"""dict: Mappings from MAGICC regions to openscm regions"""
+MAGICC_REGION_TO_OPENSCM_REGION_MAPPING = get_magicc_region_to_openscm_region_mapping()
+"""dict: Mappings from MAGICC regions to OpenSCM regions"""
 
-OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = _get_magicc_region_to_openscm_region_mapping(
+OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = get_magicc_region_to_openscm_region_mapping(
     inverse=True
 )
-"""dict: Mappings from openscm regions to MAGICC regions
-
-This is not a pure inverse of the other way around. For example, we never provide
-"GLOBAL" as a MAGICC return value because it's unnecesarily confusing when we also
-have "WORLD". Fortunately MAGICC doesn't ever read the name "GLOBAL" so this shouldn't
-matter.
+"""dict: Mappings from OpenSCM regions to MAGICC regions
 """
 
 
-def _convert_magicc_region_to_openscm_region(regions, inverse=False):
+def convert_magicc_to_openscm_regions(regions, inverse=False):
+    """
+    Convert MAGICC regions to OpenSCM regions
+
+    Parameters
+    ----------
+    regions : list_like, str
+        Regions to convert
+
+    inverse : bool
+        If True, convert the other way i.e. convert OpenSCM regions to MAGICC7
+        regions
+
+    Returns
+    -------
+    ``type(regions)``
+        Set of converted regions
+    """
     if inverse:
         return _replace_from_replacement_dict(
             regions, OPENSCM_REGION_TO_MAGICC_REGION_MAPPING
@@ -166,7 +195,19 @@ def _convert_magicc_region_to_openscm_region(regions, inverse=False):
         )
 
 
-def _get_magicc7_to_openscm_variable_mapping(inverse=False):
+def get_magicc7_to_openscm_variable_mapping(inverse=False):
+    """Get the mappings from MAGICC7 to OpenSCM variables.
+
+    Parameters
+    ----------
+    inverse : bool
+        If True, return the inverse mappings i.e. OpenSCM to MAGICC7 mappings
+
+    Returns
+    -------
+    dict
+        Dictionary of mappings
+    """
     def get_openscm_replacement(in_var):
         if in_var.endswith("_EMIS"):
             prefix = "Emissions"
@@ -219,7 +260,7 @@ def _get_magicc7_to_openscm_variable_mapping(inverse=False):
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
     magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT"]
-    magicc7_base_vars = magicc7_emissions_units.magicc_variable.tolist() + [
+    magicc7_base_vars = MAGICC7_EMISSIONS_UNITS.magicc_variable.tolist() + [
         "SOLAR",
         "VOLCANIC",
     ]
@@ -257,17 +298,35 @@ def _get_magicc7_to_openscm_variable_mapping(inverse=False):
         return replacements
 
 
-MAGICC7_TO_OPENSCM_VARIABLES_MAPPING = _get_magicc7_to_openscm_variable_mapping()
-"""dict: Mappings from MAGICC7 variables to openscm variables"""
+MAGICC7_TO_OPENSCM_VARIABLES_MAPPING = get_magicc7_to_openscm_variable_mapping()
+"""dict: Mappings from MAGICC7 variables to OpenSCM variables
+"""
 
-OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = _get_magicc7_to_openscm_variable_mapping(
+OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = get_magicc7_to_openscm_variable_mapping(
     inverse=True
 )
-"""dict: Mappings from openscm variables to MAGICC7 variables
+"""dict: Mappings from OpenSCM variables to MAGICC7 variables
 """
 
 
-def _convert_magicc7_to_openscm_variables(variables, inverse=False):
+def convert_magicc7_to_openscm_variables(variables, inverse=False):
+    """
+    Convert MAGICC7 variables to OpenSCM variables
+
+    Parameters
+    ----------
+    variables : list_like, str
+        Variables to convert
+
+    inverse : bool
+        If True, convert the other way i.e. convert OpenSCM variables to MAGICC7
+        variables
+
+    Returns
+    -------
+    ``type(variables)``
+        Set of converted variables
+    """
     if inverse:
         return _replace_from_replacement_dict(
             variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING
@@ -278,12 +337,25 @@ def _convert_magicc7_to_openscm_variables(variables, inverse=False):
         )
 
 
-def _get_magicc6_to_magicc7_variable_mapping(inverse=False):
+def get_magicc6_to_magicc7_variable_mapping(inverse=False):
+    """Get the mappings from MAGICC6 to MAGICC7 variables.
+
+    Note that this mapping is not one to one. For example, "HFC43-10" and
+    "HFC-43-10" in MAGICC6 both map to "HFC4310" in MAGICC7 but "HFC4310" in
+    MAGICC7 maps back to "HFC43-10".
+
+    Parameters
+    ----------
+    inverse : bool
+        If True, return the inverse mappings i.e. MAGICC7 to MAGICC6 mappings
+
+    Returns
+    -------
+    dict
+        Dictionary of mappings
+    """
     # we generate the mapping dynamically, the first name in the list
-    # is the one which will be used for inverse mappings i.e. HFC4310 from
-    # MAGICC7 will be mapped back to HFC43-10, not HFC-43-10
-    # TODO: make this a constant and put it somewhere so we don't regenerate the
-    # mapping everytime. Also makes it easier to doc.
+    # is the one which will be used for inverse mappings
     magicc6_vars = [
         "FossilCO2",
         "OtherCO2",
@@ -346,19 +418,35 @@ def _get_magicc6_to_magicc7_variable_mapping(inverse=False):
     else:
         return replacements
 
-
-MAGICC6_TO_MAGICC7_VARIABLES_MAPPING = _get_magicc6_to_magicc7_variable_mapping()
+MAGICC6_TO_MAGICC7_VARIABLES_MAPPING = get_magicc6_to_magicc7_variable_mapping()
 """dict: Mappings from MAGICC6 variables to MAGICC7 variables
 """
 
-MAGICC7_TO_MAGICC6_VARIABLES_MAPPING = _get_magicc6_to_magicc7_variable_mapping(
+MAGICC7_TO_MAGICC6_VARIABLES_MAPPING = get_magicc6_to_magicc7_variable_mapping(
     inverse=True
 )
 """dict: Mappings from MAGICC7 variables to MAGICC6 variables
 """
 
 
-def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
+def convert_magicc6_to_magicc7_variables(variables, inverse=False):
+    """
+    Convert MAGICC6 variables to MAGICC7 variables
+
+    Parameters
+    ----------
+    variables : list_like, str
+        Variables to convert
+
+    inverse : bool
+        If True, convert the other way i.e. convert MAGICC7 variables to MAGICC6
+        variables
+
+    Returns
+    -------
+    ``type(variables)``
+        Set of converted variables
+    """
     if inverse:
         return _replace_from_replacement_dict(
             variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING
@@ -369,26 +457,59 @@ def _convert_magicc6_to_magicc7_variables(variables, inverse=False):
         )
 
 
-PINT_TO_FORTRAN_SAFE_UNITS_MAPPING = {"^": "super", "/": "per", " ": ""}
+def get_pint_to_fortran_safe_units_mapping(inverse=False):
+    """Get the mappings from Pint to Fortran safe units.
+
+    Fortran can't handle special characters like "^" or "/" in names, but we need
+    these in Pint. Conversely, Pint stores variables with spaces by default e.g. "Mt
+    CO2 / yr" but we don't want these in the input files as Fortran is likely to think
+    the whitespace is a delimiter.
+
+    Parameters
+    ----------
+    inverse : bool
+        If True, return the inverse mappings i.e. Fortran safe to Pint mappings
+
+    Returns
+    -------
+    dict
+        Dictionary of mappings
+    """
+    replacements = {"^": "super", "/": "per", " ": ""}
+    if inverse:
+        replacements = {v: k for k, v in replacements.items()}
+        # mapping nothing to something is obviously not going to work in the inverse
+        # hence remove
+        replacements.pop("")
+
+    return replacements
+
+PINT_TO_FORTRAN_SAFE_UNITS_MAPPING = get_pint_to_fortran_safe_units_mapping()
 """dict: mappings required to make Pint units Fortran safe.
-
-Fortran can't handle special characters like "^" or "/" in names, but we need these in
-Pint so provide this mapping to handle the conversion.
 """
 
-_fortran_safe_to_pint_units_mapping_tmp = {
-    v: k for k, v in PINT_TO_FORTRAN_SAFE_UNITS_MAPPING.items()
-}
-_fortran_safe_to_pint_units_mapping_tmp.pop("")
-FORTRAN_SAFE_TO_PINT_UNITS_MAPPING = _fortran_safe_to_pint_units_mapping_tmp
+FORTRAN_SAFE_TO_PINT_UNITS_MAPPING = get_pint_to_fortran_safe_units_mapping(inverse=True)
 """dict: mappings required to convert our Fortran safe units to Pint.
-
-Fortran can't handle special characters like "^" or "/" in names, but we need these in
-Pint so provide this mapping to handle the conversion.
 """
 
 
-def _convert_pint_units_to_fortran_safe_units(units, inverse=False):
+def convert_pint_to_fortran_safe_units(units, inverse=False):
+    """
+    Convert Pint units to Fortran safe units
+
+    Parameters
+    ----------
+    units : list_like, str
+        Units to convert
+
+    inverse : bool
+        If True, convert the other way i.e. convert Fortran safe units to Pint units
+
+    Returns
+    -------
+    ``type(units)``
+        Set of converted units
+    """
     if inverse:
         return _replace_from_replacement_dict(units, FORTRAN_SAFE_TO_PINT_UNITS_MAPPING)
     else:
