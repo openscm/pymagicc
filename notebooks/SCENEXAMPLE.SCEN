@@ -5,7 +5,7 @@ DESCRIPTION - need better solution for how to control this
 NOTES - need better solution for how to control this
 
 WORLD
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      7.8048      2.3750       0.4624     12.0000    300.2070   1068.0009      1.1488      6.7350        8.5381        75.0394         6.2341          1.9510      10.3949         17.9257       4.0000         0.0000      7.4567     40.0185     210.6230     38.1623     35.5434      5.5382     53.8413
        2001      7.8946      2.4344       0.4651     11.9250    303.4093   1066.7447      1.1320      6.8960        9.0301        84.0409         7.4947          1.6450      10.4328         19.7183       5.3987         0.6470      7.5029     40.3916     211.5938     38.2888     35.7143      5.6990     54.4192
@@ -59,7 +59,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 R5OECD
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      1.2477      1.3991       0.4092      6.5963     60.7020    189.7346      0.1259      3.1914        5.8167        55.2891         4.2570          1.8031       5.7836         14.6904       2.8079         0.0000      2.2125      9.0417      37.7615     11.8799      3.3082      3.3879     14.2655
        2001      1.1707      1.4280       0.4122      6.5433     60.4933    181.1249      0.1259      3.2221        5.7615        61.0549         4.7493          1.5096       5.2565         16.1594       3.5977         0.5698      2.1927      9.0441      36.8144     11.4918      3.1810      3.4031     14.1021
@@ -113,7 +113,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 R5REF
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      0.5665      0.0925       0.0532      1.8347     29.7256     80.8602      0.0564      0.8236        0.1957         3.0471         0.1309          0.0970       0.1919          0.3012       0.1170         0.0000      0.4733      4.1095      17.8591      3.5622      4.2295      0.4857      7.7408
        2001      0.6443      0.0881       0.0529      1.7181     29.6924     80.9185      0.0564      0.8489        0.2703         3.5753         0.1747          0.0908       0.1609          0.3313       0.1663         0.0177      0.4718      4.1056      18.1060      3.5749      4.6705      0.5074      6.9106
@@ -167,7 +167,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 R5ASIA
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      3.0468      0.8209       0.0000      2.0834    124.9821    397.4390      0.3556      1.7682        1.4132         9.0097         1.0371          0.0197       4.0968          2.2457       0.8673         0.0000      2.5456     17.2404      70.5829      7.9931     11.6361      1.2265     15.6484
        2001      3.1090      0.8518       0.0000      2.1260    127.0101    401.2106      0.3417      1.8490        1.6966        10.4367         1.4637          0.0161       4.6912          2.4703       1.3009         0.0384      2.5877     17.4509      71.5319      8.3352     11.5306      1.3357     17.1752
@@ -221,7 +221,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 R5MAF
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      1.8766      0.0464       0.0000      0.7337     44.2991    285.9596      0.2460      0.5808        0.6803         3.9365         0.4498          0.0188       0.0000          0.3524       0.0799         0.0000      1.1804      5.0363      56.8898      5.5397     11.1482      0.2075      6.1024
        2001      1.8983      0.0507       0.0000      0.7805     45.3592    289.8121      0.2467      0.5885        0.7974         4.6235         0.6277          0.0165       0.0000          0.3877       0.1376         0.0106      1.1961      5.1389      57.5915      5.6291     11.1858      0.2136      6.7229
@@ -275,7 +275,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 R5LAM
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      0.9311      0.0160       0.0000      0.7520     40.0656    112.8220      0.3649      0.3710        0.4322         3.7569         0.3592          0.0123       0.3226          0.3360       0.1279         0.0000      1.0448      4.5907      24.6027      2.9056      5.0820      0.2306      4.5451
        2001      0.9298      0.0159       0.0000      0.7571     40.4120    112.4775      0.3613      0.3874        0.5043         4.3505         0.4793          0.0119       0.3242          0.3696       0.1962         0.0106      1.0547      4.6521      24.5651      2.8854      5.0028      0.2392      3.9259
@@ -329,7 +329,7 @@ YEARS          BC        C2F6        C6F14         CF4         CH4          CO  
 
 
 BUNKERS
-YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23       HFC-245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
+YEARS          BC        C2F6        C6F14         CF4         CH4          CO    OtherCO2   FossilCO2       HFC-125        HFC134a        HFC143a        HFC227ea       HFC-23        HFC245ca       HFC-32       HFC43-10         N2O         NH3        NMVOC         NOx          OC         SF6         SOx
         Yrs   MtBCperyr ktC2F6peryr ktC6F14peryr  ktCF4peryr  MtCH4peryr   MtCOperyr    GtCperyr    GtCperyr ktHFC125peryr ktHFC134aperyr ktHFC143aperyr ktHFC227eaperyr ktHFC23peryr ktHFC245faperyr ktHFC32peryr ktHFC4310peryr MtN2ONperyr    MtNperyr MtNMVOCperyr    MtNperyr   MtOCperyr  ktSF6peryr    MtSperyr
        2000      0.1361      0.0000       0.0000      0.0000      0.4325      1.1854      0.0000      0.0000        0.0000         0.0000         0.0000          0.0000       0.0000          0.0000       0.0000         0.0000      0.0000      0.0000       2.9270      6.2818      0.1395      0.0000      5.5390
        2001      0.1424      0.0000       0.0000      0.0000      0.4422      1.2012      0.0000      0.0000        0.0000         0.0000         0.0000          0.0000       0.0000          0.0000       0.0000         0.0000      0.0000      0.0000       2.9849      6.3724      0.1436      0.0000      5.5824
