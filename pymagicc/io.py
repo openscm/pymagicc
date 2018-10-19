@@ -1045,14 +1045,7 @@ def _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=False):
 
 
 class _InputWriter(object):
-    """
-
-    We need the MAGICC related attributes in order to be able to make sure that we set the right flas. In particular, the  and the region flags are different
-
-
-    need this for the _get_initial_nml_and_data_block routine as SCEN7
-    files have a special, contradictory set of region flags
-    would be nice to be able to remove in future
+    """Base class for writing MAGICC input files.
 
     Attributes
     ----------
@@ -1227,7 +1220,7 @@ class _InputWriter(object):
         region_order = convert_magicc_to_openscm_regions(
             get_region_order(regions, self._scen_7)
         )
-        data_block = data_block.reindex_axis(region_order, axis=1, level="region")
+        data_block = data_block.reindex(region_order, axis=1, level="region")
 
         regions = convert_magicc_to_openscm_regions(
             data_block.columns.get_level_values("region").tolist(), inverse=True
