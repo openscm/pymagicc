@@ -1,7 +1,10 @@
 import os
 
+
 import pandas as pd
 import pytest
+
+
 from pymagicc import (
     _magiccpath,
     _get_number_of_datapoints,
@@ -15,54 +18,16 @@ from pymagicc import (
     run,
 )
 
-rcp26_scen_file = os.path.join(_magiccpath, "RCP26.SCEN")
-rcp85_scen_file = os.path.join(_magiccpath, "RCP85.SCEN")
-world_only = read_scen_file(
+
+RCP26_SCEN_FILE = os.path.join(_magiccpath, "RCP26.SCEN")
+RCP85_SCEN_FILE = os.path.join(_magiccpath, "RCP85.SCEN")
+WORLD_ONLY = read_scen_file(
     os.path.join(os.path.dirname(__file__), "./test_data/WORLD_ONLY.SCEN")
 )
 
 
-def test_count():
-    assert _get_number_of_datapoints(rcp26_scen_file) == 20
-
-
-def test_region_code():
-    assert _get_scen_special_code(rcp26_scen_file) == 41
-
-
 def test_read_scen_file():
-    assert len(rcp26) == 7
-    assert len(rcp26["WORLD"].index) == 20
-    assert len(rcp26["WORLD"].columns) == 23
-
-
-def test_read_world_only_scenario():
-    world_only = read_scen_file(
-        os.path.join(os.path.dirname(__file__), "./test_data/WORLD_ONLY.SCEN")
-    )
-    assert isinstance(world_only, pd.DataFrame)
-    assert len(world_only) == 5
-
-
-def test_write_scen_file(tmpdir):
-    outfile = tmpdir.join("SCENARIO.SCEN")
-    write_scen_file(rcp26, outfile)
-    outfile_path = os.path.join(outfile.dirname, outfile.basename)
-    output = read_scen_file(outfile_path)
-    assert len(rcp26) == len(output)
-    assert len(rcp26["WORLD"].index) == len(output["WORLD"].index)
-    assert len(rcp26["WORLD"].columns) == len(output["WORLD"].columns)
-    assert rcp26["WORLD"].equals(output["WORLD"])
-
-
-def test_write_scen_file_world_only(tmpdir):
-    outfile = tmpdir.join("SCENARIO.SCEN")
-    write_scen_file(world_only, outfile)
-    output = read_scen_file(os.path.join(outfile.dirname, outfile.basename))
-    assert len(world_only) == len(output)
-    assert len(world_only.index) == len(output.index)
-    assert len(world_only.columns) == len(output.columns)
-    assert world_only.equals(output)
+    assert False
 
 
 @pytest.mark.slow
