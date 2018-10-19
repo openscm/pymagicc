@@ -14,16 +14,16 @@ from six import StringIO
 from pymagicc import MAGICC6
 from pymagicc.utils import _replace_from_replacement_dict
 from .definitions import (
-    dattype_regionmode_regions,
-    part_of_scenfile_with_emissions_code_0,
-    part_of_scenfile_with_emissions_code_1,
-    part_of_prnfile,
-    magicc7_emissions_units,
-    magicc7_concentrations_units,
-    _convert_magicc_region_to_openscm_region,
-    _convert_magicc7_to_openscm_variables,
-    _convert_magicc6_to_magicc7_variables,
-    _convert_pint_units_to_fortran_safe_units,
+    DATTYPE_REGIONMODE_REGIONS,
+    PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
+    PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1,
+    PART_OF_PRNFILE,
+    MAGICC7_EMISSIONS_UNITS,
+    MAGICC7_CONCENTRATIONS_UNITS,
+    convert_magicc_to_openscm_regions,
+    convert_magicc7_to_openscm_variables,
+    convert_magicc6_to_magicc7_variables,
+    convert_pint_to_fortran_safe_units,
     DATA_HIERARCHY_SEPARATOR,
 )
 
@@ -265,10 +265,10 @@ class _InputReader(object):
         else:
             column_headers, metadata = self._read_magicc6_style_header(stream, metadata)
 
-        column_headers["variables"] = _convert_magicc7_to_openscm_variables(
+        column_headers["variables"] = convert_magicc7_to_openscm_variables(
             column_headers["variables"]
         )
-        column_headers["regions"] = _convert_magicc_region_to_openscm_region(
+        column_headers["regions"] = convert_magicc_to_openscm_regions(
             column_headers["regions"]
         )
 
@@ -317,7 +317,7 @@ class _InputReader(object):
             regexp_capture_unit = re.compile(r".*\((.*)\)\s*$")
             unit = regexp_capture_unit.search(unit).group(1)
 
-        variable = _convert_magicc6_to_magicc7_variables(
+        variable = convert_magicc6_to_magicc7_variables(
             self._get_variable_from_filename()
         )
         column_headers = {
@@ -405,7 +405,7 @@ class _InputReader(object):
         return [region_mapping[r] for r in regions]
 
     def _read_units(self, column_headers):
-        column_headers["units"] = _convert_pint_units_to_fortran_safe_units(
+        column_headers["units"] = convert_pint_to_fortran_safe_units(
             column_headers["units"], inverse=True
         )
 
@@ -436,7 +436,7 @@ class _ConcInReader(_FourBoxReader):
 
     def _get_variable_from_filename(self):
         variable = super()._get_variable_from_filename()
-        return _convert_magicc6_to_magicc7_variables(variable)
+        return convert_magicc6_to_magicc7_variables(variable)
 
     def _read_data_header_line(self, stream, expected_header):
         tokens = super()._read_data_header_line(stream, expected_header)
@@ -541,7 +541,7 @@ class _StandardEmisInReader(_EmisInReader):
             else:
                 tmp_vars.append(v + "_EMIS")
 
-        column_headers["variables"] = _convert_magicc7_to_openscm_variables(tmp_vars)
+        column_headers["variables"] = convert_magicc7_to_openscm_variables(tmp_vars)
         column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
@@ -616,12 +616,12 @@ class _ScenReader(_NonStandardEmisInReader):
         while True:
             ch = {}
             pos_block = self._stream.tell()
-            region = _convert_magicc_region_to_openscm_region(
+            region = convert_magicc_to_openscm_regions(
                 self._stream.readline().strip()
             )
 
             try:
-                variables = _convert_magicc6_to_magicc7_variables(
+                variables = convert_magicc6_to_magicc7_variables(
                     self._read_data_header_line(self._stream, "YEARS")
                 )
             except IndexError:  # tried to get variables from empty string
@@ -629,7 +629,7 @@ class _ScenReader(_NonStandardEmisInReader):
             except AssertionError:  # tried to get variables from a notes line
                 break
 
-            ch["variables"] = _convert_magicc7_to_openscm_variables(
+            ch["variables"] = convert_magicc7_to_openscm_variables(
                 [v + "_EMIS" for v in variables]
             )
 
@@ -678,9 +678,9 @@ class _PrnReader(_NonStandardEmisInReader):
 
         # now fix labelling, have to copy index :(
         variables = df.columns.get_level_values("VARIABLE").tolist()
-        variables = _convert_magicc6_to_magicc7_variables(variables)
+        variables = convert_magicc6_to_magicc7_variables(variables)
         todos = ["SET"] * len(variables)
-        region = _convert_magicc_region_to_openscm_region("WORLD")
+        region = convert_magicc_to_openscm_regions("WORLD")
 
         concs = False
         emms = False
@@ -706,7 +706,7 @@ class _PrnReader(_NonStandardEmisInReader):
             variables = [v + "_EMIS" for v in variables]
 
         column_headers = {
-            "variables": _convert_magicc7_to_openscm_variables(variables),
+            "variables": convert_magicc7_to_openscm_variables(variables),
             "todos": todos,
             "units": [unit] * len(variables),
             "regions": [region] * len(variables),
@@ -928,10 +928,10 @@ class _BinaryOutReader(_InputReader):
             "World|Southern Hemisphere|Land",
         ]
 
-        variable = _convert_magicc6_to_magicc7_variables(
+        variable = convert_magicc6_to_magicc7_variables(
             self._get_variable_from_filename()
         )
-        variable = _convert_magicc7_to_openscm_variables(variable)
+        variable = convert_magicc7_to_openscm_variables(variable)
         column_headers = {
             "variables": [variable] * (num_regions + 1),
             "regions": regions,
@@ -992,12 +992,12 @@ def get_dattype_regionmode(regions, scen7=False):
     """
     dattype_flag = "THISFILE_DATTYPE"
     regionmode_flag = "THISFILE_REGIONMODE"
-    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
+    region_dattype_row = _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=scen7)
 
-    dattype = dattype_regionmode_regions[dattype_flag.lower()][region_dattype_row].iloc[
+    dattype = DATTYPE_REGIONMODE_REGIONS[dattype_flag.lower()][region_dattype_row].iloc[
         0
     ]
-    regionmode = dattype_regionmode_regions[regionmode_flag.lower()][
+    regionmode = DATTYPE_REGIONMODE_REGIONS[regionmode_flag.lower()][
         region_dattype_row
     ].iloc[0]
 
@@ -1021,16 +1021,16 @@ def get_region_order(regions, scen7=False):
     list
         Region order expected by MAGICC for the given region set.
     """
-    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
-    region_order = dattype_regionmode_regions["regions"][region_dattype_row].iloc[0]
+    region_dattype_row = _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=scen7)
+    region_order = DATTYPE_REGIONMODE_REGIONS["regions"][region_dattype_row].iloc[0]
 
     return region_order
 
 
-def _get_dattype_regionmode_regions_row(regions, scen7=False):
+def _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=False):
     regions_unique = set(
         [
-            _convert_magicc_region_to_openscm_region(r, inverse=True)
+            convert_magicc_to_openscm_regions(r, inverse=True)
             for r in set(regions)
         ]
     )
@@ -1038,9 +1038,9 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
     def find_region(x):
         return set(x) == regions_unique
 
-    region_rows = dattype_regionmode_regions["regions"].apply(find_region)
+    region_rows = DATTYPE_REGIONMODE_REGIONS["regions"].apply(find_region)
 
-    scen7_rows = dattype_regionmode_regions["thisfile_dattype"] == "SCEN7"
+    scen7_rows = DATTYPE_REGIONMODE_REGIONS["thisfile_dattype"] == "SCEN7"
     dattype_rows = scen7_rows if scen7 else ~scen7_rows
 
     region_dattype_row = region_rows & dattype_rows
@@ -1196,13 +1196,13 @@ class _InputWriter(object):
         return nml, data_block
 
     def _get_data_block(self):
-        regions = _convert_magicc_region_to_openscm_region(
+        regions = convert_magicc_to_openscm_regions(
             self._get_df_header_row("region"), inverse=True
         )
-        variables = _convert_magicc7_to_openscm_variables(
+        variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        units = _convert_pint_units_to_fortran_safe_units(
+        units = convert_pint_to_fortran_safe_units(
             self._get_df_header_row("unit")
         )
         todos = self._get_df_header_row("todo")
@@ -1331,7 +1331,7 @@ class _PrnWriter(_InputWriter):
         data_block = self.minput.df.copy()
 
         data_block.columns = data_block.columns.get_level_values("variable")
-        magicc7_vars = _convert_magicc7_to_openscm_variables(
+        magicc7_vars = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable"), inverse=True
         )
 
@@ -1342,9 +1342,9 @@ class _PrnWriter(_InputWriter):
 
         emms_assert_msg = (
             "Prn files must have, and only have, "
-            "the following species: ".format(part_of_prnfile)
+            "the following species: ".format(PART_OF_PRNFILE)
         )
-        assert set(data_block.columns) == set(part_of_prnfile), emms_assert_msg
+        assert set(data_block.columns) == set(PART_OF_PRNFILE), emms_assert_msg
 
         data_block.index.name = "Years"
 
@@ -1359,11 +1359,11 @@ class _ScenWriter(_InputWriter):
         header_lines.append("{}".format(len(self.minput.df)))
 
         variables = self._get_df_header_row("variable")
-        variables = _convert_magicc7_to_openscm_variables(variables, inverse=True)
+        variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
         variables = [v.replace("_EMIS", "") for v in variables]
 
         regions = self._get_df_header_row("region")
-        regions = _convert_magicc_region_to_openscm_region(regions, inverse=True)
+        regions = convert_magicc_to_openscm_regions(regions, inverse=True)
 
         special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
 
@@ -1438,7 +1438,7 @@ class _ScenWriter(_InputWriter):
         formatters[0] = first_col_format_str
 
         for region in region_order:
-            region_block_region = _convert_magicc_region_to_openscm_region(region)
+            region_block_region = convert_magicc_to_openscm_regions(region)
             region_block = self.minput.df.xs(
                 region_block_region, axis=1, level="region", drop_level=False
             )
@@ -1446,12 +1446,12 @@ class _ScenWriter(_InputWriter):
             region_block.columns = region_block.columns.droplevel("region")
 
             variables = region_block.columns.get_level_values("variable").tolist()
-            variables = _convert_magicc7_to_openscm_variables(variables, inverse=True)
-            variables = _convert_magicc6_to_magicc7_variables(
+            variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
+            variables = convert_magicc6_to_magicc7_variables(
                 [v.replace("_EMIS", "") for v in variables], inverse=True
             )
 
-            units = _convert_pint_units_to_fortran_safe_units(
+            units = convert_pint_to_fortran_safe_units(
                 region_block.columns.get_level_values("unit").tolist()
             )
 
@@ -1486,9 +1486,9 @@ def get_special_scen_code(regions, emissions):
     data is being provided for. The second digit, the 'scenfile_emissions_code', tells
     MAGICC which gases are in the SCEN file.
 
-    The variables which are part of ``part_of_scenfile_with_emissions_code_1`` are the
+    The variables which are part of ``PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1`` are the
     emissions species which are expected when scenfile_emissions_code is 1. Similarly,
-    ``part_of_scenfile_with_emissions_code_0`` defines the emissions species which are
+    ``PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0`` defines the emissions species which are
     expected when scenfile_emissions_code is 0.
 
     Having these definitions allows Pymagicc to check that the right
@@ -1511,9 +1511,9 @@ def get_special_scen_code(regions, emissions):
     int
         The special scen code for the regions-emissions combination provided.
     """
-    if set(part_of_scenfile_with_emissions_code_0) == set(emissions):
+    if set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0) == set(emissions):
         scenfile_emissions_code = 0
-    elif set(part_of_scenfile_with_emissions_code_1) == set(emissions):
+    elif set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1) == set(emissions):
         scenfile_emissions_code = 1
     else:
         msg = "Could not determine scen special code for emissions {}".format(emissions)
@@ -1534,31 +1534,6 @@ def get_special_scen_code(regions, emissions):
     except NameError:
         msg = "Could not determine scen special code for regions {}".format(regions)
         raise ValueError(msg)
-
-
-def _get_subdf_from_df_for_key(df, key):
-    for colname in df.columns.names:
-        try:
-            return df.xs(key, level=colname, axis=1, drop_level=False)
-        except KeyError:
-            continue
-    try:
-        return df.loc[[key]]
-    except KeyError:
-        msg = "{} is not in the column headers or the index".format(key)
-        raise KeyError(msg)
-
-
-def _get_subdf_from_df_for_keys(df, keys):
-    df_out = df.copy()
-    if isinstance(keys, str):
-        keys = [keys]
-    try:
-        for key in keys:
-            df_out = _get_subdf_from_df_for_key(df_out, key)
-    except TypeError:
-        df_out = _get_subdf_from_df_for_key(df_out, keys)
-    return df_out
 
 
 class MAGICCData(object):
@@ -1598,6 +1573,15 @@ class MAGICCData(object):
         file, i.e. 'HISTRCP_CO2I_EMIS.IN'. The file is not read until the search
         directory is provided in ``read``. This allows for MAGICCData files to be
         lazy-loaded once the appropriate MAGICC run directory is known.
+
+    Attributes
+    ----------
+    df : :obj:`pd.DataFrame`
+        A pandas dataframe with the data.
+    metadata : dict
+        Metadata for the data in ``self.df``.
+    filename : str
+        The file the data was loaded from.
     """
 
     def __init__(self, filename=None):
@@ -1610,16 +1594,11 @@ class MAGICCData(object):
 
     def __getitem__(self, item):
         """
-        Allow for simplified indexing.
-
-        TODO: double check or delete below
-        >>> inpt = MAGICCData('HISTRCP_CO2_CONC.IN')
-        >>> inpt.read('./')
-        >>> assert (inpt['CO2', 'GLOBAL'] == inpt.df['CO2', :, :, 'GLOBAL']).all()
+        Allow for lazy loading.
         """
         if not self.is_loaded:
             self._raise_not_loaded_error()
-        return _get_subdf_from_df_for_keys(self.df, item)
+        return self[item]
 
     def __getattr__(self, item):
         """
@@ -1634,11 +1613,15 @@ class MAGICCData(object):
 
     @property
     def is_loaded(self):
+        """bool: Whether the data has been loaded yet."""
         return self.df is not None
 
     def read(self, filepath=None, filename=None):
         """
         Read an input file from disk.
+
+        The resulting data is assigned to the ``df`` attribute of ``self`` whilst the
+        metadata is stored in the ``metadata`` attribute.
 
         Parameters
         ----------
@@ -1712,7 +1695,7 @@ class MAGICCData(object):
             Name of the file to read/write, including extension
         tool_to_get : str
             The tool to get, valid options are "reader", "writer".
-            Invalid values will throw a KeyError.
+            Invalid values will throw a NoReaderWriterError.
         """
         file_regexp_reader_writer = {
             "SCEN": {

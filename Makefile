@@ -62,7 +62,7 @@ test-pypi-install: venv
 	$(TEMPVENV)/bin/pip install pymagicc
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
-docs: docs/*.rst pymagicc/*.py venv
+docs: docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py') venv
 	./venv/bin/sphinx-build -M html docs docs/build
 
 flake8: venv
