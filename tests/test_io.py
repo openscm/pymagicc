@@ -1,15 +1,18 @@
 from os import remove, listdir
 from os.path import dirname, join, isfile, basename
+from copy import deepcopy
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
+from unittest.mock import patch, MagicMock
+import pkg_resources
+
 
 import numpy as np
 import pandas as pd
 import re
-import pkg_resources
 import pytest
-from unittest.mock import patch
 import f90nml
+
 
 from pymagicc.api import MAGICC6
 from pymagicc.io import (
@@ -180,9 +183,7 @@ def test_load_magicc5_emis_not_renamed_error():
     test_name = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
 
     expected_error_msg = re.escape(
-        "Cannot determine variable from filepath: {}".format(
-            join(test_path, test_name)
-        )
+        "Cannot determine variable from filepath: {}".format(join(test_path, test_name))
     )
     with pytest.raises(ValueError, match=expected_error_msg):
         mdata.read(join(test_path, test_name))
@@ -1871,5 +1872,41 @@ def test_bin_and_ascii_equal(file_to_read):
     pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
 
 
-# TODO add test of converting names for SCEN files
-# TODO add test of valid output files e.g. checking namelists, formatting, column ordering etc.
+def test_magicc_data_append_unset():
+    tfilepath = "mocked/out/here.txt"
+    tmetadata = {"mock": 12, "mock 2": "written here"}
+    tdf = pd.DataFrame({"test": np.array([1, 2, 3])})
+
+    MAGICCData.read = MagicMock(return_value=(tmetadata, tdf))
+    mdata = MAGICCData()
+
+    assert mdata.df is None
+    mdata.append(tfilepath)
+
+    mdata.read.assert_called_with(tfilepath)
+
+    assert mdata.metadata == tmetadata
+    pd.testing.assert_frame_equal(mdata.df, tdf)
+
+
+def test_magicc_data_append():
+    tfilepath = "mocked/out/here.txt"
+
+    tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
+    tdf_append = pd.DataFrame({"test": np.array([-1, 12, 1.33])})
+    MAGICCData.read = MagicMock(return_value=(tmetadata_append, tdf_append))
+
+    tmetadata_init = {"mock": 12, "mock 2": "written here"}
+    tdf_init = pd.DataFrame({"test": np.array([1, 2, 3])})
+    mdata = MAGICCData()
+    mdata.df = tdf_init
+    mdata.metadata = tmetadata_init
+
+    mdata.append(tfilepath)
+
+    mdata.read.assert_called_with(tfilepath)
+
+    expected_metadata = deepcopy(tmetadata_init)
+    expected_metadata.update(tmetadata_append)
+    assert mdata.metadata == expected_metadata
+    pd.testing.assert_frame_equal(mdata.df, pd.concat([tdf_init, tdf_append]))

@@ -409,15 +409,9 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     ]
 
     # special case replacements
-    special_case_replacements = {
-        "FossilCO2": "CO2I",
-        "OtherCO2": "CO2B",
-    }
+    special_case_replacements = {"FossilCO2": "CO2I", "OtherCO2": "CO2B"}
 
-    one_way_replacements = {
-        "HFC-245ca": "HFC245FA",
-        "HFC245ca": "HFC245FA",
-    }
+    one_way_replacements = {"HFC-245ca": "HFC245FA", "HFC245ca": "HFC245FA"}
 
     all_possible_magicc6_vars = (
         magicc6_simple_mapping_vars

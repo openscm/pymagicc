@@ -5,15 +5,7 @@ import pandas as pd
 import pytest
 
 
-from pymagicc import (
-    _magiccpath,
-    read_scen_file,
-    rcp26,
-    rcp45,
-    rcp60,
-    rcp85,
-    run,
-)
+from pymagicc import _magiccpath, read_scen_file, rcp26, rcp45, rcp60, rcp85, run
 
 
 RCP26_SCEN_FILE = os.path.join(_magiccpath, "RCP26.SCEN")

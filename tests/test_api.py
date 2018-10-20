@@ -25,7 +25,15 @@ def package(request):
 
     if p.executable is None or not exists(p.original_dir):
         magicc_x_unavailable = "MAGICC {} is not available.".format(p.version)
-        env_text = "Pymagicc related variables in your current environment are: {}.".format(";".join(["{}: {}".format(k, v) for (k,v) in environ.items() if k.startswith("MAGICC_")]))
+        env_text = "Pymagicc related variables in your current environment are: {}.".format(
+            ";".join(
+                [
+                    "{}: {}".format(k, v)
+                    for (k, v) in environ.items()
+                    if k.startswith("MAGICC_")
+                ]
+            )
+        )
         env_help = "If you set MAGICC_EXECUTABLE_X=/path/to/MAGICCX/binary then you will be able to run the tests with that binary for MAGICC_X."
         pytest.skip("\n".join([magicc_x_unavailable, env_text, env_help]))
     p.create_copy()
@@ -701,7 +709,14 @@ def test_persistant_state(package):
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
-            ["CO2I_EMIS", "CO2B_EMIS", "CH4I_EMIS", "BCI_EMIS", "SOXB_EMIS", "HFC32_EMIS"],
+            [
+                "CO2I_EMIS",
+                "CO2B_EMIS",
+                "CH4I_EMIS",
+                "BCI_EMIS",
+                "SOXB_EMIS",
+                "HFC32_EMIS",
+            ],
             2030,
             20000,
         ),
@@ -754,5 +769,5 @@ def test_pymagicc_writing_compatibility(
             .loc[time_check_min:time_check_max]
             .values
         )
-        abstol = np.max([result, expected]) * 10**-3
+        abstol = np.max([result, expected]) * 10 ** -3
         np.testing.assert_allclose(result, expected, rtol=1e-5, atol=abstol)

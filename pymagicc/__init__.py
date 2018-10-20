@@ -57,6 +57,7 @@ def read_scen_file(filepath):
 
     return mdata
 
+
 rcp26 = read_scen_file(os.path.join(_magiccpath, "RCP26.SCEN"))
 rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"))
 rcp60 = read_scen_file(os.path.join(_magiccpath, "RCP60.SCEN"))

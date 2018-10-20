@@ -1678,6 +1678,29 @@ class MAGICCData(object):
         reader = self.determine_tool(filepath, "reader")(filepath)
         self.metadata, self.df = reader.read()
 
+    def append(self, filepath):
+        """
+        Append data from an input file read from disk.
+
+        Thre resulting data will be appended to the ``df`` attribute of ``self``
+        whilst the metadata is stored in the ``metadata`` attribute. If ``self``
+        currently contains no data, the read data will simply be assigned to the
+        relevant attributes of ``self``.
+
+        Parameters
+        ----------
+        filepath : str
+            Filepath of the file to read.
+        """
+        other_mdata = type(self)()
+        metdata_to_append, df_to_append = other_mdata.read(filepath)
+
+        if self.df is None:
+            self.metadata, self.df = metdata_to_append, df_to_append
+        else:
+            self.metadata.update(metdata_to_append)
+            self.df = pd.concat([self.df, df_to_append])
+
     def write(self, filepath, magicc_version):
         """
         Write an input file from disk.
