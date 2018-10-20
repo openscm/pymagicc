@@ -1877,13 +1877,13 @@ def test_magicc_data_append_unset():
     tmetadata = {"mock": 12, "mock 2": "written here"}
     tdf = pd.DataFrame({"test": np.array([1, 2, 3])})
 
-    MAGICCData.read = MagicMock(return_value=(tmetadata, tdf))
+    MAGICCData._read_and_return_metadata_df = MagicMock(return_value=(tmetadata, tdf))
     mdata = MAGICCData()
 
     assert mdata.df is None
     mdata.append(tfilepath)
 
-    mdata.read.assert_called_with(tfilepath)
+    mdata._read_and_return_metadata_df.assert_called_with(tfilepath)
 
     assert mdata.metadata == tmetadata
     pd.testing.assert_frame_equal(mdata.df, tdf)
@@ -1894,7 +1894,9 @@ def test_magicc_data_append():
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
     tdf_append = pd.DataFrame({"test": np.array([-1, 12, 1.33])})
-    MAGICCData.read = MagicMock(return_value=(tmetadata_append, tdf_append))
+    MAGICCData._read_and_return_metadata_df = MagicMock(
+        return_value=(tmetadata_append, tdf_append)
+    )
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
     tdf_init = pd.DataFrame({"test": np.array([1, 2, 3])})
@@ -1904,7 +1906,7 @@ def test_magicc_data_append():
 
     mdata.append(tfilepath)
 
-    mdata.read.assert_called_with(tfilepath)
+    mdata._read_and_return_metadata_df.assert_called_with(tfilepath)
 
     expected_metadata = deepcopy(tmetadata_init)
     expected_metadata.update(tmetadata_append)

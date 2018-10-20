@@ -1674,9 +1674,11 @@ class MAGICCData(object):
             Filepath of the file to read.
         """
         _check_file_exists(filepath)
+        self.metadata, self.df = self._read_and_return_metadata_df(filepath)
 
+    def _read_and_return_metadata_df(self, filepath):
         reader = self.determine_tool(filepath, "reader")(filepath)
-        self.metadata, self.df = reader.read()
+        return reader.read()
 
     def append(self, filepath):
         """
@@ -1689,17 +1691,21 @@ class MAGICCData(object):
 
         Parameters
         ----------
-        filepath : str
-            Filepath of the file to read.
+        filepath : str, list of str
+            Filepath(s) of the file to read.
         """
-        other_mdata = type(self)()
-        metdata_to_append, df_to_append = other_mdata.read(filepath)
+        filepath = [filepath] if isinstance(filepath, str) else filepath
 
-        if self.df is None:
-            self.metadata, self.df = metdata_to_append, df_to_append
-        else:
-            self.metadata.update(metdata_to_append)
-            self.df = pd.concat([self.df, df_to_append])
+        other_mdata = type(self)()
+        dfs_to_add = [] if self.df is None else [self.df]
+
+        for fp in filepath:
+            metadata_to_add, df_to_add = self._read_and_return_metadata_df(fp)
+
+            self.metadata.update(metadata_to_add)
+            dfs_to_add.append(df_to_add)
+
+        self.df = pd.concat(dfs_to_add)
 
     def write(self, filepath, magicc_version):
         """
