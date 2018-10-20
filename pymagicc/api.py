@@ -171,7 +171,11 @@ class MAGICCBase(object):
             raise FileNotFoundError(self.root_dir)
 
         if self.executable is None:
-            raise ValueError("MAGICC executable not found, try setting an environment variable `MAGICC_EXECUTABLE_{}=/path/to/binary`".format(self.version))
+            raise ValueError(
+                "MAGICC executable not found, try setting an environment variable `MAGICC_EXECUTABLE_{}=/path/to/binary`".format(
+                    self.version
+                )
+            )
 
         year_cfg = {}
         if "startyear" in kwargs:
@@ -196,11 +200,7 @@ class MAGICCBase(object):
         results = {}
 
         # widen this constraint
-        outfiles = [
-            f
-            for f in listdir(self.out_dir)
-            if f != "PARAMETERS.OUT"
-        ]
+        outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
         # Replace with actual readers and work something out for metadata and joining
         failblog
