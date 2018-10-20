@@ -275,7 +275,12 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
 
-    replacements.update({"SURFACE_TEMP": "Surface Temperature"})
+    replacements.update(
+        {
+            "SURFACE_TEMP": "Surface Temperature",
+            "TOTAL_INCLVOLCANIC_RF": "Radiative Forcing",
+        }
+    )
 
     agg_ocean_heat_top = "Aggregated Ocean Heat Content"
     heat_content_aggreg_depths = {
