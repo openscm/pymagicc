@@ -10,7 +10,7 @@ import f90nml
 
 from .config import config
 from .utils import get_date_time_string
-from .io import MAGICCData, NoReaderWriterError
+from .io import MAGICCData, NoReaderWriterError, read_cfg_file
 from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
@@ -153,12 +153,16 @@ class MAGICCBase(object):
             return None
         return join(self.root_dir, "out")
 
-    def run(self, only=None, out_parameters=True, **kwargs):
+    def run(self, scenario=None, only=None, out_parameters=True, **kwargs):
         """
         Run MAGICC and parse the output.
 
         Parameters
         ----------
+        scenario : :obj:`pymagicc.io.MAGICCData`
+            Scenario to run. If None MAGICC will simply run with whatever config has
+            already been set.
+
         only
             If not None, only extract variables in this list
 
@@ -167,12 +171,10 @@ class MAGICCBase(object):
 
         Returns
         -------
-        dict
-            Dict containing DataFrames for each of the extracted variables
-            If the run completes successfully, the configuration values used by
-            MAGICC can be accessed using the `config` attribute. The
-            configuration is only read if the MAGICC configuration parameter
-            "out_parameters" is 1 (default).
+        :obj:`pymagicc.io.MAGICCData`
+            MAGICCData object containing that data in its ``df`` attribute and
+            metadata and parameters (depending on the value of ``out_parameters``) in
+            its ``metadata`` attribute.
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -184,6 +186,30 @@ class MAGICCBase(object):
                 )
             )
 
+        usr_cfg = read_cfg_file(join(self.run_dir, "MAGCFG_USER.CFG"))
+        top_tuning_model_key = sorted(
+            [k for k in usr_cfg["nml_allcfgs"] if k.startswith("file_tuningmodel")]
+        )[-1]
+        top_tuning_model = usr_cfg["nml_allcfgs"][top_tuning_model_key]
+        if top_tuning_model != "PYMAGICC":
+            raise ValueError(
+                "PYMAGICC is not top the tuning model in `MAGCFG_USER.CFG`, your run is likely to fail/do odd things"
+            )
+
+        if scenario is not None:
+            scen_name = "SCENARIO.SCEN"
+            self.write(scenario, scen_name)
+
+            # TODO: work out a way to deal with MAGICC7's nested overwrite stuff
+            kwargs["file_emissionscenario"] = scen_name
+
+        yr_config = {}
+        if "startyear" in kwargs:
+            yr_config["startyear"] = kwargs.pop("startyear")
+        if "endyear" in kwargs:
+            yr_config["endyear"] = kwargs.pop("endyear")
+        if yr_config:
+            self.set_years(**yr_config)
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
         kwargs.setdefault("rundate", get_date_time_string())
@@ -223,6 +249,20 @@ class MAGICCBase(object):
                 continue
 
         return mdata
+
+    def write(self, mdata, name):
+        """Write an input file to disk
+
+        Parameters
+        ----------
+        mdata : :obj:`pymagicc.io.MAGICCData`
+            A MAGICCData instance with the data to write
+
+        name : str
+            The name of the file to write. The file will be written to the MAGICC
+            instance's run directory i.e. ``self.run_dir``
+        """
+        mdata.write(join(self.run_dir, name), self.version)
 
     def read_parameters(self):
         """
