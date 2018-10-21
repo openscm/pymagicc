@@ -1,12 +1,14 @@
 from os import remove, environ
 from os.path import exists, join
 from subprocess import CalledProcessError
+from unittest.mock import patch
+
 
 import numpy as np
 import pytest
-from unittest.mock import patch
 import pandas as pd
 import f90nml
+
 
 from pymagicc.api import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
 from pymagicc.io import MAGICCData
@@ -73,10 +75,33 @@ def test_initalise_and_clean(package):
 
 
 def test_run_failure(package):
+    if exists(join(package.run_dir, "HISTRCP_CO2I_EMIS.IN")):
+        remove(join(package.run_dir, "HISTRCP_CO2I_EMIS.IN"))
+
+    with pytest.raises(CalledProcessError):
+        package.run()
+
+    assert package.config is None
+
+
+def test_run_failure_no_magcfg_user(package):
     if exists(join(package.run_dir, "MAGCFG_USER.CFG")):
         remove(join(package.run_dir, "MAGCFG_USER.CFG"))
 
-    with pytest.raises(CalledProcessError):
+    with pytest.raises(FileNotFoundError):
+        package.run()
+
+    assert package.config is None
+
+
+def test_run_failure_no_pymagicc_in_magcfg_user(package):
+    f90nml.write(
+        {"nml_allcfgs": {"file_tuningmodel_1": "junk"}},
+        join(package.run_dir, "MAGCFG_USER.CFG"),
+        force=True,
+    )
+
+    with pytest.raises(ValueError):
         package.run()
 
     assert package.config is None

@@ -1877,8 +1877,8 @@ def test_magicc_data_append_unset():
     tmetadata = {"mock": 12, "mock 2": "written here"}
     tdf = pd.DataFrame({"test": np.array([1, 2, 3])})
 
-    MAGICCData._read_and_return_metadata_df = MagicMock(return_value=(tmetadata, tdf))
     mdata = MAGICCData()
+    mdata._read_and_return_metadata_df = MagicMock(return_value=(tmetadata, tdf))
 
     assert mdata.df is None
     mdata.append(tfilepath)
@@ -1894,13 +1894,14 @@ def test_magicc_data_append():
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
     tdf_append = pd.DataFrame({"test": np.array([-1, 12, 1.33])})
-    MAGICCData._read_and_return_metadata_df = MagicMock(
-        return_value=(tmetadata_append, tdf_append)
-    )
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
     tdf_init = pd.DataFrame({"test": np.array([1, 2, 3])})
+
     mdata = MAGICCData()
+    mdata._read_and_return_metadata_df = MagicMock(
+        return_value=(tmetadata_append, tdf_append)
+    )
     mdata.df = tdf_init
     mdata.metadata = tmetadata_init
 

@@ -1709,7 +1709,7 @@ class MAGICCData(object):
 
     def write(self, filepath, magicc_version):
         """
-        Write an input file from disk.
+        Write an input file to disk.
 
         Parameters
         ----------
