@@ -553,8 +553,8 @@ class MAGICCBase(object):
             & (results_tcr_ecs_run.region == "World")
         ]
         self._check_tcr_ecs_temp(global_temp)
-        tcr = global_temp[global_temp.time == tcr_yr].value.values
-        ecs = global_temp[global_temp.time == ecs_yr].value.values
+        tcr = global_temp[global_temp.time == tcr_yr].value.values[0]
+        ecs = global_temp[global_temp.time == ecs_yr].value.values[0]
         return tcr, ecs
 
     def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
