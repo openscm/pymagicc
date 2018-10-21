@@ -1551,8 +1551,8 @@ def test_proxy():
 
 def test_incomplete_filepath():
     mdata = MAGICCData()
-    with pytest.raises(NoReaderWriterError):
-        mdata.read(join("/tmp"))
+    with pytest.raises(FileNotFoundError):
+        mdata.read(join("/incomplete/dir/name"))
 
     with pytest.raises(FileNotFoundError):
         mdata.read(join("RCP26.SCEN"))
