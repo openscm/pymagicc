@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#165 <https://github.com/openclimatedata/pymagicc/pull/165>`_) Moved to one unified backend for all run functionality
 - (`#167 <https://github.com/openclimatedata/pymagicc/pull/167>`_) Updated release instructions
 - (`#162 <https://github.com/openclimatedata/pymagicc/pull/162>`_) Added basic tests of integration with MAGICC binaries
 - (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
