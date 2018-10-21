@@ -1,3 +1,6 @@
+"""A simple script that can be used to read and write a file to see the effects of the formatting without having to always stop and debug tests
+"""
+
 import os
 from os.path import join, expanduser
 
