@@ -333,9 +333,9 @@ def test_get_tcr_ecs_from_diagnosis_results(
     assert actual_tcr == expected_tcr
     assert actual_ecs == expected_ecs
 
-    mock_get_tcr_ecs_yr_from_CO2_concs.assert_called_once()
-    mock_check_tcr_ecs_total_RF.assert_called_once()
-    mock_check_tcr_ecs_temp.assert_called_once()
+    assert mock_get_tcr_ecs_yr_from_CO2_concs.call_count == 1
+    assert mock_check_tcr_ecs_total_RF.call_count == 1
+    assert mock_check_tcr_ecs_temp.call_count == 1
 
 
 def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_base):
@@ -481,7 +481,7 @@ def test_diagnose_tcr_ecs(
         ]
     )
     assert mock_get_tcr_ecs_from_results.call_count == 1
-    mock_get_tcr_ecs_from_results.assert_called()
+    assert mock_get_tcr_ecs_from_results.call_count == 1
 
     assert magicc_base.diagnose_tcr_ecs()["ecs"] == mock_ecs_val
     assert mock_diagnose_tcr_ecs_setup.call_count == 2
