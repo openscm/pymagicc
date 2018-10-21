@@ -36,20 +36,34 @@ Basic Usage
 
 .. code:: python
 
-    import pymagicc
-    from pymagicc import scenarios
     import matplotlib.pyplot as plt
 
+    import pymagicc
+    from pymagicc import scenarios
+
     for name, scen in scenarios.items():
-        results, params = pymagicc.run(scen, return_config=True)
-        temp = (results["SURFACE_TEMP"].GLOBAL.loc[1850:] -
-                results["SURFACE_TEMP"].GLOBAL.loc[1850:1900].mean())
+        results = pymagicc.run(scen)
+        results_df = results.df
+        results_df.set_index("time", inplace=True)
+
+        global_temp_time_rows = (
+            (results_df.variable == "Surface Temperature")
+            & (results_df.region == "World")
+        )
+
+        temp = (
+            results_df.value[global_temp_time_rows].loc[1850:]
+            - results_df.value[global_temp_time_rows].loc[1850:1900].mean()
+        )
         temp.plot(label=name)
+
     plt.legend()
     plt.title("Global Mean Temperature Projection")
-    plt.ylabel(u"°C over pre-industrial (1850-1900 mean)")
+    plt.ylabel("°C over pre-industrial (1850-1900 mean)");
+    plt.legend(loc="best")
     # Run `plt.show()` to display the plot when running this example
     # interactively or add `%matplotlib inline` on top when in a Jupyter Notebook.
+
 
 .. sec-begin-example-plot
 
@@ -189,7 +203,7 @@ Use an included scenario
 
     from pymagicc import rcp26
 
-    rcp26["WORLD"].head()
+    rcp26.df.head()
 
 Read a MAGICC scenario file
 ***************************
@@ -200,33 +214,24 @@ Read a MAGICC scenario file
 
     scenario = read_scen_file("PATHWAY.SCEN")
 
-Create a new scenario
-*********************
-
-Pymagicc uses Pandas DataFrames to represent scenarios. Dictionaries are
-used for scenarios with multiple regions.
-
-.. code:: python
-
-    import pandas as pd
-
-    scenario = pd.DataFrame({
-        "FossilCO2": [8, 10, 9],
-        "OtherCO2": [1.2, 1.1, 1.2],
-        "CH4": [300, 250, 200]},
-        index=[2010, 2020, 2030]
-    )
-
 Run MAGICC for a scenario
 *************************
 
 .. code:: python
 
-    output = pymagicc.run(scenario)
+    results = pymagicc.run(scenario)
+    results_df = results.df
+    results_df.set_index("time", inplace=True)
 
-    # Projected temperature adjusted to pre-industrial mean
-    temp = (output["SURFACE_TEMP"].GLOBAL -
-            output["SURFACE_TEMP"].loc[1850:2100].GLOBAL.mean())
+    global_temp_time_rows = (
+        (results_df.variable == "Surface Temperature")
+        & (results_df.region == "World")
+    )
+
+    temp = (
+        results_df.value[global_temp_time_rows].loc[1850:]
+        - results_df.value[global_temp_time_rows].loc[1850:1900].mean()
+    )
 
 Using a different MAGICC version
 ********************************

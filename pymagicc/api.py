@@ -308,9 +308,11 @@ class MAGICCBase(object):
         ----------
         filename : str
             Name of configuration file to write
+
         top_level_key : str
             Name of namelist to be written in the
             configuration file
+
         kwargs
             Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
@@ -338,12 +340,15 @@ class MAGICCBase(object):
         ----------
         filename : str
             Name of configuration file to write
+
         top_level_key : str
             Name of namelist to be written in the
             configuration file
+
         kwargs
             Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
+
         Returns
         -------
         dict
@@ -368,6 +373,7 @@ class MAGICCBase(object):
         ----------
         startyear : int
             Start year of the simulation
+
         endyear : int
             End year of the simulation
 
@@ -388,19 +394,21 @@ class MAGICCBase(object):
     def set_output_variables(self, write_ascii=True, write_binary=False, **kwargs):
         """Writes the output configuration
 
-        There are a number of configuration parameters which control which variables are written to
-        file and in which format. Limiting the variables that are written to file can greatly speed
-        up the running of MAGICC. By default, calling this function without specifying any variables
-        will disable all output.
+        There are a number of configuration parameters which control which variables
+        are written to file and in which format. Limiting the variables that are
+        written to file can greatly speed up the running of MAGICC. By default,
+        calling this function without specifying any variables will disable all output.
 
         Parameters
         ----------
         write_ascii : bool
             If true, MAGICC is configured to write output files as human readable ascii files.
+
         write_binary : bool
             If true, MAGICC is configured to write binary output files. These files are much faster
             to process and write, but are not human readable.
-        kwargs:
+
+        **kwargs:
             List of variables to write out. A list of possible options are as follows. This
             may not be a complete list.
 
