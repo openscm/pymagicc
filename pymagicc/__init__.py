@@ -77,6 +77,9 @@ def run(scenario, magicc_version=6, **kwargs):
     scenario : :obj:`pymagicc.io.MAGICCData`
         Scenario to run
 
+    only : list of str
+        If not None, only extract variables in this list
+
     magicc_version : int
         MAGICC version to use for the run
 
@@ -102,6 +105,7 @@ def run(scenario, magicc_version=6, **kwargs):
         raise ValueError("MAGICC version {} is not available".format(magicc_version))
 
     with magicc_cls() as magicc:
+        kwargs["out_parameters"] = 1 if out_parameters else 0
         results = magicc.run(scenario=scenario, **kwargs)
 
     return results
