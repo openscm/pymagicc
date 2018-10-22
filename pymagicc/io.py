@@ -988,7 +988,7 @@ def get_dattype_regionmode(regions, scen7=False):
     """
     dattype_flag = "THISFILE_DATTYPE"
     regionmode_flag = "THISFILE_REGIONMODE"
-    region_dattype_row = _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=scen7)
+    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
 
     dattype = DATTYPE_REGIONMODE_REGIONS[dattype_flag.lower()][region_dattype_row].iloc[
         0
@@ -1017,13 +1017,13 @@ def get_region_order(regions, scen7=False):
     list
         Region order expected by MAGICC for the given region set.
     """
-    region_dattype_row = _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=scen7)
+    region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
     region_order = DATTYPE_REGIONMODE_REGIONS["regions"][region_dattype_row].iloc[0]
 
     return region_order
 
 
-def _get_DATTYPE_REGIONMODE_REGIONS_row(regions, scen7=False):
+def _get_dattype_regionmode_regions_row(regions, scen7=False):
     regions_unique = set(
         [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
     )
@@ -1167,6 +1167,27 @@ class _InputWriter(object):
     def _get_initial_nml_and_data_block(self):
         data_block = self._get_data_block()
 
+        regions = convert_magicc_to_openscm_regions(
+            data_block.columns.get_level_values("region").tolist(), inverse=True
+        )
+        variables = convert_magicc7_to_openscm_variables(
+            data_block.columns.get_level_values("variable").tolist(), inverse=True
+        )
+        # trailing EMIS is incompatible, for now
+        variables = [v.replace("_EMIS", "") for v in variables]
+        units = convert_pint_to_fortran_safe_units(
+            data_block.columns.get_level_values("unit").tolist()
+        )
+        todos = data_block.columns.get_level_values("todo").tolist()
+
+        data_block = data_block.rename(columns=str).reset_index()
+        data_block.columns = [
+            [self._variable_header_row_name] + variables,
+            ["TODO"] + todos,
+            ["UNITS"] + units,
+            ["YEARS"] + regions,
+        ]
+
         nml = Namelist()
         nml["THISFILE_SPECIFICATIONS"] = Namelist()
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
@@ -1198,9 +1219,7 @@ class _InputWriter(object):
         )
 
         nml["THISFILE_SPECIFICATIONS"].update(
-            get_dattype_regionmode(
-                self._get_df_header_row("region"), scen7=self._scen_7
-            )
+            get_dattype_regionmode(regions, scen7=self._scen_7)
         )
 
         return nml, data_block
@@ -1211,29 +1230,29 @@ class _InputWriter(object):
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
         regions = data_block.columns.get_level_values("region").tolist()
-        region_order = convert_magicc_to_openscm_regions(
-            get_region_order(regions, self._scen_7)
-        )
+        try:
+            region_order_magicc = get_region_order(regions, self._scen_7)
+        except AssertionError:
+            # this deals with the ridiculous case where we need to rename SCEN regions
+            # to SCEN7 regions because the regions ["WORLD", "R5ASIA", "R5LAM",
+            # "R5REF", "R5REF", "R5OECD", "BUNKERS"] don't exist in MAGICC7
+            emergency_mapping = {
+                "World": "World",
+                "World|R5ASIA": "World|R6ASIA",
+                "World|R5REF": "World|R6REF",
+                "World|R5LAM": "World|R6LAM",
+                "World|R5MAF": "World|R6MAF",
+                "World|R5OECD": "World|R6OECD90",
+                "World|Bunkers": "World|Bunkers",
+            }
+            data_block = data_block.rename(
+                emergency_mapping, axis="columns", level="region"
+            )
+            regions = data_block.columns.get_level_values("region").tolist()
+            region_order_magicc = get_region_order(regions, self._scen_7)
+
+        region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
-
-        regions = convert_magicc_to_openscm_regions(
-            data_block.columns.get_level_values("region").tolist(), inverse=True
-        )
-        variables = convert_magicc7_to_openscm_variables(
-            data_block.columns.get_level_values("variable").tolist(), inverse=True
-        )
-        units = convert_pint_to_fortran_safe_units(
-            data_block.columns.get_level_values("unit").tolist()
-        )
-        todos = data_block.columns.get_level_values("todo").tolist()
-
-        data_block = data_block.rename(columns=str).reset_index()
-        data_block.columns = [
-            [self._variable_header_row_name] + variables,
-            ["TODO"] + todos,
-            ["UNITS"] + units,
-            ["YEARS"] + regions,
-        ]
 
         return data_block
 
