@@ -1100,7 +1100,7 @@ class _InputWriter(object):
             copyfileobj(output, output_file)
 
     def _write_header(self, output):
-        output.write(self._get_header())
+        output.write(self._get_header() + 2 * self._newline_char)
         return output
 
     def _get_header(self):
