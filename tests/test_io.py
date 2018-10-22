@@ -2001,3 +2001,22 @@ def test_pull_cfg_from_parameters_out():
     for key, value in result.items():
         for sub_key, sub_value in value.items():
             assert sub_value == expected[key][sub_key]
+
+
+def test_rewrite_scen_as_scen7(temp_dir):
+    starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
+    written_scen = join(temp_dir, "RCP26.SCEN7")
+
+    mdata_initial = MAGICCData()
+    mdata_initial.read(starting_scen)
+    mdata_initial.write(written_scen, magicc_version=7)
+
+    mdata_written = MAGICCData()
+    mdata_written.read(written_scen)
+
+    with open(written_scen, "r") as f:
+        raw_lines = f.read()
+
+    assert sorted(mdata_initial.df.region.unique()) == ['World', 'World|Bunkers', 'World|R5ASIA', 'World|R5LAM', 'World|R5MAF', 'World|R5OECD', 'World|R5REF']
+    assert sorted(mdata_written.df.region.unique()) == ['World', 'World|Bunkers', 'World|R6ASIA', 'World|R6LAM', 'World|R6MAF', 'World|R6OECD90', 'World|R6REF']
+    assert "_EMIS" not in raw_lines

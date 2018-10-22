@@ -349,6 +349,8 @@ class MAGICCBase(object):
         dict
             The contents of the namelist which was written to file
         """
+        kwargs = self._fix_any_backwards_emissions_scen_key_in_config(kwargs)
+
         fname = join(self.run_dir, filename)
         data = {top_level_key: kwargs}
         f90nml.write(data, fname, force=True)
@@ -381,6 +383,8 @@ class MAGICCBase(object):
         dict
             The contents of the namelist which was written to file
         """
+        kwargs = self._fix_any_backwards_emissions_scen_key_in_config(kwargs)
+
         fname = join(self.run_dir, filename)
 
         if exists(fname):
@@ -656,6 +660,22 @@ class MAGICCBase(object):
             raise ValueError(
                 "The TCR/ECS surface temperature looks wrong, it decreases"
             )
+
+    def _use_pymagicc_scenario(self, scenario):
+        raise NotImplementedError
+
+    def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
+        magicc6_emissions_scen_key = "file_emissionscenario"
+        magicc7_emissions_scen_key = "file_emisscen"
+
+        if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
+            config_dict[magicc6_emissions_scen_key] = config_dict[magicc7_emissions_scen_key]
+            config_dict.pop(magicc7_emissions_scen_key)
+        if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
+            config_dict[magicc7_emissions_scen_key] = config_dict[magicc6_emissions_scen_key]
+            config_dict.pop(magicc6_emissions_scen_key)
+
+        return config_dict
 
 
 class MAGICC6(MAGICCBase):

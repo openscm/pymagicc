@@ -53,6 +53,9 @@ def test_run_failure(package):
     if exists(join(package.run_dir, "HISTRCP_CO2I_EMIS.IN")):
         remove(join(package.run_dir, "HISTRCP_CO2I_EMIS.IN"))
 
+    if exists(join(package.run_dir, "HISTSSP_CO2I_EMIS.IN")):
+        remove(join(package.run_dir, "HISTSSP_CO2I_EMIS.IN"))
+
     with pytest.raises(CalledProcessError):
         package.run()
 
@@ -637,7 +640,7 @@ def test_persistant_state_integration(package):
         (
             "SRESA2.SCEN",
             {
-                "file_emissionscenario": "test_filename",
+                "file_emisscen": "test_filename",  # use MAGICC7 flag here, should still pass
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
