@@ -210,6 +210,7 @@ class MAGICCBase(object):
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
         kwargs.setdefault("rundate", get_date_time_string())
+        # TODO: use set_output_variables here somehow
         self.update_config(**kwargs)
 
         exec_dir = basename(self.original_dir)
@@ -548,6 +549,8 @@ class MAGICCBase(object):
             the experiment i.e. atmospheric |CO2| concentrations, total radiative
             forcing and global-mean surface temperature
         """
+        if self.version == 7:
+            raise NotImplementedError("MAGICC7 cannot yet diagnose ECS and TCR")
         self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
             only=[

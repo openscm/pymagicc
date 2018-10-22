@@ -423,6 +423,12 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
 # integration test (i.e. actually runs magicc) hence slow
 @pytest.mark.slow
 def test_integration_diagnose_tcr_ecs(package):
+    if package.version == 7:
+        # MAGICC7 TCR/ECS diagnosis is currently broken....
+        with pytest.raises(NotImplementedError):
+            package.diagnose_tcr_ecs()
+        return
+
     actual_result = package.diagnose_tcr_ecs()
     assert isinstance(actual_result, dict)
     assert "tcr" in actual_result
@@ -569,6 +575,19 @@ def test_output_variables(package):
 
 
 def test_persistant_state(package):
+    test_ecs = 4.3
+    package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
+    actual_results = package.run()
+    assert actual_results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == test_ecs
+
+
+def test_persistant_state_integration(package):
+    if package.version == 7:
+        # MAGICC7 TCR/ECS diagnosis is currently broken hence no easy way to test this
+        # integration....
+        with pytest.raises(NotImplementedError):
+            package.diagnose_tcr_ecs()
+        return
     test_ecs = 1.75
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     actual_results = package.diagnose_tcr_ecs()
