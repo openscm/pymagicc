@@ -24,7 +24,7 @@ CONTACT:  Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean
     THISFILE_FIRSTDATAROW = 31
 /
 
-        GAS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS          CO2I_EMIS
+        GAS               CO2I               CO2I               CO2I               CO2I               CO2I
        TODO                SET                SET                SET                SET                SET
       UNITS           GtCperyr           GtCperyr           GtCperyr           GtCperyr           GtCperyr
       YEARS             R5OECD              R5REF             R5ASIA              R5MAF              R5LAM

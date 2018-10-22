@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#168 <https://github.com/openclimatedata/pymagicc/pull/168>`_) Added MAGICC7 compatibility
 - (`#165 <https://github.com/openclimatedata/pymagicc/pull/165>`_) Moved to one unified backend for all run functionality. This one got a bit out of hand so also includes:
   - Breaking the API, hence requiring significantly re-writing the tests to match the new API, bumping the major version number and updating the examples.
   - Locking up Pymagicc so that it will only run if MAGICC's ``.CFG`` files are configured in the simplest way possible (see :ref:`MAGICC flags`). This required re-writing the ``pymagicc/MAGICC6/run/MAGCFG_USER.CFG`` file that ships with Pymagicc (although the result is the same, as confirmed by the fact that the outputs of the four RCPs are unchanged in ``tests/test_pymagicc.py``).
