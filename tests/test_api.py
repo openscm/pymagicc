@@ -111,7 +111,7 @@ def test_run_failure_no_pymagicc_in_magcfg_user(package, invalid_config):
 
 def test_run_success(package):
     write_config(package)
-    results = package.run()
+    results = package.run(out_parameters=1)
 
     assert isinstance(results, MAGICCData)
     assert len(results.df.variable.unique()) > 1
@@ -580,7 +580,7 @@ def test_output_variables(package):
 def test_persistant_state(package):
     test_ecs = 4.3
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
-    actual_results = package.run()
+    actual_results = package.run(out_parameters=1)
     assert actual_results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == test_ecs
 
 
@@ -614,7 +614,7 @@ def test_persistant_state_integration(package):
         ),
         (
             "HISTRCP_CH4_CONC.IN",
-            {"file_ch4_conc": "test_filename"},
+            {"file_ch4_conc": "test_filename", "out_concentrations": 1},
             ["Atmospheric Concentrations|CH4"],
             1,
             1999,
@@ -637,8 +637,27 @@ def test_persistant_state_integration(package):
             2030,
             20000,
         ),
+
         (
-            "SRESA2.SCEN",
+            "RCP26.SCEN7",
+            {
+                "file_emissionscenario": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            [
+                "Emissions|CO2|MAGICC Fossil and Industrial",
+                "Emissions|CO2|MAGICC AFOLU",
+                "Emissions|CH4|MAGICC Fossil and Industrial",
+                "Emissions|BC|MAGICC Fossil and Industrial",
+                "Emissions|SOx|MAGICC AFOLU",
+                "Emissions|HFC32",
+            ],
+            2030,
+            20000,
+        ),
+        (
+            "SRESA2.SCEN",  # all other SRES scenarios have been removed from MAGICC7's run directory
             {
                 "file_emisscen": "test_filename",  # use MAGICC7 flag here, should still pass
                 "out_emissions": 1,
@@ -664,6 +683,17 @@ def test_pymagicc_writing_compatibility(
     time_check_min,
     time_check_max,
 ):
+    if (package.version == 6) and test_filename.endswith("SCEN7"):
+        # maybe this should throw error instead
+        pytest.skip("MAGICC6 cannot run SCEN7 files")
+    if ("SRES" in test_filename) and (package.version == 7):
+        # maybe this should throw error instead
+        pytest.skip("MAGICC7 cannot run SRES SCEN files")
+    if ("SCEN" in test_filename) and (package.version == 7):
+        # special undocumented flags!!!
+        relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
+        relevant_config["mhalo_adjstfutremis2past_0no1scale"] = 0
+
     for key, value in relevant_config.items():
         if value == "test_filename":
             relevant_config[key] = test_filename

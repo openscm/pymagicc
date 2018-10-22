@@ -166,7 +166,7 @@ class MAGICCBase(object):
             Scenario to run. If None MAGICC will simply run with whatever config has
             already been set.
 
-        only : list
+        only : list of str
             If not None, only extract variables in this list.
 
         Returns
@@ -207,6 +207,7 @@ class MAGICCBase(object):
         for key, value in kwargs.items():
             if key.startswith("out"):
                 kwargs[key] = 1 if value else 0
+
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
         kwargs.setdefault("rundate", get_date_time_string())
