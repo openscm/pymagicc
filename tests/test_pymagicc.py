@@ -38,8 +38,8 @@ def do_basic_run_checks(results):
 
 
 @pytest.mark.slow
-def test_run_rcp26():
-    results = run(rcp26)
+def test_run_rcp26(package):
+    results = run(rcp26, magicc_version=package.version)
 
     result_temp = results.df[
         (results.df.variable == "Surface Temperature")
@@ -51,8 +51,8 @@ def test_run_rcp26():
 
 
 @pytest.mark.slow
-def test_run_rcp45():
-    results = run(rcp45)
+def test_run_rcp45(package):
+    results = run(rcp45, magicc_version=package.version)
 
     result_temp = results.df[
         (results.df.variable == "Surface Temperature")
@@ -64,8 +64,8 @@ def test_run_rcp45():
 
 
 @pytest.mark.slow
-def test_run_rcp60():
-    results = run(rcp60)
+def test_run_rcp60(package):
+    results = run(rcp60, magicc_version=package.version)
 
     result_temp = results.df[
         (results.df.variable == "Surface Temperature")
@@ -77,8 +77,8 @@ def test_run_rcp60():
 
 
 @pytest.mark.slow
-def test_run_rcp85():
-    results = run(rcp85)
+def test_run_rcp85(package):
+    results = run(rcp85, magicc_version=package.version)
 
     result_temp = results.df[
         (results.df.variable == "Surface Temperature")
