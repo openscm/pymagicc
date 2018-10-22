@@ -28,8 +28,6 @@ and ensure that all the code passes CI.
 Next all the documentation should be checked and updated where necessary. This
 includes ensuring that the Changelog contains all major changes.
 
-**Robert what does 'commit the rendered version of the docs to the repository mean'?**
-
 Then the next version number needs to be chosen. We follow
 `Semantic versioning <https://semver.org/>`_, this means that we have versions which
 are in the format "vMajor.Minor.Patch". We then increment the:
