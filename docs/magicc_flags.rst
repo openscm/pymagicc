@@ -1,6 +1,6 @@
 .. include:: _custom_rst_shortcuts.rst
 
-MAGICC Flags
+MAGICC flags
 ============
 
 Appropriately named, this section describes some of the magical flags contained in
@@ -95,25 +95,46 @@ An even more confusing situation is this one.:
 
 The reason this is confusing/annoying is that you have to read, and carefully trace,
 the hierarchy of every single ``.CFG`` file in order to work out what is going to
-happen. I've put a small function which does this in ``scripts/pull_cfg_from_run.py``.
-Note that it still needs to be tested.
+happen. The easier option is to run MAGICC and then just see what comes through in
+``run/PARAMETERS.OUT``. To help this, there are two small functions in ``pymagicc.io``,
+namely ``pull_cfg_from_parameters_out_file`` and ``pull_cfg_from_parameters_out``.
 
-To avoid any really unexpected, silent surprises, we want the pymagicc cfg file, MAGTUNE_PYMAGICC.CFG (which gets altered to MAGTUNE_PYMAGICC.CFG internally by MAGICC) to overwrite everything else. I'll put a solution which actually does this properly up now.
+To avoid any really unexpected, silent surprises, we want the pymagicc `.CFG` file,
+``MAGTUNE_PYMAGICC.CFG`` to overwrite everything else. To save trying to debug
+extremely tricky overwriting setups, we enforce simple configurations in Pymagicc and
+raise ``ValueError`` if they are not adhered to.
 
-Whilst we're here, these 'conventions' gets worse when we compare to what happens with the emission scenario files.
+These 'conventions' become more confusing when we compare to what happens with the
+emission scenario files.
 
-In MAGICC6 it's simple, there's only one emissions scenario file and it goes in FILE_EMISSIONSCENARIO=DFGH. MAGICC then looks for files that match DFGH and DFGH.SCEN.
+In MAGICC6 it's simple, there's only one emissions scenario file and it goes in
+``FILE_EMISSIONSCENARIO=DFGH``. MAGICC then looks for files that match ``DFGH`` and
+``DFGH.SCEN``.
 
-In MAGICC7, there are now multiple FILE_EMISSCEN_X flags (note the shift from FILE_EMISSIONSCENARIO). The values found in the file specified in each FILE_EMISSCEN_X flag overwrite any previously read in values.
+In MAGICC7, there are now multiple ``FILE_EMISSCEN_X`` flags (note the shift from
+``FILE_EMISSIONSCENARIO``). The values found in the file specified in each
+``FILE_EMISSCEN_X`` flag overwrite any previously read in values.
 
-Confusing things here:
+*Gotcha:* The first emissions scenario file is specified by ``FILE_EMISSCEN`` (without
+the number), which matches the MAGICC6 convention for ``FILE_TUNINGMODEL`` but
+contradicts the MAGICC7 convention for ``FILE_TUNINGMODEL``.
 
-The first emissions scenario file is specified by FILE_EMISSCEN (without the number), which matches the MAGICC6 convention for FILE_TUNINGMODEL but contradicts the MAGICC7 convention for FILE_TUNINGMODEL.
+*Gotcha:* Say we have ``FILE_EMISSCEN=DFGH``, MAGICC7 looks for files that match
+``DFGH``, then ``DFGH.SCEN7`` and then ``DFGH.SCEN`` (in that order). Hence the first
+emissions scenario can be SCEN7, or SCEN, with preference being given to SCEN7 files
+if there are two scenario files with the same stem (i.e. ``RCP26.SCEN7`` is chosen
+before ``RCP26.SCEN`` if ``FILE_EMISSCEN=RCP26``).
 
-Say we have FILE_EMISSCEN=DFGH, MAGICC7 looks for files that match DFGH, then DFGH.SCEN7 and then DFGH.SCEN (in that order). Hence the first emissions scenario can be SCEN7, or SCEN, with preference being given to SCEN7 files if there are two scenario files with the same stem (i.e. RCP26.SCEN7 is chosen before RCP26.SCEN if FILE_EMISSCEN=RCP26).
+*Gotcha:* In MAGICC7, only the first ``FILE_EMISSCEN`` can be a ``SCEN`` file (in
+MAGICC6 there can only be ``SCEN`` files so this isn't an issue). All other
+``FILE_EMISSCEN_X`` files can only be SCEN7 files. The rationale here (I think) is
+that SCEN files don't contain easy to read metadata hence overwriting with them is
+difficult/dangerous.
 
-All other FILE_EMISSCEN_X files can only be SCEN7 files. The rationale here (I think) is that SCEN files don't contain easy to read metadata hence overwriting with them is difficult/dangerous.
+*Gotcha:* If you set ``FILE_EMISSCEN_X=NONE`` then MAGICC will just move on to the
+next ``FILE_EMISSCEN_X`` flag. However, from above it's clear that if you set
+``FILE_TUNINGMODEL_X=NONE``, MAGICC will look for ``MAGTUNE_NONE.CFG``, not find it
+and blow up. Hence there's a direct contradiction there too.
 
-If you set FILE_EMISSCEN_X=NONE then MAGICC will just move on to the next FILE_EMISSCEN_X flag. However, from above it's clear (and I've tried it) that if you set FILE_TUNINGMODEL_X=NONE, MAGICC will look for MAGTUNE_NONE.CFG, not find it and blow up. Hence there's a direct contradiction there too.
-
-Of course the final part is that each .CFG file can overwrite the FILE_EMISSCEN_X flags of previous .CFG hence working out which scenario will actually be run is also not trivial.
+*Gotcha:* Of course the final part is that each ``.CFG`` file can overwrite the
+``FILE_EMISSCEN_X`` flags of previous ``.CFG`` hence working out which scenario will actually be run is also not trivial.
