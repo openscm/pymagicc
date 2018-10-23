@@ -19,6 +19,7 @@ Pymagicc
     installation
     usage
     file_conventions
+    magicc_flags
     development
 
 .. toctree::

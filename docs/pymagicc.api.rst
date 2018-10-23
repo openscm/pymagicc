@@ -1,6 +1,8 @@
+.. include:: _custom_rst_shortcuts.rst
+
 pymagicc.api
 ------------
 
 .. automodule:: pymagicc.api
 
-.. |CO2| replace:: CO\ :sub:`2`\
+

@@ -153,7 +153,7 @@ class MAGICCBase(object):
             return None
         return join(self.root_dir, "out")
 
-    def run(self, scenario=None, only=None, out_parameters=True, **kwargs):
+    def run(self, scenario=None, only=None, include_parameters=None, **kwargs):
         """
         Run MAGICC and parse the output.
 
@@ -166,15 +166,17 @@ class MAGICCBase(object):
         only
             If not None, only extract variables in this list
 
-        out_parameters
-            If False, don't read out parameters
+        include_parameters
+            If True, read out parameters. If False, don't read out parameters. If
+            None, do nothing (and hence use whatever config is already set on this
+            MAGICC instance).
 
         Returns
         -------
         :obj:`pymagicc.io.MAGICCData`
             MAGICCData object containing that data in its ``df`` attribute and
-            metadata and parameters (depending on the value of ``out_parameters``) in
-            its ``metadata`` attribute.
+            metadata and parameters (depending on the value of ``include_parameters``)
+            in its ``metadata`` attribute.
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -186,22 +188,14 @@ class MAGICCBase(object):
                 )
             )
 
-        usr_cfg = read_cfg_file(join(self.run_dir, "MAGCFG_USER.CFG"))
-        top_tuning_model_key = sorted(
-            [k for k in usr_cfg["nml_allcfgs"] if k.startswith("file_tuningmodel")]
-        )[-1]
-        top_tuning_model = usr_cfg["nml_allcfgs"][top_tuning_model_key]
-        if top_tuning_model != "PYMAGICC":
-            raise ValueError(
-                "PYMAGICC is not top the tuning model in `MAGCFG_USER.CFG`, your run is likely to fail/do odd things"
-            )
-
         if scenario is not None:
             scen_name = "SCENARIO.SCEN"
             self.write(scenario, scen_name)
 
             # TODO: work out a way to deal with MAGICC7's nested overwrite stuff
             kwargs["file_emissionscenario"] = scen_name
+
+        self.check_config()
 
         yr_config = {}
         if "startyear" in kwargs:
@@ -212,6 +206,9 @@ class MAGICCBase(object):
             self.set_years(**yr_config)
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
+        if include_parameters is not None:
+            kwargs["out_parameters"] = 1 if include_parameters else 0
+
         kwargs.setdefault("rundate", get_date_time_string())
         self.update_config(**kwargs)
 
@@ -249,6 +246,37 @@ class MAGICCBase(object):
                 continue
 
         return mdata
+
+    def check_config(self):
+        """Check that our MAGICC ``.CFG`` files are set to safely work with PYMAGICC
+
+        TODO: Add reference to docs explaining why this is necessary.
+
+        For further detail about why this is required, please see
+
+        Raises
+        ------
+        ValueError
+            If we are not certain that the config written by PYMAGICC will overwrite
+            all other config i.e. that there will be no unexpected behaviour.
+        """
+        raise_cfg_error = False
+        usr_cfg = read_cfg_file(join(self.run_dir, "MAGCFG_USER.CFG"))
+        for k in usr_cfg["nml_allcfgs"]:
+            if k.startswith("file_tuningmodel"):
+                first_tuningmodel = k in ["file_tuningmodel", "file_tuningmodel_1"]
+                if first_tuningmodel:
+                    if usr_cfg["nml_allcfgs"][k] != "PYMAGICC":
+                        raise_cfg_error = True
+                        break
+                elif usr_cfg["nml_allcfgs"][k] not in ["USER", ""]:
+                    raise_cfg_error = True
+                    break
+
+        if raise_cfg_error:
+            raise ValueError(
+                "PYMAGICC is not the only tuning model in `MAGCFG_USER.CFG`, your run is likely to fail/do odd things"
+            )
 
     def write(self, mdata, name):
         """Write an input file to disk

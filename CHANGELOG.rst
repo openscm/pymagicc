@@ -4,6 +4,9 @@ Changelog
 master
 ------
 
+- (`#165 <https://github.com/openclimatedata/pymagicc/pull/165>`_) Moved to one unified backend for all run functionality.
+  - This change breaks the API and requires bumping the major version number.
+  - It also forces users to use a single CFG file and a single emissions file. Hence ``MAGCFG_USER.CFG`` has changed in order to ensure that the default config remains the same.
 - (`#167 <https://github.com/openclimatedata/pymagicc/pull/167>`_) Updated release instructions
 - (`#162 <https://github.com/openclimatedata/pymagicc/pull/162>`_) Added basic tests of integration with MAGICC binaries
 - (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
