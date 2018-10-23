@@ -32,7 +32,7 @@ each of these files).
    MAGICC’s configuration and are always in the format of a FORTRAN90
    namelist.
 4. Files ending in ``.prn`` are emissions input files for ozone
-   depleting substances. This file format comprises of a header row
+   depleting substances. This file format is comprised of a header row
    which contains (unlabelled) information about the first data row,
    start year and end year, then some notes rows, then the data in fixed
    width columns. This file format is used by MAGICC6 but has been
