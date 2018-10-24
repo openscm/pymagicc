@@ -13,7 +13,6 @@ For more details about how these constants are used, see the documentation of
 ``pymagicc.io.get_region_order`` in :ref:`pymagicc.io`.
 """
 from pathlib import Path
-from copy import deepcopy
 import warnings
 
 
@@ -429,7 +428,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
         elif (m6v in one_way_replacements) and not inverse:
-            replacements[m6v] = m7v
+            replacements[m6v] = one_way_replacements[m6v]
         else:
             m7v = m6v.replace("-", "").replace(" ", "").upper()
             # i.e. if we've already got a value for the inverse, we don't # want to overwrite
