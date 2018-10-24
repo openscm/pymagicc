@@ -18,7 +18,7 @@ Conventions
 
 MAGICC's flags have a few repeating conventions which can make them easier to
 understand. However, sometimes the naming convention conflicts with the behaviour so
-it's worth double checking if in doubt. Here we summarise a few of the key conventions:
+it's worth double checking if in doubt. Here we summarise a few key conventions:
 
 - endings like ``0NO1SCALE2SHIFT``: in general, if these flags are set to ``0`` then they will do nothing, if set to ``1`` they will adjust the 'input' series to 'target' series by scaling (i.e. multiplying the whole series by a constant) and if set to ``2`` they will adjust the input series to the target series by shifting (i.e. adding/subtracting a constant to the whole series).
 - ``ABC_NAMES``: defines the variable names which belong to the group which will commonly be referred to with a prefix of ``ABC`` e.g. ``FGAS_NAMES``: defines the F-gases in MAGICC.
@@ -84,7 +84,7 @@ have the following situation:
 - ``MAGTUNE_ZNEXAMPLE.CFG`` sets ``FILE_TUNINGMODEL_2=USER``
     - now ``MAGTUNE_PYMAGICC.CFG`` won't be read at all, destroying our previous impression
 
-An even more confusing situation is this one.:
+An even more confusing situation is this one:
 
 - ``MAGCFG_DEFAULTALL.CFG``` sets ``FILE_TUNINGMODEL=USER`` and ``FILE_TUNINGMODEL_X=USER`` for all X i.e. no overwrites on top of what will be read from ``MAGCFG_DEFAULTALL.CFG`` and ``MAGCFG_USER.CFG``
 - ``MAGCFG_USER.CFG`` sets e.g. ``FILE_TUNINGMODEL=ZNEXAMPLE``, ``FILE_TUNINGMODEL_2=RGEX`` and ``FILE_TUNINGMODEL_3=PYMAGICC``, leaving everything else untouched
@@ -93,16 +93,89 @@ An even more confusing situation is this one.:
 - ``MAGTUNE_RGEX.CFG`` sets ``FILE_TUNINGMODEL=USER`` and ``FILE_TUNINGMODEL_2=USER``.
     - Intuitively, we would expect this to mean that ``MAGTUNE_ZNEXAMPLE.CFG`` and ``MAGTUNE_RGEX.CFG`` will no longer be read, but actually what will happen is that nothing will change. This is because, when ``MAGTUNE_RGEX.CFG`` is read in, it is read in after MAGICC has already looked at the value of the ``FILE_TUNINGMODEL`` and ``FILE_TUNINGMODEL_2`` flags and hence altering this flag, at the point in time when ``MAGTUNE_RGEX.CFG`` is read in, won't have any futher effect.
 
+Finally one more example:
+
+- ``MAGCFG_DEFAULTALL.CFG``` sets ``FILE_TUNINGMODEL=USER`` and ``FILE_TUNINGMODEL_X=USER`` for all X i.e. no overwrites on top of what will be read from ``MAGCFG_DEFAULTALL.CFG`` and ``MAGCFG_USER.CFG``
+- ``MAGCFG_USER.CFG`` sets e.g. ``FILE_TUNINGMODEL=ZNEXAMPLE``, ``FILE_TUNINGMODEL_2=RGEX`` and ``FILE_TUNINGMODEL_3=PYMAGICC``, leaving everything else untouched
+    - hence at this point we would expect MAGICC to read in ``MAGCFG_DEFAULTALL.CFG``, then overwrite its values with values in ``MAGCFG_USER.CFG``, then overwrite those values with values in ``MAGTUNE_ZNEXAMPLE.CFG```, then overwrite those values with values in ``MAGTUNE_RGEX.CFG``, finally overwriting those values with the values in ``MAGTUNE_PYMAGICC.CFG``
+- ``MAGTUNE_ZNEXAMPLE.CFG`` contains ``FILE_TUNINGMODEL_X=""`` for all ``X``
+    - this means that MAGICC will skip reading any more tuning files and hence ``MAGTUNE_RGEX.CFG`` will not be read
+
 The reason this is confusing/annoying is that you have to read, and carefully trace,
 the hierarchy of every single ``.CFG`` file in order to work out what is going to
 happen. The easier option is to run MAGICC and then just see what comes through in
 ``run/PARAMETERS.OUT``. To help this, there are two small functions in ``pymagicc.io``,
 namely ``pull_cfg_from_parameters_out_file`` and ``pull_cfg_from_parameters_out``.
 
-To avoid any really unexpected, silent surprises, we want the pymagicc `.CFG` file,
+An outline of a function which could do this a priori (i.e. by reading the ``.CFG``
+files) might look something like this:
+
+.. code:: python
+
+    from os.path import join, isfile
+
+    import f90nml
+
+    def get_magicc_search_file(base):
+        return "MAGTUNE_{}.CFG".format(base)
+
+    def valid_search_model(base):
+        return ((base != "") and (base != "USER"))
+
+    def update_cfg_from_tuningmodel_like_magicc(cfg, tuningmodel):
+        if valid_search_model(tuningmodel):
+            cfg.update(f90nml.read(join(
+                run_dir,
+                get_magicc_search_file(tuningmodel)
+            )))
+
+        return cfg
+
+    def derive_final_cfg(run_dir, namelist_to_derive):
+        try:
+            cfg = f90nml.read(join(run_dir, "MAGCFG_DEFAULTALL.CFG"))
+        except FileNotFoundError:
+            cfg = f90nml.read(join(run_dir, "MAGCFG_DEFAULTALL_69.CFG"))
+
+        cfg.update(f90nml.read(join(run_dir, "MAGCFG_USER.CFG")))
+
+        # f90nml reads lowercase by default
+        if "file_tuningmodel" in cfg[namelist_to_derive]:
+            cfg = update_cfg_from_tuningmodel_like_magicc(
+                cfg,
+                cfg[namelist_to_derive]["file_tuningmodel"]
+            )
+        elif "file_tuningmodel_1" in cfg:
+            cfg = update_cfg_from_tuningmodel_like_magicc(
+                cfg,
+                cfg[namelist_to_derive]["file_tuningmodel_1"]
+            )
+
+        for i in range(2, 50):
+            key_to_check = "file_tuningmodel_{}".format(i)
+            if key in cfg[namelist_to_derive]:
+                cfg = update_cfg_from_tuningmodel_like_magicc(
+                    cfg,
+                    cfg[namelist_to_derive][key]
+                )
+
+        return cfg
+
+    # Example usage
+    run_dir = "/here/there/MAGICC/run"
+    namelist_to_derive = "all_cfgs"
+    output_file = "./somewhere/else/example.cfg"
+    derive_final_cfg(run_dir, namelist_to_derive).write(output_file)
+
+
+To avoid any really unexpected, silent surprises, we want the pymagicc ``.CFG`` file,
 ``MAGTUNE_PYMAGICC.CFG`` to overwrite everything else. To save trying to debug
 extremely tricky overwriting setups, we enforce simple configurations in Pymagicc and
 raise ``ValueError`` if they are not adhered to.
+
+
+Clash with scenario flags
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These 'conventions' become more confusing when we compare to what happens with the
 emission scenario files.
