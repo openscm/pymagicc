@@ -67,6 +67,7 @@ class MAGICCBase(object):
     """
 
     version = None
+    _scen_file_name = "SCENARIO.SCEN"
 
     def __init__(self, root_dir=None):
         self.root_dir = root_dir
@@ -187,13 +188,7 @@ class MAGICCBase(object):
             )
 
         if scenario is not None:
-            scen_name = "SCENARIO.SCEN"
-            self.write(scenario, scen_name)
-
-            # TODO: work out a way to deal with MAGICC7's nested overwrite stuff
-            kwargs["file_emissionscenario"] = scen_name
-
-        self.check_config()
+            kwargs = self.set_emission_scenario_setup(scenario, kwargs)
 
         yr_config = {}
         if "startyear" in kwargs:
@@ -213,6 +208,8 @@ class MAGICCBase(object):
         kwargs.setdefault("rundate", get_date_time_string())
         # TODO: use set_output_variables here somehow
         self.update_config(**kwargs)
+
+        self.check_config()
 
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
@@ -257,25 +254,44 @@ class MAGICCBase(object):
         ------
         ValueError
             If we are not certain that the config written by PYMAGICC will overwrite
-            all other config i.e. that there will be no unexpected behaviour.
+            all other config i.e. that there will be no unexpected behaviour. A
+            ValueError will also be raised if the user tries to user more than one
+            scenario file.
         """
         raise_cfg_error = False
+        raise_emisscen_error = False
+
+        nml_to_check = "nml_allcfgs"
         usr_cfg = read_cfg_file(join(self.run_dir, "MAGCFG_USER.CFG"))
-        for k in usr_cfg["nml_allcfgs"]:
+        for k in usr_cfg[nml_to_check]:
             if k.startswith("file_tuningmodel"):
                 first_tuningmodel = k in ["file_tuningmodel", "file_tuningmodel_1"]
                 if first_tuningmodel:
-                    if usr_cfg["nml_allcfgs"][k] != "PYMAGICC":
+                    if usr_cfg[nml_to_check][k] != "PYMAGICC":
                         raise_cfg_error = True
                         break
-                elif usr_cfg["nml_allcfgs"][k] not in ["USER", ""]:
+                elif usr_cfg[nml_to_check][k] not in ["USER", ""]:
                     raise_cfg_error = True
+                    break
+
+            elif k.startswith("file_emisscen_"):
+                if usr_cfg[nml_to_check][k] not in ["NONE", ""]:
+                    raise_emisscen_error = True
                     break
 
         if raise_cfg_error:
             raise ValueError(
                 "PYMAGICC is not the only tuning model that will be used by "
                 "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
+            )
+
+        if raise_emisscen_error:
+            raise ValueError(
+                "You have more than one `FILE_EMISSCEN_X` flag set. Using more than "
+                "one emissions scenario is hard to debug and unnecessary with "
+                "Pymagicc's dataframe scenario input. Please combine all your "
+                "scenarios into one dataframe with Pymagicc and pandas, then feed "
+                "this single Dataframe into Pymagicc's run API."
             )
 
     def write(self, mdata, name):
@@ -670,11 +686,39 @@ class MAGICCBase(object):
         magicc7_emissions_scen_key = "file_emisscen"
 
         if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
-            config_dict[magicc6_emissions_scen_key] = config_dict[magicc7_emissions_scen_key]
+            config_dict[magicc6_emissions_scen_key] = config_dict[
+                magicc7_emissions_scen_key
+            ]
             config_dict.pop(magicc7_emissions_scen_key)
         if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
-            config_dict[magicc7_emissions_scen_key] = config_dict[magicc6_emissions_scen_key]
+            config_dict[magicc7_emissions_scen_key] = config_dict[
+                magicc6_emissions_scen_key
+            ]
             config_dict.pop(magicc6_emissions_scen_key)
+
+        return config_dict
+
+    def set_emission_scenario_setup(self, scenario, config_dict):
+        """Set the emissions flags correctly and check that we will only run with one emissions scenario.
+
+        Parameters
+        ----------
+        scenario : :obj:`pymagicc.io.MAGICCData`
+            Scenario to run.
+
+        config_dict : dict
+            Dictionary with current input configurations which is to be validated and
+            updated where necessary.
+
+        Returns
+        -------
+        dict
+            Updated configuration
+        """
+        self.write(scenario, self._scen_file_name)
+        # can be lazy in this line as fix backwards key handles errors for us
+        config_dict["file_emissionscenario"] = self._scen_file_name
+        config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
 
         return config_dict
 
