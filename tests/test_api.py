@@ -109,6 +109,42 @@ def test_run_failure_no_pymagicc_in_magcfg_user(package, invalid_config):
     assert package.config is None
 
 
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        {"nml_allcfgs": {"file_emisscen": "SSP1", "file_emisscen_2": "SSP2"}},
+        {
+            "nml_allcfgs": {
+                "file_emisscen": "SSP1",
+                "file_emisscen_2": "",
+                "file_emisscen_3": "SSP2",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_emisscen": "",
+                "file_emisscen_2": "SSP1",
+                "file_emisscen_3": "SSP2",
+            }
+        },
+    ],
+)
+def test_run_failure_confusing_emissions_scenarios(package, invalid_config):
+    f90nml.write(invalid_config, join(package.run_dir, "MAGCFG_USER.CFG"), force=True)
+
+    error_msg = re.escape(
+        "You have more than one `FILE_EMISSCEN_X` flag set. Using more than one "
+        "emissions scenario is hard to debug and unnecessary with Pymagicc's "
+        "dataframe scenario input. Please combine all your scenarios into one "
+        "dataframe with Pymagicc and pandas, then feed this single Dataframe into "
+        "Pymagicc's run API."
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        package.run()
+
+    assert package.config is None
+
+
 def test_run_success(package):
     write_config(package)
     results = package.run(out_parameters=1)
@@ -427,10 +463,8 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
 @pytest.mark.slow
 def test_integration_diagnose_tcr_ecs(package):
     if package.version == 7:
-        # MAGICC7 TCR/ECS diagnosis is currently broken....
-        with pytest.raises(NotImplementedError):
-            package.diagnose_tcr_ecs()
-        return
+        pytest.xfail(reason="MAGICC7 TCR/ECS diagnosis is currently broken")
+        package.diagnose_tcr_ecs()
 
     actual_result = package.diagnose_tcr_ecs()
     assert isinstance(actual_result, dict)
@@ -581,16 +615,16 @@ def test_persistant_state(package):
     test_ecs = 4.3
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     actual_results = package.run(out_parameters=1)
-    assert actual_results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == test_ecs
+    assert (
+        actual_results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"]
+        == test_ecs
+    )
 
 
 def test_persistant_state_integration(package):
     if package.version == 7:
-        # MAGICC7 TCR/ECS diagnosis is currently broken hence no easy way to test this
-        # integration....
-        with pytest.raises(NotImplementedError):
-            package.diagnose_tcr_ecs()
-        return
+        pytest.xfail(reason="MAGICC7 TCR/ECS diagnosis is currently broken")
+        package.diagnose_tcr_ecs()
     test_ecs = 1.75
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     actual_results = package.diagnose_tcr_ecs()
@@ -637,7 +671,6 @@ def test_persistant_state_integration(package):
             2030,
             20000,
         ),
-
         (
             "RCP26.SCEN7",
             {

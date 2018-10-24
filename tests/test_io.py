@@ -2003,7 +2003,7 @@ def test_pull_cfg_from_parameters_out():
             assert sub_value == expected[key][sub_key]
 
 
-def test_rewrite_scen_as_scen7(temp_dir):
+def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
     starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
     written_scen = join(temp_dir, "RCP26.SCEN7")
 
@@ -2017,6 +2017,22 @@ def test_rewrite_scen_as_scen7(temp_dir):
     with open(written_scen, "r") as f:
         raw_lines = f.read()
 
-    assert sorted(mdata_initial.df.region.unique()) == ['World', 'World|Bunkers', 'World|R5ASIA', 'World|R5LAM', 'World|R5MAF', 'World|R5OECD', 'World|R5REF']
-    assert sorted(mdata_written.df.region.unique()) == ['World', 'World|Bunkers', 'World|R6ASIA', 'World|R6LAM', 'World|R6MAF', 'World|R6OECD90', 'World|R6REF']
+    assert sorted(mdata_initial.df.region.unique()) == [
+        "World",
+        "World|Bunkers",
+        "World|R5ASIA",
+        "World|R5LAM",
+        "World|R5MAF",
+        "World|R5OECD",
+        "World|R5REF",
+    ]
+    assert sorted(mdata_written.df.region.unique()) == [
+        "World",
+        "World|Bunkers",
+        "World|R6ASIA",
+        "World|R6LAM",
+        "World|R6MAF",
+        "World|R6OECD90",
+        "World|R6REF",
+    ]
     assert "_EMIS" not in raw_lines
