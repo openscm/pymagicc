@@ -1895,7 +1895,7 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
     Examples
     --------
     >>> cfg = pull_cfg_from_parameters_out(magicc.metadata["parameters"])
-    >>> cfg.write("/somewhere/else/ANOTHERNAME.txt")
+    >>> cfg.write("/somewhere/else/ANOTHERNAME.cfg")
     """
     single_cfg = Namelist({namelist_to_read: {}})
     for key, value in parameters_out[namelist_to_read].items():
@@ -1950,7 +1950,7 @@ def pull_cfg_from_parameters_out_file(
     Examples
     --------
     >>> cfg = pull_cfg_from_parameters_out_file("PARAMETERS.OUT")
-    >>> cfg.write("/somewhere/else/ANOTHERNAME.txt")
+    >>> cfg.write("/somewhere/else/ANOTHERNAME.cfg")
     """
     parameters_out = read_cfg_file(parameters_out_file)
     return pull_cfg_from_parameters_out(
