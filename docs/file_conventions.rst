@@ -2,6 +2,7 @@ MAGICC file conventions
 =======================
 
 Input files
+-----------
 
 The MAGICC ``run`` directory contains all of MAGICC’s input files. At
 the moment, we have only tested reading of these files. Hence whilst we
@@ -38,3 +39,46 @@ each of these files).
    width columns. This file format is used by MAGICC6 but has been
    deprecated for MAGICC7 in favour of ``*EMIS.IN`` and ``*.SCEN7``
    files.
+
+
+Namelists
+---------
+
+At the top of each input file there is a namelist called ``thisfile_specifications``. It looks something like this
+
+.. code:: Fortran
+
+   &THISFILE_SPECIFICATIONS
+    THISFILE_DATACOLUMNS    =    7  ,
+    THISFILE_DATAROWS       =  266  ,
+    THISFILE_FIRSTYEAR      = 1750  ,
+    THISFILE_LASTYEAR       = 2015  ,
+    THISFILE_ANNUALSTEPS    =    1  ,
+    THISFILE_FIRSTDATAROW   =   99  ,
+    THISFILE_UNITS          = "kt"  ,
+    THISFILE_DATTYPE        = "REGIONDATA"  ,
+    THISFILE_REGIONMODE     = "RCPPLUSBUNKERS"  ,
+   /
+
+We summarise the meaning of these flags below:
+
+- ``THISFILE_DATACOLUMNS``: the number of data columns in the data file (excluding the time axis), this is required to help MAGICC pre-allocate arrays before reading
+- ``THISFILE_DATAROWS`` (MAGICC7 only): the number of data rows in the data file (excluding the time axis), this is required to help MAGICC pre-allocate arrays before reading
+- ``THISFILE_FIRSTYEAR``: the first year to which the data applies
+- ``THISFILE_LASTYEAR``: the last year to which the data applies
+- ``THISFILE_ANNUALSTEPS``: how many slices each year is divided into, i.e. ``THISFILE_ANNUALSTEPS=1`` means the data is annual, ``THISFILE_ANNUALSTEPS=12`` means that data is monthly and ``THISFILE_ANNUALSTEPS=0`` is a special convention to say that the data is given in larger than annual steps and hence must be interpolated by MAGICC internally
+- ``THISFILE_FIRSTDATAROW``: the first row in which data is given, this lets MAGICC skip all the header rows in the data files
+- ``THISFILE_UNITS``: the units of the data in the file, not used by MAGICC internally but provided as confirmation for the user
+- ``THISFILE_DATTYPE``: indicates the type of data provided in the file, see ``pymagicc/definitions/magicc_dattype_regionmode_regions.csv``
+- ``THISFILE_REGIONMODE``: indicates the regions provided in the file, see ``pymagicc/definitions/magicc_dattype_regionmode_regions.csv``
+
+**Note**
+
+The regional set
+``["WORLD", "R5ASIA", "R5LAM", "R5REF", "R5MAF", "R5OECD", "BUNKERS"]``, which was the
+standard for RCP data, is not supported by MAGICC7. Hence we provided an 'emergency
+mapping' in ``pymagicc/io._InputWriter._get_data_block`` which, if we are trying to
+write a ``SCEN7`` file and we are given the RCP regional set, will simply assume that
+it is ok to map to the MAGICC7 regions,
+``["WORLD", "R6ASIA", "R6LAM", "R6REF", "R6MAF", "R6OECD90", "BUNKERS"]`` which are
+supported.

@@ -2,6 +2,7 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
+import warnings
 
 
 import numpy as np
@@ -1250,6 +1251,7 @@ class _InputWriter(object):
             )
             regions = data_block.columns.get_level_values("region").tolist()
             region_order_magicc = get_region_order(regions, self._scen_7)
+            warnings.warn("Writing SCEN7 file with RCP regions, assuming renaming to MAGICC7 regions is ok")
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
