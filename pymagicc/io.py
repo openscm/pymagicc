@@ -1908,9 +1908,11 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
         else:
             try:
                 if isinstance(value, str):
-                    single_cfg[namelist_to_read][key] = value.strip(' \t\n\r').replace("\x00", "")
+                    single_cfg[namelist_to_read][key] = value.strip(" \t\n\r").replace(
+                        "\x00", ""
+                    )
                 elif isinstance(value, list):
-                    clean_list = [v.strip(' \t\n\r').replace("\x00", "") for v in value]
+                    clean_list = [v.strip(" \t\n\r").replace("\x00", "") for v in value]
                     single_cfg[namelist_to_read][key] = [v for v in clean_list if v]
                 else:
                     assert isinstance(value, Number)
@@ -1920,12 +1922,16 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
                     assert all([isinstance(v, Number) for v in value])
                     single_cfg[namelist_to_read][key] = value
                 else:
-                    raise AssertionError("Unexpected cause in out parameters conversion")
+                    raise AssertionError(
+                        "Unexpected cause in out parameters conversion"
+                    )
 
     return single_cfg
 
 
-def pull_cfg_from_parameters_out_file(parameters_out_file, namelist_to_read="nml_allcfgs"):
+def pull_cfg_from_parameters_out_file(
+    parameters_out_file, namelist_to_read="nml_allcfgs"
+):
     """Pull out a single config set from a MAGICC ``PARAMETERS.OUT`` file.
 
     This function reads in the ``PARAMETERS.OUT`` file and returns a single file with
@@ -1951,4 +1957,6 @@ def pull_cfg_from_parameters_out_file(parameters_out_file, namelist_to_read="nml
     >>> cfg.write("/somewhere/else/ANOTHERNAME.txt")
     """
     parameters_out = read_cfg_file(parameters_out_file)
-    return pull_cfg_from_parameters_out(parameters_out, namelist_to_read=namelist_to_read)
+    return pull_cfg_from_parameters_out(
+        parameters_out, namelist_to_read=namelist_to_read
+    )
