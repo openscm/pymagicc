@@ -152,9 +152,13 @@ class MAGICCBase(object):
             return None
         return join(self.root_dir, "out")
 
-    def run(self, scenario=None, only=None, include_parameters=None, **kwargs):
+    def run(self, scenario=None, only=None, **kwargs):
         """
         Run MAGICC and parse the output.
+
+        As a reminder, putting ``out_parameters=1`` will cause MAGICC to write out its
+        parameters into ``out/PARAMETERS.OUT`` and they will then be read into
+        ``output.metadata["parameters"]`` where ``output`` is the returned object.
 
         Parameters
         ----------
@@ -162,13 +166,8 @@ class MAGICCBase(object):
             Scenario to run. If None MAGICC will simply run with whatever config has
             already been set.
 
-        only
-            If not None, only extract variables in this list
-
-        include_parameters
-            If True, read out parameters. If False, don't read out parameters. If
-            None, do nothing (and hence use whatever config is already set on this
-            MAGICC instance).
+        only : list
+            If not None, only extract variables in this list.
 
         Returns
         -------
@@ -203,11 +202,13 @@ class MAGICCBase(object):
             yr_config["endyear"] = kwargs.pop("endyear")
         if yr_config:
             self.set_years(**yr_config)
+
+        # would be ideal to use set_output somehow here...
+        for key, value in kwargs.items():
+            if key.startswith("out"):
+                kwargs[key] = 1 if value else 0
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
-        if include_parameters is not None:
-            kwargs["out_parameters"] = 1 if include_parameters else 0
-
         kwargs.setdefault("rundate", get_date_time_string())
         self.update_config(**kwargs)
 

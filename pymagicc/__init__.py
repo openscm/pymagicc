@@ -64,9 +64,13 @@ rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"))
 scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
 
 
-def run(scenario, magicc_version=6, include_parameters=True, **kwargs):
+def run(scenario, magicc_version=6, **kwargs):
     """
     Run a MAGICC scenario and return output data and (optionally) config parameters.
+
+    As a reminder, putting ``out_parameters=1`` will cause MAGICC to write out its
+    parameters into ``out/PARAMETERS.OUT`` and they will then be read into
+    ``output.metadata["parameters"]`` where ``output`` is the returned object.
 
     Parameters
     ----------
@@ -75,10 +79,6 @@ def run(scenario, magicc_version=6, include_parameters=True, **kwargs):
 
     magicc_version : int
         MAGICC version to use for the run
-
-    include_parameters : bool
-        If True, include the full list of parameters used in the output object's
-        ``metadata`` attribute
 
     **kwargs
         Parameters overwriting default parameters
@@ -102,8 +102,6 @@ def run(scenario, magicc_version=6, include_parameters=True, **kwargs):
         raise ValueError("MAGICC version {} is not available".format(magicc_version))
 
     with magicc_cls() as magicc:
-        results = magicc.run(
-            scenario=scenario, include_parameters=include_parameters, **kwargs
-        )
+        results = magicc.run(scenario=scenario, **kwargs)
 
     return results
