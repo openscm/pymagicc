@@ -76,7 +76,7 @@ setup(
         ],
     },
     include_package_data=True,
-    install_requires=["pandas", "pandas-datapackage-reader", "f90nml"],
+    install_requires=["pandas", "pandas-datapackage-reader", "f90nml", "pyam-iamc"],
     tests_require=["pytest"],
     cmdclass=cmdclass,
 )
