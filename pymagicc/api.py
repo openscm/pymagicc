@@ -699,7 +699,7 @@ class MAGICCBase(object):
         return config_dict
 
     def set_emission_scenario_setup(self, scenario, config_dict):
-        """Set the emissions flags correctly and check that we will only run with one emissions scenario.
+        """Set the emissions flags correctly.
 
         Parameters
         ----------
