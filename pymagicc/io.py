@@ -63,8 +63,8 @@ Some more details about why these files are not supported:
 
 
 def _unsupported_file(filepath):
-    for uns in UNSUPPORTED_OUT_FILES:
-        if re.match(uns, filepath):
+    for outfile in UNSUPPORTED_OUT_FILES:
+        if re.match(outfile, filepath):
             return True
 
     return False
