@@ -5,7 +5,6 @@ from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
 
 import numpy as np
-import pandas as pd
 import f90nml
 
 from .config import config

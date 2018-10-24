@@ -1,4 +1,4 @@
-from os.path import basename, exists, join
+from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
@@ -12,15 +12,12 @@ import re
 from six import StringIO
 
 
-from pymagicc import MAGICC6
 from pymagicc.utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
     PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
     PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1,
     PART_OF_PRNFILE,
-    MAGICC7_EMISSIONS_UNITS,
-    MAGICC7_CONCENTRATIONS_UNITS,
     convert_magicc_to_openscm_regions,
     convert_magicc7_to_openscm_variables,
     convert_magicc6_to_magicc7_variables,
@@ -1697,7 +1694,6 @@ class MAGICCData(object):
         """
         filepath = [filepath] if isinstance(filepath, str) else filepath
 
-        other_mdata = type(self)()
         dfs_to_add = [] if self.df is None else [self.df]
 
         for fp in filepath:

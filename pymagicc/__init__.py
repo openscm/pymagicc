@@ -10,19 +10,13 @@
 
 import logging
 import os
-from os.path import join
 import subprocess
-
-
-import f90nml
-import pandas as pd
 
 
 from ._version import get_versions
 from .config import config as _config
 from .api import MAGICC6, MAGICC7  # noqa
-from .io import MAGICCData, read_cfg_file
-from .utils import get_date_time_string
+from .io import MAGICCData
 
 
 __version__ = get_versions()["version"]
