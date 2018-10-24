@@ -119,7 +119,7 @@ def test_run_failure_no_magcfg_user(package):
         },
     ],
 )
-def test_run_failure_no_pymagicc_in_magcfg_user(package, invalid_c  onfig):
+def test_run_failure_no_pymagicc_in_magcfg_user(package, invalid_config):
     f90nml.write(invalid_config, join(package.run_dir, "MAGCFG_USER.CFG"), force=True)
 
     error_msg = re.escape(

@@ -221,7 +221,6 @@ class MAGICCBase(object):
         # On Windows shell=True is required.
         subprocess.check_call(command, cwd=self.run_dir, shell=IS_WINDOWS)
 
-        # widen this constraint
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
         mdata = MAGICCData()
@@ -250,9 +249,7 @@ class MAGICCBase(object):
     def check_config(self):
         """Check that our MAGICC ``.CFG`` files are set to safely work with PYMAGICC
 
-        TODO: Add reference to docs explaining why this is necessary.
-
-        For further detail about why this is required, please see
+        For further detail about why this is required, please see :ref:`MAGICC flags`.
 
         Raises
         ------
@@ -426,7 +423,7 @@ class MAGICCBase(object):
         There are a number of configuration parameters which control which variables
         are written to file and in which format. Limiting the variables that are
         written to file can greatly speed up the running of MAGICC. By default,
-        calling this function without specifying any variables will disable all output.
+        calling this function without specifying any variables will disable all output by setting all of MAGICC's ``out_xx`` flags to ``0``.
 
         Parameters
         ----------

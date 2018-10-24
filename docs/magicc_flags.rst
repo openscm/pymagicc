@@ -1,5 +1,7 @@
 .. include:: _custom_rst_shortcuts.rst
 
+.. _`MAGICC flags`:
+
 MAGICC flags
 ============
 

@@ -5,8 +5,11 @@ master
 ------
 
 - (`#165 <https://github.com/openclimatedata/pymagicc/pull/165>`_) Moved to one unified backend for all run functionality. This one got a bit out of hand so also includes:
-  - Breaking the API, hence requiring bumping the major version number.
-  -
+  - Breaking the API, hence requiring significantly re-writing the tests to match the new API, bumping the major version number and updating the examples.
+  - Locking up Pymagicc so that it will only run if MAGICC's ``.CFG`` files are configured in the simplest way possible (see :ref:`MAGICC flags`). This required re-writing the ``pymagicc/MAGICC6/run/MAGCFG_USER.CFG`` file that ships with Pymagicc (although the result is the same, as confirmed by the fact that the outputs of the four RCPs are unchanged in ``tests/test_pymagicc.py``).
+  - Adding a function to pull a single configuration file from a MAGICC ``PARAMETERS.OUT`` file to aid the transition to the change referred to above (i.e. one could run MAGICC with whatever config elsewhere and then get a single config file which can be used with Pymagicc from the resulting ``PARAMETERS.OUT`` file).
+  - Tidying up the docs to make linking a bit simpler and more reusable.
+  - Only passing ``filepath`` (i.e. the combination of path and name) to reading/writing functions to remove ambiguity in previous language which used ``file``, ``filepath``, ``path``, ``name`` and ``filename``, sometimes in a self-contradictory way.
 - (`#167 <https://github.com/openclimatedata/pymagicc/pull/167>`_) Updated release instructions
 - (`#162 <https://github.com/openclimatedata/pymagicc/pull/162>`_) Added basic tests of integration with MAGICC binaries
 - (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
