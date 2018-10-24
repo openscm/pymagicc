@@ -108,6 +108,8 @@ def run(scenario, magicc_version=6, include_parameters=True, **kwargs):
         raise ValueError("MAGICC version {} is not available".format(magicc_version))
 
     with magicc_cls() as magicc:
-        results = magicc.run(scenario=scenario, include_parameters=include_parameters, **kwargs)
+        results = magicc.run(
+            scenario=scenario, include_parameters=include_parameters, **kwargs
+        )
 
     return results

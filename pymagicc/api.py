@@ -275,7 +275,8 @@ class MAGICCBase(object):
 
         if raise_cfg_error:
             raise ValueError(
-                "PYMAGICC is not the only tuning model in `MAGCFG_USER.CFG`, your run is likely to fail/do odd things"
+                "PYMAGICC is not the only tuning model that will be used by "
+                "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
             )
 
     def write(self, mdata, name):

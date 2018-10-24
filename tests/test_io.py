@@ -1919,7 +1919,9 @@ def test_magicc_data_append():
 
 @patch("pymagicc.io.pull_cfg_from_parameters_out")
 @patch("pymagicc.io.read_cfg_file")
-def test_pull_cfg_from_parameters_out_file(mock_read_cfg_file, mock_pull_cfg_from_parameters_out):
+def test_pull_cfg_from_parameters_out_file(
+    mock_read_cfg_file, mock_pull_cfg_from_parameters_out
+):
     tfile = "here/there/PARAMETERS.OUT"
     tparas_out = {"nml_allcfgs": {"para_1": 3}}
     tnamelist_out = f90nml.Namelist(tparas_out)
@@ -1930,12 +1932,16 @@ def test_pull_cfg_from_parameters_out_file(mock_read_cfg_file, mock_pull_cfg_fro
     result = pull_cfg_from_parameters_out_file(tfile)
     assert result == tnamelist_out
     mock_read_cfg_file.assert_called_with(tfile)
-    mock_pull_cfg_from_parameters_out.assert_called_with(tparas_out, namelist_to_read="nml_allcfgs")
+    mock_pull_cfg_from_parameters_out.assert_called_with(
+        tparas_out, namelist_to_read="nml_allcfgs"
+    )
 
     result = pull_cfg_from_parameters_out_file(tfile, namelist_to_read="nml_test")
     assert result == tnamelist_out
     mock_read_cfg_file.assert_called_with(tfile)
-    mock_pull_cfg_from_parameters_out.assert_called_with(tparas_out, namelist_to_read="nml_test")
+    mock_pull_cfg_from_parameters_out.assert_called_with(
+        tparas_out, namelist_to_read="nml_test"
+    )
 
 
 def test_pull_cfg_from_parameters_out():
@@ -1954,21 +1960,23 @@ def test_pull_cfg_from_parameters_out():
             "para_2": "string  here too",
             "para_2": [-0.1, 0, 0.1, 0.2],
             "para_2": ["tabs sldx  ", "  abc  ", "\x00", "\x00", " "],
-        }
+        },
     }
 
     result = pull_cfg_from_parameters_out(tparas_out)
-    expected = f90nml.Namelist({
-        "nml_allcfgs": {
-            "para_1": 3,
-            "para_2": "string  here",
-            "para_2": [1, 2, 3, 4],
-            "para_2": ["as sld", "abc"],
-            "file_tuningmodel": "",
-            "file_tuningmodel_2": "",
-            "file_tuningmodel_3": "",
+    expected = f90nml.Namelist(
+        {
+            "nml_allcfgs": {
+                "para_1": 3,
+                "para_2": "string  here",
+                "para_2": [1, 2, 3, 4],
+                "para_2": ["as sld", "abc"],
+                "file_tuningmodel": "",
+                "file_tuningmodel_2": "",
+                "file_tuningmodel_3": "",
+            }
         }
-    })
+    )
     for key, value in result.items():
         for sub_key, sub_value in value.items():
             assert sub_value == expected[key][sub_key]
@@ -1976,14 +1984,16 @@ def test_pull_cfg_from_parameters_out():
     result = pull_cfg_from_parameters_out(
         f90nml.Namelist(tparas_out), namelist_to_read="nml_outcfgs"
     )
-    expected = f90nml.Namelist({
-        "nml_outcfgs": {
-            "para_1": -13,
-            "para_2": "string  here too",
-            "para_2": [-0.1, 0, 0.1, 0.2,],
-            "para_2": ["tabs sldx", "abc",],
+    expected = f90nml.Namelist(
+        {
+            "nml_outcfgs": {
+                "para_1": -13,
+                "para_2": "string  here too",
+                "para_2": [-0.1, 0, 0.1, 0.2],
+                "para_2": ["tabs sldx", "abc"],
+            }
         }
-    })
+    )
     for key, value in result.items():
         for sub_key, sub_value in value.items():
             assert sub_value == expected[key][sub_key]

@@ -2,6 +2,7 @@ from os import remove, environ
 from os.path import exists, join
 from subprocess import CalledProcessError
 from unittest.mock import patch
+import re
 
 
 import numpy as np
@@ -94,14 +95,38 @@ def test_run_failure_no_magcfg_user(package):
     assert package.config is None
 
 
-def test_run_failure_no_pymagicc_in_magcfg_user(package):
-    f90nml.write(
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
         {"nml_allcfgs": {"file_tuningmodel_1": "junk"}},
-        join(package.run_dir, "MAGCFG_USER.CFG"),
-        force=True,
-    )
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "pymagicc",
+                "file_tuningmodel_2": "pymagicc",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "pymagicc",
+                "file_tuningmodel_2": "c4mip_default",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "c4mip_default",
+                "file_tuningmodel_2": "pymagicc",
+            }
+        },
+    ],
+)
+def test_run_failure_no_pymagicc_in_magcfg_user(package, invalid_c  onfig):
+    f90nml.write(invalid_config, join(package.run_dir, "MAGCFG_USER.CFG"), force=True)
 
-    with pytest.raises(ValueError):
+    error_msg = re.escape(
+        "PYMAGICC is not the only tuning model that will be used by "
+        "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
+    )
+    with pytest.raises(ValueError, match=error_msg):
         package.run()
 
     assert package.config is None
