@@ -1945,7 +1945,9 @@ def test_pull_cfg_from_parameters_out():
             "para_2": "  string  here  ",
             "para_2": [1, 2, 3, 4],
             "para_2": [" as sld  ", "abc", "\x00"],
-            "file_tuning": "MAGTUNE_ABC.CFG"
+            "file_tuningmodel": "MAGTUNE_ABC.CFG",
+            "file_tuningmodel_2": "MAGTUNE_DEF.CFG",
+            "file_tuningmodel_3": "MAGTUNE_JAKF.CFG",
         },
         "nml_outcfgs": {
             "para_1": -13,
@@ -1962,7 +1964,9 @@ def test_pull_cfg_from_parameters_out():
             "para_2": "string  here",
             "para_2": [1, 2, 3, 4],
             "para_2": ["as sld", "abc"],
-            "file_tuning": "",
+            "file_tuningmodel": "",
+            "file_tuningmodel_2": "",
+            "file_tuningmodel_3": "",
         }
     })
     for key, value in result.items():
