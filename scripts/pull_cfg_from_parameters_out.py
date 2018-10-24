@@ -1,4 +1,5 @@
 from pymagicc.io import pull_cfg_from_parameters_out_file
 
-cfg = pull_cfg_from_parameters_out_file("/Users/zebedeenicholls/Documents/AGCEC/MCastle/magicc/out/PARAMETERS.OUT")
+file_to_read = "/path/to/somewhere/PARAMETERS.OUT"
+cfg = pull_cfg_from_parameters_out_file(file_to_read)
 cfg.write("./TEST.OUT", force=True)
