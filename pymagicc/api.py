@@ -206,7 +206,7 @@ class MAGICCBase(object):
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
         kwargs.setdefault("rundate", get_date_time_string())
-        # TODO: use set_output_variables here somehow
+
         self.update_config(**kwargs)
 
         self.check_config()
@@ -430,7 +430,7 @@ class MAGICCBase(object):
         dict
             The contents of the namelist
         """
-        # stepsperyear is required and should never be overridden
+        # TODO: test altering stepsperyear, I think 1, 2 and 24 should all work
         return self.set_config(
             "MAGCFG_NMLYEARS.CFG",
             "nml_years",
