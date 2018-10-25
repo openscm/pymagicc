@@ -15,7 +15,7 @@ import subprocess
 
 from ._version import get_versions
 from .config import config as _config
-from .api import MAGICC6, MAGICC7  # noqa
+from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData
 
 

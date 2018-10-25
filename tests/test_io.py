@@ -14,7 +14,7 @@ import pytest
 import f90nml
 
 
-from pymagicc.api import MAGICC6
+from pymagicc.core import MAGICC6
 from pymagicc.io import (
     MAGICCData,
     _InputReader,
