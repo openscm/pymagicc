@@ -1237,7 +1237,7 @@ class _InputWriter(object):
             # this deals with the ridiculous case where we need to rename SCEN regions
             # to SCEN7 regions because the regions ["WORLD", "R5ASIA", "R5LAM",
             # "R5REF", "R5REF", "R5OECD", "BUNKERS"] don't exist in MAGICC7
-            emergency_mapping = {
+            assumed_mapping = {
                 "World": "World",
                 "World|R5ASIA": "World|R6ASIA",
                 "World|R5REF": "World|R6REF",
@@ -1247,11 +1247,15 @@ class _InputWriter(object):
                 "World|Bunkers": "World|Bunkers",
             }
             data_block = data_block.rename(
-                emergency_mapping, axis="columns", level="region"
+                assumed_mapping, axis="columns", level="region"
             )
             regions = data_block.columns.get_level_values("region").tolist()
             region_order_magicc = get_region_order(regions, self._scen_7)
-            warnings.warn("Writing SCEN7 file with RCP regions, assuming renaming to MAGICC7 regions is ok")
+            warn_msg = (
+                "Writing SCEN7 file with RCP regions, assuming directly renaming to "
+                "MAGICC7 regions is ok"
+            )
+            warnings.warn(warn_msg)
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
