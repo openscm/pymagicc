@@ -27,7 +27,7 @@ Pymagicc
     :caption: API reference
 
     pymagicc
-    pymagicc.api
+    pymagicc.core
     pymagicc.io
     pymagicc.definitions
     pymagicc.config
