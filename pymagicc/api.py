@@ -255,7 +255,7 @@ class MAGICCBase(object):
         ValueError
             If we are not certain that the config written by PYMAGICC will overwrite
             all other config i.e. that there will be no unexpected behaviour. A
-            ValueError will also be raised if the user tries to user more than one
+            ValueError will also be raised if the user tries to use more than one
             scenario file.
         """
         raise_cfg_error = False
