@@ -76,7 +76,7 @@ We summarise the meaning of these flags below:
 
 The regional set
 ``["WORLD", "R5ASIA", "R5LAM", "R5REF", "R5MAF", "R5OECD", "BUNKERS"]``, which was the
-standard for RCP data, is not supported by MAGICC7. Hence we provided an 'emergency
+standard for RCP data, is not supported by MAGICC7. Hence we provided an 'assumed
 mapping' in ``pymagicc/io._InputWriter._get_data_block`` which, if we are trying to
 write a ``SCEN7`` file and we are given the RCP regional set, will simply assume that
 it is ok to map to the MAGICC7 regions,

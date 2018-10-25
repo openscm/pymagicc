@@ -258,8 +258,17 @@ class MAGICCBase(object):
             ValueError will also be raised if the user tries to use more than one
             scenario file.
         """
-        raise_cfg_error = False
-        raise_emisscen_error = False
+        cfg_error_msg = (
+            "PYMAGICC is not the only tuning model that will be used by "
+            "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
+        )
+        emisscen_error_msg = (
+            "You have more than one `FILE_EMISSCEN_X` flag set. Using more than "
+            "one emissions scenario is hard to debug and unnecessary with "
+            "Pymagicc's dataframe scenario input. Please combine all your "
+            "scenarios into one dataframe with Pymagicc and pandas, then feed "
+            "this single Dataframe into Pymagicc's run API."
+        )
 
         nml_to_check = "nml_allcfgs"
         usr_cfg = read_cfg_file(join(self.run_dir, "MAGCFG_USER.CFG"))
@@ -268,31 +277,13 @@ class MAGICCBase(object):
                 first_tuningmodel = k in ["file_tuningmodel", "file_tuningmodel_1"]
                 if first_tuningmodel:
                     if usr_cfg[nml_to_check][k] != "PYMAGICC":
-                        raise_cfg_error = True
-                        break
+                        raise ValueError(cfg_error_msg)
                 elif usr_cfg[nml_to_check][k] not in ["USER", ""]:
-                    raise_cfg_error = True
-                    break
+                    raise ValueError(cfg_error_msg)
 
             elif k.startswith("file_emisscen_"):
                 if usr_cfg[nml_to_check][k] not in ["NONE", ""]:
-                    raise_emisscen_error = True
-                    break
-
-        if raise_cfg_error:
-            raise ValueError(
-                "PYMAGICC is not the only tuning model that will be used by "
-                "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
-            )
-
-        if raise_emisscen_error:
-            raise ValueError(
-                "You have more than one `FILE_EMISSCEN_X` flag set. Using more than "
-                "one emissions scenario is hard to debug and unnecessary with "
-                "Pymagicc's dataframe scenario input. Please combine all your "
-                "scenarios into one dataframe with Pymagicc and pandas, then feed "
-                "this single Dataframe into Pymagicc's run API."
-            )
+                    raise ValueError(emisscen_error_msg)
 
     def write(self, mdata, name):
         """Write an input file to disk
@@ -677,9 +668,6 @@ class MAGICCBase(object):
             raise ValueError(
                 "The TCR/ECS surface temperature looks wrong, it decreases"
             )
-
-    def _use_pymagicc_scenario(self, scenario):
-        raise NotImplementedError
 
     def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
         magicc6_emissions_scen_key = "file_emissionscenario"

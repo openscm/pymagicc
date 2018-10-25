@@ -37,10 +37,16 @@ def do_basic_run_checks(results):
     )
 
 
+magicc7_not_included_msg = (
+    "A MAGICC7 binary is not yet included with Pymagicc and hence regression tests "
+    "are not of any use."
+)
+
+
 @pytest.mark.slow
 def test_run_rcp26(package):
     if package.version == 7:
-        pytest.skip("Not ready to test MAGICC7 for RCPs publicly yet")
+        pytest.skip(magicc7_not_included_msg)
     results = run(rcp26, magicc_version=package.version)
 
     result_temp = results.df[
@@ -55,7 +61,7 @@ def test_run_rcp26(package):
 @pytest.mark.slow
 def test_run_rcp45(package):
     if package.version == 7:
-        pytest.skip("Not ready to test MAGICC7 for RCPs publicly yet")
+        pytest.skip(magicc7_not_included_msg)
     results = run(rcp45, magicc_version=package.version)
 
     result_temp = results.df[
@@ -70,7 +76,7 @@ def test_run_rcp45(package):
 @pytest.mark.slow
 def test_run_rcp60(package):
     if package.version == 7:
-        pytest.skip("Not ready to test MAGICC7 for RCPs publicly yet")
+        pytest.skip(magicc7_not_included_msg)
     results = run(rcp60, magicc_version=package.version)
 
     result_temp = results.df[
@@ -85,7 +91,7 @@ def test_run_rcp60(package):
 @pytest.mark.slow
 def test_run_rcp85(package):
     if package.version == 7:
-        pytest.skip("Not ready to test MAGICC7 for RCPs publicly yet")
+        pytest.skip(magicc7_not_included_msg)
     results = run(rcp85, magicc_version=package.version)
 
     result_temp = results.df[
