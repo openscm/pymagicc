@@ -5,7 +5,7 @@ from os.path import exists
 import pytest
 
 
-from pymagicc.api import MAGICC6, MAGICC7
+from pymagicc import MAGICC6, MAGICC7
 
 
 def pytest_addoption(parser):
