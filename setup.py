@@ -42,6 +42,14 @@ with open(os.path.join(path, "README.rst"), "r") as f:
 cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
+install_requirements = [
+    "pandas",
+    "pandas-datapackage-reader",
+    "f90nml",
+    "pyam-iamc",
+    "pyaml"
+]
+
 setup(
     name="pymagicc",
     version=versioneer.get_version(),
@@ -76,7 +84,7 @@ setup(
         ],
     },
     include_package_data=True,
-    install_requires=["pandas", "pandas-datapackage-reader", "f90nml", "pyam-iamc"],
+    install_requires=install_requirements,
     tests_require=["pytest"],
     cmdclass=cmdclass,
 )
