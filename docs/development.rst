@@ -43,8 +43,8 @@ all the changes to GitHub with
 
     git push origin master --tags
 
-Then, a new version can be released on PyPI (see note below about test releases) with
-(getting setup instructions can be found `here <https://blog.jetbrains.com/
+Then, a new version can be released on PyPI (see notes below about setting up PyPI and
+test releases) with (getting setup instructions can be found `here <https://blog.jetbrains.com/
 pycharm/2017/05/how-to-publish-your-package-on-pypi/>`_)
 
 ::
@@ -68,6 +68,31 @@ https://github.com/openclimatedata/pymagicc/releases, pressing 'Draft a new rele
 choosing the tag you just pushed, filling out the form and pressing 'Publish release'.
 Having done these steps, the package will be automatically archived on
 `Zenodo <https://doi.org/10.5281/zenodo.1111815>`__.
+
+
+Setting up PyPI
+~~~~~~~~~~~~~~~
+
+To setup an account with PyPI that will work with our ``Makefile``, follow the 'Register for PyPI' section of `this guide <https://blog.jetbrains.com/pycharm/2017/05/how-to-publish-your-package-on-pypi/>`_. We repeat the key details here.
+
+You must first register for PyPI and the test PyPI sites at https://pypi.org/account/register/ and https://test.pypi.org/account/register/ respectively. Then, in your home directory you need to create a file called ``.pypirc`` which has the following information.
+
+.. code:: ini
+
+    [distutils]
+    index-servers=
+        testpypi
+        pypi
+
+    [testpypi]
+    repository = https://testpypi.python.org/pypi
+    username = name_of_the_user
+    password = hunter2  # optional, otherwise you have to type it everytime
+
+    [pypi]
+    repository = https://pypi.python.org/pypi
+    username = name_of_the_user
+    password = hunter2  # optional, otherwise you have to type it everytime
 
 
 Test release

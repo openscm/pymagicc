@@ -22,6 +22,9 @@ venv: dev-requirements.txt
 update-example-plot:
 	./venv/bin/python scripts/plot_example.py
 
+# first time setup, follow the 'Register for PyPI' section in this
+# https://blog.jetbrains.com/pycharm/2017/05/how-to-publish-your-package-on-pypi/
+# then this works
 publish-on-testpypi: venv
 	-rm -rf build dist
 	@status=$$(git status --porcelain); \
