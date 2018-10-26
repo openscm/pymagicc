@@ -61,6 +61,7 @@ to install Pymagicc in a temporary directory and print its version number.
 
 To ensure the latest Pymagicc version can run in the Mybinder notebook click
 the "Launch Binder" link in the Readme on GitHub. This build might take a while.
+The Binder notebook wilk install the latest version available on PyPI.
 
 Finally, the new version needs to be turned into a release. This requires visiting
 https://github.com/openclimatedata/pymagicc/releases, pressing 'Draft a new release',
