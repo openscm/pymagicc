@@ -47,7 +47,14 @@ install_requirements = [
     "pandas-datapackage-reader",
     "f90nml",
     "pyam-iamc",
-    "pyaml"
+    "PyYAML"
+]
+
+test_requirements = [
+    "pytest",
+    "pytest-cov",
+    "codecov",
+    "goodtables",
 ]
 
 setup(
@@ -85,6 +92,6 @@ setup(
     },
     include_package_data=True,
     install_requires=install_requirements,
-    tests_require=["pytest"],
+    tests_require=test_requirements,
     cmdclass=cmdclass,
 )
