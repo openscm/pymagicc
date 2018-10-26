@@ -9,6 +9,7 @@ RUN dpkg --add-architecture i386
 RUN apt-get update && \
     apt-get install -y wine && \
     apt-get clean
+RUN pip install pip --upgrade
 RUN pip install ipywidgets appmode
 RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
 RUN jupyter nbextension     enable --py --sys-prefix appmode
