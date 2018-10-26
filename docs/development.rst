@@ -99,6 +99,6 @@ Test release
 ~~~~~~~~~~~~
 
 To test publishing on PyPI’s testing instance it is possible to use the
-``publish-on-test-pypi`` and ``test-testpypi-install`` tasks. Versions
+``publish-on-testpypi`` and ``test-testpypi-install`` tasks. Versions
 uploaded there should be deleted after testing.
 

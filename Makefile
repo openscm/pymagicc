@@ -44,7 +44,7 @@ test-testpypi-install: venv
 	# Install pymagicc without dependencies.
 	$(TEMPVENV)/bin/pip install \
 		-i https://testpypi.python.org/pypi pymagicc \
-		--no-dependencies
+		--no-dependencies --pre
 	# Remove local directory from path to get actual installed version.
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
@@ -62,7 +62,7 @@ test-pypi-install: venv
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
-	$(TEMPVENV)/bin/pip install pymagicc
+	$(TEMPVENV)/bin/pip install pymagicc --pre
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
 docs: docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py') venv
