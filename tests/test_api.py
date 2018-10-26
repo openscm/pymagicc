@@ -11,7 +11,8 @@ import pandas as pd
 import f90nml
 
 
-from pymagicc.core import MAGICCBase, MAGICC6, MAGICC7, config, _clean_value
+from pymagicc import MAGICC6, MAGICC7
+from pymagicc.core import MAGICCBase, config, _clean_value
 from pymagicc.io import MAGICCData
 from .test_config import config_override  #  noqa
 
