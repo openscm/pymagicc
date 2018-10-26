@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#170 <https://github.com/openclimatedata/pymagicc/pull/170>`_) Added pyam as a dependency and gave an example of how to integrate with it
 - (`#173 <https://github.com/openclimatedata/pymagicc/pull/173>`_) Renamed
   ``pymagicc.api`` to ``pymagicc.core``
 - (`#168 <https://github.com/openclimatedata/pymagicc/pull/168>`_) Added MAGICC7 compatibility
