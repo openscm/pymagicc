@@ -47,15 +47,10 @@ install_requirements = [
     "pandas-datapackage-reader",
     "f90nml",
     "pyam-iamc",
-    "PyYAML"
+    "PyYAML",
 ]
 
-test_requirements = [
-    "pytest",
-    "pytest-cov",
-    "codecov",
-    "goodtables",
-]
+extra_requirements = {"test": ["pytest", "pytest-cov", "codecov", "goodtables"]}
 
 setup(
     name="pymagicc",
@@ -92,6 +87,6 @@ setup(
     },
     include_package_data=True,
     install_requires=install_requirements,
-    tests_require=test_requirements,
+    extras_require=extra_requirements,
     cmdclass=cmdclass,
 )
