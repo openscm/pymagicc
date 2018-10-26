@@ -59,6 +59,9 @@ To test the released version, one can run
 
 to install Pymagicc in a temporary directory and print its version number.
 
+To ensure the latest Pymagicc version can run in the Mybinder notebook click
+the "Launch Binder" link in the Readme on GitHub. This build might take a while.
+
 Finally, the new version needs to be turned into a release. This requires visiting
 https://github.com/openclimatedata/pymagicc/releases, pressing 'Draft a new release',
 choosing the tag you just pushed, filling out the form and pressing 'Publish release'.
