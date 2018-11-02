@@ -1,6 +1,7 @@
 from os import remove, listdir
 from os.path import dirname, join, isfile, basename
 from copy import deepcopy
+import warnings
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
 from unittest.mock import patch, MagicMock
@@ -705,6 +706,20 @@ def test_load_scen_year_first_column():
     )
     assert sum(row) == 1
     np.testing.assert_allclose(mdata.df[row].value, 0.6470)
+
+
+@patch("pymagicc.io._ScenReader._read_data_header_line")
+def test_load_scen_last_resort_message(mock_scen_header_line_reader):
+    mock_scen_header_line_reader.side_effect = AssertionError
+
+    mdata = MAGICCData()
+
+    error_msg = re.escape(
+        "This is unexpected, please raise an issue on "
+        "https://github.com/openclimatedata/pymagicc/issues"
+    )
+    with pytest.raises(Exception, match=error_msg):
+        mdata.read(join(MAGICC6_DIR, "RCP26.SCEN"))
 
 
 def test_load_scen_sres():
@@ -2045,7 +2060,16 @@ def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
 
     mdata_initial = MAGICCData()
     mdata_initial.read(starting_scen)
-    mdata_initial.write(written_scen, magicc_version=7)
+
+    expected_warning = (
+        "Writing SCEN7 file with RCP regions, assuming directly renaming to "
+        "MAGICC7 regions is ok"
+    )
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        mdata_initial.write(written_scen, magicc_version=7)
+
+    assert len(recorded_warnings) == 1
+    assert str(recorded_warnings[0].message) == expected_warning
 
     mdata_written = MAGICCData()
     mdata_written.read(written_scen)

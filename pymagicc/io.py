@@ -618,14 +618,19 @@ class _ScenReader(_NonStandardEmisInReader):
             region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
 
             try:
-                variables = convert_magicc6_to_magicc7_variables(
-                    self._read_data_header_line(self._stream, "YEARS")
-                )
+                pos_vars = self._stream.tell()
+                variables = self._read_data_header_line(self._stream, "YEARS")
             except IndexError:  # tried to get variables from empty string
                 break
             except AssertionError:  # tried to get variables from a notes line
-                break
+                try:
+                    # just in case...
+                    self._stream.seek(pos_vars)
+                    variables = self._read_data_header_line(self._stream, "YEAR")
+                except AssertionError:
+                    break
 
+            variables = convert_magicc6_to_magicc7_variables(variables)
             ch["variables"] = convert_magicc7_to_openscm_variables(
                 [v + "_EMIS" for v in variables]
             )
@@ -656,7 +661,14 @@ class _ScenReader(_NonStandardEmisInReader):
 
         self._stream.seek(pos_block)
 
-        return self._convert_to_categorical_columns(df)
+        try:
+            return self._convert_to_categorical_columns(df)
+        except NameError:
+            error_msg = (
+                "This is unexpected, please raise an issue on "
+                "https://github.com/openclimatedata/pymagicc/issues"
+            )
+            raise Exception(error_msg)
 
     def _read_notes(self):
         notes = []
