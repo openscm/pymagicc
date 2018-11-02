@@ -671,6 +671,42 @@ def test_load_scen():
     np.testing.assert_allclose(mdata.df[row].value, 5.2133)
 
 
+def test_load_scen_year_first_column():
+    mdata = MAGICCData()
+    mdata.read(join(MAGICC6_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
+
+    generic_mdata_tests(mdata)
+
+    assert "Generic text" in mdata.metadata["header"]
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2000)
+        & (mdata.df["unit"] == "Gt C / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 6.7350)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|N2O")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2002)
+        & (mdata.df["unit"] == "Mt N2ON / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 7.5487)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|HFC4310")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2001)
+        & (mdata.df["unit"] == "kt HFC4310 / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.6470)
+
+
 def test_load_scen_sres():
     mdata = MAGICCData()
     mdata.read(join(MAGICC6_DIR, "SRESA1B.SCEN"))
