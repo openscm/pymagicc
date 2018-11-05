@@ -674,7 +674,7 @@ def test_load_scen():
 
 def test_load_scen_year_first_column():
     mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
+    mdata.read(join(TEST_DATA_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
 
     generic_mdata_tests(mdata)
 

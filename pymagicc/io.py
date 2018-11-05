@@ -383,11 +383,33 @@ class _InputReader(object):
         return metadata
 
     def _read_data_header_line(self, stream, expected_header):
-        tokens = stream.readline().split()
-        assert (
-            tokens[0] == expected_header
-        ), "Expected a header token of {}, got {}".format(expected_header, tokens[0])
-        return tokens[1:]
+        """Read a data header line, ensuring that it starts with the expected header
+
+        Parameters
+        ----------
+        stream : :obj:`StreamIO`
+            Stream object containing the text to read
+
+        expected_header : str, list of strs
+            Expected header of the data header line
+        """
+        pos = stream.tell()
+        expected_header = (
+            [expected_header] if isinstance(expected_header, str) else expected_header
+        )
+        for exp_hd in expected_header:
+            tokens = stream.readline().split()
+            try:
+                assert tokens[0] == exp_hd
+                return tokens[1:]
+            except AssertionError:
+                stream.seek(pos)
+                continue
+
+        assertion_msg = "Expected a header token of {}, got {}".format(
+            expected_header, tokens[0]
+        )
+        raise AssertionError(assertion_msg)
 
     def _unify_magicc_regions(self, regions):
         region_mapping = {
@@ -619,16 +641,11 @@ class _ScenReader(_NonStandardEmisInReader):
 
             try:
                 pos_vars = self._stream.tell()
-                variables = self._read_data_header_line(self._stream, "YEARS")
+                variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
             except IndexError:  # tried to get variables from empty string
                 break
             except AssertionError:  # tried to get variables from a notes line
-                try:
-                    # just in case...
-                    self._stream.seek(pos_vars)
-                    variables = self._read_data_header_line(self._stream, "YEAR")
-                except AssertionError:
-                    break
+                break
 
             variables = convert_magicc6_to_magicc7_variables(variables)
             ch["variables"] = convert_magicc7_to_openscm_variables(
