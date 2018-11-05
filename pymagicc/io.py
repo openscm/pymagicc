@@ -298,12 +298,7 @@ class _InputReader(object):
         # data must be inferred.
         # Note that regions header line is assumed to start with 'COLCODE'
         # or 'YEARS' instead of 'REGIONS'
-        try:
-            pos_regions = stream.tell()
-            regions = self._read_data_header_line(stream, "COLCODE")
-        except AssertionError:
-            stream.seek(pos_regions)
-            regions = self._read_data_header_line(stream, "YEARS")
+        regions = self._read_data_header_line(stream, ["COLCODE", "YEARS"])
 
         try:
             unit = metadata["unit"]
@@ -640,7 +635,6 @@ class _ScenReader(_NonStandardEmisInReader):
             region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
 
             try:
-                pos_vars = self._stream.tell()
                 variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
             except IndexError:  # tried to get variables from empty string
                 break
@@ -652,13 +646,7 @@ class _ScenReader(_NonStandardEmisInReader):
                 [v + "_EMIS" for v in variables]
             )
 
-            try:
-                pos_units = self._stream.tell()
-                ch["units"] = self._read_data_header_line(self._stream, "Yrs")
-            except AssertionError:
-                # for SRES SCEN files
-                self._stream.seek(pos_units)
-                ch["units"] = self._read_data_header_line(self._stream, "YEARS")
+            ch["units"] = self._read_data_header_line(self._stream, ["Yrs", "YEARS"])
 
             ch = self._read_units(ch)
             ch["todos"] = ["SET"] * len(variables)
