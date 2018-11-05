@@ -3,3 +3,4 @@ sphinx_rtd_theme
 sphinx-autodoc-typehints
 f90nml
 pandas
+pandas-datapackage-reader
