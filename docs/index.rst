@@ -18,6 +18,7 @@ Pymagicc
 
     installation
     usage
+    magicc_variables
     file_conventions
     magicc_flags
     development
