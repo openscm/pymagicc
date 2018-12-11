@@ -36,7 +36,7 @@ def test_apply_string_substitutions(
     assert result == treturn
 
     mock_check_substitutions.assert_called_with(
-        tsubstitutions, tinput, tunused_substitutions
+        tsubstitutions, tinput, tunused_substitutions, tcase_insensitive
     )
     mock_compile_replacement_regexp.assert_called_with(
         tsubstitutions, case_insensitive=tcase_insensitive

@@ -36,12 +36,17 @@ def _multiple_replace(in_str, rep_dict, compiled_regexp):
     return out_str
 
 
-def _check_substitutions(substitutions, inputs, unused_substitutions):
+def _check_substitutions(substitutions, inputs, unused_substitutions, case_insensitive):
     if unused_substitutions == "ignore":
         return
 
     _check_inputs = [inputs] if isinstance(inputs, str) else inputs
-    unused = set(_check_inputs) - set(substitutions.keys())
+    _check_subs = list(substitutions.keys())
+    if case_insensitive:
+        _check_inputs = [v.upper() for v in _check_inputs]
+        _check_subs = [v.upper() for v in _check_subs]
+
+    unused = set(_check_inputs) - set(_check_subs)
     if not unused:
         return
 
@@ -139,7 +144,7 @@ def apply_string_substitutions(
     if inverse:
         substitutions = {v: k for k, v in substitutions.items()}
 
-    _check_substitutions(substitutions, inputs, unused_substitutions)
+    _check_substitutions(substitutions, inputs, unused_substitutions, case_insensitive)
 
     compiled_regexp = _compile_replacement_regexp(
         substitutions, case_insensitive=case_insensitive
