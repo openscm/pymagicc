@@ -2113,9 +2113,8 @@ def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
     with warnings.catch_warnings(record=True) as recorded_warnings:
         mdata_initial.write(written_scen, magicc_version=7)
 
-    assert len(recorded_warnings) == 2
+    assert len(recorded_warnings) == 1
     assert str(recorded_warnings[0].message) == expected_warning
-    assert str(recorded_warnings[1].message) == expected_warning
 
     mdata_written = MAGICCData()
     mdata_written.read(written_scen)

@@ -190,13 +190,13 @@ def convert_magicc_to_openscm_regions(regions, inverse=False):
         return apply_string_substitutions(
             regions,
             OPENSCM_REGION_TO_MAGICC_REGION_MAPPING,
-            unused_substitutions="warn",
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
         )
     else:
         return apply_string_substitutions(
             regions,
             MAGICC_REGION_TO_OPENSCM_REGION_MAPPING,
-            unused_substitutions="warn",
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
             case_insensitive=True,  # MAGICC regions are case insensitive
         )
 
@@ -347,7 +347,7 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
         return apply_string_substitutions(
             variables,
             MAGICC7_TO_OPENSCM_VARIABLES_MAPPING,
-            unused_substitutions="warn",
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
             case_insensitive=True,  # MAGICC variables are case insensitive
         )
 
@@ -514,14 +514,14 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
         return apply_string_substitutions(
             variables,
             MAGICC7_TO_MAGICC6_VARIABLES_MAPPING,
-            unused_substitutions="warn",
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
             case_insensitive=True,  # MAGICC variables are case insensitive
         )
     else:
         return apply_string_substitutions(
             variables,
             MAGICC6_TO_MAGICC7_VARIABLES_MAPPING,
-            unused_substitutions="warn",
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
             case_insensitive=True,  # MAGICC variables are case insensitive
         )
 
