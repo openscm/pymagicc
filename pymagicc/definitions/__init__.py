@@ -376,8 +376,18 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings
     magicc6_simple_mapping_vars = [
+        "CH4",
+        "N2O",
+        "BC",
+        "OC",
         "SOx",
         "NOx",
+        "NMVOC",
+        "CO",
+        "SF6",
+        "NH3",
+        "CF4",
+        "C2F6",
         "HFC43-10",
         "HFC-43-10",
         "HFC4310",
@@ -397,6 +407,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "Halon2402",
         "CH3Br",
         "CH3Cl",
+        "C6F14",
     ]
 
     magicc6_sometimes_hyphen_vars = [
