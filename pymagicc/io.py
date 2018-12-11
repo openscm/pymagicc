@@ -636,7 +636,9 @@ class _ScenReader(_NonStandardEmisInReader):
             pos_block = self._stream.tell()
 
             with warnings.catch_warnings(record=True) as warn_result:
-                region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
+                region = convert_magicc_to_openscm_regions(
+                    self._stream.readline().strip()
+                )
             if len(warn_result) != 0:
                 break  # hit an unexpected region
 
