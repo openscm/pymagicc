@@ -85,9 +85,10 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
     assert convert_magicc7_to_openscm_variables(openscm, inverse=True) == magicc7
-    # OpenSCM variables are case sensitive hence this should not work
-    error_msg = re.escape(
-        "No conversion available for {'" + "{}".format(openscm.upper()) + "'}"
-    )
-    with pytest.raises(ValueError, match=error_msg):
+    # OpenSCM variables are case sensitive hence this should warn
+    msg = "No substitution available for {'" + "{}".format(openscm.upper()) + "'}"
+    with warnings.catch_warnings(record=True) as warn_result:
         convert_magicc7_to_openscm_variables(openscm.upper(), inverse=True)
+
+    assert len(warn_result) == 1
+    assert str(warn_result[0].message) == msg

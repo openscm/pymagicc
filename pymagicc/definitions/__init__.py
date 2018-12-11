@@ -188,11 +188,16 @@ def convert_magicc_to_openscm_regions(regions, inverse=False):
     """
     if inverse:
         return apply_string_substitutions(
-            regions, OPENSCM_REGION_TO_MAGICC_REGION_MAPPING
+            regions,
+            OPENSCM_REGION_TO_MAGICC_REGION_MAPPING,
+            unused_substitutions="warn",
         )
     else:
         return apply_string_substitutions(
-            regions, MAGICC_REGION_TO_OPENSCM_REGION_MAPPING
+            regions,
+            MAGICC_REGION_TO_OPENSCM_REGION_MAPPING,
+            unused_substitutions="warn",
+            case_insensitive=True,  # MAGICC regions are case insensitive
         )
 
 
@@ -336,11 +341,14 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
     """
     if inverse:
         return apply_string_substitutions(
-            variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING
+            variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING, unused_substitutions="warn"
         )
     else:
         return apply_string_substitutions(
-            variables, MAGICC7_TO_OPENSCM_VARIABLES_MAPPING
+            variables,
+            MAGICC7_TO_OPENSCM_VARIABLES_MAPPING,
+            unused_substitutions="warn",
+            case_insensitive=True,  # MAGICC variables are case insensitive
         )
 
 
@@ -493,11 +501,17 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
 
     if inverse:
         return apply_string_substitutions(
-            variables, MAGICC7_TO_MAGICC6_VARIABLES_MAPPING
+            variables,
+            MAGICC7_TO_MAGICC6_VARIABLES_MAPPING,
+            unused_substitutions="warn",
+            case_insensitive=True,  # MAGICC variables are case insensitive
         )
     else:
         return apply_string_substitutions(
-            variables, MAGICC6_TO_MAGICC7_VARIABLES_MAPPING
+            variables,
+            MAGICC6_TO_MAGICC7_VARIABLES_MAPPING,
+            unused_substitutions="warn",
+            case_insensitive=True,  # MAGICC variables are case insensitive
         )
 
 

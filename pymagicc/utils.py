@@ -130,10 +130,11 @@ def apply_string_substitutions(
     'Butter'
 
     >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_substitutions="warn")
-    UserWarning("")
+    ...pymagicc/utils.py:50: UserWarning: No substitution available for {'Butter'} warnings.warn(msg)
+    'Butter'
 
     >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_substitutions="raise")
-    ValueError("")
+    ValueError: No substitution available for {'Butter'}
     """
     if inverse:
         substitutions = {v: k for k, v in substitutions.items()}
