@@ -341,7 +341,9 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
     """
     if inverse:
         return apply_string_substitutions(
-            variables, OPENSCM_TO_MAGICC7_VARIABLES_MAPPING, unused_substitutions="warn"
+            variables,
+            OPENSCM_TO_MAGICC7_VARIABLES_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
         )
     else:
         return apply_string_substitutions(

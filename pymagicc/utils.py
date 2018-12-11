@@ -143,7 +143,9 @@ def apply_string_substitutions(
         substitutions = {v: k for k, v in substitutions.items()}
 
     if unused_substitutions != "ignore":
-        _check_substitutions(substitutions, inputs, unused_substitutions, case_insensitive)
+        _check_substitutions(
+            substitutions, inputs, unused_substitutions, case_insensitive
+        )
 
     compiled_regexp = _compile_replacement_regexp(
         substitutions, case_insensitive=case_insensitive

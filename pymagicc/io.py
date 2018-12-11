@@ -632,9 +632,7 @@ class _ScenReader(_NonStandardEmisInReader):
         while True:
             ch = {}
             pos_block = self._stream.tell()
-            region = convert_magicc_to_openscm_regions(
-                self._stream.readline().strip()
-            )
+            region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
 
             try:
                 variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
