@@ -544,11 +544,9 @@ class _StandardEmisInReader(_EmisInReader):
         return [t.replace("EMIS-", "") for t in tokens]
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
-        # turn off warnings for first round
-        with warnings.catch_warnings(record=True):
-            column_headers, metadata = super()._get_column_headers_and_update_metadata(
-                stream, metadata
-            )
+        column_headers, metadata = super()._get_column_headers_and_update_metadata(
+            stream, metadata
+        )
 
         tmp_vars = []
         for v in column_headers["variables"]:
@@ -634,13 +632,9 @@ class _ScenReader(_NonStandardEmisInReader):
         while True:
             ch = {}
             pos_block = self._stream.tell()
-
-            with warnings.catch_warnings(record=True) as warn_result:
-                region = convert_magicc_to_openscm_regions(
-                    self._stream.readline().strip()
-                )
-            if len(warn_result) != 0:
-                break  # hit an unexpected region
+            region = convert_magicc_to_openscm_regions(
+                self._stream.readline().strip()
+            )
 
             try:
                 variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
@@ -1050,10 +1044,9 @@ def get_region_order(regions, scen7=False):
 
 
 def _get_dattype_regionmode_regions_row(regions, scen7=False):
-    with warnings.catch_warnings(record=True):
-        regions_unique = set(
-            [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
-        )
+    regions_unique = set(
+        [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
+    )
 
     def find_region(x):
         return set(x) == regions_unique
