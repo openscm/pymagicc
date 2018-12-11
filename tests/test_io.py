@@ -986,7 +986,10 @@ def test_load_scen7_mhalo():
 
     assert mdata.metadata["date"] == "22-Dec-2017 18:07:18"
     assert mdata.metadata["source"] == "Raw sauce."
-    assert mdata.metadata["description"] == "This scenario file was compiled to run MAGICC."
+    assert (
+        mdata.metadata["description"]
+        == "This scenario file was compiled to run MAGICC."
+    )
     assert "NOTES" in mdata.metadata["header"]
     assert "~~~~~" in mdata.metadata["header"]
     assert "HCFC22" in mdata.metadata["header"]
