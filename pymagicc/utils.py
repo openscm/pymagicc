@@ -15,6 +15,8 @@ import datetime
 
 # Thank you https://stackoverflow.com/a/15448887/10473080
 def _compile_replacement_regexp(rep_dict):
+    # if case_insensitive:
+    #     re.IGNORECASE
     return re.compile(
         "|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]),
         flags=re.DOTALL,
@@ -36,10 +38,10 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
 
     Parameters
     ----------
-    inputs: str, list of str
+    inputs : str, list of str
         The string(s) to which we want to apply the substitutions.
 
-    substitutions: dict
+    substitutions : dict
         The substitutions we wish to make. The keys are the strings we wish to
         substitute, the values are the strings which we want to appear in the output
         strings.
@@ -49,10 +51,18 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
         strings we want to appear in the output strings and the values as the strings
         we wish to substitute.
 
+    case_insensitive : bool
+        If True, the substitutions will be made in a case insensitive way.
+
+    unused_subtitutions : {"ignore", "warn", "raise"}, default ignore
+        Behaviour when one or more of the inputs does not have a corresponding
+        substitution. If "ignore", nothing happens. If "warn", a warning is issued. If
+        "raise", an error is raised. See the examples.
+
     Returns
     -------
     ``type(input)``
-        The input
+        The input with substitutions performed.
 
     Examples
     --------
@@ -77,9 +87,22 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
     >>> apply_string_substitutions("Muttons Butter", {"Mutton": "Gutter", "tt": "zz"})
     'Gutters Buzzer'
     # Longer substitutions take precedent. Hence Mutton becomes Gutter, not Muzzon.
+
+    >>> apply_string_substitutions("Butter", {"buTTer": "Gutter"}, case_insensitive=True)
+    'Gutter'
+
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="ignore")
+    'Butter'
+
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="warn")
+    UserWarning("")
+
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="raise")
+    ValueError("")
     """
     if inverse:
         substitutions = {v: k for k, v in substitutions.items()}
+
     compiled_regexp = _compile_replacement_regexp(substitutions)
 
     inputs_return = deepcopy(inputs)
