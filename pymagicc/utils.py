@@ -7,28 +7,60 @@ thinks, "I need this, I can't find it anywhere else and I would probably use it 
 in another project". One day we may move all these utility functions to another
 project to make it easier for ourselves and others to re-use them.
 """
-
 from copy import deepcopy
 import re
 import datetime
+import warnings
 
 
 # Thank you https://stackoverflow.com/a/15448887/10473080
-def _compile_replacement_regexp(rep_dict):
-    # if case_insensitive:
-    #     re.IGNORECASE
+def _compile_replacement_regexp(rep_dict, case_insensitive=False):
+
+    if case_insensitive:
+        flags = re.DOTALL | re.IGNORECASE
+    else:
+        flags = re.DOTALL
+
     return re.compile(
         "|".join([re.escape(k) for k in sorted(rep_dict, key=len, reverse=True)]),
-        flags=re.DOTALL,
+        flags=flags,
     )
 
 
 def _multiple_replace(in_str, rep_dict, compiled_regexp):
-    out_str = compiled_regexp.sub(lambda x: rep_dict[x.group(0)], in_str)
+    # to handle cases where compiled regexp is case insensitive, we can alter our
+    # rep dict to be all upper case cases and then replace by converting our groups
+    # to all upper case too
+    rep_dict = {k.upper(): v for k, v in rep_dict.items()}
+    out_str = compiled_regexp.sub(lambda x: rep_dict[x.group(0).upper()], in_str)
     return out_str
 
 
-def apply_string_substitutions(inputs, substitutions, inverse=False):
+def _check_substitutions(substitutions, inputs, unused_substitutions):
+    if unused_substitutions == "ignore":
+        return
+
+    _check_inputs = [inputs] if isinstance(inputs, str) else inputs
+    unused = set(_check_inputs) - set(substitutions.keys())
+    if not unused:
+        return
+
+    msg = "No substitution available for {}".format(unused)
+    if unused_substitutions == "warn":
+        warnings.warn(msg)
+    elif unused_substitutions == "raise":
+        raise ValueError(msg)
+    else:
+        raise ValueError("Invalid value for unused_substitutions, please see the docs")
+
+
+def apply_string_substitutions(
+    inputs,
+    substitutions,
+    inverse=False,
+    case_insensitive=False,
+    unused_substitutions="ignore",
+):
     """Apply a number of substitutions to a string(s).
 
     The substitutions are applied effectively all at once. This means that conflicting
@@ -54,7 +86,7 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
     case_insensitive : bool
         If True, the substitutions will be made in a case insensitive way.
 
-    unused_subtitutions : {"ignore", "warn", "raise"}, default ignore
+    unused_substitutions : {"ignore", "warn", "raise"}, default ignore
         Behaviour when one or more of the inputs does not have a corresponding
         substitution. If "ignore", nothing happens. If "warn", a warning is issued. If
         "raise", an error is raised. See the examples.
@@ -91,19 +123,26 @@ def apply_string_substitutions(inputs, substitutions, inverse=False):
     >>> apply_string_substitutions("Butter", {"buTTer": "Gutter"}, case_insensitive=True)
     'Gutter'
 
-    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="ignore")
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"})
     'Butter'
 
-    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="warn")
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_substitutions="ignore")
+    'Butter'
+
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_substitutions="warn")
     UserWarning("")
 
-    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_subtitutions="raise")
+    >>> apply_string_substitutions("Butter", {"teeth": "tooth"}, unused_substitutions="raise")
     ValueError("")
     """
     if inverse:
         substitutions = {v: k for k, v in substitutions.items()}
 
-    compiled_regexp = _compile_replacement_regexp(substitutions)
+    _check_substitutions(substitutions, inputs, unused_substitutions)
+
+    compiled_regexp = _compile_replacement_regexp(
+        substitutions, case_insensitive=case_insensitive
+    )
 
     inputs_return = deepcopy(inputs)
     if isinstance(inputs_return, str):

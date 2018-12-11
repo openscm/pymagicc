@@ -1,4 +1,5 @@
 from unittest.mock import patch
+import warnings
 
 
 import pytest
@@ -11,7 +12,9 @@ from pymagicc.utils import apply_string_substitutions
 @patch("pymagicc.utils._compile_replacement_regexp")
 @patch("pymagicc.utils._multiple_replace")
 @patch("pymagicc.utils._check_substitutions")
-def test_apply_string_substitutions(mock_check_substitutions, mock_multiple_replace, mock_compile_replacement_regexp):
+def test_apply_string_substitutions(
+    mock_check_substitutions, mock_multiple_replace, mock_compile_replacement_regexp
+):
     treturn = "mocked return"
     mock_multiple_replace.return_value = treturn
 
@@ -21,14 +24,23 @@ def test_apply_string_substitutions(mock_check_substitutions, mock_multiple_repl
     tinput = "Hello JimBob"
     tsubstitutions = {"Jim": "Bob"}
     tcase_insensitive = "mocked case insensitivity"
-    tunused_subsitutions = "mocked unused substitutions"
+    tunused_substitutions = "mocked unused substitutions"
 
-    result = apply_string_substitutions(tinput, tsubstitutions, case_insensitive=tcase_insensitive, unused_substitutions=tunused_subsitutions)
+    result = apply_string_substitutions(
+        tinput,
+        tsubstitutions,
+        case_insensitive=tcase_insensitive,
+        unused_substitutions=tunused_substitutions,
+    )
 
     assert result == treturn
 
-    mock_check_substitutions.assert_called_with(tsubstitutions, tunused_subsitutions)
-    mock_compile_replacement_regexp.assert_called_with(tsubstitutions)
+    mock_check_substitutions.assert_called_with(
+        tsubstitutions, tinput, tunused_substitutions
+    )
+    mock_compile_replacement_regexp.assert_called_with(
+        tsubstitutions, case_insensitive=tcase_insensitive
+    )
     mock_multiple_replace.assert_called_with(tinput, tsubstitutions, tcompiled_regexp)
 
 
@@ -38,7 +50,11 @@ def test_apply_string_substitutions(mock_check_substitutions, mock_multiple_repl
     "inputs, substitutions, expected",
     [
         ("Hello JimBob", {"Jim": "Bob"}, "Hello BobBob"),
-        (["Hello JimBob", "Jim says, 'Hi Bob'"], {"Jim": "Bob"}, ['Hello BobBob', "Bob says, 'Hi Bob'"]),
+        (
+            ["Hello JimBob", "Jim says, 'Hi Bob'"],
+            {"Jim": "Bob"},
+            ["Hello BobBob", "Bob says, 'Hi Bob'"],
+        ),
         ("Muttons Butter", {"M": "B", "Button": "Zip"}, "Buttons Butter"),
         ("Muttons Butter", {"Mutton": "Gutter", "tt": "zz"}, "Gutters Buzzer"),
     ],
@@ -52,7 +68,11 @@ def test_apply_string_substitutions_default(inputs, substitutions, expected):
     "inputs, substitutions, expected",
     [
         ("Hello JimBob", {"Jim": "Bob"}, "Hello JimJim"),
-        (["Hello JimBob", "Jim says, 'Hi Bob'"], {"Jim": "Bob"}, ['Hello JimJim', "Jim says, 'Hi Jim'"]),
+        (
+            ["Hello JimBob", "Jim says, 'Hi Bob'"],
+            {"Jim": "Bob"},
+            ["Hello JimJim", "Jim says, 'Hi Jim'"],
+        ),
     ],
 )
 def test_apply_string_substitutions_inverse(inputs, substitutions, expected):
@@ -61,10 +81,7 @@ def test_apply_string_substitutions_inverse(inputs, substitutions, expected):
 
 
 @pytest.mark.parametrize(
-    "inputs, substitutions, expected",
-    [
-        ("Butter", {"buTTer": "Gutter"}, "Gutter"),
-    ],
+    "inputs, substitutions, expected", [("Butter", {"buTTer": "Gutter"}, "Gutter")]
 )
 def test_apply_string_substitutions_case_insensitive(inputs, substitutions, expected):
     result = apply_string_substitutions(inputs, substitutions, case_insensitive=True)
@@ -77,27 +94,36 @@ def test_apply_string_substitutions_case_insensitive(inputs, substitutions, expe
         ("Butter", {"teeth": "tooth"}, "ignore"),
         ("Butter", {"teeth": "tooth"}, "warn"),
         ("Butter", {"teeth": "tooth"}, "raise"),
+        ("Butter", {"teeth": "tooth"}, "junk"),
     ],
 )
-def test_apply_string_substitutions_unused_substitutions(inputs, substitutions, unused_substitutions):
+def test_apply_string_substitutions_unused_substitutions(
+    inputs, substitutions, unused_substitutions
+):
     if unused_substitutions == "ignore":
-        result = apply_string_substitutions(inputs, substitutions, unused_substitutions=unused_substitutions)
+        result = apply_string_substitutions(
+            inputs, substitutions, unused_substitutions=unused_substitutions
+        )
         assert result == inputs
         return
 
-    msg = re.escape(
-        "No substitution available for {'"
-        + "{}".format(inputs)
-        + "'}"
-    )
+    msg = "No substitution available for {'" + "{}".format(inputs) + "'}"
     if unused_substitutions == "warn":
         with warnings.catch_warnings(record=True) as warn_result:
-            apply_string_substitutions(inputs, substitutions, unused_substitutions=unused_substitutions)
+            apply_string_substitutions(
+                inputs, substitutions, unused_substitutions=unused_substitutions
+            )
 
         assert len(warn_result) == 1
         assert str(warn_result[0].message) == msg
     elif unused_substitutions == "raise":
-        with pytest.raises(ValueError, match=msg):
-            apply_string_substitutions(inputs, substitutions, unused_substitutions=unused_substitutions)
+        with pytest.raises(ValueError, match=re.escape(msg)):
+            apply_string_substitutions(
+                inputs, substitutions, unused_substitutions=unused_substitutions
+            )
     else:
-        assert False
+        msg = re.escape("Invalid value for unused_substitutions, please see the docs")
+        with pytest.raises(ValueError, match=msg):
+            apply_string_substitutions(
+                inputs, substitutions, unused_substitutions=unused_substitutions
+            )
