@@ -978,6 +978,47 @@ def test_load_scen7():
     np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
+def test_load_scen7_mhalo():
+    mdata = MAGICCData()
+    mdata.read(join(TEST_DATA_DIR, "TEST_MHALO.SCEN7"))
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "22-Dec-2017 18:07:18"
+    assert mdata.metadata["source"] == "Raw sauce."
+    assert mdata.metadata["description"] == "This scenario file was compiled to run MAGICC."
+    assert "NOTES" in mdata.metadata["header"]
+    assert "~~~~~" in mdata.metadata["header"]
+    assert "HCFC22" in mdata.metadata["header"]
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CFC11")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2015)
+        & (mdata.df["unit"] == "kt CFC11 / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.343277)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|CH3Br")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2065)
+        & (mdata.df["unit"] == "kt CH3Br / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.925486)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|Halon1301")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2100)
+        & (mdata.df["unit"] == "kt Halon1301 / yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.047699, rtol=1e-4)
+
+
 def test_load_prn():
     mdata = MAGICCData()
     mdata.read(join(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn"))

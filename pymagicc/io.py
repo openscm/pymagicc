@@ -544,9 +544,11 @@ class _StandardEmisInReader(_EmisInReader):
         return [t.replace("EMIS-", "") for t in tokens]
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
-        column_headers, metadata = super()._get_column_headers_and_update_metadata(
-            stream, metadata
-        )
+        # turn off warnings for first round
+        with warnings.catch_warnings(record=True):
+            column_headers, metadata = super()._get_column_headers_and_update_metadata(
+                stream, metadata
+            )
 
         tmp_vars = []
         for v in column_headers["variables"]:
@@ -632,7 +634,11 @@ class _ScenReader(_NonStandardEmisInReader):
         while True:
             ch = {}
             pos_block = self._stream.tell()
-            region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
+
+            with warnings.catch_warnings(record=True) as warn_result:
+                region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
+            if len(warn_result) != 0:
+                break  # hit an unexpected region
 
             try:
                 variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
