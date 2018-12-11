@@ -1050,9 +1050,10 @@ def get_region_order(regions, scen7=False):
 
 
 def _get_dattype_regionmode_regions_row(regions, scen7=False):
-    regions_unique = set(
-        [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
-    )
+    with warnings.catch_warnings(record=True):
+        regions_unique = set(
+            [convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)]
+        )
 
     def find_region(x):
         return set(x) == regions_unique
@@ -1259,6 +1260,7 @@ class _InputWriter(object):
         try:
             region_order_magicc = get_region_order(regions, self._scen_7)
         except AssertionError:
+            # TODO: remove this as MAGICC7 now doesn't require this remapping
             # this deals with the ridiculous case where we need to rename SCEN regions
             # to SCEN7 regions because the regions ["WORLD", "R5ASIA", "R5LAM",
             # "R5REF", "R5REF", "R5OECD", "BUNKERS"] don't exist in MAGICC7

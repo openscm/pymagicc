@@ -2099,6 +2099,7 @@ def test_pull_cfg_from_parameters_out():
 
 
 def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
+    # TODO: remove this test as MAGICC7 now works with old region mapping
     starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
     written_scen = join(temp_dir, "RCP26.SCEN7")
 
@@ -2112,8 +2113,9 @@ def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
     with warnings.catch_warnings(record=True) as recorded_warnings:
         mdata_initial.write(written_scen, magicc_version=7)
 
-    assert len(recorded_warnings) == 1
+    assert len(recorded_warnings) == 2
     assert str(recorded_warnings[0].message) == expected_warning
+    assert str(recorded_warnings[1].message) == expected_warning
 
     mdata_written = MAGICCData()
     mdata_written.read(written_scen)

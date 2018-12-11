@@ -66,6 +66,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("CH4_EMIS", "Emissions|CH4"),
         ("CH3CCl3_EMIS", "Emissions|CH3CCl3"),
         ("CH3CCL3_EMIS", "Emissions|CH3CCl3"),
+        ("CH4_CONC", "Atmospheric Concentrations|CH4"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
