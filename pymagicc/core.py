@@ -233,8 +233,8 @@ class MAGICCBase(object):
         for filepath in outfiles:
             try:
                 reader = mdata.determine_tool(filepath, "reader")(filepath)
-                openscm_var = convert_magicc6_to_magicc7_variables(
-                    convert_magicc7_to_openscm_variables(
+                openscm_var = convert_magicc7_to_openscm_variables(
+                    convert_magicc6_to_magicc7_variables(
                         reader._get_variable_from_filepath()
                     )
                 )
