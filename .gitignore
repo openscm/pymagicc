@@ -1,3 +1,4 @@
+tests/test_data/TEST_MHALO.SCEN7
 # Config files generated from example script ``pull_cfg_from_parameters_out.py``
 scripts/*.CFG
 
