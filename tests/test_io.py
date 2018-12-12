@@ -2,10 +2,7 @@ from os import remove, listdir
 from os.path import dirname, join, isfile, basename
 from copy import deepcopy
 import warnings
-from tempfile import mkstemp, mkdtemp
-from shutil import rmtree
 from unittest.mock import patch, MagicMock
-import pkg_resources
 
 
 import numpy as np
@@ -28,8 +25,8 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out_file,
     pull_cfg_from_parameters_out,
 )
+from .conftest import MAGICC6_DIR
 
-MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
 TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
@@ -1736,22 +1733,6 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         assert conc_reader._get_variable_from_filepath() == expected_variable
 
 
-@pytest.fixture
-def temp_file():
-    temp_file = mkstemp()[1]
-    yield temp_file
-    print("deleting {}".format(temp_file))
-    remove(temp_file)
-
-
-@pytest.fixture
-def temp_dir():
-    temp_dir = mkdtemp()
-    yield temp_dir
-    print("deleting {}".format(temp_dir))
-    rmtree(temp_dir)
-
-
 @pytest.mark.parametrize(
     "starting_fpath, starting_fname, confusing_metadata",
     [
@@ -2096,48 +2077,3 @@ def test_pull_cfg_from_parameters_out():
     for key, value in result.items():
         for sub_key, sub_value in value.items():
             assert sub_value == expected[key][sub_key]
-
-
-def test_rewrite_scen_as_scen7_including_emergency_region_mapping(temp_dir):
-    # TODO: remove this test as MAGICC7 now works with old region mapping
-    starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
-    written_scen = join(temp_dir, "RCP26.SCEN7")
-
-    mdata_initial = MAGICCData()
-    mdata_initial.read(starting_scen)
-
-    expected_warning = (
-        "Writing SCEN7 file with RCP regions, assuming directly renaming to "
-        "MAGICC7 regions is ok"
-    )
-    with warnings.catch_warnings(record=True) as recorded_warnings:
-        mdata_initial.write(written_scen, magicc_version=7)
-
-    assert len(recorded_warnings) == 1
-    assert str(recorded_warnings[0].message) == expected_warning
-
-    mdata_written = MAGICCData()
-    mdata_written.read(written_scen)
-
-    with open(written_scen, "r") as f:
-        raw_lines = f.read()
-
-    assert sorted(mdata_initial.df.region.unique()) == [
-        "World",
-        "World|Bunkers",
-        "World|R5ASIA",
-        "World|R5LAM",
-        "World|R5MAF",
-        "World|R5OECD",
-        "World|R5REF",
-    ]
-    assert sorted(mdata_written.df.region.unique()) == [
-        "World",
-        "World|Bunkers",
-        "World|R6ASIA",
-        "World|R6LAM",
-        "World|R6MAF",
-        "World|R6OECD90",
-        "World|R6REF",
-    ]
-    assert "_EMIS" not in raw_lines

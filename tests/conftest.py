@@ -1,11 +1,17 @@
 import os
 from os.path import exists
+import pkg_resources
+from tempfile import mkstemp, mkdtemp
+from shutil import rmtree
 
 
 import pytest
 
 
 from pymagicc import MAGICC6, MAGICC7
+
+
+MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 
 
 def pytest_addoption(parser):
@@ -47,3 +53,19 @@ def package(request):
     # Perform cleanup after tests are complete
     p.remove_temp_copy()
     assert not exists(root_dir)
+
+
+@pytest.fixture
+def temp_file():
+    temp_file = mkstemp()[1]
+    yield temp_file
+    print("deleting {}".format(temp_file))
+    remove(temp_file)
+
+
+@pytest.fixture
+def temp_dir():
+    temp_dir = mkdtemp()
+    yield temp_dir
+    print("deleting {}".format(temp_dir))
+    rmtree(temp_dir)
