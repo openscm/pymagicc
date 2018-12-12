@@ -15,6 +15,7 @@ from pymagicc import MAGICC6, MAGICC7
 from pymagicc.core import MAGICCBase, config, _clean_value
 from pymagicc.io import MAGICCData
 from .test_config import config_override  #  noqa
+from .conftest import MAGICC6_DIR
 
 
 @pytest.fixture(scope="function")
@@ -160,6 +161,25 @@ def test_run_success(package):
 def test_run_only(package):
     write_config(package)
     results = package.run(only=["Surface Temperature"])
+
+    assert len(results.df.variable.unique()) == 1
+    assert "Surface Temperature" in results.df.variable.unique()
+
+
+def test_run_rewritten_scen_file(package, temp_dir):
+    # this used to fail with early implementations of MAGICC7
+    starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
+    written_scen = join(package.run_dir, "RCP26.SCEN7")
+
+    mdata_initial = MAGICCData()
+    mdata_initial.read(starting_scen)
+
+    mdata_initial.write(written_scen, magicc_version=7)
+
+    mdata_written = MAGICCData()
+    mdata_written.read(written_scen)
+
+    results = package.run(mdata_written, only=["Surface Temperature"])
 
     assert len(results.df.variable.unique()) == 1
     assert "Surface Temperature" in results.df.variable.unique()
