@@ -1248,32 +1248,7 @@ class _InputWriter(object):
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
         regions = data_block.columns.get_level_values("region").tolist()
-        try:
-            region_order_magicc = get_region_order(regions, self._scen_7)
-        except AssertionError:
-            # TODO: remove this as MAGICC7 now doesn't require this remapping
-            # this deals with the ridiculous case where we need to rename SCEN regions
-            # to SCEN7 regions because the regions ["WORLD", "R5ASIA", "R5LAM",
-            # "R5REF", "R5REF", "R5OECD", "BUNKERS"] don't exist in MAGICC7
-            assumed_mapping = {
-                "World": "World",
-                "World|R5ASIA": "World|R6ASIA",
-                "World|R5REF": "World|R6REF",
-                "World|R5LAM": "World|R6LAM",
-                "World|R5MAF": "World|R6MAF",
-                "World|R5OECD": "World|R6OECD90",
-                "World|Bunkers": "World|Bunkers",
-            }
-            data_block = data_block.rename(
-                assumed_mapping, axis="columns", level="region"
-            )
-            regions = data_block.columns.get_level_values("region").tolist()
-            region_order_magicc = get_region_order(regions, self._scen_7)
-            warn_msg = (
-                "Writing SCEN7 file with RCP regions, assuming directly renaming to "
-                "MAGICC7 regions is ok"
-            )
-            warnings.warn(warn_msg)
+        region_order_magicc = get_region_order(regions, self._scen_7)
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
