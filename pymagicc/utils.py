@@ -37,7 +37,7 @@ def _multiple_replace(in_str, rep_dict, compiled_regexp):
     return out_str
 
 
-def _check_substitutions(substitutions, inputs, unused_substitutions, case_insensitive):
+def _check_unused_substitutions(substitutions, inputs, unused_substitutions, case_insensitive):
     _check_inputs = [inputs] if isinstance(inputs, str) else inputs
     _check_subs = list(substitutions.keys())
     if case_insensitive:
@@ -143,7 +143,7 @@ def apply_string_substitutions(
         substitutions = {v: k for k, v in substitutions.items()}
 
     if unused_substitutions != "ignore":
-        _check_substitutions(
+        _check_unused_substitutions(
             substitutions, inputs, unused_substitutions, case_insensitive
         )
 

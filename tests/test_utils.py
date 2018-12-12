@@ -127,3 +127,36 @@ def test_apply_string_substitutions_unused_substitutions(
             apply_string_substitutions(
                 inputs, substitutions, unused_substitutions=unused_substitutions
             )
+
+
+@pytest.mark.parametrize(
+    "inputs, substitutions",
+    [
+        # even if substitutions are same, raise error as that is confusing and asking
+        # for trouble
+        ("Butter", {"teeth": "tooth", "teeth": "tooth"}),
+    ],
+)
+def test_apply_string_substitutions_duplicate_substitutions(
+    inputs, substitutions
+):
+    error_msg = "Duplicate substitutions for keys teeth"
+    with pytest.raises(ValueError, match=error_msg):
+        apply_string_substitutions(inputs, substitutions)
+
+
+@pytest.mark.parametrize(
+    "inputs, substitutions, expected",
+    [
+        ("teeth", {"teeth": "tooth", "Teeth": "tooth"}, "tooth"),
+    ],
+)
+def test_apply_string_substitutions_duplicate_substitutions_case_insensitive(
+    inputs, substitutions, expected
+):
+    res = apply_string_substitutions(inputs, substitutions)
+    assert res == expected
+
+    error_msg = "Duplicate substitutions for keys teeth"
+    with pytest.raises(ValueError, match=error_msg):
+        apply_string_substitutions(inputs, substitutions, case_insensitive=True)
