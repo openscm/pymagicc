@@ -11,9 +11,13 @@ from pymagicc.utils import apply_string_substitutions
 
 @patch("pymagicc.utils._compile_replacement_regexp")
 @patch("pymagicc.utils._multiple_replace")
-@patch("pymagicc.utils._check_substitutions")
+@patch("pymagicc.utils._check_unused_substitutions")
+@patch("pymagicc.utils._check_duplicate_substitutions")
 def test_apply_string_substitutions(
-    mock_check_substitutions, mock_multiple_replace, mock_compile_replacement_regexp
+    mock_check_duplicate_substitutions,
+    mock_check_unused_substitutions,
+    mock_multiple_replace,
+    mock_compile_replacement_regexp,
 ):
     treturn = "mocked return"
     mock_multiple_replace.return_value = treturn
@@ -35,7 +39,8 @@ def test_apply_string_substitutions(
 
     assert result == treturn
 
-    mock_check_substitutions.assert_called_with(
+    mock_check_duplicate_substitutions.assert_called_with(tsubstitutions)
+    mock_check_unused_substitutions.assert_called_with(
         tsubstitutions, tinput, tunused_substitutions, tcase_insensitive
     )
     mock_compile_replacement_regexp.assert_called_with(
@@ -129,27 +134,15 @@ def test_apply_string_substitutions_unused_substitutions(
             )
 
 
-@pytest.mark.parametrize(
-    "inputs, substitutions",
-    [
-        # even if substitutions are same, raise error as that is confusing and asking
-        # for trouble
-        ("Butter", {"teeth": "tooth", "teeth": "tooth"}),
-    ],
-)
-def test_apply_string_substitutions_duplicate_substitutions(
-    inputs, substitutions
-):
-    error_msg = "Duplicate substitutions for keys teeth"
-    with pytest.raises(ValueError, match=error_msg):
-        apply_string_substitutions(inputs, substitutions)
+def test_apply_string_substitutions_duplicate_substitutions():
+    # Note: we can ignore non case insensitive substitutions as if you try to generate
+    # a dictionary with a duplicate key, it will just be overwritten
+    assert {"teeth": "tooth", "teeth": "other"} == {"teeth": "other"}
 
 
 @pytest.mark.parametrize(
     "inputs, substitutions, expected",
-    [
-        ("teeth", {"teeth": "tooth", "Teeth": "tooth"}, "tooth"),
-    ],
+    [("teeth", {"teeth": "tooth", "Teeth": "tooth"}, "tooth")],
 )
 def test_apply_string_substitutions_duplicate_substitutions_case_insensitive(
     inputs, substitutions, expected
@@ -157,6 +150,8 @@ def test_apply_string_substitutions_duplicate_substitutions_case_insensitive(
     res = apply_string_substitutions(inputs, substitutions)
     assert res == expected
 
-    error_msg = "Duplicate substitutions for keys teeth"
+    error_msg = re.escape(
+        "Duplicate case insensitive substitutions: {}".format(substitutions)
+    )
     with pytest.raises(ValueError, match=error_msg):
         apply_string_substitutions(inputs, substitutions, case_insensitive=True)

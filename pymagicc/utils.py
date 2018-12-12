@@ -37,7 +37,9 @@ def _multiple_replace(in_str, rep_dict, compiled_regexp):
     return out_str
 
 
-def _check_unused_substitutions(substitutions, inputs, unused_substitutions, case_insensitive):
+def _check_unused_substitutions(
+    substitutions, inputs, unused_substitutions, case_insensitive
+):
     _check_inputs = [inputs] if isinstance(inputs, str) else inputs
     _check_subs = list(substitutions.keys())
     if case_insensitive:
@@ -55,6 +57,26 @@ def _check_unused_substitutions(substitutions, inputs, unused_substitutions, cas
         raise ValueError(msg)
     else:
         raise ValueError("Invalid value for unused_substitutions, please see the docs")
+
+
+def _check_duplicate_substitutions(substitutions):
+    seen = set()
+    duplicated = {}
+    for key, value in substitutions.items():
+        key_case_insensitive = key.upper()
+        if key_case_insensitive in seen:
+            duplicated.update(
+                {
+                    k: v
+                    for k, v in substitutions.items()
+                    if k.upper() == key_case_insensitive
+                }
+            )
+        seen.add(key_case_insensitive)
+
+    if duplicated:
+        error_msg = "Duplicate case insensitive substitutions: {}".format(duplicated)
+        raise ValueError(error_msg)
 
 
 def apply_string_substitutions(
@@ -141,6 +163,10 @@ def apply_string_substitutions(
     """
     if inverse:
         substitutions = {v: k for k, v in substitutions.items()}
+
+    # only possible to have conflicting substitutions when case insensitive
+    if case_insensitive:
+        _check_duplicate_substitutions(substitutions)
 
     if unused_substitutions != "ignore":
         _check_unused_substitutions(
