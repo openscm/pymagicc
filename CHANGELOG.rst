@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#184 <https://github.com/openclimatedata/pymagicc/pull/184>`_) Remove redundant mapping of region names for SCEN to SCEN7 conversions
 - (`#183 <https://github.com/openclimatedata/pymagicc/pull/183>`_) Added ability to read MHALO files (see `#182 <https://github.com/openclimatedata/pymagicc/issues/182>`_)
 - (`#180 <https://github.com/openclimatedata/pymagicc/pull/180>`_) Added reference which explains MAGICC's variables to docs
 - (`#177 <https://github.com/openclimatedata/pymagicc/pull/177>`_) Fixed SCEN reading bug, can now read SCEN files with "YEAR" in first column rather than "YEARS"
