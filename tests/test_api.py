@@ -167,7 +167,6 @@ def test_run_only(package):
 
 
 def test_run_rewritten_scen_file(package, temp_dir):
-    # this used to fail with early implementations of MAGICC7
     starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
     written_scen = join(package.run_dir, "RCP26.SCEN7")
 
