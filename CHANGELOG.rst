@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#185 <https://github.com/openclimatedata/pymagicc/pull/185>`_) Added ability to read RCP files from http://www.pik-potsdam.de/~mmalte/rcps/ as requested in `#176 <https://github.com/openclimatedata/pymagicc/issues/176>`_
 - (`#184 <https://github.com/openclimatedata/pymagicc/pull/184>`_) Remove redundant mapping of region names for SCEN to SCEN7 conversions
 - (`#183 <https://github.com/openclimatedata/pymagicc/pull/183>`_) Added ability to read MHALO files (see `#182 <https://github.com/openclimatedata/pymagicc/issues/182>`_)
 - (`#180 <https://github.com/openclimatedata/pymagicc/pull/180>`_) Added reference which explains MAGICC's variables to docs
