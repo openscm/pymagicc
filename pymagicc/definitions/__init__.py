@@ -433,14 +433,35 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         v.replace("-", "") for v in magicc6_sometimes_hyphen_vars
     ]
 
+    magicc6_sometimes_underscore_vars = [
+        "HFC43_10",
+        "CFC_11",
+        "CFC_12",
+        "CFC_113",
+        "CFC_114",
+        "CFC_115",
+        "HCFC_22",
+        "HCFC_141b",
+        "HCFC_142b",
+    ]
+    magicc6_sometimes_underscore_replacements = {
+        v: v.replace("_", "") for v in magicc6_sometimes_underscore_vars
+    }
+
     # special case replacements
-    special_case_replacements = {"FossilCO2": "CO2I", "OtherCO2": "CO2B"}
+    special_case_replacements = {
+        "FossilCO2": "CO2I", 
+        "OtherCO2": "CO2B",
+        "MCF": "CH3CCL3",
+        "CARB_TET": "CCL4"
+    }
 
     one_way_replacements = {"HFC-245ca": "HFC245FA", "HFC245ca": "HFC245FA"}
 
     all_possible_magicc6_vars = (
         magicc6_simple_mapping_vars
         + magicc6_sometimes_hyphen_vars
+        + magicc6_sometimes_underscore_vars
         + list(special_case_replacements.keys())
         + list(one_way_replacements.keys())
     )
@@ -448,6 +469,8 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     for m6v in all_possible_magicc6_vars:
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
+        elif m6v in magicc6_sometimes_underscore_vars:
+            replacements[m6v] = magicc6_sometimes_underscore_replacements[m6v]
         elif (m6v in one_way_replacements) and not inverse:
             replacements[m6v] = one_way_replacements[m6v]
         else:
