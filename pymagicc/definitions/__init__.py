@@ -230,14 +230,29 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         variable = in_var.split("_")[0]
         # I hate edge cases
         if variable.endswith("EQ"):
-            variable = "{} {}".format(variable.replace("EQ", ""), "Equivalent")
+            variable = variable.replace("EQ", " Equivalent")
 
-        if variable.startswith("KYOTO"):
-            variable = "{}{}{}".format(variable.replace("KYOTO", ""), DATA_HIERARCHY_SEPARATOR, "Kyoto Gases")
-        elif variable.startswith("FGASSUM"):
-            variable = "{}{}{}".format(variable.replace("FGASSUM", ""), DATA_HIERARCHY_SEPARATOR, "F Gases")
-        elif variable.startswith("MHALOSUM"):
-            variable = "{}{}{}".format(variable.replace("MHALOSUM", ""), DATA_HIERARCHY_SEPARATOR, "Montreal Protocol Halogen Gases")
+        if "GHG" in variable:
+            variable = variable.replace("GHG", "Greenhouse Gases")
+
+        if "BIOMASSAER" in variable:
+            variable = variable.replace("BIOMASSAER", "Aerosols|MAGICC AFOLU")
+
+        if "CO2CH4N2O" in variable:
+            variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
+
+        aggregate_indicators = {
+            "KYOTO": "Kyoto Gases", 
+            "FGASSUM": "F Gases", 
+            "MHALOSUM": "Montreal Protocol Halogen Gases",
+        }
+        for agg_indicator, long_name in aggregate_indicators.items():
+            if variable.startswith(agg_indicator):
+                stripped_var = variable.replace(agg_indicator, "")
+                if stripped_var:
+                    variable = DATA_HIERARCHY_SEPARATOR.join([stripped_var, long_name])
+                else:
+                    variable = long_name
 
         edge_case_B = variable.upper() in ("HCFC141B", "HCFC142B")
         if variable.endswith("I"):
@@ -246,7 +261,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             )
         elif variable.endswith("B") and not edge_case_B:
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
-
 
         case_adjustments = {
             "SOX": "SOx",
@@ -285,6 +299,12 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "KYOTOCO2EQ",
         "FGASSUMHFC134AEQ",
         "MHALOSUMCFC12EQ",
+        "GHG",
+        "KYOTOGHG",
+        "FGASSUM", 
+        "MHALOSUM",
+        "BIOMASSAER",
+        "CO2CH4N2O",
     ]
     magicc7_vars = [
         base_var + suffix
@@ -298,6 +318,16 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         {
             "SURFACE_TEMP": "Surface Temperature",
             "TOTAL_INCLVOLCANIC_RF": "Radiative Forcing",
+            "VOLCANIC_ANNUAL_RF": "Radiative Forcing|Volcanic",
+            "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
+            "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
+            "CLOUD_TOT_RF":  "Radiative Forcing|Aerosols|Indirect Effect",
+            "MINERALDUST_RF": "Radiative Forcing|Mineral Dust",
+            "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
+            "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
+            "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",  # what is this
+            "LANDUSE_RF": "Radiative Forcing|Land-use Change",
+            "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
         }
     )
 
@@ -466,7 +496,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
 
     # special case replacements
     special_case_replacements = {
-        "FossilCO2": "CO2I", 
+        "FossilCO2": "CO2I",
         "OtherCO2": "CO2B",
         "MCF": "CH3CCL3",
         "CARB_TET": "CCL4",
@@ -486,7 +516,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     for m6v in all_possible_magicc6_vars:
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
-        elif m6v in magicc6_sometimes_underscore_vars:
+        elif m6v in magicc6_sometimes_underscore_vars and not inverse:  # underscores one way
             replacements[m6v] = magicc6_sometimes_underscore_replacements[m6v]
         elif (m6v in one_way_replacements) and not inverse:
             replacements[m6v] = one_way_replacements[m6v]
