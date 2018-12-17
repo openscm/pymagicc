@@ -229,6 +229,16 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         variable = in_var.split("_")[0]
         # I hate edge cases
+        if variable.endswith("EQ"):
+            variable = "{} {}".format(variable.replace("EQ", ""), "Equivalent")
+
+        if variable.startswith("KYOTO"):
+            variable = "{}{}{}".format(variable.replace("KYOTO", ""), DATA_HIERARCHY_SEPARATOR, "Kyoto Gases")
+        elif variable.startswith("FGASSUM"):
+            variable = "{}{}{}".format(variable.replace("FGASSUM", ""), DATA_HIERARCHY_SEPARATOR, "F Gases")
+        elif variable.startswith("MHALOSUM"):
+            variable = "{}{}{}".format(variable.replace("MHALOSUM", ""), DATA_HIERARCHY_SEPARATOR, "Montreal Protocol Halogen Gases")
+
         edge_case_B = variable.upper() in ("HCFC141B", "HCFC142B")
         if variable.endswith("I"):
             variable = DATA_HIERARCHY_SEPARATOR.join(
@@ -236,6 +246,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             )
         elif variable.endswith("B") and not edge_case_B:
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
+
 
         case_adjustments = {
             "SOX": "SOx",
@@ -270,6 +281,10 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     magicc7_base_vars = MAGICC7_EMISSIONS_UNITS.magicc_variable.tolist() + [
         "SOLAR",
         "VOLCANIC",
+        "CO2EQ",
+        "KYOTOCO2EQ",
+        "FGASSUMHFC134AEQ",
+        "MHALOSUMCFC12EQ",
     ]
     magicc7_vars = [
         base_var + suffix
@@ -378,6 +393,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     # we generate the mapping dynamically, the first name in the list
     # is the one which will be used for inverse mappings
     magicc6_simple_mapping_vars = [
+        "KYOTO-CO2EQ",
         "CH4",
         "N2O",
         "BC",
@@ -453,7 +469,8 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "FossilCO2": "CO2I", 
         "OtherCO2": "CO2B",
         "MCF": "CH3CCL3",
-        "CARB_TET": "CCL4"
+        "CARB_TET": "CCL4",
+        "MHALOSUMCFC12EQ": "MHALOSUMCFC12EQ",  # special case to avoid confusion with MCF
     }
 
     one_way_replacements = {"HFC-245ca": "HFC245FA", "HFC245ca": "HFC245FA"}
