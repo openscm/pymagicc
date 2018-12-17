@@ -1168,6 +1168,42 @@ def test_load_rcp_historical_dat_emissions():
     mdata = MAGICCData()
     test_file = "20THCENTURY_EMISSIONS.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
     assert False
 
@@ -1176,6 +1212,42 @@ def test_load_rcp_historical_dat_concentrations():
     mdata = MAGICCData()
     test_file = "20THCENTURY_MIDYEAR_CONCENTRATIONS.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
     assert False
 
@@ -1184,6 +1256,42 @@ def test_load_rcp_historical_dat_forcings():
     mdata = MAGICCData()
     test_file = "20THCENTURY_MIDYEAR_RADFORCING.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
     assert False
 
@@ -1192,6 +1300,42 @@ def test_load_rcp_projections_dat_emissions():
     mdata = MAGICCData()
     test_file = "RCP3PD_EMISSIONS.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
     assert False
 
@@ -1200,6 +1344,42 @@ def test_load_rcp_projections_dat_concentrations():
     mdata = MAGICCData()
     test_file = "RCP3PD_MIDYEAR_CONCENTRATIONS.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
     assert False
 
@@ -1208,7 +1388,43 @@ def test_load_rcp_projections_dat_forcings():
     mdata = MAGICCData()
     test_file = "RCP3PD_MIDYEAR_RADFORCING.DAT"
     mdata.read(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
 
+    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
+    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+
+    assert (mdata.df["region"] == "World").all()
+    assert (mdata.df["todo"] == "N/A").all()
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1766)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1767)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+
+    row = (
+        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "W / m2")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
+    
     assert False
 
 
