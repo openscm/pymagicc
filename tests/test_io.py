@@ -1213,9 +1213,9 @@ def test_load_rcp_historical_dat_concentrations():
     mdata.read(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
-    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["date"] == "26/11/2009 11:29:06"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "PRE2005__MIDYEAR__CONCENTRATIONS" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
     assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
@@ -1223,33 +1223,49 @@ def test_load_rcp_historical_dat_concentrations():
     assert (mdata.df["todo"] == "N/A").all()
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing")
+        (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "ppm")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+    np.testing.assert_allclose(mdata.df[row].value, 277.8388)
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "ppm")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+    np.testing.assert_allclose(mdata.df[row].value, 278.68732)
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        (mdata.df["variable"] == "Atmospheric Concentrations|HFC134a Equivalent|F Gases")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "ppt")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
+    np.testing.assert_allclose(mdata.df[row].value, 126.7694)
 
-    assert False
+    row = (
+        (mdata.df["variable"] == "Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "ppt")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 1003.5801)
+
+    row = (
+        (mdata.df["variable"] == "Atmospheric Concentrations|CH3Cl")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 2005)
+        & (mdata.df["unit"] == "ppt")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 538)
 
 
 def test_load_rcp_historical_dat_forcings():
