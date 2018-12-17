@@ -2,7 +2,6 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
-import warnings
 
 
 import numpy as np
@@ -709,16 +708,16 @@ class _RCPDatReader(_InputReader):
         return metadata, df
 
     def process_data(self, stream, metadata):
-        _ = self._read_data_header_line(stream, "COLUMN:")
+        # check headers are as we expect
+        self._read_data_header_line(stream, "COLUMN:")
         units = convert_pint_to_fortran_safe_units(
-            self._read_data_header_line(stream, "UNITS:"),
-            inverse=True,
+            self._read_data_header_line(stream, "UNITS:"), inverse=True
         )
 
         variables = self._convert_variables_to_openscm_variables(
             self._read_data_header_line(stream, "YEARS")
         )
-        
+
         # no information in raw files hence have to hardcode
         regions = ["World"] * len(units)
         todos = ["N/A"] * len(units)
@@ -730,6 +729,8 @@ class _RCPDatReader(_InputReader):
             "todos": todos,
         }
 
+        column_headers = self._read_units(column_headers)
+        
         if column_headers["variables"][0].startswith("Emissions"):
             # massive hack, refactor in cleanup
             converter = _EmisInReader("junk")
@@ -740,7 +741,7 @@ class _RCPDatReader(_InputReader):
             ]
 
             column_headers = converter._read_units(column_headers)
-        
+
         df = self._convert_data_block_and_headers_to_df(stream, column_headers)
 
         return df, metadata
@@ -760,13 +761,14 @@ class _RCPDatReader(_InputReader):
                     m = m + "_RF"
                 intermediate_vars.append(m)
         else:
-            raise ValueError("I don't know how you got this file, but the format is not recognised by pymagicc")
+            raise ValueError(
+                "I don't know how you got this file, but the format is not recognised by pymagicc"
+            )
 
-        res = convert_magicc7_to_openscm_variables( 
-            intermediate_vars
-        )
+        res = convert_magicc7_to_openscm_variables(intermediate_vars)
 
         return res
+
 
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):
@@ -1897,11 +1899,7 @@ class MAGICCData(object):
                 "reader": _BinaryOutReader,
                 "writer": None,
             },
-            "RCPData": {
-                "regexp": r"^.*\.DAT",
-                "reader": _RCPDatReader,
-                "writer": None,
-            }
+            "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
 
@@ -2064,8 +2062,8 @@ def pull_cfg_from_parameters_out_file(
 
 
 def get_generic_rcp_name(inname):
-    """Convert an RCP name into the generic pymagicc rcp name  
-    
+    """Convert an RCP name into the generic pymagicc rcp name
+
     The conversion is case insensitive.
 
     Parameters

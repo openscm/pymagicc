@@ -1173,7 +1173,10 @@ def test_load_rcp_historical_dat_emissions():
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005__EMISSIONS" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
@@ -1216,7 +1219,10 @@ def test_load_rcp_historical_dat_concentrations():
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005__MIDYEAR__CONCENTRATIONS" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
@@ -1232,7 +1238,10 @@ def test_load_rcp_historical_dat_concentrations():
     np.testing.assert_allclose(mdata.df[row].value, 277.8388)
 
     row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases")
+        (
+            mdata.df["variable"]
+            == "Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases"
+        )
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1767)
         & (mdata.df["unit"] == "ppm")
@@ -1241,7 +1250,10 @@ def test_load_rcp_historical_dat_concentrations():
     np.testing.assert_allclose(mdata.df[row].value, 278.68732)
 
     row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|HFC134a Equivalent|F Gases")
+        (
+            mdata.df["variable"]
+            == "Atmospheric Concentrations|HFC134a Equivalent|F Gases"
+        )
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 2005)
         & (mdata.df["unit"] == "ppt")
@@ -1250,7 +1262,10 @@ def test_load_rcp_historical_dat_concentrations():
     np.testing.assert_allclose(mdata.df[row].value, 126.7694)
 
     row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases")
+        (
+            mdata.df["variable"]
+            == "Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases"
+        )
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 2005)
         & (mdata.df["unit"] == "ppt")
@@ -1274,20 +1289,24 @@ def test_load_rcp_historical_dat_forcings():
     mdata.read(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
-    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["date"] == "26/11/2009 11:29:06 (updated description, 30 May 2010)."
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["unit"] == "W / m^2").all()
 
     row = (
         (mdata.df["variable"] == "Radiative Forcing")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "W / m^2")
     )
     assert sum(row) == 1
     np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
@@ -1296,7 +1315,7 @@ def test_load_rcp_historical_dat_forcings():
         (mdata.df["variable"] == "Radiative Forcing|Solar")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "W / m^2")
     )
     assert sum(row) == 1
     np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
@@ -1305,12 +1324,10 @@ def test_load_rcp_historical_dat_forcings():
         (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "W / m^2")
     )
     assert sum(row) == 1
     np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
-
-    assert False
 
 
 def test_load_rcp_projections_dat_emissions():
@@ -1322,7 +1339,10 @@ def test_load_rcp_projections_dat_emissions():
     assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
@@ -1367,7 +1387,10 @@ def test_load_rcp_projections_dat_concentrations():
     assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
@@ -1412,7 +1435,10 @@ def test_load_rcp_projections_dat_forcings():
     assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
-    assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
+    assert (
+        "COLUMN_DESCRIPTION________________________________________"
+        in mdata.metadata["header"]
+    )
 
     assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
@@ -1444,7 +1470,7 @@ def test_load_rcp_projections_dat_forcings():
     )
     assert sum(row) == 1
     np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
-    
+
     assert False
 
 
@@ -1467,9 +1493,7 @@ def test_generic_rcp_names(input, expected):
 
 def test_generic_rcp_name_error():
     tinput = "junk"
-    error_msg = re.escape(
-        "No generic name for input: {}".format(tinput)
-    )
+    error_msg = re.escape("No generic name for input: {}".format(tinput))
     with pytest.raises(ValueError, match=error_msg):
         get_generic_rcp_name(tinput)
 
