@@ -242,8 +242,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
 
         aggregate_indicators = {
-            "KYOTO": "Kyoto Gases", 
-            "FGASSUM": "F Gases", 
+            "KYOTO": "Kyoto Gases",
+            "FGASSUM": "F Gases",
             "MHALOSUM": "Montreal Protocol Halogen Gases",
         }
         for agg_indicator, long_name in aggregate_indicators.items():
@@ -301,7 +301,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "MHALOSUMCFC12EQ",
         "GHG",
         "KYOTOGHG",
-        "FGASSUM", 
+        "FGASSUM",
         "MHALOSUM",
         "BIOMASSAER",
         "CO2CH4N2O",
@@ -321,7 +321,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "VOLCANIC_ANNUAL_RF": "Radiative Forcing|Volcanic",
             "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
             "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
-            "CLOUD_TOT_RF":  "Radiative Forcing|Aerosols|Indirect Effect",
+            "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
             "MINERALDUST_RF": "Radiative Forcing|Mineral Dust",
             "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
             "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
@@ -516,7 +516,9 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     for m6v in all_possible_magicc6_vars:
         if m6v in special_case_replacements:
             replacements[m6v] = special_case_replacements[m6v]
-        elif m6v in magicc6_sometimes_underscore_vars and not inverse:  # underscores one way
+        elif (
+            m6v in magicc6_sometimes_underscore_vars and not inverse
+        ):  # underscores one way
             replacements[m6v] = magicc6_sometimes_underscore_replacements[m6v]
         elif (m6v in one_way_replacements) and not inverse:
             replacements[m6v] = one_way_replacements[m6v]
