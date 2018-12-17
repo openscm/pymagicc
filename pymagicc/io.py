@@ -727,7 +727,6 @@ class _RCPDatReader(_InputReader):
             "regions": regions,
             "todos": todos,
         }
-
         column_headers = self._read_units(column_headers)
 
         if column_headers["variables"][0].startswith("Emissions"):
@@ -770,6 +769,26 @@ class _RCPDatReader(_InputReader):
 
         return res
 
+    def _convert_variables_to_openscm_variables(self, rcp_variables):
+        magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
+        # only reliable way to check data I think...
+        first_var = magicc7_vars[0]
+        if first_var == "CO2I":
+            intermediate_vars = [m + "_EMIS" for m in magicc7_vars]
+        elif first_var == "CO2EQ":
+            intermediate_vars = [m + "_CONC" for m in magicc7_vars]
+        elif first_var == "TOTAL_INCLVOLCANIC_RF":
+            intermediate_vars = []
+            for m in magicc7_vars:
+                if not m.endswith("_RF"):
+                    m = m + "_RF"
+                intermediate_vars.append(m)
+        else:
+            raise ValueError("I don't know how you got this file, but the format is not recognised by pymagicc")
+
+        return convert_magicc7_to_openscm_variables(
+            intermediate_vars
+        )
 
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):
