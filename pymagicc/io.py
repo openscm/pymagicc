@@ -730,7 +730,7 @@ class _RCPDatReader(_InputReader):
         }
 
         column_headers = self._read_units(column_headers)
-        
+
         if column_headers["variables"][0].startswith("Emissions"):
             # massive hack, refactor in cleanup
             converter = _EmisInReader("junk")
