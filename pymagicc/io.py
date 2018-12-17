@@ -1974,3 +1974,33 @@ def pull_cfg_from_parameters_out_file(
     return pull_cfg_from_parameters_out(
         parameters_out, namelist_to_read=namelist_to_read
     )
+
+
+def get_generic_rcp_name(inname):
+    """Convert an RCP name into the generic pymagicc rcp name  
+    
+    The conversion is case insensitive.
+
+    Parameters
+    ----------
+    inname : str
+        The name for which to get the generic pymagicc rcp name
+
+    Returns
+    -------
+    str
+        The generic pymagicc rcp name
+
+    Examples
+    --------
+    >>> get_generic_rcp_name("RCP3PD")
+    "rcp26"
+    """
+    mapping = {
+
+    }
+    try:
+        return mapping[inname.lower()]
+    except KeyError:
+        error_msg = "No generic name for input: {}".format(inname)
+        raise ValueError(error_msg)

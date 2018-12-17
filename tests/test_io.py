@@ -24,6 +24,7 @@ from pymagicc.io import (
     InvalidTemporalResError,
     pull_cfg_from_parameters_out_file,
     pull_cfg_from_parameters_out,
+    get_generic_rcp_name,
 )
 from .conftest import MAGICC6_DIR
 
@@ -1222,10 +1223,19 @@ def test_load_rcp_projections_dat_forcings():
         ("rCp85", "rcp85"),
     ],
 )
-def test_harmonise_rcp_names(input, expected):
+def test_generic_rcp_names(input, expected):
     for tin in [input, input.upper(), input.lower()]:
-        result = get_harmonised_rcp_name(input)
+        result = get_generic_rcp_name(input)
         assert result == expected
+
+
+def test_generic_rcp_name_error():
+    tinput = "junk"
+    error_msg = re.escape(
+        "No generic name for input: {}".format(tinput)
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        get_generic_rcp_name(tinput)
 
 
 def test_load_cfg_with_magicc_input():
