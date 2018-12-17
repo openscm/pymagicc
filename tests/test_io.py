@@ -1163,6 +1163,71 @@ def test_load_prn_mixing_ratios_years_label():
     np.testing.assert_allclose(mdata.df[row].value, 538)
 
 
+def test_load_rcp_historical_dat_emissions():
+    mdata = MAGICCData()
+    test_file = "20THCENTURY_EMISSIONS.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+def test_load_rcp_historical_dat_concentrations():
+    mdata = MAGICCData()
+    test_file = "20THCENTURY_MIDYEAR_CONCENTRATIONS.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+def test_load_rcp_historical_dat_forcings():
+    mdata = MAGICCData()
+    test_file = "20THCENTURY_MIDYEAR_RADFORCING.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+def test_load_rcp_projections_dat_emissions():
+    mdata = MAGICCData()
+    test_file = "RCP3PD_EMISSIONS.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+def test_load_rcp_projections_dat_concentrations():
+    mdata = MAGICCData()
+    test_file = "RCP3PD_MIDYEAR_CONCENTRATIONS.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+def test_load_rcp_projections_dat_forcings():
+    mdata = MAGICCData()
+    test_file = "RCP3PD_MIDYEAR_RADFORCING.DAT"
+    mdata.read(join(TEST_DATA_DIR, test_file))
+
+    assert False
+
+
+@pytest.mark.parametrize(
+    "input, expected",
+    [
+        ("rCp26", "rcp26"),
+        ("rCp3pd", "rcp26"),
+        ("rCp45", "rcp45"),
+        ("rCp6", "rcp60"),
+        ("rCp60", "rcp60"),
+        ("rCp85", "rcp85"),
+    ],
+)
+def test_harmonise_rcp_names(input, expected):
+    for tin in [input, input.upper(), input.lower()]:
+        result = get_harmonised_rcp_name(input)
+        assert result == expected
+
+
 def test_load_cfg_with_magicc_input():
     mdata = MAGICCData()
     test_file = "MAGCFG_BULKPARAS.CFG"
