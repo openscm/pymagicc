@@ -686,6 +686,72 @@ class _ScenReader(_NonStandardEmisInReader):
         return notes
 
 
+class _RCPDatReader(_InputReader):
+    def read(self):
+        self._set_lines()
+
+        nml_end, nml_start = self._find_nml()
+
+        # ignore all nml_values as they are redundant
+        header = "".join(self.lines[:nml_start])
+        metadata = self.process_header(header)
+        metadata["header"] = header
+
+        # Create a stream from the remaining lines, ignoring any blank lines
+        stream = StringIO()
+        cleaned_lines = [l.strip() for l in self.lines[nml_end + 1 :] if l.strip()]
+        stream.write("\n".join(cleaned_lines))
+        stream.seek(0)
+
+        df, metadata = self.process_data(stream, metadata)
+
+        return metadata, df
+
+    def process_data(self, stream, metadata):
+        _ = self._read_data_header_line(stream, "COLUMN:")
+        units = convert_pint_to_fortran_safe_units(
+            self._read_data_header_line(stream, "UNITS:"),
+            inverse=True,
+        )
+
+        variables = self._convert_variables_to_openscm_variables(
+            self._read_data_header_line(stream, "YEARS")
+        )
+        
+        # no information in raw files hence have to hardcode
+        regions = ["World"] * len(units)
+        todos = ["N/A"] * len(units)
+
+        column_headers = {
+            "units": units,
+            "variables": variables,
+            "regions": regions,
+            "todos": todos,
+        }
+        explode
+        self._convert_data_block_and_headers_to_df(stream, column_headers)
+
+    def _convert_variables_to_openscm_variables(self, rcp_variables):
+        magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
+        # only reliable way to check data I think...
+        first_var = magicc7_vars[0]
+        if first_var == "CO2I":
+            intermediate_vars = [m + "_EMIS" for m in magicc7_vars]
+        elif first_var == "CO2EQ":
+            intermediate_vars = [m + "_CONC" for m in magicc7_vars]
+        elif first_var == "TOTAL_INCLVOLCANIC_RF":
+            intermediate_vars = []
+            for m in magicc7_vars:
+                if not m.endswith("_RF"):
+                    m = m + "_RF"
+                intermediate_vars.append(m)
+        else:
+            raise ValueError("I don't know how you got this file, but the format is not recognised by pymagicc")
+
+        return convert_magicc7_to_openscm_variables( 
+            intermediate_vars
+        )
+
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):
         metadata, df = super().read()
@@ -1815,6 +1881,11 @@ class MAGICCData(object):
                 "reader": _BinaryOutReader,
                 "writer": None,
             },
+            "RCPData": {
+                "regexp": r"^.*\.DAT",
+                "reader": _RCPDatReader,
+                "writer": None,
+            }
             # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
         }
 
@@ -1997,7 +2068,12 @@ def get_generic_rcp_name(inname):
     "rcp26"
     """
     mapping = {
-
+        "rcp26": "rcp26",
+        "rcp3pd": "rcp26",
+        "rcp45": "rcp45",
+        "rcp6": "rcp60",
+        "rcp60": "rcp60",
+        "rcp85": "rcp85",
     }
     try:
         return mapping[inname.lower()]
