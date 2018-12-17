@@ -687,6 +687,7 @@ class _ScenReader(_NonStandardEmisInReader):
 
 
 class _RCPDatReader(_InputReader):
+    # not always reading in Emissions but fine for now
     def read(self):
         self._set_lines()
 
@@ -728,8 +729,21 @@ class _RCPDatReader(_InputReader):
             "regions": regions,
             "todos": todos,
         }
-        explode
-        self._convert_data_block_and_headers_to_df(stream, column_headers)
+
+        if column_headers["variables"][0].startswith("Emissions"):
+            # massive hack, refactor in cleanup
+            converter = _EmisInReader("junk")
+            # clean up ambiguous units so converter can do its thing
+            column_headers["units"] = [
+                u.replace("kt/yr", "kt").replace("Mt/yr", "Mt")
+                for u in column_headers["units"]
+            ]
+
+            column_headers = converter._read_units(column_headers)
+        
+        df = self._convert_data_block_and_headers_to_df(stream, column_headers)
+
+        return df, metadata
 
     def _convert_variables_to_openscm_variables(self, rcp_variables):
         magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
@@ -748,9 +762,11 @@ class _RCPDatReader(_InputReader):
         else:
             raise ValueError("I don't know how you got this file, but the format is not recognised by pymagicc")
 
-        return convert_magicc7_to_openscm_variables( 
+        res = convert_magicc7_to_openscm_variables( 
             intermediate_vars
         )
+
+        return res
 
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):

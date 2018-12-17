@@ -1170,42 +1170,41 @@ def test_load_rcp_historical_dat_emissions():
     mdata.read(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
-    assert mdata.metadata["date"] == "13-Oct-2017 16:45:35"
+    assert mdata.metadata["date"] == "26/11/2009 11:29:06"
     assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
+    assert "PRE2005__EMISSIONS" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing")
+        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "Gt C / yr")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
+    np.testing.assert_allclose(mdata.df[row].value, 0.003)
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing|Solar")
+        (mdata.df["variable"] == "Emissions|CH4")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "Mt CH4 / yr")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
+    np.testing.assert_allclose(mdata.df[row].value, 2.4364481)
 
     row = (
-        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
+        (mdata.df["variable"] == "Emissions|CH3Cl")
         & (mdata.df["region"] == "World")
         & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "W / m2")
+        & (mdata.df["unit"] == "kt CH3Cl / yr")
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
-
-    assert False
+    np.testing.assert_allclose(mdata.df[row].value, 3511.0820)
 
 
 def test_load_rcp_historical_dat_concentrations():
@@ -1219,6 +1218,7 @@ def test_load_rcp_historical_dat_concentrations():
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
@@ -1263,6 +1263,7 @@ def test_load_rcp_historical_dat_forcings():
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
@@ -1307,6 +1308,7 @@ def test_load_rcp_projections_dat_emissions():
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
@@ -1351,6 +1353,7 @@ def test_load_rcp_projections_dat_concentrations():
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
@@ -1395,6 +1398,7 @@ def test_load_rcp_projections_dat_forcings():
     assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
     assert "COLUMN_DESCRIPTION________________________________________" in mdata.metadata["header"]
 
+    assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
     assert (mdata.df["todo"] == "N/A").all()
 
