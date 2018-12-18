@@ -747,7 +747,9 @@ class _RCPDatReader(_InputReader):
 
     def _convert_variables_to_openscm_variables(self, rcp_variables):
         magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
-        # only reliable way to check data I think...
+        # work out whether we have emissions, concentrations or radiative
+        # forcing, I think this is the best way to do it given the stability
+        # of the format
         first_var = magicc7_vars[0]
         if first_var == "CO2I":
             intermediate_vars = [m + "_EMIS" for m in magicc7_vars]
@@ -2068,12 +2070,12 @@ def get_generic_rcp_name(inname):
     Parameters
     ----------
     inname : str
-        The name for which to get the generic pymagicc rcp name
+        The name for which to get the generic Pymagicc RCP name
 
     Returns
     -------
     str
-        The generic pymagicc rcp name
+        The generic Pymagicc RCP name
 
     Examples
     --------
