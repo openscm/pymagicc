@@ -194,3 +194,11 @@ def get_date_time_string():
     """
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M")
+
+
+def join_timeseries():
+    pass
+
+
+def _join_timeseries_mdata():
+    pass

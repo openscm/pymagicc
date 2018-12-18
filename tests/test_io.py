@@ -1,5 +1,5 @@
 from os import remove, listdir
-from os.path import dirname, join, isfile, basename
+from os.path import join, isfile, basename
 from copy import deepcopy
 import warnings
 from unittest.mock import patch, MagicMock
@@ -26,10 +26,8 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out,
     get_generic_rcp_name,
 )
-from .conftest import MAGICC6_DIR
+from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
 
-TEST_DATA_DIR = join(dirname(__file__), "test_data")
-TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
 # Not all files can be read in
 TEST_OUT_FILES = listdir(TEST_OUT_DIR)

@@ -1,5 +1,5 @@
 import os
-from os.path import exists
+from os.path import exists, join, dirname
 import pkg_resources
 from tempfile import mkstemp, mkdtemp
 from shutil import rmtree
@@ -12,6 +12,8 @@ from pymagicc import MAGICC6, MAGICC7
 
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
+TEST_DATA_DIR = join(dirname(__file__), "test_data")
+TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
 
 def pytest_addoption(parser):
