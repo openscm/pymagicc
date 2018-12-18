@@ -1,7 +1,7 @@
 """
 This module contains all of the relevant definitions for handling MAGICC data.
 
-When we store the data in csv's, we use `Data Packagses <https://frictionlessdata.io/
+When we store the data in csv's, we use `Data Packages <https://frictionlessdata.io/
 docs/creating-tabular-data-packages-in-python/>`_. These store the data in an easy to
 read csv file whilst providing comprehensive metadata describing the data (column
 meanings and expected types) in the accompanying ``datapackage.json`` file. Please see
