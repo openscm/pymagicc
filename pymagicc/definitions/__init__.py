@@ -1,7 +1,7 @@
 """
 This module contains all of the relevant definitions for handling MAGICC data.
 
-When we store the data in csv's, we use `Data Packages <https://frictionlessdata.io/
+When we store the data in csv's, we use `Data Packagses <https://frictionlessdata.io/
 docs/creating-tabular-data-packages-in-python/>`_. These store the data in an easy to
 read csv file whilst providing comprehensive metadata describing the data (column
 meanings and expected types) in the accompanying ``datapackage.json`` file. Please see
@@ -494,7 +494,6 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         v: v.replace("_", "") for v in magicc6_sometimes_underscore_vars
     }
 
-    # special case replacements
     special_case_replacements = {
         "FossilCO2": "CO2I",
         "OtherCO2": "CO2B",
