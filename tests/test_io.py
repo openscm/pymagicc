@@ -25,6 +25,8 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out_file,
     pull_cfg_from_parameters_out,
     get_generic_rcp_name,
+    join_timeseries,
+    _join_timeseries_mdata,
 )
 from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
 
@@ -2570,3 +2572,251 @@ def test_pull_cfg_from_parameters_out():
     for key, value in result.items():
         for sub_key, sub_value in value.items():
             assert sub_value == expected[key][sub_key]
+
+
+# integration test
+def test_join_timeseries():
+    mdata = MAGICCData()
+    mdata.read(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
+    base = mdata.df.copy()
+    base["todo"] = "SET"
+
+    mdata.read(join(MAGICC6_DIR, "RCP60.SCEN"))
+    scen = mdata.df.copy()
+
+    res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
+
+    row = (
+        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (res["region"] == "World")
+        & (res["time"] == 2000)
+        & (res["unit"] == "Gt C / yr")
+        & (res["todo"] == "SET")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 6.735)
+
+    row = (
+        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (res["region"] == "World")
+        & (res["time"] == 2008)
+        & (res["unit"] == "Gt C / yr")
+        & (res["todo"] == "SET")
+    )
+    assert sum(row) == 1
+    val_2012 = 8.5115 + (8.9504 - 8.5115) * 2 / 10
+    expected = 7.971 + (val_2012 - 7.971) / 7 * 3
+    np.testing.assert_allclose(res[row].value, expected)
+
+    row = (
+        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
+        & (res["region"] == "World")
+        & (res["time"] == 2015)
+        & (res["unit"] == "Gt C / yr")
+        & (res["todo"] == "SET")
+    )
+    assert sum(row) == 1
+    expected = 8.5115 + (8.9504 - 8.5115) / 2
+    np.testing.assert_allclose(res[row].value, expected)
+
+    row = (
+        (res["variable"] == "Emissions|CFC11")
+        & (res["region"] == "World")
+        & (res["time"] == 1995)
+        & (res["unit"] == "kt CFC11 / yr")
+        & (res["todo"] == "SET")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 119.235)
+
+    row = (
+        (res["variable"] == "Emissions|CFC11")
+        & (res["region"] == "World")
+        & (res["time"] == 2015)
+        & (res["unit"] == "kt CFC11 / yr")
+        & (res["todo"] == "SET")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 36.338)
+
+
+@patch("pymagicc.io.MAGICCData")
+@patch("pymagicc.io._join_timeseries_mdata")
+def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
+    tbase = "mocked"
+    toverwrite = "also mocked"
+    tdf = "mocked as well"
+    toutput = "mocked output"
+
+    mock_magicc_data.return_value.df.return_value = tdf
+    mock_join_timeseries_mdata.return_value = toutput
+
+    res = join_timeseries(base=tbase, overwrite=toverwrite)
+
+    assert res == toutput
+
+    mock_join_timeseries_mdata.assert_called_with(
+        tbase, toverwrite, None
+    )
+
+
+@pytest.fixture(scope="function")
+def join_base_df():
+    bdf = pd.DataFrame(
+        [
+            [2000, "Emissions|CO2", "GtC/yr", "World", 1.0],
+            [2010, "Emissions|CO2", "GtC/yr", "World", 2.0],
+            [2020, "Emissions|CO2", "GtC/yr", "World", 3.0],
+            [2000, "Emissions|CH4", "MtCH4/yr", "World", 1.1],
+            [2010, "Emissions|CH4", "MtCH4/yr", "World", 1.2],
+            [2020, "Emissions|CH4", "MtCH4/yr", "World", 1.3],
+        ],
+        columns=["time", "variable", "unit", "region", "value"],
+    )
+
+    yield bdf
+
+
+@pytest.fixture(scope="function")
+def join_overwrite_df():
+    odf = pd.DataFrame(
+        [
+            [2015, "Emissions|CO2", "GtC/yr", "World", 1.0],
+            [2050, "Emissions|CO2", "GtC/yr", "World", 2.0],
+            [2100, "Emissions|CO2", "GtC/yr", "World", 3.0],
+        ],
+        columns=["time", "variable", "unit", "region", "value"],
+    )
+
+    yield odf
+
+
+def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
+    msg = (
+        "nan values in joint arrays, this is likely because your input "
+        "timeseries do not all cover the same span"
+    )
+    with warnings.catch_warnings(record=True) as warn_result:
+        res = _join_timeseries_mdata(
+            base=join_base_df, overwrite=join_overwrite_df, join_linear=None
+        )
+
+    assert len(warn_result) == 1
+    assert str(warn_result[0].message) == msg
+
+    row = (
+        (res["variable"] == "Emissions|CO2")
+        & (res["region"] == "World")
+        & (res["time"] == 2005)
+        & (res["unit"] == "GtC/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 1.5)
+
+    row = (
+        (res["variable"] == "Emissions|CO2")
+        & (res["region"] == "World")
+        & (res["time"] == 2015)
+        & (res["unit"] == "GtC/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 1.0)
+
+    row = (
+        (res["variable"] == "Emissions|CO2")
+        & (res["region"] == "World")
+        & (res["time"] == 2020)
+        & (res["unit"] == "GtC/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 1 + (2 - 1) / 35 * 5)
+
+    row = (
+        (res["variable"] == "Emissions|CH4")
+        & (res["region"] == "World")
+        & (res["time"] == 2020)
+        & (res["unit"] == "MtCH4/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 1.3)
+
+    row = (
+        (res["variable"] == "Emissions|CH4")
+        & (res["region"] == "World")
+        & (res["time"] == 2100)
+        & (res["unit"] == "MtCH4/yr")
+    )
+    assert sum(row) == 1
+    assert np.isnan(res[row].value).all()
+
+
+def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
+    res = _join_timeseries_mdata(
+        base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
+    )
+
+    row = (
+        (res["variable"] == "Emissions|CO2")
+        & (res["region"] == "World")
+        & (res["time"] == 2012)
+        & (res["unit"] == "GtC/yr")
+    )
+    assert sum(row) == 1
+    overwrite_co2_val_2020 = 1 + (2 - 1) / 35 * 5
+    expected = 2 + (overwrite_co2_val_2020 - 2) / 10 * 2
+    np.testing.assert_allclose(res[row].value, expected)
+
+    row = (
+        (res["variable"] == "Emissions|CO2")
+        & (res["region"] == "World")
+        & (res["time"] == 2050)
+        & (res["unit"] == "GtC/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 2.0)
+
+    row = (
+        (res["variable"] == "Emissions|CH4")
+        & (res["region"] == "World")
+        & (res["time"] == 2020)
+        & (res["unit"] == "MtCH4/yr")
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(res[row].value, 1.3)
+
+
+def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite_df):
+    error_msg = re.escape("join_linear start year is after end of base timeseries")
+    with pytest.raises(ValueError, match=error_msg):
+        join_timeseries(
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[2025, 2030],
+        )
+
+    error_msg = re.escape(
+        "join_linear end year is before start of overwrite timeseries"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        join_timeseries(
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[2005, 2010],
+        )
+
+    error_msg = re.escape(
+        "join_linear must have a length of 2"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        join_timeseries(
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[2000, 2020, 2011],
+        )
+
+    join_base_df = join_base_df[join_base_df["variable"] == "Emissions|CH4"]
+    error_msg = re.escape("No overlapping indices, a simple append will do")
+    with pytest.raises(ValueError, match=error_msg):
+        join_timeseries(base=join_base_df, overwrite=join_overwrite_df)
+
+# TODO: improve join timeseries so it can also handle datetimes in the time axis

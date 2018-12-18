@@ -2,6 +2,7 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
+import warnings
 
 
 import numpy as np
@@ -12,7 +13,7 @@ import re
 from six import StringIO
 
 
-from pymagicc.utils import apply_string_substitutions
+from .utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
     PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
@@ -2114,3 +2115,106 @@ def get_generic_rcp_name(inname):
     except KeyError:
         error_msg = "No generic name for input: {}".format(inname)
         raise ValueError(error_msg)
+
+
+# TODO: move out of here in clean up
+def join_timeseries(base, overwrite, join_linear=None):
+    """Join two sets of timeseries
+
+    Warning: this function has not been tested with data which has anything other than
+    years in its time axis.
+
+    Parameters
+    ----------
+    base : :obj:`pd.DataFrame`
+        Base timeseries to use
+
+    overwrite : :obj:`pd.DataFrame`
+        Timeseries to join onto base. Any points which are in both `base` and
+        `overwrite` will be taken from `overwrite`.
+
+    join_linear : list of len(2)
+        A list/array which specifies the period over which the two timeseries should
+        be joined. The first element is the start time of the join period, the second
+        element is the end time of the join period. In the join period (excluding the
+        start and end times), output data will be a linear interpolation between (the
+        annually interpolated) `base` and `overwrite` data. If None, no linear join
+        will be done and any points in (the annually interpolated) `overwrite` data
+        will simply overwrite any points in `base`.
+
+    Returns
+    -------
+    :obj:`MAGICCData`
+        The joint timeseries. The resulting data is linearly interpolated onto annual steps
+    """
+    if join_linear is not None:
+        if len(join_linear) != 2:
+            raise ValueError("join_linear must have a length of 2")
+
+    result = _join_timeseries_mdata(base, overwrite, join_linear)
+
+    return result
+
+
+def _join_timeseries_mdata(base, overwrite, join_linear):
+    min_year = min(base["time"].min(), overwrite["time"].min())
+    max_year = max(base["time"].max(), overwrite["time"].max())
+    new_index = range(min_year, max_year + 1)
+
+    result = _reindex_df(base, new_index)
+    ow = _reindex_df(overwrite, new_index)
+
+    if result.stack().index.intersection(ow.stack().index).empty:
+        raise ValueError("No overlapping indices, a simple append will do")
+
+    result.update(ow, raise_conflict=False)
+
+    if join_linear is not None:
+        if join_linear[0] > base["time"].max():
+            raise ValueError("join_linear start year is after end of base timeseries")
+        if join_linear[1] < overwrite["time"].min():
+            raise ValueError("join_linear end year is before start of overwrite timeseries")
+        result = _overwrite_period_linearly(result.T, join_linear).T
+
+    result = (
+        pd.DataFrame(result.stack(dropna=False)).rename({0: "value"}, axis="columns").reset_index()
+    )
+
+    if result.isnull().values.any():
+        warn_msg = (
+            "nan values in joint arrays, this is likely because your input "
+            "timeseries do not all cover the same span"
+        )
+        warnings.warn(warn_msg)
+
+    return result
+
+
+def _overwrite_period_linearly(df_in, join_linear):
+    df_out = df_in.copy()
+
+    for val in range(join_linear[0] + 1, join_linear[1]):
+        df_out.loc[val] = np.nan
+
+    return df_out.sort_index().interpolate(method="values")
+
+
+def _reindex_df(in_df, new_index):
+    return (
+        _reshape_df(in_df)
+        .T.sort_index()
+        .reindex(new_index)
+        .interpolate(method="values", limit_area="inside")
+        .T
+    )
+
+
+def _reshape_df(in_df):
+    out_df = in_df.copy()
+    other_cols = list(set(out_df.columns) - set(["value"]))
+
+    return (
+        out_df.groupby(other_cols)["value"]
+        .max()
+        .unstack("time")
+    )
