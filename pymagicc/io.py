@@ -2061,7 +2061,7 @@ def pull_cfg_from_parameters_out_file(
 
 
 def get_generic_rcp_name(inname):
-    """Convert an RCP name into the generic pymagicc rcp name
+     """Convert an RCP name into the generic Pymagicc RCP name
 
     The conversion is case insensitive.
 
