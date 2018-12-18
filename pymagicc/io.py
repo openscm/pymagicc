@@ -686,7 +686,6 @@ class _ScenReader(_NonStandardEmisInReader):
 
 
 class _RCPDatReader(_InputReader):
-    # not always reading in Emissions but fine for now
     def read(self):
         self._set_lines()
 
