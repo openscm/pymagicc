@@ -1494,6 +1494,19 @@ class _PrnWriter(_InputWriter):
 
 
 class _ScenWriter(_InputWriter):
+    SCEN_VARS = convert_magicc7_to_openscm_variables(
+        [v + "_EMIS" for v in PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1]
+    )
+
+    def write(self, magicc_input, filepath):
+        orig_length = len(magicc_input.df)
+
+        magicc_input.df = magicc_input.df[magicc_input.df["variable"].isin(self.SCEN_VARS)]
+        if len(magicc_input.df) != orig_length:
+            warnings.warn("Ignoring input data which is not required for .SCEN file")
+
+        super().write(magicc_input, filepath)
+
     def _write_header(self, output):
         header_lines = []
         header_lines.append("{}".format(len(self.minput.df)))
