@@ -770,26 +770,6 @@ class _RCPDatReader(_InputReader):
 
         return res
 
-    def _convert_variables_to_openscm_variables(self, rcp_variables):
-        magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
-        # only reliable way to check data I think...
-        first_var = magicc7_vars[0]
-        if first_var == "CO2I":
-            intermediate_vars = [m + "_EMIS" for m in magicc7_vars]
-        elif first_var == "CO2EQ":
-            intermediate_vars = [m + "_CONC" for m in magicc7_vars]
-        elif first_var == "TOTAL_INCLVOLCANIC_RF":
-            intermediate_vars = []
-            for m in magicc7_vars:
-                if not m.endswith("_RF"):
-                    m = m + "_RF"
-                intermediate_vars.append(m)
-        else:
-            raise ValueError("I don't know how you got this file, but the format is not recognised by pymagicc")
-
-        return convert_magicc7_to_openscm_variables(
-            intermediate_vars
-        )
 
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):
@@ -1494,15 +1474,26 @@ class _PrnWriter(_InputWriter):
 
 
 class _ScenWriter(_InputWriter):
-    SCEN_VARS = convert_magicc7_to_openscm_variables(
+    SCEN_VARS_CODE_0 = convert_magicc7_to_openscm_variables(
+        [v + "_EMIS" for v in PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0]
+    )
+    SCEN_VARS_CODE_1 = convert_magicc7_to_openscm_variables(
         [v + "_EMIS" for v in PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1]
     )
 
     def write(self, magicc_input, filepath):
-        orig_length = len(magicc_input.df)
+        orig_vars = list(magicc_input.df["variable"].unique())
 
-        magicc_input.df = magicc_input.df[magicc_input.df["variable"].isin(self.SCEN_VARS)]
-        if len(magicc_input.df) != orig_length:
+        if not (set(self.SCEN_VARS_CODE_1) - set(orig_vars)):
+            magicc_input.df = magicc_input.df[
+                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_1)
+            ]
+        elif not (set(self.SCEN_VARS_CODE_0) - set(orig_vars)):
+            magicc_input.df = magicc_input.df[
+                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_0)
+            ]
+
+        if len(magicc_input.df["variable"].unique()) != len(orig_vars):
             warnings.warn("Ignoring input data which is not required for .SCEN file")
 
         super().write(magicc_input, filepath)
