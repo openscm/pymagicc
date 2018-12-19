@@ -242,13 +242,13 @@ class _InputReader(object):
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
-        self._convert_to_categorical_columns(df)
+        self._convert_to_string_columns(df)
 
         return df
 
-    def _convert_to_categorical_columns(self, df):
+    def _convert_to_string_columns(self, df):
         for categorical_column in ["variable", "todo", "unit", "region"]:
-            df[categorical_column] = df[categorical_column].astype("category")
+            df[categorical_column] = df[categorical_column].astype(str)
 
         return df
 
@@ -667,7 +667,7 @@ class _ScenReader(_NonStandardEmisInReader):
         self._stream.seek(pos_block)
 
         try:
-            return self._convert_to_categorical_columns(df)
+            return self._convert_to_string_columns(df)
         except NameError:
             error_msg = (
                 "This is unexpected, please raise an issue on "
@@ -835,7 +835,7 @@ class _PrnReader(_NonStandardEmisInReader):
 
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df = self._convert_to_categorical_columns(df)
+        df = self._convert_to_string_columns(df)
 
         for k in ["gas", "unit"]:
             try:
@@ -1059,7 +1059,7 @@ class _BinaryOutReader(_InputReader):
         }
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df = self._convert_to_categorical_columns(df)
+        df = self._convert_to_string_columns(df)
 
         return df, metadata
 
