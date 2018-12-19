@@ -2655,9 +2655,7 @@ def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
 
     assert res == toutput
 
-    mock_join_timeseries_mdata.assert_called_with(
-        tbase, toverwrite, None
-    )
+    mock_join_timeseries_mdata.assert_called_with(tbase, toverwrite, None)
 
 
 @pytest.fixture(scope="function")
@@ -2789,9 +2787,7 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     error_msg = re.escape("join_linear start year is after end of base timeseries")
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(
-            base=join_base_df,
-            overwrite=join_overwrite_df,
-            join_linear=[2025, 2030],
+            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2025, 2030]
         )
 
     error_msg = re.escape(
@@ -2799,14 +2795,10 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     )
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(
-            base=join_base_df,
-            overwrite=join_overwrite_df,
-            join_linear=[2005, 2010],
+            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2005, 2010]
         )
 
-    error_msg = re.escape(
-        "join_linear must have a length of 2"
-    )
+    error_msg = re.escape("join_linear must have a length of 2")
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(
             base=join_base_df,
@@ -2818,5 +2810,6 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     error_msg = re.escape("No overlapping indices, a simple append will do")
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(base=join_base_df, overwrite=join_overwrite_df)
+
 
 # TODO: improve join timeseries so it can also handle datetimes in the time axis

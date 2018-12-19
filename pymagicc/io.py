@@ -2173,11 +2173,15 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
         if join_linear[0] > base["time"].max():
             raise ValueError("join_linear start year is after end of base timeseries")
         if join_linear[1] < overwrite["time"].min():
-            raise ValueError("join_linear end year is before start of overwrite timeseries")
+            raise ValueError(
+                "join_linear end year is before start of overwrite timeseries"
+            )
         result = _overwrite_period_linearly(result.T, join_linear).T
 
     result = (
-        pd.DataFrame(result.stack(dropna=False)).rename({0: "value"}, axis="columns").reset_index()
+        pd.DataFrame(result.stack(dropna=False))
+        .rename({0: "value"}, axis="columns")
+        .reset_index()
     )
 
     if result.isnull().values.any():
@@ -2213,8 +2217,4 @@ def _reshape_df(in_df):
     out_df = in_df.copy()
     other_cols = list(set(out_df.columns) - set(["value"]))
 
-    return (
-        out_df.groupby(other_cols)["value"]
-        .max()
-        .unstack("time")
-    )
+    return out_df.groupby(other_cols)["value"].max().unstack("time")
