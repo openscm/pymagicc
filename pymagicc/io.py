@@ -720,7 +720,7 @@ class _RCPDatReader(_InputReader):
 
         # no information in raw files hence have to hardcode
         regions = ["World"] * len(units)
-        todos = ["N/A"] * len(units)
+        todos = ["SET"] * len(units)
 
         column_headers = {
             "units": units,

@@ -2643,8 +2643,8 @@ def test_join_timeseries():
 @patch("pymagicc.io.MAGICCData")
 @patch("pymagicc.io._join_timeseries_mdata")
 def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
-    tbase = "mocked"
-    toverwrite = "also mocked"
+    tbase = 13
+    toverwrite = 14
     tdf = "mocked as well"
     toutput = "mocked output"
 
