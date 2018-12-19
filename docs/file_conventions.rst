@@ -58,9 +58,9 @@ In MAGICC data and input files there are a number of columns, each of which is e
 
 - set: a MAGICC flag which defines what MAGICC should do with the data in the timeseries
 
-    - SET: set the given variable in the given region to the value provided
-    - ADD: add the data to the given variable in the given region to any already read in data for that variable in that region (not clear when exactly this is taken into account, question to be answered)
-    - SUBTRACT: subtract the data to the given variable in the given region from any already read in data for that variable in that region (not clear when exactly this is taken into account, question to be answered)
+    - SET: set the given variable in the given region to the value provided (standard setting)
+    - ADD: add the data for the given variable in the given region to any already read in data for that variable in that region (although it is not clear to the authors of Pymagicc how exactly to use this flag)
+    - SUBTRACT: subtract the data for the given variable in the given region from any already read in data for that variable in that region (although it is not clear to the authors of Pymagicc how exactly to use this flag)
 
 
 Namelists
