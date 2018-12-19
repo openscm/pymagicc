@@ -99,10 +99,10 @@ def generic_mdata_tests(mdata):
         pd.Index(["variable", "todo", "unit", "region", "time", "value"]),
     )
 
-    assert mdata.df.variable.dtype == "category"
-    assert mdata.df.todo.dtype == "category"
-    assert mdata.df.unit.dtype == "category"
-    assert mdata.df.region.dtype == "category"
+    assert mdata.df.variable.dtype == "string"
+    assert mdata.df.todo.dtype == "string"
+    assert mdata.df.unit.dtype == "string"
+    assert mdata.df.region.dtype == "string"
 
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
