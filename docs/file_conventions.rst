@@ -41,6 +41,28 @@ each of these files).
    files.
 
 
+Columns
++++++++
+
+In MAGICC data and input files there are a number of columns, each of which is explained here.
+
+- variable: the variable for which the data applies
+
+- region: the region in which the data applies
+
+- units: the units of the data
+
+- time: the point in time at which the data occurs
+
+    - note that the internal convention is that state variables are start of year values (i.e. 1st January 1990) whilst fluxes are annual averages/midyear values
+
+- set: a MAGICC flag which defines what MAGICC should do with the data in the timeseries
+
+    - SET: set the given variable in the given region to the value provided
+    - ADD: add the data to the given variable in the given region to any already read in data for that variable in that region (not clear when exactly this is taken into account, question to be answered)
+    - SUBTRACT: subtract the data to the given variable in the given region from any already read in data for that variable in that region (not clear when exactly this is taken into account, question to be answered)
+
+
 Namelists
 ---------
 
