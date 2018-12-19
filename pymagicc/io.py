@@ -2121,7 +2121,7 @@ def get_generic_rcp_name(inname):
         raise ValueError(error_msg)
 
 
-# TODO: move out of here in clean up
+# TODO: move out of here in clean up, see issue #166
 def join_timeseries(base, overwrite, join_linear=None):
     """Join two sets of timeseries
 
@@ -2137,7 +2137,7 @@ def join_timeseries(base, overwrite, join_linear=None):
         Timeseries to join onto base. Any points which are in both `base` and
         `overwrite` will be taken from `overwrite`.
 
-    join_linear : list of len(2)
+    join_linear : tuple of len(2)
         A list/array which specifies the period over which the two timeseries should
         be joined. The first element is the start time of the join period, the second
         element is the end time of the join period. In the join period (excluding the
