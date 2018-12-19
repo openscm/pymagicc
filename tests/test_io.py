@@ -1180,7 +1180,7 @@ def test_load_rcp_historical_dat_emissions():
 
     assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
 
     row = (
         (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
@@ -1226,7 +1226,7 @@ def test_load_rcp_historical_dat_concentrations():
 
     assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
 
     row = (
         (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent")
@@ -1302,7 +1302,7 @@ def test_load_rcp_historical_dat_forcings():
 
     assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
     assert (mdata.df["unit"] == "W / m^2").all()
 
     row = (
@@ -1349,7 +1349,7 @@ def test_load_rcp_projections_dat_emissions():
 
     assert (mdata.df["variable"].str.startswith("Emissions|")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
 
     row = (
         (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
@@ -1395,7 +1395,7 @@ def test_load_rcp_projections_dat_concentrations():
 
     assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
 
     row = (
         (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent")
@@ -1468,7 +1468,7 @@ def test_load_rcp_projections_dat_forcings():
 
     assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "N/A").all()
+    assert (mdata.df["todo"] == "SET").all()
     assert (mdata.df["unit"] == "W / m^2").all()
 
     row = (
@@ -2811,5 +2811,27 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(base=join_base_df, overwrite=join_overwrite_df)
 
+
+@patch("pymagicc.io.MAGICCData")
+@patch("pymagicc.io._join_timeseries_mdata")
+def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data):
+    tbase = "string1"
+    toverwrite = "string2"
+    tmdata = 54
+    treturn = 12
+
+    mock_magicc_data.return_value.read = MagicMock()
+    mock_magicc_data.return_value.df = tmdata
+
+    mock_join_timeseries_mdata.return_value = treturn
+
+    res = join_timeseries(
+        base=tbase, overwrite=toverwrite
+    )
+
+    assert res == treturn
+
+    assert mock_magicc_data.return_value.read.call_count == 2
+    mock_join_timeseries_mdata.assert_called_with(tmdata, tmdata, None)
 
 # TODO: improve join timeseries so it can also handle datetimes in the time axis

@@ -2130,12 +2130,13 @@ def join_timeseries(base, overwrite, join_linear=None):
 
     Parameters
     ----------
-    base : :obj:`pd.DataFrame`
-        Base timeseries to use
+    base : :obj:`pd.DataFrame`, filepath
+        Base timeseries to use. If a filepath, the data will first be loaded from disk.
 
-    overwrite : :obj:`pd.DataFrame`
+    overwrite : :obj:`pd.DataFrame`, filepath
         Timeseries to join onto base. Any points which are in both `base` and
-        `overwrite` will be taken from `overwrite`.
+        `overwrite` will be taken from `overwrite`. If a filepath, the data will first
+        be loaded from disk.
 
     join_linear : tuple of len(2)
         A list/array which specifies the period over which the two timeseries should
@@ -2154,6 +2155,15 @@ def join_timeseries(base, overwrite, join_linear=None):
     if join_linear is not None:
         if len(join_linear) != 2:
             raise ValueError("join_linear must have a length of 2")
+
+    reader = MAGICCData()
+    if isinstance(base, str):
+        reader.read(base)
+        base = reader.df
+
+    if isinstance(overwrite, str):
+        reader.read(overwrite)
+        overwrite = reader.df
 
     result = _join_timeseries_mdata(base, overwrite, join_linear)
 
