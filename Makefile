@@ -46,6 +46,7 @@ test-testpypi-install: venv
 		-i https://testpypi.python.org/pypi pymagicc \
 		--no-dependencies --pre
 	# Remove local directory from path to get actual installed version.
+	@echo "This doesn't test dependencies"
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
 publish-on-pypi: venv
@@ -63,7 +64,7 @@ test-pypi-install: venv
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
 	$(TEMPVENV)/bin/pip install pymagicc --pre
-	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
+	$(TEMPVENV)/bin/python scripts/test_install.py
 
 docs: docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py') venv
 	./venv/bin/sphinx-build -M html docs docs/build
