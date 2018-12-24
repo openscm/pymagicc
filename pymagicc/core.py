@@ -565,6 +565,7 @@ class MAGICCBase(object):
             raise NotImplementedError("MAGICC7 cannot yet diagnose ECS and TCR")
         self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
+            scenario=None,
             only=[
                 "Atmospheric Concentrations|CO2",
                 "Radiative Forcing",

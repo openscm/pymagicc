@@ -268,7 +268,8 @@ def test_diagnose_tcr_ecs(
 ):
     mock_tcr_val = 1.8
     mock_ecs_val = 3.1
-    mock_results = pd.DataFrame()
+    mock_results = MAGICCData()
+    mock_results.df = pd.DataFrame()
 
     mock_run.return_value = mock_results
     mock_get_tcr_ecs_from_results.return_value = [mock_tcr_val, mock_ecs_val]
@@ -276,6 +277,7 @@ def test_diagnose_tcr_ecs(
     assert magicc_base.diagnose_tcr_ecs()["tcr"] == mock_tcr_val
     assert mock_diagnose_tcr_ecs_setup.call_count == 1
     mock_run.assert_called_with(
+        scenario=None,
         only=[
             "Atmospheric Concentrations|CO2",
             "Radiative Forcing",
@@ -283,14 +285,14 @@ def test_diagnose_tcr_ecs(
         ]
     )
     assert mock_get_tcr_ecs_from_results.call_count == 1
-    mock_get_tcr_ecs_from_results.assert_called_with(mock_run())
+    assert mock_get_tcr_ecs_from_results.call_count == 1
 
     assert magicc_base.diagnose_tcr_ecs()["ecs"] == mock_ecs_val
     assert mock_diagnose_tcr_ecs_setup.call_count == 2
     assert mock_get_tcr_ecs_from_results.call_count == 2
 
-    results = magicc_base.diagnose_tcr_ecs()
-    assert isinstance(results["timeseries"], pd.DataFrame)
+    full_results = magicc_base.diagnose_tcr_ecs()
+    assert isinstance(full_results, dict)
 
 
 @patch.object(MAGICCBase, "update_config")
@@ -517,40 +519,6 @@ def test_missing_config(config_override):
     with pytest.raises(FileNotFoundError):
         with MAGICC7():
             pass
-
-
-@patch.object(MAGICCBase, "_diagnose_tcr_ecs_config_setup")
-@patch.object(MAGICCBase, "run")
-@patch.object(MAGICCBase, "_get_tcr_ecs_from_diagnosis_results")
-def test_diagnose_tcr_ecs(
-    mock_get_tcr_ecs_from_results, mock_run, mock_diagnose_tcr_ecs_setup, magicc_base
-):
-    mock_tcr_val = 1.8
-    mock_ecs_val = 3.1
-    mock_results = MAGICCData()
-    mock_results.df = pd.DataFrame()
-
-    mock_run.return_value = mock_results
-    mock_get_tcr_ecs_from_results.return_value = [mock_tcr_val, mock_ecs_val]
-
-    assert magicc_base.diagnose_tcr_ecs()["tcr"] == mock_tcr_val
-    assert mock_diagnose_tcr_ecs_setup.call_count == 1
-    mock_run.assert_called_with(
-        only=[
-            "Atmospheric Concentrations|CO2",
-            "Radiative Forcing",
-            "Surface Temperature",
-        ]
-    )
-    assert mock_get_tcr_ecs_from_results.call_count == 1
-    assert mock_get_tcr_ecs_from_results.call_count == 1
-
-    assert magicc_base.diagnose_tcr_ecs()["ecs"] == mock_ecs_val
-    assert mock_diagnose_tcr_ecs_setup.call_count == 2
-    assert mock_get_tcr_ecs_from_results.call_count == 2
-
-    full_results = magicc_base.diagnose_tcr_ecs()
-    assert isinstance(full_results, dict)
 
 
 def test_read_parameters():
