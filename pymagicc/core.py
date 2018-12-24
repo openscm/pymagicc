@@ -200,7 +200,7 @@ class MAGICCBase(object):
 
         # would be ideal to use set_output somehow here...
         for key, value in kwargs.items():
-            if key.startswith("out"):
+            if key.startswith("out") and key != "out_ascii_binary":
                 kwargs[key] = 1 if value else 0
 
         # should be able to do some other nice metadata stuff re how magicc was run
@@ -504,13 +504,11 @@ class MAGICCBase(object):
             "out_sealevel": 0,
             "out_parameters": 0,
             "out_misc": 0,
-            "out_lifetimes": 0,
             "out_timeseriesmix": 0,
             "out_rcpdata": 0,
             "out_summaryidx": 0,
             "out_inverseemis": 0,
             "out_tempoceanlayers": 0,
-            "out_oceanarea": 0,
             "out_heatuptake": 0,
             "out_ascii_binary": ascii_binary,
             "out_warnings": 0,
@@ -521,6 +519,10 @@ class MAGICCBase(object):
             "out_keydata_1": 0,
             "out_keydata_2": 0,
         }
+        if self.version == 7:
+            outconfig["out_oceanarea"] = 0
+            outconfig["out_lifetimes"] = 0
+
         for kw in kwargs:
             val = 1 if kwargs[kw] else 0  # convert values to 0/1 instead of booleans
             outconfig["out_" + kw.lower()] = val
