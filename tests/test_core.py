@@ -158,6 +158,27 @@ def test_run_success(package):
     assert len(package.config.keys()) != 0
 
 
+def test_run_success_binary(package):
+    results = package.run(out_ascii_binary="BINARY")
+
+    assert isinstance(results, MAGICCData)
+    assert len(results.df.variable.unique()) > 1
+    assert "Surface Temperature" in results.df.variable.unique()
+
+    assert len(package.config.keys()) != 0
+
+
+def test_run_success_update_config(package):
+    package.update_config(write_ascii=False, write_binary=True)
+    results = package.run()
+
+    assert isinstance(results, MAGICCData)
+    assert len(results.df.variable.unique()) > 1
+    assert "Surface Temperature" in results.df.variable.unique()
+
+    assert len(package.config.keys()) != 0
+
+
 def test_run_only(package):
     write_config(package)
     results = package.run(only=["Surface Temperature"])
