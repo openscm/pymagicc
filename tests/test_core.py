@@ -169,7 +169,7 @@ def test_run_success_binary(package):
 
 
 def test_run_success_update_config(package):
-    package.update_config(write_ascii=False, write_binary=True)
+    package.set_output_variables(keydata_2=1, parameters=1, write_ascii=False, write_binary=True)
     results = package.run()
 
     assert isinstance(results, MAGICCData)
