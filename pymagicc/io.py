@@ -25,6 +25,7 @@ from .definitions import (
     convert_pint_to_fortran_safe_units,
     DATA_HIERARCHY_SEPARATOR,
 )
+from .openscmdataframe import OpenSCMDataFrame
 
 
 UNSUPPORTED_OUT_FILES = [
@@ -1706,7 +1707,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(object):
+class MAGICCData(OpenSCMDataFrame):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -1754,13 +1755,13 @@ class MAGICCData(object):
         The file the data was loaded from.
     """
 
-    def __init__(self):
+    def __init__(self, data):
         """
         Initialise a MAGICCData object.
         """
-        self.df = None
         self.metadata = {}
         self.filepath = None
+        super().__init__(data)
 
     def __getitem__(self, item):
         """

@@ -10,6 +10,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
+from pymagicc.openscmdataframe import OpenSCMDataFrame
 
 
 from pymagicc import MAGICC6
@@ -93,16 +94,16 @@ def generic_mdata_tests(mdata):
     "Resusable tests to ensure data format."
     assert mdata.is_loaded == True
 
-    assert isinstance(mdata.df, pd.DataFrame)
+    assert isinstance(mdata, OpenSCMDataFrame)
     pd.testing.assert_index_equal(
-        mdata.df.columns,
+        mdata.data.columns,
         pd.Index(["variable", "todo", "unit", "region", "time", "value"]),
     )
 
-    assert mdata.df.variable.dtype == "object"
-    assert mdata.df.todo.dtype == "object"
-    assert mdata.df.unit.dtype == "object"
-    assert mdata.df.region.dtype == "object"
+    assert mdata.data["variable"].dtype == "object"
+    assert mdata.data["todo"].dtype == "object"
+    assert mdata.data["unit"].dtype == "object"
+    assert mdata.data["region"].dtype == "object"
 
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):

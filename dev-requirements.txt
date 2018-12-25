@@ -14,3 +14,4 @@ black
 nbval
 git+https://github.com/thedataincubator/expectexception.git@master
 goodtables
+git+https://github.com/IAMconsortium/pyam.git@master

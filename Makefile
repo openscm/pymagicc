@@ -16,6 +16,7 @@ venv: dev-requirements.txt
 	./venv/bin/jupyter serverextension enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension     enable --py --sys-prefix appmode
 	./venv/bin/jupyter nbextension enable --py widgetsnbextension
+	@echo "Warning: installing pyam from branch until release is ready"
 	./venv/bin/pip install -e .
 	touch venv
 
