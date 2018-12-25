@@ -2,6 +2,7 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
+from datetime import datetime, timedelta
 import warnings
 
 
@@ -212,6 +213,7 @@ class _InputReader(object):
         """
         ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
         df = self._convert_data_block_and_headers_to_df(stream, ch)
+
         return df, metadata
 
     def _convert_data_block_and_headers_to_df(self, stream, column_headers):
@@ -242,13 +244,15 @@ class _InputReader(object):
         df.index.name = "time"
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-
-        self._convert_to_string_columns(df)
+        df["climate_model"] = "MAGICC"
+        df["model"] = "tbc"
+        df["scenario"] = "tbc"
+        df["time"] = self._check_time(df["time"].copy())
 
         return df
 
     def _convert_to_string_columns(self, df):
-        for categorical_column in ["variable", "todo", "unit", "region"]:
+        for categorical_column in ["variable", "todo", "unit", "region", "model", "scenario", "climate_model"]:
             df[categorical_column] = df[categorical_column].astype(str)
 
         return df
@@ -258,6 +262,32 @@ class _InputReader(object):
             [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
             names=("variable", "todo", "unit", "region"),
         )
+
+    def _check_time(self, time_srs):
+        if type(time_srs.iloc[0]) == pd._libs.tslibs.timestamps.Timestamp:
+            pass
+        elif time_srs.iloc[0].dtype <= np.int:
+            # years, put in middle of year
+            time_srs = time_srs.apply(lambda x: datetime(x, 7, 12))
+        else:
+            # decimal years
+            def _convert_to_datetime(decimal_year):
+                # thank you https://stackoverflow.com/a/20911144
+                year = int(decimal_year)
+                rem = decimal_year - year
+                base = datetime(year, 1, 1, 0, 0)
+                seconds_in_year = (
+                    base.replace(year=base.year + 1)
+                    - base
+                ).total_seconds()
+                res = (base + timedelta(seconds=seconds_in_year * rem))
+
+                return res
+
+            time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
+
+        return time_srs
+
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -1754,30 +1784,35 @@ class MAGICCData(OpenSCMDataFrame):
     filepath : str
         The file the data was loaded from.
     """
-
     def __init__(self, data):
         """
         Initialise a MAGICCData object.
         """
-        self.metadata = {}
-        self.filepath = None
-        super().__init__(data)
+        # TODO: refactor to mirror pyam
+        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+            self.filepath = None
+            self.metadata = {}
+            super().__init__(data)
+        else:
+            self.metadata, self.data = _read_file_and_metadata(data)  # assume filepath
+            self.filepath = data
+            super().__init__(self.data)
 
-    def __getitem__(self, item):
-        """
-        Allow for lazy loading.
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return self[item]
+    # def __getitem__(self, item):
+    #     """
+    #     Allow for lazy loading.
+    #     """
+    #     if not self.is_loaded:
+    #         self._raise_not_loaded_error()
+    #     return self[item]
 
-    def __getattr__(self, item):
-        """
-        Proxy any attributes/functions on the dataframe.
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return getattr(self.df, item)
+    # def __getattr__(self, item):
+    #     """
+    #     Proxy any attributes/functions on the dataframe.
+    #     """
+    #     if not self.is_loaded:
+    #         self._raise_not_loaded_error()
+    #     return getattr(self.df, item)
 
     def _raise_not_loaded_error(self):
         raise ValueError("File has not been read from disk yet")
@@ -1785,7 +1820,7 @@ class MAGICCData(OpenSCMDataFrame):
     @property
     def is_loaded(self):
         """bool: Whether the data has been loaded yet."""
-        return self.df is not None
+        return self.data is not None
 
     def read(self, filepath):
         """
@@ -1800,7 +1835,8 @@ class MAGICCData(OpenSCMDataFrame):
             Filepath of the file to read.
         """
         _check_file_exists(filepath)
-        self.metadata, self.df = self._read_and_return_metadata_df(filepath)
+        self.filepath = filepath
+        self.metadata, self.data = self._read_and_return_metadata_df(filepath)
 
     def _read_and_return_metadata_df(self, filepath):
         reader = self.determine_tool(filepath, "reader")(filepath)
@@ -1849,137 +1885,145 @@ class MAGICCData(OpenSCMDataFrame):
         writer = self.determine_tool(filepath, "writer")(magicc_version=magicc_version)
         writer.write(self, filepath)
 
-    def determine_tool(self, filepath, tool_to_get):
-        """
-        Determine the tool to use for reading/writing.
 
-        The function uses an internally defined set of mappings between filepaths,
-        regular expresions and readers/writers to work out which tool to use
-        for a given task, given the filepath.
+def determine_tool(filepath, tool_to_get):
+    """
+    Determine the tool to use for reading/writing.
 
-        It is intended for internal use only, but is public because of its
-        importance to the input/output of pymagicc.
+    The function uses an internally defined set of mappings between filepaths,
+    regular expresions and readers/writers to work out which tool to use
+    for a given task, given the filepath.
 
-        If it fails, it will give clear error messages about why and what the
-        available regular expressions are.
+    It is intended for internal use only, but is public because of its
+    importance to the input/output of pymagicc.
 
-        .. code:: python
+    If it fails, it will give clear error messages about why and what the
+    available regular expressions are.
 
-            >>> mdata = MAGICCData()
-            >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
-            ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
-            The file must be one of the following types and the filepath must match its corresponding regular expression:
-            SCEN: ^.*\\.SCEN$
-            SCEN7: ^.*\\.SCEN7$
-            prn: ^.*\\.prn$
+    .. code:: python
 
-        Parameters
-        ----------
-        filepath : str
-            Name of the file to read/write, including extension
-        tool_to_get : str
-            The tool to get, valid options are "reader", "writer".
-            Invalid values will throw a NoReaderWriterError.
-        """
-        file_regexp_reader_writer = {
-            "SCEN": {
-                "regexp": r"^.*\.SCEN$",
-                "reader": _ScenReader,
-                "writer": _ScenWriter,
-            },
-            "SCEN7": {
-                "regexp": r"^.*\.SCEN7$",
-                "reader": _Scen7Reader,
-                "writer": _Scen7Writer,
-            },
-            "prn": {"regexp": r"^.*\.prn$", "reader": _PrnReader, "writer": _PrnWriter},
-            # "Sector": {"regexp": r".*\.SECTOR$", "reader": _Scen7Reader, "writer": _Scen7Writer},
-            "EmisIn": {
-                "regexp": r"^.*\_EMIS.*\.IN$",
-                "reader": _HistEmisInReader,
-                "writer": _HistEmisInWriter,
-            },
-            "ConcIn": {
-                "regexp": r"^.*\_CONC.*\.IN$",
-                "reader": _ConcInReader,
-                "writer": _ConcInWriter,
-            },
-            "OpticalThicknessIn": {
-                "regexp": r"^.*\_OT\.IN$",
-                "reader": _OpticalThicknessInReader,
-                "writer": _OpticalThicknessInWriter,
-            },
-            "RadiativeForcingIn": {
-                "regexp": r"^.*\_RF\.(IN|MON)$",
-                "reader": _RadiativeForcingInReader,
-                "writer": _RadiativeForcingInWriter,
-            },
-            "Out": {"regexp": r"^DAT\_.*\.OUT$", "reader": _OutReader, "writer": None},
-            "TempOceanLayersOut": {
-                "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
-                "reader": _TempOceanLayersOutReader,
-                "writer": None,
-            },
-            "BinOut": {
-                "regexp": r"^DAT\_.*\.BINOUT$",
-                "reader": _BinaryOutReader,
-                "writer": None,
-            },
-            "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
-            # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
-        }
+        >>> mdata = MAGICCData()
+        >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
+        ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
+        The file must be one of the following types and the filepath must match its corresponding regular expression:
+        SCEN: ^.*\\.SCEN$
+        SCEN7: ^.*\\.SCEN7$
+        prn: ^.*\\.prn$
 
-        fbase = basename(filepath)
-        for file_type, file_tools in file_regexp_reader_writer.items():
-            if re.match(file_tools["regexp"], fbase):
-                try:
-                    return file_tools[tool_to_get]
-                except KeyError:
-                    valid_tools = [k for k in file_tools.keys() if k != "regexp"]
-                    error_msg = (
-                        "MAGICCData does not know how to get a {}, "
-                        "valid options are: {}".format(tool_to_get, valid_tools)
-                    )
-                    raise KeyError(error_msg)
+    Parameters
+    ----------
+    filepath : str
+        Name of the file to read/write, including extension
+    tool_to_get : str
+        The tool to get, valid options are "reader", "writer".
+        Invalid values will throw a NoReaderWriterError.
+    """
+    file_regexp_reader_writer = {
+        "SCEN": {
+            "regexp": r"^.*\.SCEN$",
+            "reader": _ScenReader,
+            "writer": _ScenWriter,
+        },
+        "SCEN7": {
+            "regexp": r"^.*\.SCEN7$",
+            "reader": _Scen7Reader,
+            "writer": _Scen7Writer,
+        },
+        "prn": {"regexp": r"^.*\.prn$", "reader": _PrnReader, "writer": _PrnWriter},
+        # "Sector": {"regexp": r".*\.SECTOR$", "reader": _Scen7Reader, "writer": _Scen7Writer},
+        "EmisIn": {
+            "regexp": r"^.*\_EMIS.*\.IN$",
+            "reader": _HistEmisInReader,
+            "writer": _HistEmisInWriter,
+        },
+        "ConcIn": {
+            "regexp": r"^.*\_CONC.*\.IN$",
+            "reader": _ConcInReader,
+            "writer": _ConcInWriter,
+        },
+        "OpticalThicknessIn": {
+            "regexp": r"^.*\_OT\.IN$",
+            "reader": _OpticalThicknessInReader,
+            "writer": _OpticalThicknessInWriter,
+        },
+        "RadiativeForcingIn": {
+            "regexp": r"^.*\_RF\.(IN|MON)$",
+            "reader": _RadiativeForcingInReader,
+            "writer": _RadiativeForcingInWriter,
+        },
+        "Out": {"regexp": r"^DAT\_.*\.OUT$", "reader": _OutReader, "writer": None},
+        "TempOceanLayersOut": {
+            "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
+            "reader": _TempOceanLayersOutReader,
+            "writer": None,
+        },
+        "BinOut": {
+            "regexp": r"^DAT\_.*\.BINOUT$",
+            "reader": _BinaryOutReader,
+            "writer": None,
+        },
+        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
+        # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
+    }
 
-        para_file = "PARAMETERS.OUT"
-        if (filepath.endswith(".CFG")) and (tool_to_get == "reader"):
-            error_msg = (
-                "MAGCCInput cannot read .CFG files like {}, please use "
-                "pymagicc.io.read_cfg_file".format(filepath)
-            )
+    fbase = basename(filepath)
+    for file_type, file_tools in file_regexp_reader_writer.items():
+        if re.match(file_tools["regexp"], fbase):
+            try:
+                return file_tools[tool_to_get]
+            except KeyError:
+                valid_tools = [k for k in file_tools.keys() if k != "regexp"]
+                error_msg = (
+                    "MAGICCData does not know how to get a {}, "
+                    "valid options are: {}".format(tool_to_get, valid_tools)
+                )
+                raise KeyError(error_msg)
 
-        elif (filepath.endswith(para_file)) and (tool_to_get == "reader"):
-            error_msg = (
-                "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
-                "style file, please use pymagicc.io.read_cfg_file"
-            )
+    para_file = "PARAMETERS.OUT"
+    if (filepath.endswith(".CFG")) and (tool_to_get == "reader"):
+        error_msg = (
+            "MAGCCInput cannot read .CFG files like {}, please use "
+            "pymagicc.io.read_cfg_file".format(filepath)
+        )
 
-        elif _unsupported_file(filepath):
-            error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
-                filepath
-            )
+    elif (filepath.endswith(para_file)) and (tool_to_get == "reader"):
+        error_msg = (
+            "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
+            "style file, please use pymagicc.io.read_cfg_file"
+        )
 
-        else:
-            regexp_list_str = "\n".join(
-                [
-                    "{}: {}".format(k, v["regexp"])
-                    for k, v in file_regexp_reader_writer.items()
-                ]
-            )
-            error_msg = (
-                "Couldn't find appropriate {} for {}.\nThe file must be one "
-                "of the following types and the filepath must match its "
-                "corresponding regular "
-                "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
-            )
+    elif _unsupported_file(filepath):
+        error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
+            filepath
+        )
 
-        raise NoReaderWriterError(error_msg)
+    else:
+        regexp_list_str = "\n".join(
+            [
+                "{}: {}".format(k, v["regexp"])
+                for k, v in file_regexp_reader_writer.items()
+            ]
+        )
+        error_msg = (
+            "Couldn't find appropriate {} for {}.\nThe file must be one "
+            "of the following types and the filepath must match its "
+            "corresponding regular "
+            "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
+        )
+
+    raise NoReaderWriterError(error_msg)
 
 
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
         raise FileNotFoundError("Cannot find {}".format(file_to_read))
+
+
+def _read_file_and_metadata(filepath):
+    Reader = determine_tool(filepath, "reader")
+    metadata, data = Reader(filepath).read()
+
+    return metadata, data
 
 
 def read_cfg_file(filepath):

@@ -50,8 +50,7 @@ def read_scen_file(filepath):
     :obj:`pymagicc.io.MAGICCData`
         ``MAGICCData`` object containing the data and metadata.
     """
-    mdata = MAGICCData()
-    mdata.read(filepath)
+    mdata = MAGICCData(filepath)
 
     return mdata
 
