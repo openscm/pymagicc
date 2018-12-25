@@ -258,9 +258,13 @@ class _InputReader(object):
         return df
 
     def _get_columns_multiindex_from_column_headers(self, ch):
+        l = len(ch["variables"])
+        ch.setdefault("climate_models", ["MAGICC"]*l)
+        ch.setdefault("models", ["tbc"]*l)
+        ch.setdefault("scenarios", ["tbc"]*l)
         return pd.MultiIndex.from_arrays(
-            [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
-            names=("variable", "todo", "unit", "region"),
+            [ch["variables"], ch["todos"], ch["units"], ch["regions"], ch["climate_models"], ch["models"], ch["scenarios"]],
+            names=("variable", "todo", "unit", "region", "climate_model", "model", "scenario"),
         )
 
     def _check_time(self, time_srs):
