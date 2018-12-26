@@ -46,7 +46,7 @@ install_requirements = [
     "pandas",
     "pandas-datapackage-reader",
     "f90nml",
-    "pyam-iamc",
+    # "pyam-iamc",  whilst no usable release available
     "PyYAML",
 ]
 
