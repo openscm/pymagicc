@@ -3,6 +3,7 @@ from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
 from datetime import datetime, timedelta
+from calendar import monthrange
 import warnings
 
 
@@ -244,7 +245,6 @@ class _InputReader(object):
         df.index.name = "time"
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df["time"] = self._check_time(df["time"].copy())
 
         return df
 
@@ -287,30 +287,6 @@ class _InputReader(object):
                 "scenario",
             ),
         )
-
-    def _check_time(self, time_srs):
-        if type(time_srs.iloc[0]) == pd._libs.tslibs.timestamps.Timestamp:
-            pass
-        elif time_srs.iloc[0].dtype <= np.int:
-            # years, put in middle of year
-            time_srs = time_srs.apply(lambda x: datetime(x, 7, 12))
-        else:
-            # decimal years
-            def _convert_to_datetime(decimal_year):
-                # thank you https://stackoverflow.com/a/20911144
-                year = int(decimal_year)
-                rem = decimal_year - year
-                base = datetime(year, 1, 1, 0, 0)
-                seconds_in_year = (
-                    base.replace(year=base.year + 1) - base
-                ).total_seconds()
-                res = base + timedelta(seconds=seconds_in_year * rem)
-
-                return res
-
-            time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
-
-        return time_srs
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -870,7 +846,6 @@ class _PrnReader(_NonStandardEmisInReader):
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
         df = self._convert_to_string_columns(df)
-        df["time"] = self._check_time(df["time"].copy())
 
         for k in ["gas", "unit"]:
             try:
@@ -1236,14 +1211,8 @@ class _InputWriter(object):
             Filepath of the file to write to.
         """
         # TODO: make copy attribute for MAGICCData
-        self.minput = type(magicc_input)()
-        self.minput.df = magicc_input.df.copy()
-        self.minput.metadata = deepcopy(magicc_input.metadata)
-
-        # pivot the data table before moving on
-        self.minput.df = self.minput.df.pivot_table(
-            values="value", index="time", columns=["variable", "todo", "unit", "region"]
-        )
+        self.minput = deepcopy(magicc_input)
+        self.data_block = self._get_data_block()
 
         output = StringIO()
 
@@ -1318,12 +1287,13 @@ class _InputWriter(object):
         output.write(pd_pad)
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
+
         data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
         output.write(self._newline_char)
         return output
 
     def _get_initial_nml_and_data_block(self):
-        data_block = self._get_data_block()
+        data_block = self.data_block
 
         regions = convert_magicc_to_openscm_regions(
             data_block.columns.get_level_values("region").tolist(), inverse=True
@@ -1383,7 +1353,11 @@ class _InputWriter(object):
         return nml, data_block
 
     def _get_data_block(self):
-        data_block = self.minput.df.copy()
+        data_block = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
@@ -1393,10 +1367,43 @@ class _InputWriter(object):
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
 
+        data_block = self._convert_data_block_to_magicc_time(data_block)
+
+        return data_block
+
+    def _convert_data_block_to_magicc_time(self, data_block):
+        timestamp_months = data_block.index.map(lambda x: x.month)
+        no_months = len(timestamp_months.unique())
+        if no_months == 1:  # yearly data
+            data_block.index = data_block.index.map(lambda x: x.year)
+        else:
+            def _convert_to_decimal_year(itime):
+                # MAGICC dates are to nearest month at most precise
+                year = itime.year
+                month = itime.month
+                _, month_days = monthrange(year, month)
+                day = itime.day
+                hr = itime.hour
+                month_fraction = (day + hr / 24) / month_days
+                # decide if midyear or start of year
+                if np.round(month_fraction, 1) == 0.5:
+                    decimal_bit = ((month - 1) * 2 + 1) / 24
+                elif np.round(month_fraction, 1) == 0:
+                    decimal_bit = (month - 1) / 12
+                else:
+                    error_msg = (
+                        "Your timestamps don't appear to be middle or start of month"
+                    )
+                    raise ValueError(error_msg)
+
+                return np.round(year + decimal_bit, 3)  # match MAGICC precision
+
+            data_block.index = data_block.index.map(_convert_to_decimal_year)
+
         return data_block
 
     def _get_df_header_row(self, col_name):
-        return self.minput.df.columns.get_level_values(col_name).tolist()
+        return self.data_block.columns.get_level_values(col_name).tolist()
 
 
 class _ConcInWriter(_InputWriter):
@@ -1433,9 +1440,13 @@ class _PrnWriter(_InputWriter):
 
     def _write_datablock(self, output):
         lines = output.getvalue().split(self._newline_char)
-        data_block = self._get_data_block()
 
-        units = self.minput.df.columns.get_level_values("unit").unique()
+        data_block_full = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
+        units = data_block_full.columns.get_level_values("unit").unique()
         unit = units[0].split(" ")[0]
         if unit == "t":
             assert all(
@@ -1451,6 +1462,8 @@ class _PrnWriter(_InputWriter):
             other_col_format_str = "{:9.3e}".format
         else:
             raise ValueError("Unit of {} is not recognised for prn file".format(unit))
+
+        data_block = self._get_data_block()
 
         # line with number of rows to skip, start year and end year
         no_indicator_lines = 1
@@ -1503,9 +1516,14 @@ class _PrnWriter(_InputWriter):
         return output
 
     def _get_data_block(self):
-        data_block = self.minput.df.copy()
+        data_block = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
+        # probably not necessary but a sensible check
+        assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
-        data_block.columns = data_block.columns.get_level_values("variable")
         magicc7_vars = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable"), inverse=True
         )
@@ -1517,12 +1535,12 @@ class _PrnWriter(_InputWriter):
 
         emms_assert_msg = (
             "Prn files must have, and only have, "
-            "the following species: ".format(PART_OF_PRNFILE)
+            "the following species: {}".format(PART_OF_PRNFILE)
         )
         assert set(data_block.columns) == set(PART_OF_PRNFILE), emms_assert_msg
 
         data_block.index.name = "Years"
-
+        data_block = self._convert_data_block_to_magicc_time(data_block)
         data_block.reset_index(inplace=True)
 
         return data_block
@@ -1537,25 +1555,21 @@ class _ScenWriter(_InputWriter):
     )
 
     def write(self, magicc_input, filepath):
-        orig_vars = list(magicc_input.df["variable"].unique())
+        orig_length = len(magicc_input)
+        orig_vars = magicc_input.variables()
 
         if not (set(self.SCEN_VARS_CODE_1) - set(orig_vars)):
-            magicc_input.df = magicc_input.df[
-                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_1)
-            ]
+            magicc_input.filter(variable=self.SCEN_VARS_CODE_1, inplace=True)
         elif not (set(self.SCEN_VARS_CODE_0) - set(orig_vars)):
-            magicc_input.df = magicc_input.df[
-                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_0)
-            ]
-
-        if len(magicc_input.df["variable"].unique()) != len(orig_vars):
+            magicc_input.filter(variable=self.SCEN_VARS_CODE_0, inplace=True)
+        if len(magicc_input) != orig_length:
             warnings.warn("Ignoring input data which is not required for .SCEN file")
 
         super().write(magicc_input, filepath)
 
     def _write_header(self, output):
         header_lines = []
-        header_lines.append("{}".format(len(self.minput.df)))
+        header_lines.append("{}".format(len(self.data_block)))
 
         variables = self._get_df_header_row("variable")
         variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
@@ -1631,7 +1645,7 @@ class _ScenWriter(_InputWriter):
         # explosion will be cryptic so should add a test for good error
         # message at some point
         formatters = [other_col_format_str] * (
-            int(len(self.minput.df.columns) / len(region_order))
+            int(len(self.data_block.columns) / len(region_order))
             + 1  # for the years column
         )
         formatters[0] = first_col_format_str
@@ -1653,7 +1667,7 @@ class _ScenWriter(_InputWriter):
 
         for region in region_order:
             region_block_region = convert_magicc_to_openscm_regions(region)
-            region_block = self.minput.df.xs(
+            region_block = self.data_block.xs(
                 region_block_region, axis=1, level="region", drop_level=False
             )
             region_block.columns = region_block.columns.droplevel("todo")
@@ -1819,9 +1833,7 @@ class MAGICCData(OpenSCMDataFrame):
             self.metadata = {}
             super().__init__(data)
         else:
-            self.metadata, self.data = _read_file_and_metadata(data)  # assume filepath
-            self.filepath = data
-            super().__init__(self.data)
+            self.read(data)  # assume filepath
 
     # def __getitem__(self, item):
     #     """
@@ -1859,13 +1871,9 @@ class MAGICCData(OpenSCMDataFrame):
         filepath : str
             Filepath of the file to read.
         """
-        _check_file_exists(filepath)
         self.filepath = filepath
-        self.metadata, self.data = self._read_and_return_metadata_df(filepath)
-
-    def _read_and_return_metadata_df(self, filepath):
-        reader = self.determine_tool(filepath, "reader")(filepath)
-        return reader.read()
+        self.metadata, self.data = _read_and_return_metadata_df(filepath)
+        super().__init__(self.data)
 
     def append(self, filepath):
         """
@@ -1883,15 +1891,11 @@ class MAGICCData(OpenSCMDataFrame):
         """
         filepath = [filepath] if isinstance(filepath, str) else filepath
 
-        dfs_to_add = [] if self.df is None else [self.df]
-
         for fp in filepath:
-            metadata_to_add, df_to_add = self._read_and_return_metadata_df(fp)
+            metadata_to_add, df_to_add = _read_and_return_metadata_df(fp)
 
             self.metadata.update(metadata_to_add)
-            dfs_to_add.append(df_to_add)
-
-        self.df = pd.concat(dfs_to_add)
+            super().append(df_to_add, inplace=True)
 
     def write(self, filepath, magicc_version):
         """
@@ -1907,7 +1911,7 @@ class MAGICCData(OpenSCMDataFrame):
             namelists are incompatible hence we need to know which one we're writing
             for.
         """
-        writer = self.determine_tool(filepath, "writer")(magicc_version=magicc_version)
+        writer = determine_tool(filepath, "writer")(magicc_version=magicc_version)
         writer.write(self, filepath)
 
 
@@ -2040,11 +2044,10 @@ def _check_file_exists(file_to_read):
         raise FileNotFoundError("Cannot find {}".format(file_to_read))
 
 
-def _read_file_and_metadata(filepath):
+def _read_and_return_metadata_df(filepath):
+    _check_file_exists(filepath)
     Reader = determine_tool(filepath, "reader")
-    metadata, data = Reader(filepath).read()
-
-    return metadata, data
+    return Reader(filepath).read()
 
 
 def read_cfg_file(filepath):
@@ -2188,11 +2191,9 @@ def get_generic_rcp_name(inname):
 
 
 # TODO: move out of here in clean up, see issue #166
+# can probably supercede with OpenSCM functionality for fiddly joins
 def join_timeseries(base, overwrite, join_linear=None):
     """Join two sets of timeseries
-
-    Warning: this function has not been tested with data which has anything other than
-    years in its time axis.
 
     Parameters
     ----------
@@ -2222,21 +2223,21 @@ def join_timeseries(base, overwrite, join_linear=None):
         if len(join_linear) != 2:
             raise ValueError("join_linear must have a length of 2")
 
-    reader = MAGICCData()
     if isinstance(base, str):
-        reader.read(base)
-        base = reader.df
+        base = MAGICCData(base).data.copy()
 
     if isinstance(overwrite, str):
-        reader.read(overwrite)
-        overwrite = reader.df
+        overwrite = MAGICCData(overwrite).data.copy()
 
     result = _join_timeseries_mdata(base, overwrite, join_linear)
 
-    return result
+    return MAGICCData(result)
 
 
 def _join_timeseries_mdata(base, overwrite, join_linear):
+    base = _reduce_time_to_year(base)
+    overwrite = _reduce_time_to_year(overwrite)
+
     min_year = min(base["time"].min(), overwrite["time"].min())
     max_year = max(base["time"].max(), overwrite["time"].max())
     new_index = range(min_year, max_year + 1)
@@ -2266,12 +2267,27 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
 
     if result.isnull().values.any():
         warn_msg = (
-            "nan values in joint arrays, this is likely because your input "
-            "timeseries do not all cover the same span"
+            "nan values in joint arrays, this is likely because, once joined, your "
+            "input timeseries do not all cover the same span. Dropping unfilled "
+            "regions, this likely means your output arrays do not all cover the same "
+            "span either."
         )
         warnings.warn(warn_msg)
 
+        result.dropna(inplace=True)
+
     return result
+
+
+def _reduce_time_to_year(in_df):
+    out_df = in_df.copy()
+    orig_length_time = len(in_df["time"].unique())
+    out_df["time"] = out_df["time"].apply(lambda x: x.year)
+    new_length_time = len(out_df["time"].unique())
+    if orig_length_time != new_length_time:
+        raise ValueError("Not equipped for this case")
+
+    return out_df
 
 
 def _overwrite_period_linearly(df_in, join_linear):
