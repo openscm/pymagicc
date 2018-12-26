@@ -244,27 +244,48 @@ class _InputReader(object):
         df.index.name = "time"
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df["climate_model"] = "MAGICC"
-        df["model"] = "tbc"
-        df["scenario"] = "tbc"
         df["time"] = self._check_time(df["time"].copy())
 
         return df
 
     def _convert_to_string_columns(self, df):
-        for categorical_column in ["variable", "todo", "unit", "region", "model", "scenario", "climate_model"]:
+        for categorical_column in [
+            "variable",
+            "todo",
+            "unit",
+            "region",
+            "model",
+            "scenario",
+            "climate_model",
+        ]:
             df[categorical_column] = df[categorical_column].astype(str)
 
         return df
 
     def _get_columns_multiindex_from_column_headers(self, ch):
         l = len(ch["variables"])
-        ch.setdefault("climate_models", ["MAGICC"]*l)
-        ch.setdefault("models", ["tbc"]*l)
-        ch.setdefault("scenarios", ["tbc"]*l)
+        ch.setdefault("climate_models", ["MAGICC"] * l)
+        ch.setdefault("models", ["tbc"] * l)
+        ch.setdefault("scenarios", ["tbc"] * l)
         return pd.MultiIndex.from_arrays(
-            [ch["variables"], ch["todos"], ch["units"], ch["regions"], ch["climate_models"], ch["models"], ch["scenarios"]],
-            names=("variable", "todo", "unit", "region", "climate_model", "model", "scenario"),
+            [
+                ch["variables"],
+                ch["todos"],
+                ch["units"],
+                ch["regions"],
+                ch["climate_models"],
+                ch["models"],
+                ch["scenarios"],
+            ],
+            names=(
+                "variable",
+                "todo",
+                "unit",
+                "region",
+                "climate_model",
+                "model",
+                "scenario",
+            ),
         )
 
     def _check_time(self, time_srs):
@@ -281,17 +302,15 @@ class _InputReader(object):
                 rem = decimal_year - year
                 base = datetime(year, 1, 1, 0, 0)
                 seconds_in_year = (
-                    base.replace(year=base.year + 1)
-                    - base
+                    base.replace(year=base.year + 1) - base
                 ).total_seconds()
-                res = (base + timedelta(seconds=seconds_in_year * rem))
+                res = base + timedelta(seconds=seconds_in_year * rem)
 
                 return res
 
             time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
 
         return time_srs
-
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -851,6 +870,7 @@ class _PrnReader(_NonStandardEmisInReader):
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
         df = self._convert_to_string_columns(df)
+        df["time"] = self._check_time(df["time"].copy())
 
         for k in ["gas", "unit"]:
             try:
@@ -1788,6 +1808,7 @@ class MAGICCData(OpenSCMDataFrame):
     filepath : str
         The file the data was loaded from.
     """
+
     def __init__(self, data):
         """
         Initialise a MAGICCData object.
@@ -1923,11 +1944,7 @@ def determine_tool(filepath, tool_to_get):
         Invalid values will throw a NoReaderWriterError.
     """
     file_regexp_reader_writer = {
-        "SCEN": {
-            "regexp": r"^.*\.SCEN$",
-            "reader": _ScenReader,
-            "writer": _ScenWriter,
-        },
+        "SCEN": {"regexp": r"^.*\.SCEN$", "reader": _ScenReader, "writer": _ScenWriter},
         "SCEN7": {
             "regexp": r"^.*\.SCEN7$",
             "reader": _Scen7Reader,
