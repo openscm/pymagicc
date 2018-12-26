@@ -159,7 +159,7 @@ def test_run_success(package):
 
 
 def test_run_success_binary(package):
-    results = package.run(out_ascii_binary="BINARY")
+    results = package.run(out_ascii_binary="BINARY", out_keydata_2=True)
 
     assert isinstance(results, MAGICCData)
     assert len(results.df.variable.unique()) > 1
@@ -169,7 +169,7 @@ def test_run_success_binary(package):
 
 
 def test_run_success_update_config(package):
-    package.set_output_variables(keydata_2=1, parameters=1, write_ascii=False, write_binary=True)
+    package.set_output_variables(keydata_2=True, parameters=1, write_ascii=False, write_binary=True)
     results = package.run()
 
     assert isinstance(results, MAGICCData)
