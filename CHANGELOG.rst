@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#191 <https://github.com/openclimatedata/pymagicc/pull/191>`_) Fixed bugs which meant config passed to MAGICC wasn't handled correctly and renamed `tests/test_api.py` to `tests/test_core.py`.
 - (`#187 <https://github.com/openclimatedata/pymagicc/pull/187>`_) Added `pymagicc.io.join_timeseries` which simplifies joining/merging scenarios to create custom scenarios
 - (`#185 <https://github.com/openclimatedata/pymagicc/pull/185>`_) Added ability to read RCP files from http://www.pik-potsdam.de/~mmalte/rcps/ as requested in `#176 <https://github.com/openclimatedata/pymagicc/issues/176>`_
 - (`#184 <https://github.com/openclimatedata/pymagicc/pull/184>`_) Remove redundant mapping of region names for SCEN to SCEN7 conversions
