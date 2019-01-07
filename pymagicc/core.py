@@ -198,11 +198,6 @@ class MAGICCBase(object):
         if yr_config:
             self.set_years(**yr_config)
 
-        # would be ideal to use set_output somehow here...
-        for key, value in kwargs.items():
-            if key.startswith("out"):
-                kwargs[key] = 1 if value else 0
-
         # should be able to do some other nice metadata stuff re how magicc was run
         # etc. here
         kwargs.setdefault("rundate", get_date_time_string())
@@ -357,13 +352,13 @@ class MAGICCBase(object):
         dict
             The contents of the namelist which was written to file
         """
-        kwargs = self._fix_any_backwards_emissions_scen_key_in_config(kwargs)
+        kwargs = self._format_config(kwargs)
 
         fname = join(self.run_dir, filename)
-        data = {top_level_key: kwargs}
-        f90nml.write(data, fname, force=True)
+        conf = {top_level_key: kwargs}
+        f90nml.write(conf, fname, force=True)
 
-        return data
+        return conf
 
     def update_config(
         self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
@@ -391,18 +386,48 @@ class MAGICCBase(object):
         dict
             The contents of the namelist which was written to file
         """
-        kwargs = self._fix_any_backwards_emissions_scen_key_in_config(kwargs)
-
+        kwargs = self._format_config(kwargs)
         fname = join(self.run_dir, filename)
 
         if exists(fname):
             conf = f90nml.read(fname)
         else:
             conf = {top_level_key: {}}
+
         conf[top_level_key].update(kwargs)
         f90nml.write(conf, fname, force=True)
 
         return conf
+
+    def _format_config(self, config_dict):
+        config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
+        config_dict = self._convert_out_config_flags_to_integers(config_dict)
+
+        return config_dict
+
+    def _convert_out_config_flags_to_integers(self, config_dict):
+        for key, value in config_dict.items():
+            if key.startswith("out") and key != "out_ascii_binary":
+                config_dict[key] = 1 if value else 0
+
+        return config_dict
+
+    def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
+        magicc6_emissions_scen_key = "file_emissionscenario"
+        magicc7_emissions_scen_key = "file_emisscen"
+
+        if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
+            config_dict[magicc6_emissions_scen_key] = config_dict[
+                magicc7_emissions_scen_key
+            ]
+            config_dict.pop(magicc7_emissions_scen_key)
+        if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
+            config_dict[magicc7_emissions_scen_key] = config_dict[
+                magicc6_emissions_scen_key
+            ]
+            config_dict.pop(magicc6_emissions_scen_key)
+
+        return config_dict
 
     def set_years(self, startyear=1765, endyear=2100):
         """
@@ -431,12 +456,18 @@ class MAGICCBase(object):
         )
 
     def set_output_variables(self, write_ascii=True, write_binary=False, **kwargs):
-        """Writes the output configuration
+        """Set the output configuration, minimising output as much as possible
 
         There are a number of configuration parameters which control which variables
         are written to file and in which format. Limiting the variables that are
         written to file can greatly speed up the running of MAGICC. By default,
-        calling this function without specifying any variables will disable all output by setting all of MAGICC's ``out_xx`` flags to ``0``.
+        calling this function without specifying any variables will disable all output
+        by setting all of MAGICC's ``out_xx`` flags to ``0``.
+
+        This convenience function should not be confused with ``set_config`` or
+        ``update_config`` which allow the user to set/update the configuration flags
+        directly, without the more convenient syntax and default behaviour provided by
+        this function.
 
         Parameters
         ----------
@@ -504,13 +535,11 @@ class MAGICCBase(object):
             "out_sealevel": 0,
             "out_parameters": 0,
             "out_misc": 0,
-            "out_lifetimes": 0,
             "out_timeseriesmix": 0,
             "out_rcpdata": 0,
             "out_summaryidx": 0,
             "out_inverseemis": 0,
             "out_tempoceanlayers": 0,
-            "out_oceanarea": 0,
             "out_heatuptake": 0,
             "out_ascii_binary": ascii_binary,
             "out_warnings": 0,
@@ -521,6 +550,10 @@ class MAGICCBase(object):
             "out_keydata_1": 0,
             "out_keydata_2": 0,
         }
+        if self.version == 7:
+            outconfig["out_oceanarea"] = 0
+            outconfig["out_lifetimes"] = 0
+
         for kw in kwargs:
             val = 1 if kwargs[kw] else 0  # convert values to 0/1 instead of booleans
             outconfig["out_" + kw.lower()] = val
@@ -669,23 +702,6 @@ class MAGICCBase(object):
             raise ValueError(
                 "The TCR/ECS surface temperature looks wrong, it decreases"
             )
-
-    def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
-        magicc6_emissions_scen_key = "file_emissionscenario"
-        magicc7_emissions_scen_key = "file_emisscen"
-
-        if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
-            config_dict[magicc6_emissions_scen_key] = config_dict[
-                magicc7_emissions_scen_key
-            ]
-            config_dict.pop(magicc7_emissions_scen_key)
-        if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
-            config_dict[magicc7_emissions_scen_key] = config_dict[
-                magicc6_emissions_scen_key
-            ]
-            config_dict.pop(magicc6_emissions_scen_key)
-
-        return config_dict
 
     def set_emission_scenario_setup(self, scenario, config_dict):
         """Set the emissions flags correctly.
