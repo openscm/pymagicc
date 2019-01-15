@@ -1,10 +1,10 @@
 language: python
-dist: trusty
+dist: xenial
 sudo: required
 python:
   - "3.5"
   - "3.6"
-  - "3.7-dev"
+  - "3.7"
 before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
