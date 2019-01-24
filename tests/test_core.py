@@ -152,8 +152,8 @@ def test_run_success(package):
     results = package.run(out_parameters=1)
 
     assert isinstance(results, MAGICCData)
-    assert len(results.df.variable.unique()) > 1
-    assert "Surface Temperature" in results.df.variable.unique()
+    assert len(results.variables()) > 1
+    assert "Surface Temperature" in results.variables().values
 
     assert len(package.config.keys()) != 0
 

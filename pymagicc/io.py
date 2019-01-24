@@ -1895,6 +1895,8 @@ class MAGICCData(OpenSCMDataFrame):
             metadata_to_add, df_to_add = _read_and_return_metadata_df(fp)
 
             self.metadata.update(metadata_to_add)
+            # nasty hack to get around time handling in pyam for now
+            df_to_add = MAGICCData(df_to_add)
             super().append(df_to_add, inplace=True)
 
     def write(self, filepath, magicc_version):

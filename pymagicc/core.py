@@ -9,7 +9,7 @@ import f90nml
 
 from .config import config
 from .utils import get_date_time_string
-from .io import MAGICCData, NoReaderWriterError, read_cfg_file
+from .io import MAGICCData, NoReaderWriterError, read_cfg_file, determine_tool
 from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
@@ -217,26 +217,28 @@ class MAGICCBase(object):
 
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
-        mdata = MAGICCData()
-        try:
-            run_paras = self.read_parameters()
-            self.config = run_paras
-            mdata.metadata["parameters"] = run_paras
-        except FileNotFoundError:
-            pass
-
         for filepath in outfiles:
             try:
-                reader = mdata.determine_tool(filepath, "reader")(filepath)
+                reader = determine_tool(filepath, "reader")(filepath)
                 openscm_var = convert_magicc7_to_openscm_variables(
                     convert_magicc6_to_magicc7_variables(
                         reader._get_variable_from_filepath()
                     )
                 )
                 if only is None or openscm_var in only:
-                    mdata.append(join(self.out_dir, filepath))
+                    try:
+                        mdata.append(join(self.out_dir, filepath))
+                    except NameError:
+                        mdata = MAGICCData(join(self.out_dir, filepath))
             except NoReaderWriterError:
                 continue
+
+        try:
+            run_paras = self.read_parameters()
+            self.config = run_paras
+            mdata.metadata["parameters"] = run_paras
+        except FileNotFoundError:
+            pass
 
         return mdata
 

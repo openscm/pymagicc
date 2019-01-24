@@ -16,16 +16,41 @@ class OpenSCMDataFrame(IamDataFrame):
                 # span we want can't be stored
                 # TODO: find issue that relates to this
                 time = data["time"].copy()
-                data = data.rename({"time": "year"}, axis="columns")
-                data["year"] = 1212
+                data = self._prepare_data_for_pyam_use(data)
                 super().__init__(data)
-                self.data = self.data.drop("year", axis="columns")
-                self.data["time"] = _check_time(time).values
-                self.time_col = "time"
+                self._restore_data_after_pyam_use(time)
             else:
                 super().__init__(data)
         else:
             super().__init__(data)
+
+    # def append(self, other, **kwargs):
+    #     if isinstance(other, pd.DataFrame) or isinstance(other, pd.Series):
+    #         if "time" in other.columns:
+    #             # hack around automatic conversion to datetime column in pandas which
+    #             # blows up with climate data as datetime is nanosecond resolution and
+    #             # span we want can't be stored
+    #             # TODO: find issue that relates to this
+    #             time = other["time"].copy()
+    #             other = self._prepare_data_for_pyam_use(other)
+    #             super().append(other)
+    #             self._restore_data_after_pyam_use(time)
+    #         else:
+    #             super().append(other)
+    #     else:
+    #         super().append(other)
+
+    def _prepare_data_for_pyam_use(self, data):
+        data = data.rename({"time": "year"}, axis="columns")
+        data["year"] = 1212
+
+        return data
+
+    def _restore_data_after_pyam_use(self, time):
+        self.data = self.data.drop("year", axis="columns")
+        self.data["time"] = _check_time(time).values
+        self.time_col = "time"
+        self._LONG_IDX = ["time" if x=="year" else x for x in self._LONG_IDX]
 
 
 def _check_time(time_srs):
