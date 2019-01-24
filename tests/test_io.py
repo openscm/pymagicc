@@ -1192,9 +1192,7 @@ def test_load_prn_mixing_ratios_years_label():
     assert (mdata.data["todo"] == "SET").all()
     assert (mdata.data["unit"] == "ppt").all()
 
-    assert_mdata_value(
-        mdata, 0, variable="Atmospheric Concentrations|CFC12", year=1850
-    )
+    assert_mdata_value(mdata, 0, variable="Atmospheric Concentrations|CFC12", year=1850)
 
     assert_mdata_value(
         mdata, 5.058, variable="Atmospheric Concentrations|CFC114", year=1965
@@ -1236,7 +1234,7 @@ def test_load_rcp_historical_dat_emissions():
         variable="Emissions|CO2|MAGICC Fossil and Industrial",
         region="World",
         year=1766,
-        unit="Gt C / yr"
+        unit="Gt C / yr",
     )
 
     assert_mdata_value(
@@ -1245,7 +1243,7 @@ def test_load_rcp_historical_dat_emissions():
         variable="Emissions|CH4",
         region="World",
         year=1767,
-        unit="Mt CH4 / yr"
+        unit="Mt CH4 / yr",
     )
 
     assert_mdata_value(
@@ -1254,7 +1252,7 @@ def test_load_rcp_historical_dat_emissions():
         variable="Emissions|CH3Cl",
         region="World",
         year=2005,
-        unit="kt CH3Cl / yr"
+        unit="kt CH3Cl / yr",
     )
 
 
@@ -1282,7 +1280,7 @@ def test_load_rcp_historical_dat_concentrations():
         variable="Atmospheric Concentrations|CO2 Equivalent",
         region="World",
         year=1766,
-        unit="ppm"
+        unit="ppm",
     )
 
     assert_mdata_value(
@@ -1291,7 +1289,7 @@ def test_load_rcp_historical_dat_concentrations():
         variable="Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases",
         region="World",
         year=1767,
-        unit="ppm"
+        unit="ppm",
     )
 
     assert_mdata_value(
@@ -1300,7 +1298,7 @@ def test_load_rcp_historical_dat_concentrations():
         variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
         region="World",
         year=2005,
-        unit="ppt"
+        unit="ppt",
     )
 
     assert_mdata_value(
@@ -1309,7 +1307,7 @@ def test_load_rcp_historical_dat_concentrations():
         variable="Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases",
         region="World",
         year=2005,
-        unit="ppt"
+        unit="ppt",
     )
 
     assert_mdata_value(
@@ -1318,7 +1316,7 @@ def test_load_rcp_historical_dat_concentrations():
         variable="Atmospheric Concentrations|CH3Cl",
         region="World",
         year=2005,
-        unit="ppt"
+        unit="ppt",
     )
 
 
@@ -1395,7 +1393,7 @@ def test_load_rcp_projections_dat_emissions():
         variable="Emissions|CO2|MAGICC Fossil and Industrial",
         region="World",
         year=2100,
-        unit="Gt C / yr"
+        unit="Gt C / yr",
     )
 
     assert_mdata_value(
@@ -1404,7 +1402,7 @@ def test_load_rcp_projections_dat_emissions():
         variable="Emissions|CH4",
         region="World",
         year=1767,
-        unit="Mt CH4 / yr"
+        unit="Mt CH4 / yr",
     )
 
     assert_mdata_value(
@@ -1413,7 +1411,7 @@ def test_load_rcp_projections_dat_emissions():
         variable="Emissions|CH3Cl",
         region="World",
         year=2500,
-        unit="kt CH3Cl / yr"
+        unit="kt CH3Cl / yr",
     )
 
 
@@ -1440,7 +1438,7 @@ def test_load_rcp_projections_dat_concentrations():
         variable="Atmospheric Concentrations|CO2 Equivalent",
         region="World",
         year=1766,
-        unit="ppm"
+        unit="ppm",
     )
 
     assert_mdata_value(
@@ -1449,7 +1447,7 @@ def test_load_rcp_projections_dat_concentrations():
         variable="Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases",
         region="World",
         year=2100,
-        unit="ppm"
+        unit="ppm",
     )
 
     assert_mdata_value(
@@ -1458,7 +1456,7 @@ def test_load_rcp_projections_dat_concentrations():
         variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
         region="World",
         year=2500,
-        unit="ppt"
+        unit="ppt",
     )
 
     assert_mdata_value(
@@ -1467,7 +1465,7 @@ def test_load_rcp_projections_dat_concentrations():
         variable="Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases",
         region="World",
         year=2500,
-        unit="ppt"
+        unit="ppt",
     )
 
     assert_mdata_value(
@@ -1476,7 +1474,7 @@ def test_load_rcp_projections_dat_concentrations():
         variable="Atmospheric Concentrations|CH3Cl",
         region="World",
         year=2500,
-        unit="ppt"
+        unit="ppt",
     )
 
 
@@ -1836,7 +1834,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World",
         year=1767,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -1845,7 +1843,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World",
         year=1965,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -1854,7 +1852,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World|Northern Hemisphere|Ocean",
         year=1769,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -1863,7 +1861,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World|Southern Hemisphere|Ocean",
         year=1820,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -1872,7 +1870,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World|Northern Hemisphere|Land",
         year=2093,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -1881,7 +1879,7 @@ def test_load_out():
         variable="Surface Temperature",
         region="World|Southern Hemisphere|Land",
         year=1765,
-        unit="K"
+        unit="K",
     )
 
 
@@ -1961,7 +1959,6 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert (mdata.data["unit"] == "10^22J").all()
     assert (mdata.data["variable"] == "Aggregated Ocean Heat Content|Depth 1").all()
 
-
     assert_mdata_value(
         mdata,
         0.046263236,
@@ -2039,7 +2036,7 @@ def test_load_out_ocean_layers():
         variable="Ocean Temperature|Layer 1",
         region="World",
         year=1765,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -2048,7 +2045,7 @@ def test_load_out_ocean_layers():
         variable="Ocean Temperature|Layer 3",
         region="World",
         year=1973,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -2057,7 +2054,7 @@ def test_load_out_ocean_layers():
         variable="Ocean Temperature|Layer 50",
         region="World",
         year=2100,
-        unit="K"
+        unit="K",
     )
 
 
@@ -2083,7 +2080,7 @@ def test_load_out_ocean_layers_hemisphere():
         variable="Ocean Temperature|Layer 1",
         region="World|Northern Hemisphere|Ocean",
         year=1765,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -2092,7 +2089,7 @@ def test_load_out_ocean_layers_hemisphere():
         variable="Ocean Temperature|Layer 3",
         region="World|Northern Hemisphere|Ocean",
         year=1973,
-        unit="K"
+        unit="K",
     )
 
     assert_mdata_value(
@@ -2101,7 +2098,7 @@ def test_load_out_ocean_layers_hemisphere():
         variable="Ocean Temperature|Layer 50",
         region="World|Northern Hemisphere|Ocean",
         year=2100,
-        unit="K"
+        unit="K",
     )
 
 
@@ -2154,8 +2151,7 @@ def test_filter():
     tyear = 1983
     result = mdata.filter(variable=tvariable, region=tregion).data
     expected = mdata.data[
-        (mdata.data["variable"] == tvariable)
-        & (mdata.data["region"] == tregion)
+        (mdata.data["variable"] == tvariable) & (mdata.data["region"] == tregion)
     ]
     pd.testing.assert_frame_equal(result, expected)
 
@@ -2303,8 +2299,7 @@ def test_in_file_read_write_functionally_identical(
 
     # drop index as we don't care about it
     pd.testing.assert_frame_equal(
-        mi_written.data.reset_index(drop=True),
-        mi_initial.data.reset_index(drop=True),
+        mi_written.data.reset_index(drop=True), mi_initial.data.reset_index(drop=True)
     )
 
 
@@ -2460,23 +2455,24 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init = pd.DataFrame([
-        ['a', 'b', 'World', 'PE', 'EJ/y', 2010, 2.],
-        ['a', 'b', 'World', 'PE|Coal', 'EJ/y', 2010, 1.2],
-        ['a', 'b', 'World', 'PE|Gas', 'EJ/y', 2010, 7.9],
-    ],
-        columns=['model', 'scenario', 'region', 'variable', 'unit', 'year', 'value'],
+    tdf_init = pd.DataFrame(
+        [
+            ["a", "b", "World", "PE", "EJ/y", 2010, 2.0],
+            ["a", "b", "World", "PE|Coal", "EJ/y", 2010, 1.2],
+            ["a", "b", "World", "PE|Gas", "EJ/y", 2010, 7.9],
+        ],
+        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
     )
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = pd.DataFrame([
-        ['d', 'e', 'World|ASIA', 'GE', 'J/y', 2015, -6.],
-        ['d', 'e', 'World|ASIA', 'GE|Coal', 'J/y', 2015, 3.2],
-        ['d', 'e', 'World|ASIA', 'GE|Gas', 'J/y', 2015, 7.1],
-    ],
-        columns=['model', 'scenario', 'region', 'variable', 'unit', 'year', 'value'],
+    tdf_append = pd.DataFrame(
+        [
+            ["d", "e", "World|ASIA", "GE", "J/y", 2015, -6.0],
+            ["d", "e", "World|ASIA", "GE|Coal", "J/y", 2015, 3.2],
+            ["d", "e", "World|ASIA", "GE|Gas", "J/y", 2015, 7.1],
+        ],
+        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
     )
-
 
     mock_read_and_return_metadata_df.return_value = (tmetadata_init, tdf_init)
     mdata = MAGICCData("mocked")
@@ -2491,7 +2487,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     assert mdata.metadata == expected_metadata
     pd.testing.assert_frame_equal(
         mdata.data.reset_index(drop=True),
-        tdf_init.append(tdf_append).reset_index(drop=True)
+        tdf_init.append(tdf_append).reset_index(drop=True),
     )
 
 
@@ -2675,7 +2671,7 @@ def join_base_df():
         columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield MAGICCData(bdf).data
+    yield MAGICCData(bdf).data.copy()
 
 
 @pytest.fixture(scope="function")
@@ -2689,7 +2685,7 @@ def join_overwrite_df():
         columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield MAGICCData(odf).data
+    yield MAGICCData(odf).data.copy()
 
 
 def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
@@ -2700,29 +2696,21 @@ def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df)
         "span either."
     )
     with warnings.catch_warnings(record=True) as warn_result:
-        res = MAGICCData(_join_timeseries_mdata(
-            base=join_base_df, overwrite=join_overwrite_df, join_linear=None
-        ))
+        res = MAGICCData(
+            _join_timeseries_mdata(
+                base=join_base_df, overwrite=join_overwrite_df, join_linear=None
+            )
+        )
 
     assert len(warn_result) == 1
     assert str(warn_result[0].message) == msg
 
     assert_mdata_value(
-        res,
-        1.5,
-        variable="Emissions|CO2",
-        region="World",
-        year=2005,
-        unit="GtC/yr",
+        res, 1.5, variable="Emissions|CO2", region="World", year=2005, unit="GtC/yr"
     )
 
     assert_mdata_value(
-        res,
-        1,
-        variable="Emissions|CO2",
-        region="World",
-        year=2015,
-        unit="GtC/yr",
+        res, 1, variable="Emissions|CO2", region="World", year=2015, unit="GtC/yr"
     )
 
     assert_mdata_value(
@@ -2735,26 +2723,20 @@ def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df)
     )
 
     assert_mdata_value(
-        res,
-        1.3,
-        variable="Emissions|CH4",
-        region="World",
-        year=2020,
-        unit="MtCH4/yr",
+        res, 1.3, variable="Emissions|CH4", region="World", year=2020, unit="MtCH4/yr"
     )
 
     assert res.filter(
-        variable="Emissions|CH4",
-        region="World",
-        year=2100,
-        unit="MtCH4/yr"
+        variable="Emissions|CH4", region="World", year=2100, unit="MtCH4/yr"
     ).data.empty
 
 
 def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
-    res = MAGICCData(_join_timeseries_mdata(
-        base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
-    ))
+    res = MAGICCData(
+        _join_timeseries_mdata(
+            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
+        )
+    )
 
     overwrite_co2_val_2020 = 1 + (2 - 1) / 35 * 5
     expected = 2 + (overwrite_co2_val_2020 - 2) / 10 * 2
@@ -2768,21 +2750,11 @@ def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
     )
 
     assert_mdata_value(
-        res,
-        2,
-        variable="Emissions|CO2",
-        region="World",
-        year=2050,
-        unit="GtC/yr",
+        res, 2, variable="Emissions|CO2", region="World", year=2050, unit="GtC/yr"
     )
 
     assert_mdata_value(
-        res,
-        1.3,
-        variable="Emissions|CH4",
-        region="World",
-        year=2020,
-        unit="MtCH4/yr",
+        res, 1.3, variable="Emissions|CH4", region="World", year=2020, unit="MtCH4/yr"
     )
 
 

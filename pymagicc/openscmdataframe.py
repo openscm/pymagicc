@@ -50,7 +50,7 @@ class OpenSCMDataFrame(IamDataFrame):
         self.data = self.data.drop("year", axis="columns")
         self.data["time"] = _check_time(time).values
         self.time_col = "time"
-        self._LONG_IDX = ["time" if x=="year" else x for x in self._LONG_IDX]
+        self._LONG_IDX = ["time" if x == "year" else x for x in self._LONG_IDX]
 
 
 def _check_time(time_srs):
@@ -79,7 +79,7 @@ def _check_time(time_srs):
             elif np.round(month_fraction, 1) == 0.5:
                 month = int(np.ceil(month_decimal))
                 _, month_days = monthrange(year, month)
-                day_decimal = month_days*0.5
+                day_decimal = month_days * 0.5
                 day = int(day_decimal)
                 hour = int(day_decimal % 1 * 24)
             elif np.round(month_fraction, 1) == 0:

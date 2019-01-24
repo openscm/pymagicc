@@ -1377,6 +1377,7 @@ class _InputWriter(object):
         if no_months == 1:  # yearly data
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
+
             def _convert_to_decimal_year(itime):
                 # MAGICC dates are to nearest month at most precise
                 year = itime.year
@@ -1893,7 +1894,6 @@ class MAGICCData(OpenSCMDataFrame):
 
         for fp in filepath:
             metadata_to_add, df_to_add = _read_and_return_metadata_df(fp)
-
             self.metadata.update(metadata_to_add)
             # nasty hack to get around time handling in pyam for now
             df_to_add = MAGICCData(df_to_add)
@@ -2269,10 +2269,10 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
 
     if result.isnull().values.any():
         warn_msg = (
-            "nan values in joint arrays, this is likely because, once joined, your "
-            "input timeseries do not all cover the same span. Dropping unfilled "
-            "regions, this likely means your output arrays do not all cover the same "
-            "span either."
+            "There are nan values in joint arrays, this is likely because, once "
+            "joined, your input timeseries do not all cover the same timespan. I will "
+            "drop the unfilled regions. However, this likely means that your "
+            "output arrays do not all cover the same timespan either."
         )
         warnings.warn(warn_msg)
 
