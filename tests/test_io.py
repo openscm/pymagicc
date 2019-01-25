@@ -1884,7 +1884,7 @@ def test_load_out_emis():
         & (mdata.df["time"] == 1965)
     )
     assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.20025816)
+    np.testing.assert_allclose(mdata.df[row].value, 2.0025816)
 
     row = (
         (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")

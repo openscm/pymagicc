@@ -505,18 +505,15 @@ class _EmisInReader(_InputReader):
         variables = column_headers["variables"]
         for i, (unit, variable) in enumerate(zip(units, variables)):
             unit = unit.replace("-", "")
-            if unit.startswith("Gt"):
-                mass = "Gt"
-            elif unit.startswith("Mt"):
-                mass = "Mt"
-            elif unit.startswith("kt"):
-                mass = "kt"
-            elif unit.startswith("t"):
-                mass = "t"
-            else:
+            for tmass in ["Gt", "Mt", "kt", "t", "Pg", "Gg", "Mg", "kg", "g"]:
+                if unit.startswith(tmass):
+                    mass = tmass
+
+            try:
+                emissions_unit = unit.replace(mass, "")
+            except NameError:
                 raise ValueError("Unexpected emissions unit")
 
-            emissions_unit = unit.replace(mass, "")
             if not emissions_unit:
                 emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[1]
 
@@ -916,7 +913,7 @@ class _OutReader(_FourBoxReader):
         return column_headers, metadata
 
 
-class _EmisOutReader(_EmisInReader):
+class _EmisOutReader(_EmisInReader, _OutReader):
     pass
 
 
@@ -1924,7 +1921,7 @@ class MAGICCData(object):
             },
             "EmisOut": {
                 "regexp": r"^DAT\_.*EMIS\.OUT$",
-                "reader": _OutReader,
+                "reader": _EmisOutReader,
                 "writer": None,
             },
             "TempOceanLayersOut": {
