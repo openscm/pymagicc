@@ -1817,7 +1817,7 @@ def test_load_cfg_with_slash_in_units():
     "test_file",
     [
         join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"),
-        join(TEST_DATA_DIR, "DAT_QUOTED_UNITS_SURFACE_TEMP.OUT"),
+        join(TEST_DATA_DIR, "out_quoted_units", "DAT_SURFACE_TEMP.OUT"),
     ],
 )
 def test_load_out(test_file):
