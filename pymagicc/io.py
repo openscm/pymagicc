@@ -173,6 +173,7 @@ class _InputReader(object):
 
         # TODO: replace with f90nml.reads when released (>1.0.2)
         parser = f90nml.Parser()
+
         lines = preprocess_edge_cases(lines)
 
         nml = parser._readstream(lines, {})
@@ -184,10 +185,10 @@ class _InputReader(object):
                 # have to do this type coercion as nml reads things like
                 # 10superscript22 J into a threepart list, [10,
                 # 'superscript22', 'J'] where the first part is an int
-                metadata[metadata_key] = "".join(
+                value = "".join(
                     [str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]]
                 )
-                metadata[metadata_key] = postprocess_edge_cases(metadata[metadata_key])
+                metadata[metadata_key] = postprocess_edge_cases(value).strip()
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
 
