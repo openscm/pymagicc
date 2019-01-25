@@ -1813,8 +1813,15 @@ def test_load_cfg_with_slash_in_units():
     assert cfg["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] == "W / m^2"
 
 
-def test_load_out():
-    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"))
+@pytest.mark.parametrize(
+    "test_file",
+    [
+        join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"),
+        join(TEST_DATA_DIR, "DAT_QUOTED_UNITS_SURFACE_TEMP.OUT"),
+    ],
+)
+def test_load_out(test_file):
+    mdata = MAGICCData(test_file)
 
     generic_mdata_tests(mdata)
 
