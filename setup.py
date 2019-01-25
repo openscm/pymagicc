@@ -52,7 +52,7 @@ install_requirements = [
     "f90nml",
     "pyam-iamc",
     "PyYAML",
-    "expectexception @ git+https://github.com/thedataincubator/expectexception.git@master",
+    "expectexception @ git+https://github.com/thedataincubator/expectexception.git@684560f4dfb8cb69eb0693a1605ec0e81fd9b42a",
      "ipywidgets",
      "appmode",
 ]
