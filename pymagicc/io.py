@@ -916,6 +916,10 @@ class _OutReader(_FourBoxReader):
         return column_headers, metadata
 
 
+class _EmisOutReader(_EmisInReader):
+    pass
+
+
 class _TempOceanLayersOutReader(_InputReader):
     _regexp_capture_variable = re.compile(r"(TEMP\_OCEANLAYERS\_?\w*)\.OUT$")
     _default_todo_fill_value = "N/A"
@@ -1913,7 +1917,16 @@ class MAGICCData(object):
                 "reader": _RadiativeForcingInReader,
                 "writer": _RadiativeForcingInWriter,
             },
-            "Out": {"regexp": r"^DAT\_.*\.OUT$", "reader": _OutReader, "writer": None},
+            "Out": {
+                "regexp": r"^DAT\_.*(?<!EMIS)\.OUT$",
+                "reader": _OutReader,
+                "writer": None,
+            },
+            "EmisOut": {
+                "regexp": r"^DAT\_.*EMIS\.OUT$",
+                "reader": _OutReader,
+                "writer": None,
+            },
             "TempOceanLayersOut": {
                 "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
                 "reader": _TempOceanLayersOutReader,
