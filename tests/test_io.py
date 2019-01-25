@@ -10,6 +10,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
+from pymagicc.openscmdataframe import OpenSCMDataFrame
 
 
 from pymagicc import MAGICC6
@@ -27,6 +28,7 @@ from pymagicc.io import (
     get_generic_rcp_name,
     join_timeseries,
     _join_timeseries_mdata,
+    determine_tool,
 )
 from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
 
@@ -48,8 +50,52 @@ INVALID_OUT_FILES = [
 ]
 
 
+def generic_mdata_tests(mdata):
+    "Resusable tests to ensure data format."
+    assert mdata.is_loaded == True
+
+    assert isinstance(mdata, OpenSCMDataFrame)
+    pd.testing.assert_index_equal(
+        mdata.data.columns,
+        pd.Index(
+            [
+                "variable",
+                "todo",
+                "unit",
+                "region",
+                "climate_model",
+                "model",
+                "scenario",
+                "value",
+                "time",
+            ]
+        ),
+    )
+
+    assert mdata["variable"].dtype == "object"
+    assert mdata["todo"].dtype == "object"
+    assert mdata["unit"].dtype == "object"
+    assert mdata["region"].dtype == "object"
+    assert mdata["scenario"].dtype == "object"
+    assert mdata["model"].dtype == "object"
+    assert mdata["climate_model"].dtype == "object"
+
+    for key in ["units", "unit", "firstdatarow", "dattype"]:
+        with pytest.raises(KeyError):
+            mdata.metadata[key]
+    assert isinstance(mdata.metadata["header"], str)
+
+
+def assert_mdata_value(mdata, value, **kwargs):
+    res = mdata.filter(**kwargs)
+    assert len(res) == 1
+    if value < 0.1:
+        np.testing.assert_allclose(res["value"], value, rtol=1e-4)
+    else:
+        np.testing.assert_allclose(res["value"], value)
+
+
 def test_cant_find_reader_writer():
-    mdata = MAGICCData()
     test_name = "HISTRCP_CO2I_EMIS.txt"
 
     expected_message = (
@@ -67,15 +113,14 @@ def test_cant_find_reader_writer():
     )
 
     with pytest.raises(NoReaderWriterError, match=expected_message):
-        mdata.read(join(TEST_DATA_DIR, test_name))
+        determine_tool(join(TEST_DATA_DIR, test_name), "reader")
 
     expected_message = expected_message.replace("reader", "writer")
     with pytest.raises(NoReaderWriterError, match=expected_message):
-        mdata.write(test_name, magicc_version=6)
+        determine_tool(join(TEST_DATA_DIR, test_name), "writer")
 
 
 def test_get_invalid_tool():
-    mdata = MAGICCData()
     junk_tool = "junk tool"
     expected_error_msg = (
         r"^\"?"
@@ -86,100 +131,76 @@ def test_get_invalid_tool():
         + r".*\"?$"
     )
     with pytest.raises(KeyError, match=expected_error_msg):
-        mdata.determine_tool("EXAMPLE.SCEN", junk_tool)
-
-
-def generic_mdata_tests(mdata):
-    "Resusable tests to ensure data format."
-    assert mdata.is_loaded == True
-
-    assert isinstance(mdata.df, pd.DataFrame)
-    pd.testing.assert_index_equal(
-        mdata.df.columns,
-        pd.Index(["variable", "todo", "unit", "region", "time", "value"]),
-    )
-
-    assert mdata.df.variable.dtype == "object"
-    assert mdata.df.todo.dtype == "object"
-    assert mdata.df.unit.dtype == "object"
-    assert mdata.df.region.dtype == "object"
-
-    for key in ["units", "unit", "firstdatarow", "dattype"]:
-        with pytest.raises(KeyError):
-            mdata.metadata[key]
-    assert isinstance(mdata.metadata["header"], str)
+        determine_tool("EXAMPLE.SCEN", junk_tool)
 
 
 def test_load_magicc6_emis():
-    mdata = MAGICCData()
-    assert mdata.is_loaded == False
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
+    assert mdata.is_loaded == True
     generic_mdata_tests(mdata)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|R5ASIA")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        1.7682027e000,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|R5ASIA",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.7682027e000)
 
 
 def test_load_magicc6_emis_hyphen_in_units():
-    mdata = MAGICCData()
-    assert mdata.is_loaded == False
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN"))
     generic_mdata_tests(mdata)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|N2O|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|R5ASIA")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Mt N2ON / yr")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        0.288028519,
+        variable="Emissions|N2O|MAGICC Fossil and Industrial",
+        region="World|R5ASIA",
+        year=2000,
+        unit="Mt N2ON / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.288028519)
 
 
 def test_load_magicc5_emis():
-    mdata = MAGICCData()
-    assert mdata.is_loaded == False
-    mdata.read(join(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN"))
     generic_mdata_tests(mdata)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Northern Hemisphere")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        6.20403698,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|Northern Hemisphere",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value.values, 6.20403698)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Southern Hemisphere")
-        & (mdata.df["time"] == 2002)
+    assert_mdata_value(
+        mdata,
+        0.495812385,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|Southern Hemisphere",
+        year=2002,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value.values, 0.495812385)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Southern Hemisphere")
-        & (mdata.df["time"] == 1751)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|Southern Hemisphere",
+        year=1751,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value.values, 0.0)
 
 
 def test_load_magicc5_emis_not_renamed_error():
-    mdata = MAGICCData()
-
     test_path = TEST_DATA_DIR
     test_name = "MARLAND_CO2_EMIS_FOSSIL&IND.IN"
 
@@ -187,94 +208,92 @@ def test_load_magicc5_emis_not_renamed_error():
         "Cannot determine variable from filepath: {}".format(join(test_path, test_name))
     )
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(join(test_path, test_name))
+        MAGICCData(join(test_path, test_name))
 
 
 def test_load_magicc6_conc():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"))
 
-    assert (mdata.df.unit == "ppm").all()
+    assert (mdata["unit"] == "ppm").all()
     generic_mdata_tests(mdata)
-    row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CO2")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1048)
-        & (mdata.df["unit"] == "ppm")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        2.80435733e002,
+        variable="Atmospheric Concentrations|CO2",
+        region="World",
+        year=1048,
+        unit="ppm",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 2.80435733e002)
 
 
 def test_load_magicc6_conc_old_style_name_umlaut_metadata():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN"))
 
-    assert (mdata.df.unit == "ppt").all()
+    assert (mdata["unit"] == "ppt").all()
     assert mdata.metadata["data"] == "Global average mixing ratio"
     generic_mdata_tests(mdata)
-    rows = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|HFC245fa")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["unit"] == "ppt")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Atmospheric Concentrations|HFC245fa",
+        region="World",
+        year=2000,
+        unit="ppt",
+        todo="SET",
     )
-    assert sum(rows) != 0
-    np.testing.assert_allclose(mdata.df[rows].value, 0.0)
 
 
 def test_load_magicc6_conc_old_style_name_with_hyphen():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN"))
 
-    assert (mdata.df.unit == "ppt").all()
+    assert (mdata["unit"] == "ppt").all()
     generic_mdata_tests(mdata)
-    rows = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|HFC4310")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["unit"] == "ppt")
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Atmospheric Concentrations|HFC4310",
+        region="World",
+        year=2000,
+        unit="ppt",
+        todo="SET",
     )
-    assert sum(rows) != 0
-    np.testing.assert_allclose(mdata.df[rows].value, 0.0)
 
 
 def test_load_magicc7_emis_umlaut_metadata():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN"))
+    mdata = MAGICCData(join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN"))
 
     generic_mdata_tests(mdata)
-
     assert (
         mdata.metadata["contact"]
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert mdata.metadata["description"] == "Test line by näme with ümlauts ëh ça"
-    assert (mdata.df.unit == "Gt C / yr").all()
+    assert (mdata["unit"] == "Gt C / yr").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|R6REF")
-        & (mdata.df["time"] == 2013)
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        0.6638,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|R6REF",
+        year=2013,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.6638)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|R6ASIA")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["todo"] == "SET")
+    assert_mdata_value(
+        mdata,
+        1.6911,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World|R6ASIA",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.6911)
 
 
 def test_load_ot():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "MIXED_NOXI_OT.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "MIXED_NOXI_OT.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -294,56 +313,55 @@ def test_load_ot():
     assert mdata.metadata["date"] == "18-Jul-2006 11:02:48"
     assert mdata.metadata["unit normalisation"] == "Normalized to 1 in year 2000"
 
-    assert (mdata.df.unit == "dimensionless").all()
-    assert (mdata.df.todo == "SET").all()
+    assert (mdata["unit"] == "dimensionless").all()
+    assert (mdata["todo"] == "SET").all()
     assert (
-        mdata.df.variable == "Optical Thickness|NOx|MAGICC Fossil and Industrial"
+        mdata["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial"
     ).all()
 
-    row = (
-        (mdata.df["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0.00668115649,
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
+        region="World|Northern Hemisphere|Ocean",
+        year=1765,
+        unit="dimensionless",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.00668115649)
 
-    row = (
-        (mdata.df["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0.526135104,
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
+        region="World|Northern Hemisphere|Land",
+        year=1865,
+        unit="dimensionless",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.00668115649)
 
-    row = (
-        (mdata.df["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 1865)
+    assert_mdata_value(
+        mdata,
+        0.612718845,
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
+        region="World|Southern Hemisphere|Ocean",
+        year=1965,
+        unit="dimensionless",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.526135104)
 
-    row = (
-        (mdata.df["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        3.70378,
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
+        region="World|Southern Hemisphere|Land",
+        year=2000,
+        unit="dimensionless",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.612718845)
-
-    row = (
-        (mdata.df["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 2000)
-    )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3.70378)
 
 
 def test_load_rf():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "GISS_BCB_RF.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "GISS_BCB_RF.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -362,46 +380,53 @@ def test_load_rf():
     )
     assert mdata.metadata["date"] == "18-Jul-2006 11:05:18"
 
-    assert (mdata.df.unit == "W / m^2").all()
-    assert (mdata.df.todo == "SET").all()
-    assert (mdata.df.variable == "Radiative Forcing|BC|MAGICC AFOLU").all()
+    assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["variable"] == "Radiative Forcing|BC|MAGICC AFOLU").all()
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Radiative Forcing|BC|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Ocean",
+        year=1765,
+        # unit="W / m^2",  # bug, can't use ^ in filter now as regexp means it looks for not, propose removing such behaviour in pyam based on usefulness of units and fact that complicated regexp can be re-enabled with regexp=True
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 1865)
+    assert_mdata_value(
+        mdata,
+        0.268436597,
+        variable="Radiative Forcing|BC|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Land",
+        year=1865,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.268436597)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        0.443357552,
+        variable="Radiative Forcing|BC|MAGICC AFOLU",
+        region="World|Southern Hemisphere|Ocean",
+        year=1965,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.443357552)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 2000)
+    assert_mdata_value(
+        mdata,
+        1.53987244,
+        variable="Radiative Forcing|BC|MAGICC AFOLU",
+        region="World|Southern Hemisphere|Land",
+        year=2000,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.53987244)
 
 
 def test_load_solar_rf():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HISTRCP6SCP6to45_SOLAR_RF.IN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP6SCP6to45_SOLAR_RF.IN"))
 
     generic_mdata_tests(mdata)
 
@@ -421,45 +446,56 @@ def test_load_solar_rf():
     )
     assert mdata.metadata["date"] == "24-Jul-2009 17:05:30"
 
-    assert (mdata.df.unit == "W / m^2").all()
-    assert (mdata.todo == "SET").all()
-    assert (mdata.df.variable == "Radiative Forcing|Solar").all()
-    assert (mdata.df.region == "World").all()
+    assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["variable"] == "Radiative Forcing|Solar").all()
+    assert (mdata["region"] == "World").all()
 
-    row = (mdata.df["variable"] == "Radiative Forcing|Solar") & (
-        mdata.df["time"] == 1610
+    assert_mdata_value(
+        mdata,
+        0.0149792391,
+        variable="Radiative Forcing|Solar",
+        region="World",
+        year=1610,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0149792391)
 
-    row = (mdata.df["variable"] == "Radiative Forcing|Solar") & (
-        mdata.df["time"] == 1865
+    assert_mdata_value(
+        mdata,
+        -0.00160201087,
+        variable="Radiative Forcing|Solar",
+        year=1865,
+        # unit="W / m^2",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00160201087)
 
-    row = (mdata.df["variable"] == "Radiative Forcing|Solar") & (
-        mdata.df["time"] == 1965
+    assert_mdata_value(
+        mdata,
+        0.0652917391,
+        variable="Radiative Forcing|Solar",
+        year=1965,
+        # unit="W / m^2",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0652917391)
 
-    row = (mdata.df["variable"] == "Radiative Forcing|Solar") & (
-        mdata.df["time"] == 2183
+    assert_mdata_value(
+        mdata,
+        0.0446329891,
+        variable="Radiative Forcing|Solar",
+        year=2183,
+        # unit="W / m^2",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0446329891)
 
-    row = (mdata.df["variable"] == "Radiative Forcing|Solar") & (
-        mdata.df["time"] == 2600
+    assert_mdata_value(
+        mdata,
+        0.121325148,
+        variable="Radiative Forcing|Solar",
+        year=2600,
+        # unit="W / m^2",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.121325148)
 
 
 def test_load_volcanic_rf():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
 
     generic_mdata_tests(mdata)
 
@@ -476,55 +512,68 @@ def test_load_volcanic_rf():
     )
     assert mdata.metadata["date"] == "15-Jun-2006 00:20:54"
 
-    assert (mdata.df.unit == "W / m^2").all()
-    assert (mdata.df.todo == "SET").all()
-    assert (mdata.df.variable == "Radiative Forcing|Volcanic").all()
+    assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["variable"] == "Radiative Forcing|Volcanic").all()
 
-    # TODO: sort out time read in, maybe that's a step in openscm instead...
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 1000.042)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Radiative Forcing|Volcanic",
+        region="World|Northern Hemisphere|Land",
+        year=1000,
+        month=1,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 1002.542)
+    assert_mdata_value(
+        mdata,
+        -0.0187500000,
+        variable="Radiative Forcing|Volcanic",
+        region="World|Northern Hemisphere|Land",
+        year=1002,
+        month=7,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.0187500000)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1013.208)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Radiative Forcing|Volcanic",
+        region="World|Northern Hemisphere|Ocean",
+        year=1013,
+        month=3,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1119.292)
+    assert_mdata_value(
+        mdata,
+        -0.222916667,
+        variable="Radiative Forcing|Volcanic",
+        region="World|Southern Hemisphere|Ocean",
+        year=1119,
+        month=4,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.222916667)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 2006.958)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Radiative Forcing|Volcanic",
+        region="World|Southern Hemisphere|Land",
+        year=2006,
+        month=12,
+        # unit="W / m^2",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_scen():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "RCP26.SCEN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"))
 
     generic_mdata_tests(mdata)
 
@@ -534,303 +583,327 @@ def test_load_scen():
     )
     assert "Final RCP3PD with constant emissions" in mdata.metadata["header"]
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        6.7350,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.7350)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|N2O")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2002)
-        & (mdata.df["unit"] == "Mt N2ON / yr")
+    assert_mdata_value(
+        mdata,
+        7.5487,
+        variable="Emissions|N2O",
+        region="World",
+        year=2002,
+        unit="Mt N2ON / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 7.5487)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC4310")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2001)
-        & (mdata.df["unit"] == "kt HFC4310 / yr")
+    assert_mdata_value(
+        mdata,
+        0.6470,
+        variable="Emissions|HFC4310",
+        region="World",
+        year=2001,
+        unit="kt HFC4310 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.6470)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SOx")
-        & (mdata.df["region"] == "World|R5OECD")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "Mt S / yr")
+    assert_mdata_value(
+        mdata,
+        11.9769,
+        variable="Emissions|SOx",
+        region="World|R5OECD",
+        year=2005,
+        unit="Mt S / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 11.9769)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NMVOC")
-        & (mdata.df["region"] == "World|R5OECD")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Mt NMVOC / yr")
+    assert_mdata_value(
+        mdata,
+        18.2123,
+        variable="Emissions|NMVOC",
+        region="World|R5OECD",
+        year=2050,
+        unit="Mt NMVOC / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 18.2123)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC23")
-        & (mdata.df["region"] == "World|R5REF")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "kt HFC23 / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|HFC23",
+        region="World|R5REF",
+        year=2100,
+        unit="kt HFC23 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC143a")
-        & (mdata.df["region"] == "World|R5ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt HFC143a / yr")
+    assert_mdata_value(
+        mdata,
+        33.3635,
+        variable="Emissions|HFC143a",
+        region="World|R5ASIA",
+        year=2040,
+        unit="kt HFC143a / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 33.3635)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SF6")
-        & (mdata.df["region"] == "World|R5ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt SF6 / yr")
+    assert_mdata_value(
+        mdata,
+        0.8246,
+        variable="Emissions|SF6",
+        region="World|R5ASIA",
+        year=2040,
+        unit="kt SF6 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.8246)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|R5MAF")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        -0.0125,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World|R5MAF",
+        year=2050,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.0125)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH4")
-        & (mdata.df["region"] == "World|R5MAF")
-        & (mdata.df["time"] == 2070)
-        & (mdata.df["unit"] == "Mt CH4 / yr")
+    assert_mdata_value(
+        mdata,
+        37.6218,
+        variable="Emissions|CH4",
+        region="World|R5MAF",
+        year=2070,
+        unit="Mt CH4 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 37.6218)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NOx")
-        & (mdata.df["region"] == "World|R5LAM")
-        & (mdata.df["time"] == 2080)
-        & (mdata.df["unit"] == "Mt N / yr")
+    assert_mdata_value(
+        mdata,
+        1.8693,
+        variable="Emissions|NOx",
+        region="World|R5LAM",
+        year=2080,
+        unit="Mt N / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.8693)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC")
-        & (mdata.df["region"] == "World|R5LAM")
-        & (mdata.df["time"] == 2090)
-        & (mdata.df["unit"] == "Mt BC / yr")
+    assert_mdata_value(
+        mdata,
+        0.4254,
+        variable="Emissions|BC",
+        region="World|R5LAM",
+        year=2090,
+        unit="Mt BC / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.4254)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NH3")
-        & (mdata.df["region"] == "World|Bunkers")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Mt N / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|NH3",
+        region="World|Bunkers",
+        year=2000,
+        unit="Mt N / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SF6")
-        & (mdata.df["region"] == "World|Bunkers")
-        & (mdata.df["time"] == 2002)
-        & (mdata.df["unit"] == "kt SF6 / yr")
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Emissions|SF6",
+        region="World|Bunkers",
+        year=2002,
+        unit="kt SF6 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC125")
-        & (mdata.df["region"] == "World|R5REF")
-        & (mdata.df["time"] == 2125)
-        & (mdata.df["unit"] == "kt HFC125 / yr")
+    assert_mdata_value(
+        mdata,
+        5.2133,
+        variable="Emissions|HFC125",
+        region="World|R5REF",
+        year=2125,
+        unit="kt HFC125 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 5.2133)
 
 
 def test_load_scen_year_first_column():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_DATA_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
+    mdata = MAGICCData(join(TEST_DATA_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
 
     generic_mdata_tests(mdata)
 
     assert "Generic text" in mdata.metadata["header"]
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        6.7350,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.7350)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|N2O")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2002)
-        & (mdata.df["unit"] == "Mt N2ON / yr")
+    assert_mdata_value(
+        mdata,
+        7.5487,
+        variable="Emissions|N2O",
+        region="World",
+        year=2002,
+        unit="Mt N2ON / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 7.5487)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC4310")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2001)
-        & (mdata.df["unit"] == "kt HFC4310 / yr")
+    assert_mdata_value(
+        mdata,
+        0.6470,
+        variable="Emissions|HFC4310",
+        region="World",
+        year=2001,
+        unit="kt HFC4310 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.6470)
 
 
 @patch("pymagicc.io._ScenReader._read_data_header_line")
 def test_load_scen_last_resort_message(mock_scen_header_line_reader):
     mock_scen_header_line_reader.side_effect = AssertionError
 
-    mdata = MAGICCData()
-
     error_msg = re.escape(
         "This is unexpected, please raise an issue on "
         "https://github.com/openclimatedata/pymagicc/issues"
     )
     with pytest.raises(Exception, match=error_msg):
-        mdata.read(join(MAGICC6_DIR, "RCP26.SCEN"))
+        MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"))
 
 
 def test_load_scen_sres():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "SRESA1B.SCEN"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "SRESA1B.SCEN"))
 
     generic_mdata_tests(mdata)
 
     assert "Antero Hot Springs" in mdata.metadata["header"]
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        6.8963,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.8963)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|N2O")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1990)
-        & (mdata.df["unit"] == "Mt N2ON / yr")
+    assert_mdata_value(
+        mdata,
+        6.6751,
+        variable="Emissions|N2O",
+        region="World",
+        year=1990,
+        unit="Mt N2ON / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.6751)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC4310")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "kt HFC4310 / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|HFC4310",
+        region="World",
+        year=2000,
+        unit="kt HFC4310 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0000)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SOx")
-        & (mdata.df["region"] == "World|OECD90")
-        & (mdata.df["time"] == 2010)
-        & (mdata.df["unit"] == "Mt S / yr")
+    assert_mdata_value(
+        mdata,
+        9.8762,
+        variable="Emissions|SOx",
+        region="World|OECD90",
+        year=2010,
+        unit="Mt S / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 9.8762)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NMVOC")
-        & (mdata.df["region"] == "World|OECD90")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Mt NMVOC / yr")
+    assert_mdata_value(
+        mdata,
+        28.1940,
+        variable="Emissions|NMVOC",
+        region="World|OECD90",
+        year=2050,
+        unit="Mt NMVOC / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 28.1940)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC23")
-        & (mdata.df["region"] == "World|REF")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "kt HFC23 / yr")
+    assert_mdata_value(
+        mdata,
+        0.0624,
+        variable="Emissions|HFC23",
+        region="World|REF",
+        year=2100,
+        unit="kt HFC23 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0624)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC125")
-        & (mdata.df["region"] == "World|REF")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "kt HFC125 / yr")
+    assert_mdata_value(
+        mdata,
+        5.4067,
+        variable="Emissions|HFC125",
+        region="World|REF",
+        year=2100,
+        unit="kt HFC125 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 5.4067)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC143a")
-        & (mdata.df["region"] == "World|ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt HFC143a / yr")
+    assert_mdata_value(
+        mdata,
+        15.4296,
+        variable="Emissions|HFC143a",
+        region="World|ASIA",
+        year=2040,
+        unit="kt HFC143a / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 15.4296)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SF6")
-        & (mdata.df["region"] == "World|ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt SF6 / yr")
+    assert_mdata_value(
+        mdata,
+        6.4001,
+        variable="Emissions|SF6",
+        region="World|ASIA",
+        year=2040,
+        unit="kt SF6 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.4001)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|ALM")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        0.2613,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World|ALM",
+        year=2050,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.2613)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH4")
-        & (mdata.df["region"] == "World|ALM")
-        & (mdata.df["time"] == 2070)
-        & (mdata.df["unit"] == "Mt CH4 / yr")
+    assert_mdata_value(
+        mdata,
+        130.1256,
+        variable="Emissions|CH4",
+        region="World|ALM",
+        year=2070,
+        unit="Mt CH4 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 130.1256)
 
 
 def test_load_scen7():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_DATA_DIR, "TESTSCEN7.SCEN7"))
+    mdata = MAGICCData(join(TEST_DATA_DIR, "TESTSCEN7.SCEN7"))
 
     generic_mdata_tests(mdata)
 
@@ -840,145 +913,159 @@ def test_load_scen7():
     assert "~~~~~" in mdata.metadata["header"]
     assert "Some notes" in mdata.metadata["header"]
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        6.7350,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 6.7350)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|N2O|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2002)
-        & (mdata.df["unit"] == "Mt N2ON / yr")
+    assert_mdata_value(
+        mdata,
+        7.5487,
+        variable="Emissions|N2O|MAGICC Fossil and Industrial",
+        region="World",
+        year=2002,
+        unit="Mt N2ON / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 7.5487)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC23")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2001)
-        & (mdata.df["unit"] == "kt HFC23 / yr")
+    assert_mdata_value(
+        mdata,
+        10.4328,
+        variable="Emissions|HFC23",
+        region="World",
+        year=2001,
+        unit="kt HFC23 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 10.4328)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SOx")
-        & (mdata.df["region"] == "World|R6OECD90")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "Mt S / yr")
+    assert_mdata_value(
+        mdata,
+        11.9769,
+        variable="Emissions|SOx",
+        region="World|R6OECD90",
+        year=2005,
+        unit="Mt S / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 11.9769)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NMVOC")
-        & (mdata.df["region"] == "World|R6OECD90")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Mt NMVOC / yr")
+    assert_mdata_value(
+        mdata,
+        18.2123,
+        variable="Emissions|NMVOC",
+        region="World|R6OECD90",
+        year=2050,
+        unit="Mt NMVOC / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 18.2123)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC23")
-        & (mdata.df["region"] == "World|R6REF")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "kt HFC23 / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|HFC23",
+        region="World|R6REF",
+        year=2100,
+        unit="kt HFC23 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH2Cl2")
-        & (mdata.df["region"] == "World|R6REF")
-        & (mdata.df["time"] == 2125)
-        & (mdata.df["unit"] == "kt CH2Cl2 / yr")
+    assert_mdata_value(
+        mdata,
+        5.2133,
+        variable="Emissions|CH2Cl2",
+        region="World|R6REF",
+        year=2125,
+        unit="kt CH2Cl2 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 5.2133)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|HFC143a")
-        & (mdata.df["region"] == "World|R6ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt HFC143a / yr")
+    assert_mdata_value(
+        mdata,
+        33.3635,
+        variable="Emissions|HFC143a",
+        region="World|R6ASIA",
+        year=2040,
+        unit="kt HFC143a / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 33.3635)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SO2F2")
-        & (mdata.df["region"] == "World|R6ASIA")
-        & (mdata.df["time"] == 2040)
-        & (mdata.df["unit"] == "kt SO2F2 / yr")
+    assert_mdata_value(
+        mdata,
+        0.8246,
+        variable="Emissions|SO2F2",
+        region="World|R6ASIA",
+        year=2040,
+        unit="kt SO2F2 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.8246)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|R6MAF")
-        & (mdata.df["time"] == 2050)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        -0.0125,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World|R6MAF",
+        year=2050,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.0125)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH4")
-        & (mdata.df["region"] == "World|R6MAF")
-        & (mdata.df["time"] == 2070)
-        & (mdata.df["unit"] == "Mt CH4 / yr")
+    assert_mdata_value(
+        mdata,
+        37.6218,
+        variable="Emissions|CH4",
+        region="World|R6MAF",
+        year=2070,
+        unit="Mt CH4 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 37.6218)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NOx")
-        & (mdata.df["region"] == "World|R6LAM")
-        & (mdata.df["time"] == 2080)
-        & (mdata.df["unit"] == "Mt N / yr")
+    assert_mdata_value(
+        mdata,
+        1.8693,
+        variable="Emissions|NOx",
+        region="World|R6LAM",
+        year=2080,
+        unit="Mt N / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.8693)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|R6LAM")
-        & (mdata.df["time"] == 2090)
-        & (mdata.df["unit"] == "Mt BC / yr")
+    assert_mdata_value(
+        mdata,
+        0.4254,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World|R6LAM",
+        year=2090,
+        unit="Mt BC / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.4254)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|NH3")
-        & (mdata.df["region"] == "World|Bunkers")
-        & (mdata.df["time"] == 2000)
-        & (mdata.df["unit"] == "Mt N / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|NH3",
+        region="World|Bunkers",
+        year=2000,
+        unit="Mt N / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|SO2F2")
-        & (mdata.df["region"] == "World|Bunkers")
-        & (mdata.df["time"] == 2002)
-        & (mdata.df["unit"] == "kt SO2F2 / yr")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|SO2F2",
+        region="World|Bunkers",
+        year=2002,
+        unit="kt SO2F2 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_scen7_mhalo():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_DATA_DIR, "TEST_MHALO.SCEN7"))
+    mdata = MAGICCData(join(TEST_DATA_DIR, "TEST_MHALO.SCEN7"))
 
     generic_mdata_tests(mdata)
 
@@ -992,37 +1079,39 @@ def test_load_scen7_mhalo():
     assert "~~~~~" in mdata.metadata["header"]
     assert "HCFC22" in mdata.metadata["header"]
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CFC11")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2015)
-        & (mdata.df["unit"] == "kt CFC11 / yr")
+    assert_mdata_value(
+        mdata,
+        0.343277,
+        variable="Emissions|CFC11",
+        region="World",
+        year=2015,
+        unit="kt CFC11 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.343277)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH3Br")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2065)
-        & (mdata.df["unit"] == "kt CH3Br / yr")
+    assert_mdata_value(
+        mdata,
+        0.925486,
+        variable="Emissions|CH3Br",
+        region="World",
+        year=2065,
+        unit="kt CH3Br / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.925486)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|Halon1301")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "kt Halon1301 / yr")
+    assert_mdata_value(
+        mdata,
+        0.047699,
+        variable="Emissions|Halon1301",
+        region="World",
+        year=2100,
+        unit="kt Halon1301 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.047699, rtol=1e-4)
 
 
 def test_load_prn():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "RCPODS_WMO2006_Emissions_A1.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -1037,54 +1126,33 @@ def test_load_prn():
         "ons have been adapted to match mixing ratio observations by Butler et al. 1999 with emissions starting in 1850. HCFC-142b from 2005 to 2007 adapted to Montzka et al. 2009 with emission growth/decline rates kept the same after 2007."
         in mdata.metadata["header"]
     )
-    assert (mdata.df.region == "World").all()
-    assert (mdata.df.todo == "SET").all()
-    assert not (mdata.df.unit == "t / yr").all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert not (mdata["unit"] == "t / yr").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CFC11")
-        & (mdata.df["time"] == 1850)
-        & (mdata.df["unit"] == "t CFC11 / yr")
+    assert_mdata_value(
+        mdata, 0, variable="Emissions|CFC11", year=1850, unit="t CFC11 / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CFC115")
-        & (mdata.df["time"] == 1965)
-        & (mdata.df["unit"] == "t CFC115 / yr")
+    assert_mdata_value(
+        mdata, 444, variable="Emissions|CFC115", year=1965, unit="t CFC115 / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 444)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|Halon1211")
-        & (mdata.df["time"] == 1996)
-        & (mdata.df["unit"] == "t Halon1211 / yr")
+    assert_mdata_value(
+        mdata, 10743, variable="Emissions|Halon1211", year=1996, unit="t Halon1211 / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 10743)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|Halon1301")
-        & (mdata.df["time"] == 2017)
-        & (mdata.df["unit"] == "t Halon1301 / yr")
+    assert_mdata_value(
+        mdata, 1062, variable="Emissions|Halon1301", year=2017, unit="t Halon1301 / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1062)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH3Cl")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "t CH3Cl / yr")
+    assert_mdata_value(
+        mdata, 3511082, variable="Emissions|CH3Cl", year=2500, unit="t CH3Cl / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3511082)
 
 
 def test_load_prn_no_units():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "WMO2006_ODS_A1Baseline.prn"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "WMO2006_ODS_A1Baseline.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -1095,30 +1163,21 @@ def test_load_prn_no_units():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df.region == "World").all()
-    assert (mdata.df.todo == "SET").all()
-    assert not (mdata.df.unit == "t / yr").all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert not (mdata["unit"] == "t / yr").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CFC12")
-        & (mdata.df["time"] == 1950)
-        & (mdata.df["unit"] == "t CFC12 / yr")
+    assert_mdata_value(
+        mdata, 139965, variable="Emissions|CFC12", year=1950, unit="t CFC12 / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 139965)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH3Cl")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "t CH3Cl / yr")
+    assert_mdata_value(
+        mdata, 3511082, variable="Emissions|CH3Cl", year=2100, unit="t CH3Cl / yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3511082)
 
 
 def test_load_prn_mixing_ratios_years_label():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "RCPODS_WMO2006_MixingRatios_A1.prn"))
+    mdata = MAGICCData(join(MAGICC6_DIR, "RCPODS_WMO2006_MixingRatios_A1.prn"))
 
     generic_mdata_tests(mdata)
 
@@ -1129,45 +1188,32 @@ def test_load_prn_mixing_ratios_years_label():
         mdata.metadata["description"]
         == "1951-2100 Baseline mixing ratio file generated by John Daniel and Guus Velders for WMO2006, Chapter 8. (2/3/06); CH3CL updated to reflect MAGICC6 timeseries after 1955 and lower 2000 concentrations closer to 535ppt in line with"
     )
-    assert (mdata.df.region == "World").all()
-    assert (mdata.df.todo == "SET").all()
-    assert (mdata.df.unit == "ppt").all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["unit"] == "ppt").all()
 
-    row = (mdata.df["variable"] == "Atmospheric Concentrations|CFC12") & (
-        mdata.df["time"] == 1850
-    )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+    assert_mdata_value(mdata, 0, variable="Atmospheric Concentrations|CFC12", year=1850)
 
-    row = (mdata.df["variable"] == "Atmospheric Concentrations|CFC114") & (
-        mdata.df["time"] == 1965
+    assert_mdata_value(
+        mdata, 5.058, variable="Atmospheric Concentrations|CFC114", year=1965
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 5.058)
 
-    row = (mdata.df["variable"] == "Atmospheric Concentrations|HCFC141b") & (
-        mdata.df["time"] == 2059
+    assert_mdata_value(
+        mdata, 13.81, variable="Atmospheric Concentrations|HCFC141b", year=2059
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 13.81)
 
-    row = (mdata.df["variable"] == "Atmospheric Concentrations|Halon2402") & (
-        mdata.df["time"] == 2091
+    assert_mdata_value(
+        mdata, 0.007, variable="Atmospheric Concentrations|Halon2402", year=2091
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.007)
 
-    row = (mdata.df["variable"] == "Atmospheric Concentrations|CH3Cl") & (
-        mdata.df["time"] == 2100
+    assert_mdata_value(
+        mdata, 538, variable="Atmospheric Concentrations|CH3Cl", year=2100
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 538)
 
 
 def test_load_rcp_historical_dat_emissions():
-    mdata = MAGICCData()
     test_file = "20THCENTURY_EMISSIONS.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
@@ -1178,42 +1224,42 @@ def test_load_rcp_historical_dat_emissions():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Emissions|")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
+    assert (mdata["variable"].str.startswith("Emissions|")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        0.003,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=1766,
+        unit="Gt C / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.003)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH4")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "Mt CH4 / yr")
+    assert_mdata_value(
+        mdata,
+        2.4364481,
+        variable="Emissions|CH4",
+        region="World",
+        year=1767,
+        unit="Mt CH4 / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 2.4364481)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH3Cl")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "kt CH3Cl / yr")
+    assert_mdata_value(
+        mdata,
+        3511.0820,
+        variable="Emissions|CH3Cl",
+        region="World",
+        year=2005,
+        unit="kt CH3Cl / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3511.0820)
 
 
 def test_load_rcp_historical_dat_concentrations():
-    mdata = MAGICCData()
     test_file = "20THCENTURY_MIDYEAR_CONCENTRATIONS.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
+
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
@@ -1224,69 +1270,60 @@ def test_load_rcp_historical_dat_concentrations():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
+    assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
 
-    row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "ppm")
+    assert_mdata_value(
+        mdata,
+        277.8388,
+        variable="Atmospheric Concentrations|CO2 Equivalent",
+        region="World",
+        year=1766,
+        unit="ppm",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 277.8388)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "ppm")
+    assert_mdata_value(
+        mdata,
+        278.68732,
+        variable="Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases",
+        region="World",
+        year=1767,
+        unit="ppm",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 278.68732)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|HFC134a Equivalent|F Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        126.7694,
+        variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
+        region="World",
+        year=2005,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 126.7694)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        1003.5801,
+        variable="Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases",
+        region="World",
+        year=2005,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1003.5801)
 
-    row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CH3Cl")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        538,
+        variable="Atmospheric Concentrations|CH3Cl",
+        region="World",
+        year=2005,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 538)
 
 
 def test_load_rcp_historical_dat_forcings():
-    mdata = MAGICCData()
     test_file = "20THCENTURY_MIDYEAR_RADFORCING.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
+
     generic_mdata_tests(mdata)
 
     assert (
@@ -1300,43 +1337,42 @@ def test_load_rcp_historical_dat_forcings():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
-    assert (mdata.df["unit"] == "W / m^2").all()
+    assert (mdata["variable"].str.startswith("Radiative Forcing")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["unit"] == "W / m^2").all()
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.12602655,
+        variable="Radiative Forcing",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Solar")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.0070393750,
+        variable="Radiative Forcing|Solar",
+        region="World",
+        year=1767,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0070393750)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2005)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.10018846,
+        variable="Radiative Forcing|Black Carbon on Snow",
+        region="World",
+        year=2005,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.10018846)
 
 
 def test_load_rcp_projections_dat_emissions():
-    mdata = MAGICCData()
     test_file = "RCP3PD_EMISSIONS.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
@@ -1347,42 +1383,41 @@ def test_load_rcp_projections_dat_emissions():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Emissions|")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
+    assert (mdata["variable"].str.startswith("Emissions|")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "Gt C / yr")
+    assert_mdata_value(
+        mdata,
+        -0.9308,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2100,
+        unit="Gt C / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.9308)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH4")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
-        & (mdata.df["unit"] == "Mt CH4 / yr")
+    assert_mdata_value(
+        mdata,
+        2.4364481,
+        variable="Emissions|CH4",
+        region="World",
+        year=1767,
+        unit="Mt CH4 / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 2.4364481)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|CH3Cl")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "kt CH3Cl / yr")
+    assert_mdata_value(
+        mdata,
+        3511.0820,
+        variable="Emissions|CH3Cl",
+        region="World",
+        year=2500,
+        unit="kt CH3Cl / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3511.0820)
 
 
 def test_load_rcp_projections_dat_concentrations():
-    mdata = MAGICCData()
     test_file = "RCP3PD_MIDYEAR_CONCENTRATIONS.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
@@ -1393,69 +1428,59 @@ def test_load_rcp_projections_dat_concentrations():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Atmospheric Concentrations|")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
+    assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
 
-    row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CO2 Equivalent")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "ppm")
+    assert_mdata_value(
+        mdata,
+        277.8388,
+        variable="Atmospheric Concentrations|CO2 Equivalent",
+        region="World",
+        year=1766,
+        unit="ppm",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 277.8388)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "ppm")
+    assert_mdata_value(
+        mdata,
+        475.19275,
+        variable="Atmospheric Concentrations|CO2 Equivalent|Kyoto Gases",
+        region="World",
+        year=2100,
+        unit="ppm",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 475.19275)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|HFC134a Equivalent|F Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        900.02269,
+        variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
+        region="World",
+        year=2500,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 900.02269)
 
-    row = (
-        (
-            mdata.df["variable"]
-            == "Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases"
-        )
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        10.883049,
+        variable="Atmospheric Concentrations|CFC12 Equivalent|Montreal Protocol Halogen Gases",
+        region="World",
+        year=2500,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 10.883049)
 
-    row = (
-        (mdata.df["variable"] == "Atmospheric Concentrations|CH3Cl")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "ppt")
+    assert_mdata_value(
+        mdata,
+        538.02891,
+        variable="Atmospheric Concentrations|CH3Cl",
+        region="World",
+        year=2500,
+        unit="ppt",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 538.02891)
 
 
 def test_load_rcp_projections_dat_forcings():
-    mdata = MAGICCData()
     test_file = "RCP3PD_MIDYEAR_RADFORCING.DAT"
-    mdata.read(join(TEST_DATA_DIR, test_file))
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06 (updated description)"
@@ -1466,172 +1491,172 @@ def test_load_rcp_projections_dat_forcings():
         in mdata.metadata["header"]
     )
 
-    assert (mdata.df["variable"].str.startswith("Radiative Forcing")).all()
-    assert (mdata.df["region"] == "World").all()
-    assert (mdata.df["todo"] == "SET").all()
-    assert (mdata.df["unit"] == "W / m^2").all()
+    assert (mdata["variable"].str.startswith("Radiative Forcing")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["unit"] == "W / m^2").all()
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.12602655,
+        variable="Radiative Forcing",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.12602655)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Volcanic")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.11622211,
+        variable="Radiative Forcing|Volcanic",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.11622211)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Anthropogenic")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.016318812,
+        variable="Radiative Forcing|Anthropogenic",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.016318812)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Greenhouse Gases")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.015363514,
+        variable="Radiative Forcing|Greenhouse Gases",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.015363514)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Greenhouse Gases|Kyoto Gases")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.015363514,
+        variable="Radiative Forcing|Greenhouse Gases|Kyoto Gases",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.015363514)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|CO2, CH4 and N2O")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.015363514,
+        variable="Radiative Forcing|CO2, CH4 and N2O",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.015363514)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|F Gases")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Radiative Forcing|F Gases",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Montreal Protocol Halogen Gases")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Radiative Forcing|Montreal Protocol Halogen Gases",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Aerosols|Direct Effect")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.000017767194,
+        variable="Radiative Forcing|Aerosols|Direct Effect",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.000017767194)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Aerosols|MAGICC AFOLU")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.00025010344,
+        variable="Radiative Forcing|Aerosols|MAGICC AFOLU",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.00025010344)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Mineral Dust")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        -0.00019073512,
+        variable="Radiative Forcing|Mineral Dust",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00019073512)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Aerosols|Indirect Effect")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        -0.00080145063,
+        variable="Radiative Forcing|Aerosols|Indirect Effect",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00080145063)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Stratospheric Ozone")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Radiative Forcing|Stratospheric Ozone",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Tropospheric Ozone")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.0014060381,
+        variable="Radiative Forcing|Tropospheric Ozone",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0014060381)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|CH4 Oxidation Stratospheric H2O")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.00060670657,
+        variable="Radiative Forcing|CH4 Oxidation Stratospheric H2O",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.00060670657)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Land-use Change")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1766)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        -0.00038147024,
+        variable="Radiative Forcing|Land-use Change",
+        region="World",
+        year=1766,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00038147024)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Solar")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2100)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.19056187,
+        variable="Radiative Forcing|Solar",
+        region="World",
+        year=2100,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.19056187)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|Black Carbon on Snow")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2500)
-        & (mdata.df["unit"] == "W / m^2")
+    assert_mdata_value(
+        mdata,
+        0.038412234,
+        variable="Radiative Forcing|Black Carbon on Snow",
+        region="World",
+        year=2500,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.038412234)
 
 
 @pytest.mark.parametrize(
@@ -1659,7 +1684,6 @@ def test_generic_rcp_name_error():
 
 
 def test_load_cfg_with_magicc_input():
-    mdata = MAGICCData()
     test_file = "MAGCFG_BULKPARAS.CFG"
     expected_error_msg = (
         r"^"
@@ -1670,7 +1694,7 @@ def test_load_cfg_with_magicc_input():
     )
 
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(join(MAGICC6_DIR, test_file))
+        MAGICCData(join(MAGICC6_DIR, test_file))
 
 
 def test_load_cfg():
@@ -1790,8 +1814,7 @@ def test_load_cfg_with_slash_in_units():
 
 
 def test_load_out():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_SURFACE_TEMP.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1801,57 +1824,63 @@ def test_load_out():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "K").all()
-    assert (mdata.df.variable == "Surface Temperature").all()
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "K").all()
+    assert (mdata["variable"] == "Surface Temperature").all()
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
+    assert_mdata_value(
+        mdata,
+        0.0079979091,
+        variable="Surface Temperature",
+        region="World",
+        year=1767,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0079979091)
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        -0.022702952,
+        variable="Surface Temperature",
+        region="World",
+        year=1965,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.022702952)
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1769)
+    assert_mdata_value(
+        mdata,
+        0.010526585,
+        variable="Surface Temperature",
+        region="World|Northern Hemisphere|Ocean",
+        year=1769,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.010526585)
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1820)
+    assert_mdata_value(
+        mdata,
+        -0.25062424,
+        variable="Surface Temperature",
+        region="World|Southern Hemisphere|Ocean",
+        year=1820,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.25062424)
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 2093)
+    assert_mdata_value(
+        mdata,
+        1.8515042,
+        variable="Surface Temperature",
+        region="World|Northern Hemisphere|Land",
+        year=2093,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 1.8515042)
 
-    row = (
-        (mdata.df["variable"] == "Surface Temperature")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Surface Temperature",
+        region="World|Southern Hemisphere|Land",
+        year=1765,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_out_emis():
@@ -1866,62 +1895,67 @@ def test_load_out_emis():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "Mt BC / yr").all()
-    assert (mdata.df.variable == "Emissions|BC|MAGICC AFOLU").all()
+    assert (mdata["todo"]== "N/A").all()
+    assert (mdata["unit"] == "Mt BC / yr").all()
+    assert (mdata["variable"] == "Emissions|BC|MAGICC AFOLU").all()
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World",
+        year=1765,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        2.0025816,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World",
+        year=1965,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 2.0025816)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1769)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Ocean",
+        year=1769,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1820)
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World|Southern Hemisphere|Ocean",
+        year=1820,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 2093)
+    assert_mdata_value(
+        mdata,
+        0.71504927,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Land",
+        year=2093,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.71504927)
 
-    row = (
-        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 2100)
+    assert_mdata_value(
+        mdata,
+        0.48390716,
+        variable="Emissions|BC|MAGICC AFOLU",
+        region="World|Southern Hemisphere|Land",
+        year=2100,
+        unit="Mt BC / yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.48390716)
 
 
 def test_load_out_slash_and_caret_in_rf_units():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "DAT_SOXB_RF.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_SOXB_RF.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1931,62 +1965,58 @@ def test_load_out_slash_and_caret_in_rf_units():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "W / m^2").all()
-    assert (mdata.df.variable == "Radiative Forcing|SOx|MAGICC AFOLU").all()
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU").all()
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
+    assert_mdata_value(
+        mdata,
+        -0.00025099784,
+        variable="Radiative Forcing|SOx|MAGICC AFOLU",
+        region="World",
+        year=1767,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00025099784)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        -0.032466593,
+        variable="Radiative Forcing|SOx|MAGICC AFOLU",
+        region="World",
+        year=1965,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.032466593)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1769)
+    assert_mdata_value(
+        mdata,
+        -0.0014779559,
+        variable="Radiative Forcing|SOx|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Ocean",
+        year=1769,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.0014779559)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1820)
+    assert_mdata_value(
+        mdata,
+        -0.024316933,
+        variable="Radiative Forcing|SOx|MAGICC AFOLU",
+        region="World|Northern Hemisphere|Land",
+        year=2093,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.00039305876)
 
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 2093)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Radiative Forcing|SOx|MAGICC AFOLU",
+        region="World|Southern Hemisphere|Land",
+        year=1765,
+        # unit="W / m^2"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -0.024316933)
-
-    row = (
-        (mdata.df["variable"] == "Radiative Forcing|SOx|MAGICC AFOLU")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 1765)
-    )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_out_slash_and_caret_in_heat_content_units():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "DAT_HEATCONTENT_AGGREG_DEPTH1.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_HEATCONTENT_AGGREG_DEPTH1.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -1996,62 +2026,67 @@ def test_load_out_slash_and_caret_in_heat_content_units():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "10^22J").all()
-    assert (mdata.df.variable == "Aggregated Ocean Heat Content|Depth 1").all()
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "10^22J").all()
+    assert (mdata["variable"] == "Aggregated Ocean Heat Content|Depth 1").all()
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1767)
+    assert_mdata_value(
+        mdata,
+        0.046263236,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World",
+        year=1767,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.046263236)
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1965)
+    assert_mdata_value(
+        mdata,
+        3.4193050,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World",
+        year=1965,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 3.4193050)
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1769)
+    assert_mdata_value(
+        mdata,
+        0.067484257,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World|Northern Hemisphere|Ocean",
+        year=1769,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.067484257)
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1820)
+    assert_mdata_value(
+        mdata,
+        -4.2688102,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World|Southern Hemisphere|Ocean",
+        year=1820,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, -4.2688102)
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
-        & (mdata.df["time"] == 2093)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World|Northern Hemisphere|Land",
+        year=2093,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Aggregated Ocean Heat Content|Depth 1")
-        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Aggregated Ocean Heat Content|Depth 1",
+        region="World|Southern Hemisphere|Land",
+        year=1765,
+        # unit="10^22J"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
 def test_load_out_ocean_layers():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -2063,37 +2098,39 @@ def test_load_out_ocean_layers():
     assert (
         "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
     )
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "K").all()
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "K").all()
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 1")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Ocean Temperature|Layer 1",
+        region="World",
+        year=1765,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 3")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 1973)
+    assert_mdata_value(
+        mdata,
+        0.10679213,
+        variable="Ocean Temperature|Layer 3",
+        region="World",
+        year=1973,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.10679213)
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 50")
-        & (mdata.df["region"] == "World")
-        & (mdata.df["time"] == 2100)
+    assert_mdata_value(
+        mdata,
+        0.13890633,
+        variable="Ocean Temperature|Layer 50",
+        region="World",
+        year=2100,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.13890633)
 
 
 def test_load_out_ocean_layers_hemisphere():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS_NH.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "TEMP_OCEANLAYERS_NH.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -2105,36 +2142,38 @@ def test_load_out_ocean_layers_hemisphere():
     assert (
         "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
     )
-    assert (mdata.df.todo == "N/A").all()
-    assert (mdata.df.unit == "K").all()
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "K").all()
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 1")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1765)
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Ocean Temperature|Layer 1",
+        region="World|Northern Hemisphere|Ocean",
+        year=1765,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 3")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 1973)
+    assert_mdata_value(
+        mdata,
+        0.10679213,
+        variable="Ocean Temperature|Layer 3",
+        region="World|Northern Hemisphere|Ocean",
+        year=1973,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.10679213)
 
-    row = (
-        (mdata.df["variable"] == "Ocean Temperature|Layer 50")
-        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
-        & (mdata.df["time"] == 2100)
+    assert_mdata_value(
+        mdata,
+        0.13890633,
+        variable="Ocean Temperature|Layer 50",
+        region="World|Northern Hemisphere|Ocean",
+        year=2100,
+        unit="K",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(mdata.df[row].value, 0.13890633)
 
 
 def test_load_parameters_out_with_magicc_input():
-    mdata = MAGICCData()
     test_file = "PARAMETERS.OUT"
     expected_error_msg = (
         r"^"
@@ -2146,11 +2185,11 @@ def test_load_parameters_out_with_magicc_input():
     )
 
     with pytest.raises(ValueError, match=expected_error_msg):
-        mdata.read(join(TEST_OUT_DIR, test_file))
+        MAGICCData(join(TEST_OUT_DIR, test_file))
 
 
 xfail_msg = (
-    "Output files have heaps of spurious spaces, need to decide what to do "
+    "Output config files have heaps of spurious spaces, need to decide what to do "
     "about this. If we strip them, we give the illustion that they're usable, "
     "which they're not really..."
 )
@@ -2175,47 +2214,30 @@ def test_load_parameters_out():
     ]
 
 
-@pytest.mark.xfail(
-    reason="Direct access not available in v2.0.0, will update with OpenSCM DataFrame in v2.1.0"
-)
-def test_direct_access():
-    mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-    mdata.read(join(MAGICC6_DIR))
+def test_filter():
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
 
     tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
     tregion = "World|R5LAM"
     tyear = 1983
-    result = mdata.filter(variable=tvariable, region=tregion, year=tyear)
-    expected = mdata.df[
-        (mdata.df.variable == tvariable)
-        & (mdata.df.region == tregion)
-        & (mdata.df.year == tyear)
+    result = mdata.filter(variable=tvariable, region=tregion).data
+    expected = mdata.data[
+        (mdata["variable"] == tvariable) & (mdata["region"] == tregion)
     ]
     pd.testing.assert_frame_equal(result, expected)
 
 
-def test_proxy():
-    mdata = MAGICCData()
-    mdata.read(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
-
-    # Get an attribute from the pandas DataFrame
-    plot = mdata.plot
-    assert plot.__module__ == "pandas.plotting._core"
-
-
 def test_incomplete_filepath():
-    mdata = MAGICCData()
     with pytest.raises(FileNotFoundError):
-        mdata.read(join("/incomplete/dir/name"))
+        MAGICCData(join("/incomplete/dir/name"))
 
     with pytest.raises(FileNotFoundError):
-        mdata.read(join("RCP26.SCEN"))
+        MAGICCData(join("RCP26.SCEN"))
 
 
 def test_invalid_name():
-    mdata = MAGICCData()
     with pytest.raises(FileNotFoundError):
-        mdata.read(join("/tmp", "MYNONEXISTANT.IN"))
+        MAGICCData(join("/tmp", "MYNONEXISTANT.IN"))
 
 
 def test_header_metadata():
@@ -2253,11 +2275,9 @@ def test_header_metadata():
 
 
 def test_magicc_input_init():
-    mdata = MAGICCData()
-
-    assert mdata.df is None
-    assert mdata.metadata == {}
-    assert mdata.filepath is None
+    # must init with data
+    with pytest.raises(TypeError):
+        mdata = MAGICCData()
 
 
 def test_set_lines():
@@ -2325,16 +2345,11 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
 def test_in_file_read_write_functionally_identical(
     starting_fpath, starting_fname, confusing_metadata, temp_dir
 ):
-    mi_writer = MAGICCData()
-    mi_writer.read(join(starting_fpath, starting_fname))
-
+    mi_writer = MAGICCData(join(starting_fpath, starting_fname))
     mi_writer.write(join(temp_dir, starting_fname), magicc_version=6)
 
-    mi_written = MAGICCData()
-    mi_written.read(join(temp_dir, starting_fname))
-
-    mi_initial = MAGICCData()
-    mi_initial.read(join(starting_fpath, starting_fname))
+    mi_written = MAGICCData(join(temp_dir, starting_fname))
+    mi_initial = MAGICCData(join(starting_fpath, starting_fname))
 
     if not starting_fname.endswith((".SCEN", ".prn")):
         nml_written = f90nml.read(join(temp_dir, starting_fname))
@@ -2353,13 +2368,9 @@ def test_in_file_read_write_functionally_identical(
             except:
                 assert value_written == mi_initial.metadata[key_written]
 
+    # drop index as we don't care about it
     pd.testing.assert_frame_equal(
-        mi_written.df.sort_values(by=mi_written.df.columns.tolist()).reset_index(
-            drop=True
-        ),
-        mi_initial.df.sort_values(by=mi_initial.df.columns.tolist()).reset_index(
-            drop=True
-        ),
+        mi_written.data.reset_index(drop=True), mi_initial.data.reset_index(drop=True)
     )
 
 
@@ -2442,11 +2453,10 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
     elif file_to_read.endswith(".CFG"):
         read_cfg_file(join(MAGICC6_DIR, file_to_read))
     else:
-        mdata = MAGICCData()
-        mdata.read(join(MAGICC6_DIR, file_to_read))
+        MAGICCData(join(MAGICC6_DIR, file_to_read))
         # make sure that no emissions units are read in bare e.g. the units of BC
         # should be Mt BC / time, not simply Mt
-        assert not mdata.df["unit"].isin(["kt", "Mt"]).any()
+        assert not mdata["unit"].isin(["kt", "Mt"]).any()
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
@@ -2457,11 +2467,10 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
         for p in INVALID_OUT_FILES:
             if re.match(p, file_to_read):
                 return
-        mdata = MAGICCData()
-        mdata.read(join(TEST_OUT_DIR, file_to_read))
+        MAGICCData(join(TEST_OUT_DIR, file_to_read))
         # make sure that no emissions units are read in bare e.g. the units of BC
         # should be Mt BC / time, not simply Mt
-        assert not mdata.df["unit"].isin(["kt", "Mt"]).any()
+        assert not mdata["unit"].isin(["kt", "Mt"]).any()
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
@@ -2474,7 +2483,6 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
     if valid_filepath:
         return
 
-    mdata = MAGICCData()
     if ("SUBANN" in file_to_read) or ("VOLCANIC_RF.BINOUT" in file_to_read):
         error_msg = (
             r"^.*"
@@ -2482,7 +2490,7 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
             + r".*$"
         )
         with pytest.raises(InvalidTemporalResError, match=error_msg):
-            mdata.read(join(TEST_OUT_DIR, file_to_read))
+            MAGICCData(join(TEST_OUT_DIR, file_to_read))
     else:
         error_msg = (
             r"^.*"
@@ -2492,7 +2500,7 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
             + r".*$"
         )
         with pytest.raises(NoReaderWriterError, match=error_msg):
-            mdata.read(join(TEST_OUT_DIR, file_to_read))
+            MAGICCData(join(TEST_OUT_DIR, file_to_read))
 
 
 @pytest.mark.parametrize(
@@ -2501,66 +2509,63 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
 )
 def test_bin_and_ascii_equal(file_to_read):
     try:
-        mdata_bin = MAGICCData()
-        mdata_bin.read(join(TEST_OUT_DIR, file_to_read))
+        mdata_bin = MAGICCData(join(TEST_OUT_DIR, file_to_read))
     except InvalidTemporalResError:
         # Some BINOUT files are on a subannual time scale and cannot be read (yet)
         return
 
-    assert (mdata_bin.df.unit == "unknown").all()
-    assert (mdata_bin.df.todo == "SET").all()
+    assert (mdata_bin["unit"] == "unknown").all()
+    assert (mdata_bin["todo"] == "SET").all()
 
-    mdata_ascii = MAGICCData()
-    mdata_ascii.read(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
+    mdata_ascii = MAGICCData(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 
-    # There are some minor differences between in the dataframes due to availability of metadata in BINOUT files
+    # There are some minor differences between in the dataframes due to availability
+    # of metadata in BINOUT files
     drop_axes = ["unit", "todo"]
-    mdata_ascii.df = mdata_ascii.df.drop(drop_axes, axis="columns")
-    mdata_bin.df = mdata_bin.df.drop(drop_axes, axis="columns")
-    pd.testing.assert_frame_equal(mdata_ascii.df, mdata_bin.df)
+    ascii_df = mdata_ascii.data.drop(drop_axes, axis="columns")
+    bin_df = mdata_bin.data.drop(drop_axes, axis="columns")
+    pd.testing.assert_frame_equal(ascii_df, bin_df)
 
 
-def test_magicc_data_append_unset():
+@patch("pymagicc.io._read_and_return_metadata_df")
+def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
-    tmetadata = {"mock": 12, "mock 2": "written here"}
-    tdf = pd.DataFrame({"test": np.array([1, 2, 3])})
-
-    mdata = MAGICCData()
-    mdata._read_and_return_metadata_df = MagicMock(return_value=(tmetadata, tdf))
-
-    assert mdata.df is None
-    mdata.append(tfilepath)
-
-    mdata._read_and_return_metadata_df.assert_called_with(tfilepath)
-
-    assert mdata.metadata == tmetadata
-    pd.testing.assert_frame_equal(mdata.df, tdf)
-
-
-def test_magicc_data_append():
-    tfilepath = "mocked/out/here.txt"
-
-    tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = pd.DataFrame({"test": np.array([-1, 12, 1.33])})
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init = pd.DataFrame({"test": np.array([1, 2, 3])})
-
-    mdata = MAGICCData()
-    mdata._read_and_return_metadata_df = MagicMock(
-        return_value=(tmetadata_append, tdf_append)
+    tdf_init = pd.DataFrame(
+        [
+            ["a", "b", "World", "PE", "EJ/y", 2010, 2.0],
+            ["a", "b", "World", "PE|Coal", "EJ/y", 2010, 1.2],
+            ["a", "b", "World", "PE|Gas", "EJ/y", 2010, 7.9],
+        ],
+        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
     )
-    mdata.df = tdf_init
-    mdata.metadata = tmetadata_init
 
+    tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
+    tdf_append = pd.DataFrame(
+        [
+            ["d", "e", "World|ASIA", "GE", "J/y", 2015, -6.0],
+            ["d", "e", "World|ASIA", "GE|Coal", "J/y", 2015, 3.2],
+            ["d", "e", "World|ASIA", "GE|Gas", "J/y", 2015, 7.1],
+        ],
+        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
+    )
+
+    mock_read_and_return_metadata_df.return_value = (tmetadata_init, tdf_init)
+    mdata = MAGICCData("mocked")
+
+    mock_read_and_return_metadata_df.return_value = (tmetadata_append, tdf_append)
     mdata.append(tfilepath)
 
-    mdata._read_and_return_metadata_df.assert_called_with(tfilepath)
+    mock_read_and_return_metadata_df.assert_called_with(tfilepath)
 
     expected_metadata = deepcopy(tmetadata_init)
     expected_metadata.update(tmetadata_append)
     assert mdata.metadata == expected_metadata
-    pd.testing.assert_frame_equal(mdata.df, pd.concat([tdf_init, tdf_append]))
+    pd.testing.assert_frame_equal(
+        mdata.data.reset_index(drop=True),
+        tdf_init.append(tdf_append).reset_index(drop=True),
+    )
 
 
 @patch("pymagicc.io.pull_cfg_from_parameters_out")
@@ -2647,68 +2652,68 @@ def test_pull_cfg_from_parameters_out():
 
 # integration test
 def test_join_timeseries():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
-    base = mdata.df.copy()
+    mdata = MAGICCData(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
+
+    base = mdata.data.copy()
     base["todo"] = "SET"
 
     mdata.read(join(MAGICC6_DIR, "RCP60.SCEN"))
-    scen = mdata.df.copy()
+    scen = mdata.data.copy()
 
     res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
 
-    row = (
-        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (res["region"] == "World")
-        & (res["time"] == 2000)
-        & (res["unit"] == "Gt C / yr")
-        & (res["todo"] == "SET")
+    assert_mdata_value(
+        res,
+        6.735,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 6.735)
 
-    row = (
-        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (res["region"] == "World")
-        & (res["time"] == 2008)
-        & (res["unit"] == "Gt C / yr")
-        & (res["todo"] == "SET")
-    )
-    assert sum(row) == 1
     val_2012 = 8.5115 + (8.9504 - 8.5115) * 2 / 10
     expected = 7.971 + (val_2012 - 7.971) / 7 * 3
-    np.testing.assert_allclose(res[row].value, expected)
-
-    row = (
-        (res["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial")
-        & (res["region"] == "World")
-        & (res["time"] == 2015)
-        & (res["unit"] == "Gt C / yr")
-        & (res["todo"] == "SET")
+    assert_mdata_value(
+        res,
+        expected,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2008,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
+
     expected = 8.5115 + (8.9504 - 8.5115) / 2
-    np.testing.assert_allclose(res[row].value, expected)
-
-    row = (
-        (res["variable"] == "Emissions|CFC11")
-        & (res["region"] == "World")
-        & (res["time"] == 1995)
-        & (res["unit"] == "kt CFC11 / yr")
-        & (res["todo"] == "SET")
+    assert_mdata_value(
+        res,
+        expected,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2015,
+        unit="Gt C / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 119.235)
 
-    row = (
-        (res["variable"] == "Emissions|CFC11")
-        & (res["region"] == "World")
-        & (res["time"] == 2015)
-        & (res["unit"] == "kt CFC11 / yr")
-        & (res["todo"] == "SET")
+    assert_mdata_value(
+        res,
+        119.235,
+        variable="Emissions|CFC11",
+        region="World",
+        year=1995,
+        unit="kt CFC11 / yr",
+        todo="SET",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 36.338)
+
+    assert_mdata_value(
+        res,
+        36.338,
+        variable="Emissions|CFC11",
+        region="World",
+        year=2015,
+        unit="kt CFC11 / yr",
+        todo="SET",
+    )
 
 
 @patch("pymagicc.io.MAGICCData")
@@ -2719,12 +2724,12 @@ def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
     tdf = "mocked as well"
     toutput = "mocked output"
 
-    mock_magicc_data.return_value.df.return_value = tdf
+    mock_magicc_data.return_value
     mock_join_timeseries_mdata.return_value = toutput
 
     res = join_timeseries(base=tbase, overwrite=toverwrite)
 
-    assert res == toutput
+    assert res == mock_magicc_data.return_value
 
     mock_join_timeseries_mdata.assert_called_with(tbase, toverwrite, None)
 
@@ -2733,125 +2738,101 @@ def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
 def join_base_df():
     bdf = pd.DataFrame(
         [
-            [2000, "Emissions|CO2", "GtC/yr", "World", 1.0],
-            [2010, "Emissions|CO2", "GtC/yr", "World", 2.0],
-            [2020, "Emissions|CO2", "GtC/yr", "World", 3.0],
-            [2000, "Emissions|CH4", "MtCH4/yr", "World", 1.1],
-            [2010, "Emissions|CH4", "MtCH4/yr", "World", 1.2],
-            [2020, "Emissions|CH4", "MtCH4/yr", "World", 1.3],
+            [2000, "Emissions|CO2", "GtC/yr", "World", 1.0, "a", "b"],
+            [2010, "Emissions|CO2", "GtC/yr", "World", 2.0, "a", "b"],
+            [2020, "Emissions|CO2", "GtC/yr", "World", 3.0, "a", "b"],
+            [2000, "Emissions|CH4", "MtCH4/yr", "World", 1.1, "a", "b"],
+            [2010, "Emissions|CH4", "MtCH4/yr", "World", 1.2, "a", "b"],
+            [2020, "Emissions|CH4", "MtCH4/yr", "World", 1.3, "a", "b"],
         ],
-        columns=["time", "variable", "unit", "region", "value"],
+        columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield bdf
+    yield MAGICCData(bdf).data.copy()
 
 
 @pytest.fixture(scope="function")
 def join_overwrite_df():
     odf = pd.DataFrame(
         [
-            [2015, "Emissions|CO2", "GtC/yr", "World", 1.0],
-            [2050, "Emissions|CO2", "GtC/yr", "World", 2.0],
-            [2100, "Emissions|CO2", "GtC/yr", "World", 3.0],
+            [2015, "Emissions|CO2", "GtC/yr", "World", 1.0, "a", "b"],
+            [2050, "Emissions|CO2", "GtC/yr", "World", 2.0, "a", "b"],
+            [2100, "Emissions|CO2", "GtC/yr", "World", 3.0, "a", "b"],
         ],
-        columns=["time", "variable", "unit", "region", "value"],
+        columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield odf
+    yield MAGICCData(odf).data.copy()
 
 
 def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
     msg = (
-        "nan values in joint arrays, this is likely because your input "
-        "timeseries do not all cover the same span"
+        "nan values in joint arrays, this is likely because, once joined, your "
+        "input timeseries do not all cover the same span. Dropping unfilled "
+        "regions, this likely means your output arrays do not all cover the same "
+        "span either."
     )
     with warnings.catch_warnings(record=True) as warn_result:
-        res = _join_timeseries_mdata(
-            base=join_base_df, overwrite=join_overwrite_df, join_linear=None
+        res = MAGICCData(
+            _join_timeseries_mdata(
+                base=join_base_df, overwrite=join_overwrite_df, join_linear=None
+            )
         )
 
     assert len(warn_result) == 1
     assert str(warn_result[0].message) == msg
 
-    row = (
-        (res["variable"] == "Emissions|CO2")
-        & (res["region"] == "World")
-        & (res["time"] == 2005)
-        & (res["unit"] == "GtC/yr")
+    assert_mdata_value(
+        res, 1.5, variable="Emissions|CO2", region="World", year=2005, unit="GtC/yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 1.5)
 
-    row = (
-        (res["variable"] == "Emissions|CO2")
-        & (res["region"] == "World")
-        & (res["time"] == 2015)
-        & (res["unit"] == "GtC/yr")
+    assert_mdata_value(
+        res, 1, variable="Emissions|CO2", region="World", year=2015, unit="GtC/yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 1.0)
 
-    row = (
-        (res["variable"] == "Emissions|CO2")
-        & (res["region"] == "World")
-        & (res["time"] == 2020)
-        & (res["unit"] == "GtC/yr")
+    assert_mdata_value(
+        res,
+        1 + (2 - 1) / 35 * 5,
+        variable="Emissions|CO2",
+        region="World",
+        year=2020,
+        unit="GtC/yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 1 + (2 - 1) / 35 * 5)
 
-    row = (
-        (res["variable"] == "Emissions|CH4")
-        & (res["region"] == "World")
-        & (res["time"] == 2020)
-        & (res["unit"] == "MtCH4/yr")
+    assert_mdata_value(
+        res, 1.3, variable="Emissions|CH4", region="World", year=2020, unit="MtCH4/yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 1.3)
 
-    row = (
-        (res["variable"] == "Emissions|CH4")
-        & (res["region"] == "World")
-        & (res["time"] == 2100)
-        & (res["unit"] == "MtCH4/yr")
-    )
-    assert sum(row) == 1
-    assert np.isnan(res[row].value).all()
+    assert res.filter(
+        variable="Emissions|CH4", region="World", year=2100, unit="MtCH4/yr"
+    ).data.empty
 
 
 def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
-    res = _join_timeseries_mdata(
-        base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
+    res = MAGICCData(
+        _join_timeseries_mdata(
+            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
+        )
     )
 
-    row = (
-        (res["variable"] == "Emissions|CO2")
-        & (res["region"] == "World")
-        & (res["time"] == 2012)
-        & (res["unit"] == "GtC/yr")
-    )
-    assert sum(row) == 1
     overwrite_co2_val_2020 = 1 + (2 - 1) / 35 * 5
     expected = 2 + (overwrite_co2_val_2020 - 2) / 10 * 2
-    np.testing.assert_allclose(res[row].value, expected)
-
-    row = (
-        (res["variable"] == "Emissions|CO2")
-        & (res["region"] == "World")
-        & (res["time"] == 2050)
-        & (res["unit"] == "GtC/yr")
+    assert_mdata_value(
+        res,
+        expected,
+        variable="Emissions|CO2",
+        region="World",
+        year=2012,
+        unit="GtC/yr",
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 2.0)
 
-    row = (
-        (res["variable"] == "Emissions|CH4")
-        & (res["region"] == "World")
-        & (res["time"] == 2020)
-        & (res["unit"] == "MtCH4/yr")
+    assert_mdata_value(
+        res, 2, variable="Emissions|CO2", region="World", year=2050, unit="GtC/yr"
     )
-    assert sum(row) == 1
-    np.testing.assert_allclose(res[row].value, 1.3)
+
+    assert_mdata_value(
+        res, 1.3, variable="Emissions|CH4", region="World", year=2020, unit="MtCH4/yr"
+    )
 
 
 def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite_df):
@@ -2891,16 +2872,16 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
     tmdata = 54
     treturn = 12
 
-    mock_magicc_data.return_value.read = MagicMock()
-    mock_magicc_data.return_value.df = tmdata
+    mock_magicc_data.return_value.data = MagicMock()
+    mock_magicc_data.return_value.data.copy.return_value = tmdata
 
     mock_join_timeseries_mdata.return_value = treturn
 
     res = join_timeseries(base=tbase, overwrite=toverwrite)
 
-    assert res == treturn
+    assert res == mock_magicc_data.return_value
 
-    assert mock_magicc_data.return_value.read.call_count == 2
+    assert mock_magicc_data.call_count == 3
     mock_join_timeseries_mdata.assert_called_with(tmdata, tmdata, None)
 
 
