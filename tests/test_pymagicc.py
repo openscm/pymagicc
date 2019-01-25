@@ -1,5 +1,5 @@
 import os
-from unittest.mock import MagicMock
+from unittest.mock import patch, MagicMock
 
 
 import pandas as pd
@@ -18,12 +18,11 @@ WORLD_ONLY = read_scen_file(
 )
 
 
-def test_read_scen_file():
-    MAGICCData.read = MagicMock()
+@patch("pymagicc.MAGICCData")
+def test_read_scen_file(mock_magicc_data):
     result = read_scen_file(RCP26_SCEN_FILE)
 
-    assert isinstance(result, MAGICCData)
-    MAGICCData.read.assert_called_with(RCP26_SCEN_FILE)
+    mock_magicc_data.assert_called_with(RCP26_SCEN_FILE)
 
 
 def do_basic_run_checks(results):
@@ -49,11 +48,12 @@ def test_run_rcp26(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp26, magicc_version=package.version)
 
-    result_temp = results.df[
-        (results.df.variable == "Surface Temperature")
-        & (results.df.time == 2100)
-        & (results.df.region == "World")
-    ].value.values
+    result_temp = results.filter(
+        variable="Surface Temperature",
+        year=2100,
+        region="World",
+    )["value"]
+
     np.testing.assert_allclose(result_temp, 1.563254, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -64,11 +64,11 @@ def test_run_rcp45(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp45, magicc_version=package.version)
 
-    result_temp = results.df[
-        (results.df.variable == "Surface Temperature")
-        & (results.df.time == 2100)
-        & (results.df.region == "World")
-    ].value.values
+    result_temp = results.filter(
+        variable="Surface Temperature",
+        year=2100,
+        region="World",
+    )["value"]
     np.testing.assert_allclose(result_temp, 2.497057, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -79,11 +79,11 @@ def test_run_rcp60(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp60, magicc_version=package.version)
 
-    result_temp = results.df[
-        (results.df.variable == "Surface Temperature")
-        & (results.df.time == 2100)
-        & (results.df.region == "World")
-    ].value.values
+    result_temp = results.filter(
+        variable="Surface Temperature",
+        year=2100,
+        region="World",
+    )["value"]
     np.testing.assert_allclose(result_temp, 3.102484, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -94,11 +94,11 @@ def test_run_rcp85(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp85, magicc_version=package.version)
 
-    result_temp = results.df[
-        (results.df.variable == "Surface Temperature")
-        & (results.df.time == 2100)
-        & (results.df.region == "World")
-    ].value.values
+    result_temp = results.filter(
+        variable="Surface Temperature",
+        year=2100,
+        region="World",
+    )["value"]
     np.testing.assert_allclose(result_temp, 4.676012, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -123,8 +123,8 @@ def test_set_years():
     results = run(rcp26, out_parameters=True, startyear=1900, endyear=2000)
     assert results.metadata["parameters"]["years"]["startyear"] == 1900
     assert results.metadata["parameters"]["years"]["endyear"] == 2000
-    assert results.df.time.min() == 1900
-    assert results.df.time.max() == 2000
+    assert results["time"].min().year == 1900
+    assert results["time"].max().year == 2000
 
 
 @pytest.mark.xfail(
