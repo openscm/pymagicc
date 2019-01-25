@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#198 <https://github.com/openclimatedata/pymagicc/pull/198>`_) Move all install requirements into ``setup.py``
 - (`#190 <https://github.com/openclimatedata/pymagicc/pull/190>`_) Speed up diagnosis of TCR and ECS by removing writing of scenario file
 - (`#191 <https://github.com/openclimatedata/pymagicc/pull/191>`_) Fixed bugs which meant config passed to MAGICC wasn't handled correctly and renamed `tests/test_api.py` to `tests/test_core.py`.
 - (`#187 <https://github.com/openclimatedata/pymagicc/pull/187>`_) Added `pymagicc.io.join_timeseries` which simplifies joining/merging scenarios to create custom scenarios
