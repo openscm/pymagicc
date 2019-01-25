@@ -9,9 +9,9 @@ before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
   - sudo apt-get install --no-install-recommends -y wine
-  - pip install nbval matplotlib git+https://github.com/thedataincubator/expectexception.git@master notebook
+  - pip install --upgrade pip
 install:
-  - pip install -e .[test]
+  - pip install .[tests]
 script:
   - pytest --cov -rfsxEX
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then ./scripts/test_notebooks.sh; fi
