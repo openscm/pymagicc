@@ -169,7 +169,9 @@ def test_run_success_binary(package):
 
 
 def test_run_success_update_config(package):
-    package.set_output_variables(keydata_2=True, parameters=1, write_ascii=False, write_binary=True)
+    package.set_output_variables(
+        keydata_2=True, parameters=1, write_ascii=False, write_binary=True
+    )
     results = package.run()
 
     assert isinstance(results, MAGICCData)
@@ -303,7 +305,7 @@ def test_diagnose_tcr_ecs(
             "Atmospheric Concentrations|CO2",
             "Radiative Forcing",
             "Surface Temperature",
-        ]
+        ],
     )
     assert mock_get_tcr_ecs_from_results.call_count == 1
     assert mock_get_tcr_ecs_from_results.call_count == 1
@@ -782,10 +784,12 @@ def test_pymagicc_writing_has_an_effect(
                 "scen_histadjust_0no1scale2shift": 0,
             },
             [("Emissions|C2F6", "World", 2050, "kt C2F6 / yr", 0.4712)],
-        ),
+        )
     ],
 )
-def test_pymagicc_writing_compatibility_203(package, test_filename, relevant_config, outputs_to_check):
+def test_pymagicc_writing_compatibility_203(
+    package, test_filename, relevant_config, outputs_to_check
+):
     if ("SCEN" in test_filename) and (package.version == 7):
         # special undocumented flags!!!
         relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
@@ -800,6 +804,11 @@ def test_pymagicc_writing_compatibility_203(package, test_filename, relevant_con
 
     for output_to_check in outputs_to_check:
         expected = output_to_check[-1]
-        result = results.df[(results.df["variable"] == output_to_check[0]) & (results.df["region"] == output_to_check[1]) & (results.df["time"] == output_to_check[2]) & (results.df["unit"] == output_to_check[3])]["value"].values
+        result = results.df[
+            (results.df["variable"] == output_to_check[0])
+            & (results.df["region"] == output_to_check[1])
+            & (results.df["time"] == output_to_check[2])
+            & (results.df["unit"] == output_to_check[3])
+        ]["value"].values
 
         assert expected == result

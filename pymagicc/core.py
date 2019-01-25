@@ -603,7 +603,7 @@ class MAGICCBase(object):
                 "Atmospheric Concentrations|CO2",
                 "Radiative Forcing",
                 "Surface Temperature",
-            ]
+            ],
         ).df
         tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}

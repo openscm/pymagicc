@@ -1854,6 +1854,71 @@ def test_load_out():
     np.testing.assert_allclose(mdata.df[row].value, 0.0)
 
 
+def test_load_out_emis():
+    mdata = MAGICCData()
+    mdata.read(join(TEST_OUT_DIR, "DAT_BCB_EMIS.OUT"))
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert (mdata.df.todo == "N/A").all()
+    assert (mdata.df.unit == "Mt BC / yr").all()
+    assert (mdata.df.variable == "Emissions|BC|MAGICC AFOLU").all()
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1765)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World")
+        & (mdata.df["time"] == 1965)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.20025816)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1769)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World|Southern Hemisphere|Ocean")
+        & (mdata.df["time"] == 1820)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.0)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World|Northern Hemisphere|Land")
+        & (mdata.df["time"] == 2093)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.71504927)
+
+    row = (
+        (mdata.df["variable"] == "Emissions|BC|MAGICC AFOLU")
+        & (mdata.df["region"] == "World|Southern Hemisphere|Land")
+        & (mdata.df["time"] == 2100)
+    )
+    assert sum(row) == 1
+    np.testing.assert_allclose(mdata.df[row].value, 0.48390716)
+
+
 def test_load_out_slash_and_caret_in_rf_units():
     mdata = MAGICCData()
     mdata.read(join(TEST_OUT_DIR, "DAT_SOXB_RF.OUT"))
@@ -2379,6 +2444,9 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
     else:
         mdata = MAGICCData()
         mdata.read(join(MAGICC6_DIR, file_to_read))
+        # make sure that no emissions units are read in bare e.g. the units of BC
+        # should be Mt BC / time, not simply Mt
+        assert not mdata.df["unit"].isin(["kt", "Mt"]).any()
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
@@ -2391,6 +2459,9 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
                 return
         mdata = MAGICCData()
         mdata.read(join(TEST_OUT_DIR, file_to_read))
+        # make sure that no emissions units are read in bare e.g. the units of BC
+        # should be Mt BC / time, not simply Mt
+        assert not mdata.df["unit"].isin(["kt", "Mt"]).any()
 
 
 @pytest.mark.parametrize("file_to_read", [f for f in TEST_OUT_FILES])
@@ -2825,13 +2896,12 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
 
     mock_join_timeseries_mdata.return_value = treturn
 
-    res = join_timeseries(
-        base=tbase, overwrite=toverwrite
-    )
+    res = join_timeseries(base=tbase, overwrite=toverwrite)
 
     assert res == treturn
 
     assert mock_magicc_data.return_value.read.call_count == 2
     mock_join_timeseries_mdata.assert_called_with(tmdata, tmdata, None)
+
 
 # TODO: improve join timeseries so it can also handle datetimes in the time axis
