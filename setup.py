@@ -16,11 +16,19 @@ GitHub repository at https://github.com/openclimatedata/pymagicc.
 """
 import versioneer
 
-import os
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-path = os.path.abspath(os.path.dirname(__file__))
+PACKAGE_NAME = "pymagicc"
+AUTHOR = "Robert Gieseke"
+EMAIL = "robert.gieseke@pik-potsdam.de"
+URL = "https://github.com/openclimatedata/pymagicc"
+
+DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
+README = "README.rst"
+
+with open(README, "r") as f:
+    README_TEXT = f.read()
 
 
 class PyTest(TestCommand):
@@ -35,10 +43,6 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
-with open(os.path.join(path, "README.rst"), "r") as f:
-    readme = f.read()
-
-
 cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
@@ -48,19 +52,26 @@ install_requirements = [
     "f90nml",
     "pyam-iamc",
     "PyYAML",
+    "expectexception @ git+https://github.com/thedataincubator/expectexception.git@master",
+     "ipywidgets",
+     "appmode",
 ]
 
-extra_requirements = {"test": ["pytest", "pytest-cov", "codecov", "goodtables"]}
+extra_requirements = {
+    "tests": ["pytest>=4.0", "pytest-cov", "codecov", "goodtables", "notebook", "matplotlib", "nbval", "goodtables"],
+    "docs": ["sphinx>=1.4", "sphinx_rtd_theme", "sphinx-autodoc-typehints", "pydoc-markdown"],
+    "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0", "flake8", "black", "versioneer"],
+}
 
 setup(
-    name="pymagicc",
+    name=PACKAGE_NAME,
     version=versioneer.get_version(),
-    description="Python wrapper for the simple climate model MAGICC",
-    long_description=readme,
+    description=DESCRIPTION,
+    long_description=README_TEXT,
     long_description_content_type="text/x-rst",
-    author="Robert Gieseke",
-    author_email="robert.gieseke@pik-potsdam.de",
-    url="https://github.com/openclimatedata/pymagicc",
+    author=AUTHOR,
+    author_email=EMAIL,
+    url=URL,
     license="GNU Affero General Public License v3",
     keywords=[],
     classifiers=[
