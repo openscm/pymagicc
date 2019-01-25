@@ -50,11 +50,12 @@ install_requirements = [
     "pandas",
     "pandas-datapackage-reader",
     "f90nml",
-    "pyam-iamc",
+    "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@master",
     "PyYAML",
     "expectexception @ git+https://github.com/thedataincubator/expectexception.git@684560f4dfb8cb69eb0693a1605ec0e81fd9b42a",
      "ipywidgets",
      "appmode",
+     "openscm @ git+https://github.com/openclimatedata/openscm.git@add-openscm-dataframe"
 ]
 
 extra_requirements = {
