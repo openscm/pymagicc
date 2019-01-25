@@ -16,7 +16,7 @@ from openscm.highlevel import OpenSCMDataFrame
 from pymagicc import MAGICC6
 from pymagicc.io import (
     MAGICCData,
-    _InputReader,
+    _Reader,
     _ConcInReader,
     _ScenWriter,
     read_cfg_file,
@@ -2247,7 +2247,7 @@ def test_invalid_name():
 
 
 def test_header_metadata():
-    m = _InputReader("test")
+    m = _Reader("test")
     assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
     assert m.process_header("") == {}
     assert m.process_header("Data: Average emissions per year") == {
@@ -2266,7 +2266,7 @@ def test_header_metadata():
         "DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
     ) == {"date": "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"}
 
-    m = _InputReader("test")
+    m = _Reader("test")
     assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
     assert m.process_header("") == {}
     assert m.process_header("Data: Average emissions per year\nother text") == {
@@ -2287,14 +2287,14 @@ def test_magicc_input_init():
 
 
 def test_set_lines():
-    reader = _InputReader("test")
+    reader = _Reader("test")
     with pytest.raises(FileNotFoundError):
         reader._set_lines()
 
     test_file = join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
     assert isfile(test_file)
 
-    reader = _InputReader(test_file)
+    reader = _Reader(test_file)
     reader._set_lines()
     with open(test_file, "r", encoding="utf-8", newline="\n") as f:
         assert reader.lines == f.readlines()

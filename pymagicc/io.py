@@ -85,7 +85,7 @@ class InvalidTemporalResError(ValueError):
     pass
 
 
-class _InputReader(object):
+class _Reader(object):
     header_tags = [
         "compiled by",
         "contact",
@@ -266,8 +266,8 @@ class _InputReader(object):
     def _get_columns_multiindex_from_column_headers(self, ch):
         l = len(ch["variables"])
         ch.setdefault("climate_models", ["MAGICC"] * l)
-        ch.setdefault("models", ["tbc"] * l)
-        ch.setdefault("scenarios", ["tbc"] * l)
+        ch.setdefault("models", ["unspecified"] * l)
+        ch.setdefault("scenarios", ["unspecified"] * l)
         return pd.MultiIndex.from_arrays(
             [
                 ch["variables"],
@@ -463,7 +463,7 @@ class _InputReader(object):
         return column_headers
 
 
-class _FourBoxReader(_InputReader):
+class _FourBoxReader(_Reader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
@@ -528,7 +528,7 @@ class _RadiativeForcingInReader(_FourBoxReader):
         return column_headers, metadata
 
 
-class _EmisInReader(_InputReader):
+class _EmisInReader(_Reader):
     def _read_units(self, column_headers):
         column_headers = super()._read_units(column_headers)
 
@@ -714,7 +714,7 @@ class _ScenReader(_NonStandardEmisInReader):
         return notes
 
 
-class _RCPDatReader(_InputReader):
+class _RCPDatReader(_Reader):
     def read(self):
         self._set_lines()
 
@@ -948,7 +948,7 @@ class _EmisOutReader(_EmisInReader, _OutReader):
     pass
 
 
-class _TempOceanLayersOutReader(_InputReader):
+class _TempOceanLayersOutReader(_Reader):
     _regexp_capture_variable = re.compile(r"(TEMP\_OCEANLAYERS\_?\w*)\.OUT$")
     _default_todo_fill_value = "N/A"
 
@@ -1004,7 +1004,7 @@ class _BinData(object):
         return res
 
 
-class _BinaryOutReader(_InputReader):
+class _BinaryOutReader(_Reader):
     _regexp_capture_variable = re.compile(r"DAT\_(.*)\.BINOUT$")
     _default_todo_fill_value = "N/A"
 
@@ -1177,7 +1177,7 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
     return region_dattype_row
 
 
-class _InputWriter(object):
+class _Writer(object):
     """Base class for writing MAGICC input files.
 
     Attributes
@@ -1409,19 +1409,19 @@ class _InputWriter(object):
         return self.data_block.columns.get_level_values(col_name).tolist()
 
 
-class _ConcInWriter(_InputWriter):
+class _ConcInWriter(_Writer):
     pass
 
 
-class _OpticalThicknessInWriter(_InputWriter):
+class _OpticalThicknessInWriter(_Writer):
     pass
 
 
-class _RadiativeForcingInWriter(_InputWriter):
+class _RadiativeForcingInWriter(_Writer):
     pass
 
 
-class _HistEmisInWriter(_InputWriter):
+class _HistEmisInWriter(_Writer):
     _variable_header_row_name = "GAS"
 
     def _get_df_header_row(self, col_name):
@@ -1433,7 +1433,7 @@ class _Scen7Writer(_HistEmisInWriter):
     _scen_7 = True
 
 
-class _PrnWriter(_InputWriter):
+class _PrnWriter(_Writer):
     def _write_header(self, output):
         output.write(self._get_header())
         return output
@@ -1549,7 +1549,7 @@ class _PrnWriter(_InputWriter):
         return data_block
 
 
-class _ScenWriter(_InputWriter):
+class _ScenWriter(_Writer):
     SCEN_VARS_CODE_0 = convert_magicc7_to_openscm_variables(
         [v + "_EMIS" for v in PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0]
     )
@@ -1829,6 +1829,13 @@ class MAGICCData(OpenSCMDataFrame):
     def __init__(self, data):
         """
         Initialise a MAGICCData object.
+
+        Parameters
+        ----------
+        data : str, pd.DataFrame, pd.Series
+            The data with which to initialise the MAGICCData instance. If data is a str, it is assumed to be a filepath and the data is read from disk before being used to initialise the MAGICCData instance.
+
+
         """
         # TODO: refactor to mirror pyam
         if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
