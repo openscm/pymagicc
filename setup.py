@@ -60,7 +60,8 @@ install_requirements = [
 extra_requirements = {
     "tests": ["pytest>=4.0", "pytest-cov", "codecov", "goodtables", "notebook", "matplotlib", "nbval", "goodtables"],
     "docs": ["sphinx>=1.4", "sphinx_rtd_theme", "sphinx-autodoc-typehints", "pydoc-markdown"],
-    "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0", "flake8", "black"],
+    "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"],
+    "dev": ["flake8", "black"]
 }
 
 setup(
