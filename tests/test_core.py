@@ -158,7 +158,33 @@ def test_run_success(package):
     assert len(results.variables()) > 1
     assert "Surface Temperature" in results.variables().values
 
+    assert (results["climate_model"] == "MAGICC{}".format(package.version)).all()
+    # running with preset information should result in unspecified everywhere
+    # only running from an IamDataFrame instance should automatically fill model
+    # and scenario columns
+    assert (results["model"] == "unspecified").all()
+    assert (results["scenario"] == "unspecified").all()
+
     assert len(package.config.keys()) != 0
+
+
+def test_run_with_magiccdata(package, temp_dir):
+    tmodel = "IMAGE"
+    tscenario = "RCP26"
+    scen = MAGICCData(
+        join(MAGICC6_DIR, "RCP26.SCEN"),
+        model=tmodel,
+        scenario=tscenario,
+    )
+
+    results = package.run(scen, only=["Surface Temperature"])
+
+    assert len(results.variables()) == 1
+    assert "Surface Temperature" in results.variables().values
+
+    assert (results["climate_model"] == "MAGICC{}".format(package.version)).all()
+    assert (results["model"] == tmodel).all()
+    assert (results["scenario"] == tscenario).all()
 
 
 def test_run_success_binary(package):

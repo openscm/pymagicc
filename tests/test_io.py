@@ -577,6 +577,9 @@ def test_load_scen():
 
     generic_mdata_tests(mdata)
 
+    assert (mdata["model"] == "unspecified").all()
+    assert (mdata["scenario"] == "unspecified").all()
+    assert (mdata["climate_model"] == "unspecified").all()
     assert (
         mdata.metadata["date"]
         == "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
@@ -732,6 +735,25 @@ def test_load_scen():
         unit="kt HFC125 / yr",
         todo="SET",
     )
+
+
+def test_load_scen_specify_metadata():
+    tmodel = "MESSAGE"
+    tscenario = "RCP45"
+    tclimate_model = "MAGICC6"
+
+    mdata = MAGICCData(
+        join(MAGICC6_DIR, "RCP26.SCEN"),
+        model=tmodel,
+        scenario=tscenario,
+        climate_model=tclimate_model
+    )
+
+    generic_mdata_tests(mdata)
+
+    assert (mdata["model"] == tmodel).all()
+    assert (mdata["scenario"] == tscenario).all()
+    assert (mdata["climate_model"] == tclimate_model).all()
 
 
 def test_load_scen_year_first_column():
