@@ -10,7 +10,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
-from pymagicc.openscmdataframe import OpenSCMDataFrame
+from openscm.highlevel import OpenSCMDataFrame
 
 
 from pymagicc import MAGICC6
@@ -66,8 +66,8 @@ def generic_mdata_tests(mdata):
                 "climate_model",
                 "model",
                 "scenario",
-                "value",
                 "time",
+                "value",
             ]
         ),
     )
@@ -1884,8 +1884,7 @@ def test_load_out():
 
 
 def test_load_out_emis():
-    mdata = MAGICCData()
-    mdata.read(join(TEST_OUT_DIR, "DAT_BCB_EMIS.OUT"))
+    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_BCB_EMIS.OUT"))
 
     generic_mdata_tests(mdata)
 
@@ -2453,7 +2452,7 @@ def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
     elif file_to_read.endswith(".CFG"):
         read_cfg_file(join(MAGICC6_DIR, file_to_read))
     else:
-        MAGICCData(join(MAGICC6_DIR, file_to_read))
+        mdata = MAGICCData(join(MAGICC6_DIR, file_to_read))
         # make sure that no emissions units are read in bare e.g. the units of BC
         # should be Mt BC / time, not simply Mt
         assert not mdata["unit"].isin(["kt", "Mt"]).any()
@@ -2467,7 +2466,7 @@ def test_can_read_all_valid_files_in_magicc6_out_dir(file_to_read):
         for p in INVALID_OUT_FILES:
             if re.match(p, file_to_read):
                 return
-        MAGICCData(join(TEST_OUT_DIR, file_to_read))
+        mdata = MAGICCData(join(TEST_OUT_DIR, file_to_read))
         # make sure that no emissions units are read in bare e.g. the units of BC
         # should be Mt BC / time, not simply Mt
         assert not mdata["unit"].isin(["kt", "Mt"]).any()
@@ -2538,7 +2537,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
             ["a", "b", "World", "PE|Coal", "EJ/y", 2010, 1.2],
             ["a", "b", "World", "PE|Gas", "EJ/y", 2010, 7.9],
         ],
-        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
+        columns=["model", "scenario", "region", "variable", "unit", "time", "value"],
     )
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
@@ -2548,7 +2547,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
             ["d", "e", "World|ASIA", "GE|Coal", "J/y", 2015, 3.2],
             ["d", "e", "World|ASIA", "GE|Gas", "J/y", 2015, 7.1],
         ],
-        columns=["model", "scenario", "region", "variable", "unit", "year", "value"],
+        columns=["model", "scenario", "region", "variable", "unit", "time", "value"],
     )
 
     mock_read_and_return_metadata_df.return_value = (tmetadata_init, tdf_init)
@@ -2657,7 +2656,7 @@ def test_join_timeseries():
     base = mdata.data.copy()
     base["todo"] = "SET"
 
-    mdata.read(join(MAGICC6_DIR, "RCP60.SCEN"))
+    mdata= MAGICCData(join(MAGICC6_DIR, "RCP60.SCEN"))
     scen = mdata.data.copy()
 
     res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
@@ -2767,10 +2766,10 @@ def join_overwrite_df():
 
 def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
     msg = (
-        "nan values in joint arrays, this is likely because, once joined, your "
-        "input timeseries do not all cover the same span. Dropping unfilled "
-        "regions, this likely means your output arrays do not all cover the same "
-        "span either."
+        "There are nan values in joint arrays, this is likely because, once "
+        "joined, your input timeseries do not all cover the same timespan. I will "
+        "drop the unfilled regions. However, this likely means that your "
+        "output arrays do not all cover the same timespan either."
     )
     with warnings.catch_warnings(record=True) as warn_result:
         res = MAGICCData(

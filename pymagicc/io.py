@@ -2,6 +2,8 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
+from datetime import datetime, timedelta
+from calendar import monthrange
 import warnings
 
 
@@ -11,6 +13,7 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
+from openscm.highlevel import OpenSCMDataFrame
 
 
 from .utils import apply_string_substitutions
@@ -211,6 +214,7 @@ class _InputReader(object):
         """
         ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
         df = self._convert_data_block_and_headers_to_df(stream, ch)
+
         return df, metadata
 
     def _convert_data_block_and_headers_to_df(self, stream, column_headers):
@@ -242,20 +246,46 @@ class _InputReader(object):
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
         df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
-        self._convert_to_string_columns(df)
-
         return df
 
     def _convert_to_string_columns(self, df):
-        for categorical_column in ["variable", "todo", "unit", "region"]:
+        for categorical_column in [
+            "variable",
+            "todo",
+            "unit",
+            "region",
+            "model",
+            "scenario",
+            "climate_model",
+        ]:
             df[categorical_column] = df[categorical_column].astype(str)
 
         return df
 
     def _get_columns_multiindex_from_column_headers(self, ch):
+        l = len(ch["variables"])
+        ch.setdefault("climate_models", ["MAGICC"] * l)
+        ch.setdefault("models", ["tbc"] * l)
+        ch.setdefault("scenarios", ["tbc"] * l)
         return pd.MultiIndex.from_arrays(
-            [ch["variables"], ch["todos"], ch["units"], ch["regions"]],
-            names=("variable", "todo", "unit", "region"),
+            [
+                ch["variables"],
+                ch["todos"],
+                ch["units"],
+                ch["regions"],
+                ch["climate_models"],
+                ch["models"],
+                ch["scenarios"],
+            ],
+            names=(
+                "variable",
+                "todo",
+                "unit",
+                "region",
+                "climate_model",
+                "model",
+                "scenario",
+            ),
         )
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
@@ -1182,14 +1212,8 @@ class _InputWriter(object):
             Filepath of the file to write to.
         """
         # TODO: make copy attribute for MAGICCData
-        self.minput = type(magicc_input)()
-        self.minput.df = magicc_input.df.copy()
-        self.minput.metadata = deepcopy(magicc_input.metadata)
-
-        # pivot the data table before moving on
-        self.minput.df = self.minput.df.pivot_table(
-            values="value", index="time", columns=["variable", "todo", "unit", "region"]
-        )
+        self.minput = deepcopy(magicc_input)
+        self.data_block = self._get_data_block()
 
         output = StringIO()
 
@@ -1264,12 +1288,13 @@ class _InputWriter(object):
         output.write(pd_pad)
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
+
         data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
         output.write(self._newline_char)
         return output
 
     def _get_initial_nml_and_data_block(self):
-        data_block = self._get_data_block()
+        data_block = self.data_block
 
         regions = convert_magicc_to_openscm_regions(
             data_block.columns.get_level_values("region").tolist(), inverse=True
@@ -1329,7 +1354,11 @@ class _InputWriter(object):
         return nml, data_block
 
     def _get_data_block(self):
-        data_block = self.minput.df.copy()
+        data_block = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
@@ -1339,10 +1368,44 @@ class _InputWriter(object):
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         data_block = data_block.reindex(region_order, axis=1, level="region")
 
+        data_block = self._convert_data_block_to_magicc_time(data_block)
+
+        return data_block
+
+    def _convert_data_block_to_magicc_time(self, data_block):
+        timestamp_months = data_block.index.map(lambda x: x.month)
+        no_months = len(timestamp_months.unique())
+        if no_months == 1:  # yearly data
+            data_block.index = data_block.index.map(lambda x: x.year)
+        else:
+
+            def _convert_to_decimal_year(itime):
+                # MAGICC dates are to nearest month at most precise
+                year = itime.year
+                month = itime.month
+                _, month_days = monthrange(year, month)
+                day = itime.day
+                hr = itime.hour
+                month_fraction = (day + hr / 24) / month_days
+                # decide if midyear or start of year
+                if np.round(month_fraction, 1) == 0.5:
+                    decimal_bit = ((month - 1) * 2 + 1) / 24
+                elif np.round(month_fraction, 1) == 0:
+                    decimal_bit = (month - 1) / 12
+                else:
+                    error_msg = (
+                        "Your timestamps don't appear to be middle or start of month"
+                    )
+                    raise ValueError(error_msg)
+
+                return np.round(year + decimal_bit, 3)  # match MAGICC precision
+
+            data_block.index = data_block.index.map(_convert_to_decimal_year)
+
         return data_block
 
     def _get_df_header_row(self, col_name):
-        return self.minput.df.columns.get_level_values(col_name).tolist()
+        return self.data_block.columns.get_level_values(col_name).tolist()
 
 
 class _ConcInWriter(_InputWriter):
@@ -1379,9 +1442,13 @@ class _PrnWriter(_InputWriter):
 
     def _write_datablock(self, output):
         lines = output.getvalue().split(self._newline_char)
-        data_block = self._get_data_block()
 
-        units = self.minput.df.columns.get_level_values("unit").unique()
+        data_block_full = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
+        units = data_block_full.columns.get_level_values("unit").unique()
         unit = units[0].split(" ")[0]
         if unit == "t":
             assert all(
@@ -1397,6 +1464,8 @@ class _PrnWriter(_InputWriter):
             other_col_format_str = "{:9.3e}".format
         else:
             raise ValueError("Unit of {} is not recognised for prn file".format(unit))
+
+        data_block = self._get_data_block()
 
         # line with number of rows to skip, start year and end year
         no_indicator_lines = 1
@@ -1449,9 +1518,14 @@ class _PrnWriter(_InputWriter):
         return output
 
     def _get_data_block(self):
-        data_block = self.minput.df.copy()
+        data_block = self.minput.pivot_table(
+            index="time",
+            columns=["variable", "todo", "unit", "region"],  # drop everything else
+            aggfunc="sum",
+        )
+        # probably not necessary but a sensible check
+        assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
-        data_block.columns = data_block.columns.get_level_values("variable")
         magicc7_vars = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable"), inverse=True
         )
@@ -1463,12 +1537,12 @@ class _PrnWriter(_InputWriter):
 
         emms_assert_msg = (
             "Prn files must have, and only have, "
-            "the following species: ".format(PART_OF_PRNFILE)
+            "the following species: {}".format(PART_OF_PRNFILE)
         )
         assert set(data_block.columns) == set(PART_OF_PRNFILE), emms_assert_msg
 
         data_block.index.name = "Years"
-
+        data_block = self._convert_data_block_to_magicc_time(data_block)
         data_block.reset_index(inplace=True)
 
         return data_block
@@ -1483,25 +1557,21 @@ class _ScenWriter(_InputWriter):
     )
 
     def write(self, magicc_input, filepath):
-        orig_vars = list(magicc_input.df["variable"].unique())
+        orig_length = len(magicc_input)
+        orig_vars = magicc_input.variables()
 
         if not (set(self.SCEN_VARS_CODE_1) - set(orig_vars)):
-            magicc_input.df = magicc_input.df[
-                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_1)
-            ]
+            magicc_input.filter(variable=self.SCEN_VARS_CODE_1, inplace=True)
         elif not (set(self.SCEN_VARS_CODE_0) - set(orig_vars)):
-            magicc_input.df = magicc_input.df[
-                magicc_input.df["variable"].isin(self.SCEN_VARS_CODE_0)
-            ]
-
-        if len(magicc_input.df["variable"].unique()) != len(orig_vars):
+            magicc_input.filter(variable=self.SCEN_VARS_CODE_0, inplace=True)
+        if len(magicc_input) != orig_length:
             warnings.warn("Ignoring input data which is not required for .SCEN file")
 
         super().write(magicc_input, filepath)
 
     def _write_header(self, output):
         header_lines = []
-        header_lines.append("{}".format(len(self.minput.df)))
+        header_lines.append("{}".format(len(self.data_block)))
 
         variables = self._get_df_header_row("variable")
         variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
@@ -1577,7 +1647,7 @@ class _ScenWriter(_InputWriter):
         # explosion will be cryptic so should add a test for good error
         # message at some point
         formatters = [other_col_format_str] * (
-            int(len(self.minput.df.columns) / len(region_order))
+            int(len(self.data_block.columns) / len(region_order))
             + 1  # for the years column
         )
         formatters[0] = first_col_format_str
@@ -1599,7 +1669,7 @@ class _ScenWriter(_InputWriter):
 
         for region in region_order:
             region_block_region = convert_magicc_to_openscm_regions(region)
-            region_block = self.minput.df.xs(
+            region_block = self.data_block.xs(
                 region_block_region, axis=1, level="region", drop_level=False
             )
             region_block.columns = region_block.columns.droplevel("todo")
@@ -1707,7 +1777,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(object):
+class MAGICCData(OpenSCMDataFrame):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -1755,29 +1825,69 @@ class MAGICCData(object):
         The file the data was loaded from.
     """
 
-    def __init__(self):
+    def __init__(self, data):
         """
         Initialise a MAGICCData object.
         """
-        self.df = None
-        self.metadata = {}
-        self.filepath = None
+        # TODO: refactor to mirror pyam
+        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+            self.filepath = None
+            self.metadata = {}
+            self.data = data
+        else:
+            filepath = data  # assume filepath
+            self.filepath = filepath
+            self.metadata, self.data = _read_and_return_metadata_df(filepath)
 
-    def __getitem__(self, item):
-        """
-        Allow for lazy loading.
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return self[item]
+        self._format_datetime_col()
+        super().__init__(self.data)
 
-    def __getattr__(self, item):
-        """
-        Proxy any attributes/functions on the dataframe.
-        """
-        if not self.is_loaded:
-            self._raise_not_loaded_error()
-        return getattr(self.df, item)
+    def _format_datetime_col(self):
+        time_srs = self.data["time"]
+        if isinstance(time_srs.iloc[0], datetime):
+            pass
+        elif time_srs.iloc[0].dtype <= np.int:
+            # years, put in middle of year
+            time_srs = time_srs.apply(lambda x: datetime(x, 7, 12))
+        else:
+            # decimal years
+            def _convert_to_datetime(decimal_year):
+                # MAGICC dates are to nearest month at most precise
+                year = int(decimal_year)
+                month_decimal = decimal_year % 1 * 12
+                month_fraction = month_decimal % 1
+                # decide if start, middle or end of month
+                if np.round(month_fraction, 1) == 1:
+                    # MAGICC is never actually end of month, this case is just due to
+                    # rounding errors. E.g. in MAGICC, 1000.083 is year 1000, start of
+                    # February, but 0.083 * 12 = 0.96. Hence to get the right month,
+                    # i.e. February, after rounding down we need the + 2 below.
+                    month = int(month_decimal) + 2
+                    day = 1
+                    hour = 1
+                    month += 1
+                elif np.round(month_fraction, 1) == 0.5:
+                    month = int(np.ceil(month_decimal))
+                    _, month_days = monthrange(year, month)
+                    day_decimal = month_days * 0.5
+                    day = int(day_decimal)
+                    hour = int(day_decimal % 1 * 24)
+                elif np.round(month_fraction, 1) == 0:
+                    month = int(month_decimal) + 1
+                    day = 1
+                    hour = 1
+                else:
+                    error_msg = (
+                        "Your timestamps don't appear to be middle or start of month"
+                    )
+                    raise ValueError(error_msg)
+
+                res = datetime(year, month, day, hour)
+                return res
+
+            time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
+
+        self.data["time"] = time_srs
 
     def _raise_not_loaded_error(self):
         raise ValueError("File has not been read from disk yet")
@@ -1785,26 +1895,7 @@ class MAGICCData(object):
     @property
     def is_loaded(self):
         """bool: Whether the data has been loaded yet."""
-        return self.df is not None
-
-    def read(self, filepath):
-        """
-        Read an input file from disk.
-
-        The resulting data is assigned to the ``df`` attribute of ``self`` whilst the
-        metadata is stored in the ``metadata`` attribute.
-
-        Parameters
-        ----------
-        filepath : str
-            Filepath of the file to read.
-        """
-        _check_file_exists(filepath)
-        self.metadata, self.df = self._read_and_return_metadata_df(filepath)
-
-    def _read_and_return_metadata_df(self, filepath):
-        reader = self.determine_tool(filepath, "reader")(filepath)
-        return reader.read()
+        return self.data is not None
 
     def append(self, filepath):
         """
@@ -1822,15 +1913,10 @@ class MAGICCData(object):
         """
         filepath = [filepath] if isinstance(filepath, str) else filepath
 
-        dfs_to_add = [] if self.df is None else [self.df]
-
         for fp in filepath:
-            metadata_to_add, df_to_add = self._read_and_return_metadata_df(fp)
-
+            metadata_to_add, df_to_add = _read_and_return_metadata_df(fp)
             self.metadata.update(metadata_to_add)
-            dfs_to_add.append(df_to_add)
-
-        self.df = pd.concat(dfs_to_add)
+            super().append(MAGICCData(df_to_add), inplace=True)
 
     def write(self, filepath, magicc_version):
         """
@@ -1846,149 +1932,155 @@ class MAGICCData(object):
             namelists are incompatible hence we need to know which one we're writing
             for.
         """
-        writer = self.determine_tool(filepath, "writer")(magicc_version=magicc_version)
+        writer = determine_tool(filepath, "writer")(magicc_version=magicc_version)
         writer.write(self, filepath)
 
-    def determine_tool(self, filepath, tool_to_get):
-        """
-        Determine the tool to use for reading/writing.
 
-        The function uses an internally defined set of mappings between filepaths,
-        regular expresions and readers/writers to work out which tool to use
-        for a given task, given the filepath.
+def determine_tool(filepath, tool_to_get):
+    """
+    Determine the tool to use for reading/writing.
 
-        It is intended for internal use only, but is public because of its
-        importance to the input/output of pymagicc.
+    The function uses an internally defined set of mappings between filepaths,
+    regular expresions and readers/writers to work out which tool to use
+    for a given task, given the filepath.
 
-        If it fails, it will give clear error messages about why and what the
-        available regular expressions are.
+    It is intended for internal use only, but is public because of its
+    importance to the input/output of pymagicc.
 
-        .. code:: python
+    If it fails, it will give clear error messages about why and what the
+    available regular expressions are.
 
-            >>> mdata = MAGICCData()
-            >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
-            ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
-            The file must be one of the following types and the filepath must match its corresponding regular expression:
-            SCEN: ^.*\\.SCEN$
-            SCEN7: ^.*\\.SCEN7$
-            prn: ^.*\\.prn$
+    .. code:: python
+        >>> mdata = MAGICCData()
+        >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
+        ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
+        The file must be one of the following types and the filepath must match its corresponding regular expression:
+        SCEN: ^.*\\.SCEN$
+        SCEN7: ^.*\\.SCEN7$
+        prn: ^.*\\.prn$
 
-        Parameters
-        ----------
-        filepath : str
-            Name of the file to read/write, including extension
-        tool_to_get : str
-            The tool to get, valid options are "reader", "writer".
-            Invalid values will throw a NoReaderWriterError.
-        """
-        file_regexp_reader_writer = {
-            "SCEN": {
-                "regexp": r"^.*\.SCEN$",
-                "reader": _ScenReader,
-                "writer": _ScenWriter,
-            },
-            "SCEN7": {
-                "regexp": r"^.*\.SCEN7$",
-                "reader": _Scen7Reader,
-                "writer": _Scen7Writer,
-            },
-            "prn": {"regexp": r"^.*\.prn$", "reader": _PrnReader, "writer": _PrnWriter},
-            # "Sector": {"regexp": r".*\.SECTOR$", "reader": _Scen7Reader, "writer": _Scen7Writer},
-            "EmisIn": {
-                "regexp": r"^.*\_EMIS.*\.IN$",
-                "reader": _HistEmisInReader,
-                "writer": _HistEmisInWriter,
-            },
-            "ConcIn": {
-                "regexp": r"^.*\_CONC.*\.IN$",
-                "reader": _ConcInReader,
-                "writer": _ConcInWriter,
-            },
-            "OpticalThicknessIn": {
-                "regexp": r"^.*\_OT\.IN$",
-                "reader": _OpticalThicknessInReader,
-                "writer": _OpticalThicknessInWriter,
-            },
-            "RadiativeForcingIn": {
-                "regexp": r"^.*\_RF\.(IN|MON)$",
-                "reader": _RadiativeForcingInReader,
-                "writer": _RadiativeForcingInWriter,
-            },
-            "Out": {
-                "regexp": r"^DAT\_.*(?<!EMIS)\.OUT$",
-                "reader": _OutReader,
-                "writer": None,
-            },
-            "EmisOut": {
-                "regexp": r"^DAT\_.*EMIS\.OUT$",
-                "reader": _EmisOutReader,
-                "writer": None,
-            },
-            "TempOceanLayersOut": {
-                "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
-                "reader": _TempOceanLayersOutReader,
-                "writer": None,
-            },
-            "BinOut": {
-                "regexp": r"^DAT\_.*\.BINOUT$",
-                "reader": _BinaryOutReader,
-                "writer": None,
-            },
-            "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
-            # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
-        }
+    Parameters
+    ----------
+    filepath : str
+        Name of the file to read/write, including extension
+    tool_to_get : str
+        The tool to get, valid options are "reader", "writer".
+        Invalid values will throw a NoReaderWriterError.
+    """
+    file_regexp_reader_writer = {
+        "SCEN": {
+            "regexp": r"^.*\.SCEN$",
+            "reader": _ScenReader,
+            "writer": _ScenWriter,
+        },
+        "SCEN7": {
+            "regexp": r"^.*\.SCEN7$",
+            "reader": _Scen7Reader,
+            "writer": _Scen7Writer,
+        },
+        "prn": {"regexp": r"^.*\.prn$", "reader": _PrnReader, "writer": _PrnWriter},
+        # "Sector": {"regexp": r".*\.SECTOR$", "reader": _Scen7Reader, "writer": _Scen7Writer},
+        "EmisIn": {
+            "regexp": r"^.*\_EMIS.*\.IN$",
+            "reader": _HistEmisInReader,
+            "writer": _HistEmisInWriter,
+        },
+        "ConcIn": {
+            "regexp": r"^.*\_CONC.*\.IN$",
+            "reader": _ConcInReader,
+            "writer": _ConcInWriter,
+        },
+        "OpticalThicknessIn": {
+            "regexp": r"^.*\_OT\.IN$",
+            "reader": _OpticalThicknessInReader,
+            "writer": _OpticalThicknessInWriter,
+        },
+        "RadiativeForcingIn": {
+            "regexp": r"^.*\_RF\.(IN|MON)$",
+            "reader": _RadiativeForcingInReader,
+            "writer": _RadiativeForcingInWriter,
+        },
+        "Out": {
+            "regexp": r"^DAT\_.*(?<!EMIS)\.OUT$",
+            "reader": _OutReader,
+            "writer": None,
+        },
+        "EmisOut": {
+            "regexp": r"^DAT\_.*EMIS\.OUT$",
+            "reader": _EmisOutReader,
+            "writer": None,
+        },
+        "TempOceanLayersOut": {
+            "regexp": r"^TEMP\_OCEANLAYERS.*\.OUT$",
+            "reader": _TempOceanLayersOutReader,
+            "writer": None,
+        },
+        "BinOut": {
+            "regexp": r"^DAT\_.*\.BINOUT$",
+            "reader": _BinaryOutReader,
+            "writer": None,
+        },
+        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
+        # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
+    }
 
-        fbase = basename(filepath)
-        for file_type, file_tools in file_regexp_reader_writer.items():
-            if re.match(file_tools["regexp"], fbase):
-                try:
-                    return file_tools[tool_to_get]
-                except KeyError:
-                    valid_tools = [k for k in file_tools.keys() if k != "regexp"]
-                    error_msg = (
-                        "MAGICCData does not know how to get a {}, "
-                        "valid options are: {}".format(tool_to_get, valid_tools)
-                    )
-                    raise KeyError(error_msg)
+    fbase = basename(filepath)
+    for file_type, file_tools in file_regexp_reader_writer.items():
+        if re.match(file_tools["regexp"], fbase):
+            try:
+                return file_tools[tool_to_get]
+            except KeyError:
+                valid_tools = [k for k in file_tools.keys() if k != "regexp"]
+                error_msg = (
+                    "MAGICCData does not know how to get a {}, "
+                    "valid options are: {}".format(tool_to_get, valid_tools)
+                )
+                raise KeyError(error_msg)
 
-        para_file = "PARAMETERS.OUT"
-        if (filepath.endswith(".CFG")) and (tool_to_get == "reader"):
-            error_msg = (
-                "MAGCCInput cannot read .CFG files like {}, please use "
-                "pymagicc.io.read_cfg_file".format(filepath)
-            )
+    para_file = "PARAMETERS.OUT"
+    if (filepath.endswith(".CFG")) and (tool_to_get == "reader"):
+        error_msg = (
+            "MAGCCInput cannot read .CFG files like {}, please use "
+            "pymagicc.io.read_cfg_file".format(filepath)
+        )
 
-        elif (filepath.endswith(para_file)) and (tool_to_get == "reader"):
-            error_msg = (
-                "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
-                "style file, please use pymagicc.io.read_cfg_file"
-            )
+    elif (filepath.endswith(para_file)) and (tool_to_get == "reader"):
+        error_msg = (
+            "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
+            "style file, please use pymagicc.io.read_cfg_file"
+        )
 
-        elif _unsupported_file(filepath):
-            error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
-                filepath
-            )
+    elif _unsupported_file(filepath):
+        error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
+            filepath
+        )
 
-        else:
-            regexp_list_str = "\n".join(
-                [
-                    "{}: {}".format(k, v["regexp"])
-                    for k, v in file_regexp_reader_writer.items()
-                ]
-            )
-            error_msg = (
-                "Couldn't find appropriate {} for {}.\nThe file must be one "
-                "of the following types and the filepath must match its "
-                "corresponding regular "
-                "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
-            )
+    else:
+        regexp_list_str = "\n".join(
+            [
+                "{}: {}".format(k, v["regexp"])
+                for k, v in file_regexp_reader_writer.items()
+            ]
+        )
+        error_msg = (
+            "Couldn't find appropriate {} for {}.\nThe file must be one "
+            "of the following types and the filepath must match its "
+            "corresponding regular "
+            "expression:\n{}".format(tool_to_get, fbase, regexp_list_str)
+        )
 
-        raise NoReaderWriterError(error_msg)
+    raise NoReaderWriterError(error_msg)
 
 
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
         raise FileNotFoundError("Cannot find {}".format(file_to_read))
+
+
+def _read_and_return_metadata_df(filepath):
+    _check_file_exists(filepath)
+    Reader = determine_tool(filepath, "reader")
+    return Reader(filepath).read()
 
 
 def read_cfg_file(filepath):
@@ -2132,11 +2224,9 @@ def get_generic_rcp_name(inname):
 
 
 # TODO: move out of here in clean up, see issue #166
+# can probably supercede with OpenSCM functionality for fiddly joins
 def join_timeseries(base, overwrite, join_linear=None):
     """Join two sets of timeseries
-
-    Warning: this function has not been tested with data which has anything other than
-    years in its time axis.
 
     Parameters
     ----------
@@ -2166,21 +2256,21 @@ def join_timeseries(base, overwrite, join_linear=None):
         if len(join_linear) != 2:
             raise ValueError("join_linear must have a length of 2")
 
-    reader = MAGICCData()
     if isinstance(base, str):
-        reader.read(base)
-        base = reader.df
+        base = MAGICCData(base).data.copy()
 
     if isinstance(overwrite, str):
-        reader.read(overwrite)
-        overwrite = reader.df
+        overwrite = MAGICCData(overwrite).data.copy()
 
     result = _join_timeseries_mdata(base, overwrite, join_linear)
 
-    return result
+    return MAGICCData(result)
 
 
 def _join_timeseries_mdata(base, overwrite, join_linear):
+    base = _reduce_time_to_year(base)
+    overwrite = _reduce_time_to_year(overwrite)
+
     min_year = min(base["time"].min(), overwrite["time"].min())
     max_year = max(base["time"].max(), overwrite["time"].max())
     new_index = range(min_year, max_year + 1)
@@ -2210,12 +2300,27 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
 
     if result.isnull().values.any():
         warn_msg = (
-            "nan values in joint arrays, this is likely because your input "
-            "timeseries do not all cover the same span"
+            "There are nan values in joint arrays, this is likely because, once "
+            "joined, your input timeseries do not all cover the same timespan. I will "
+            "drop the unfilled regions. However, this likely means that your "
+            "output arrays do not all cover the same timespan either."
         )
         warnings.warn(warn_msg)
 
+        result.dropna(inplace=True)
+
     return result
+
+
+def _reduce_time_to_year(in_df):
+    out_df = in_df.copy()
+    orig_length_time = len(in_df["time"].unique())
+    out_df["time"] = out_df["time"].apply(lambda x: x.year)
+    new_length_time = len(out_df["time"].unique())
+    if orig_length_time != new_length_time:
+        raise ValueError("Not equipped for this case")
+
+    return out_df
 
 
 def _overwrite_period_linearly(df_in, join_linear):
