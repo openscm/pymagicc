@@ -3,13 +3,14 @@ import subprocess
 from os import listdir, makedirs
 from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
+from dateutil.relativedelta import relativedelta
 
 import numpy as np
 import f90nml
 
 from .config import config
 from .utils import get_date_time_string
-from .io import MAGICCData, NoReaderWriterError, read_cfg_file
+from .io import MAGICCData, NoReaderWriterError, read_cfg_file, determine_tool
 from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
@@ -217,26 +218,28 @@ class MAGICCBase(object):
 
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
-        mdata = MAGICCData()
-        try:
-            run_paras = self.read_parameters()
-            self.config = run_paras
-            mdata.metadata["parameters"] = run_paras
-        except FileNotFoundError:
-            pass
-
         for filepath in outfiles:
             try:
-                reader = mdata.determine_tool(filepath, "reader")(filepath)
+                reader = determine_tool(filepath, "reader")(filepath)
                 openscm_var = convert_magicc7_to_openscm_variables(
                     convert_magicc6_to_magicc7_variables(
                         reader._get_variable_from_filepath()
                     )
                 )
                 if only is None or openscm_var in only:
-                    mdata.append(join(self.out_dir, filepath))
+                    try:
+                        mdata.append(join(self.out_dir, filepath))
+                    except NameError:
+                        mdata = MAGICCData(join(self.out_dir, filepath))
             except NoReaderWriterError:
                 continue
+
+        try:
+            run_paras = self.read_parameters()
+            self.config = run_paras
+            mdata.metadata["parameters"] = run_paras
+        except FileNotFoundError:
+            pass
 
         return mdata
 
@@ -603,8 +606,8 @@ class MAGICCBase(object):
                 "Atmospheric Concentrations|CO2",
                 "Radiative Forcing",
                 "Surface Temperature",
-            ],
-        ).df
+            ]
+        )
         tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
 
@@ -621,39 +624,50 @@ class MAGICCBase(object):
         )
 
     def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
-        global_co2_concs = results_tcr_ecs_run[
-            (results_tcr_ecs_run.variable == "Atmospheric Concentrations|CO2")
-            & (results_tcr_ecs_run.region == "World")
-        ]
-        tcr_yr, ecs_yr = self._get_tcr_ecs_yr_from_CO2_concs(global_co2_concs)
-        global_total_rf = results_tcr_ecs_run[
-            (results_tcr_ecs_run.variable == "Radiative Forcing")
-            & (results_tcr_ecs_run.region == "World")
-        ]
-        self._check_tcr_ecs_total_RF(global_total_rf, tcr_yr=tcr_yr, ecs_yr=ecs_yr)
-        global_temp = results_tcr_ecs_run[
-            (results_tcr_ecs_run.variable == "Surface Temperature")
-            & (results_tcr_ecs_run.region == "World")
-        ]
+        global_co2_concs = results_tcr_ecs_run.filter(
+            variable="Atmospheric Concentrations|CO2", region="World"
+        )
+        tcr_time, ecs_time = self._get_tcr_ecs_yr_from_CO2_concs(global_co2_concs)
+
+        global_total_rf = results_tcr_ecs_run.filter(
+            variable="Radiative Forcing", region="World"
+        )
+        self._check_tcr_ecs_total_RF(
+            global_total_rf, tcr_time=tcr_time, ecs_time=ecs_time
+        )
+
+        global_temp = results_tcr_ecs_run.filter(
+            variable="Surface Temperature", region="World"
+        )
         self._check_tcr_ecs_temp(global_temp)
-        tcr = global_temp[global_temp.time == tcr_yr].value.values[0]
-        ecs = global_temp[global_temp.time == ecs_yr].value.values[0]
+
+        tcr = global_temp.filter(time=tcr_time).data.value.iloc[0]
+        ecs = global_temp.filter(time=ecs_time).data.value.iloc[0]
+
         return tcr, ecs
 
     def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
-        co2_conc_0 = df_co2_concs.value.iloc[0]
-        yr_start_rise = -1 + df_co2_concs[df_co2_concs.value > co2_conc_0].time.iloc[0]
-        tcr_yr = yr_start_rise + 70
-        spin_up_co2_concs = df_co2_concs[df_co2_concs.time < yr_start_rise].value.values
+        co2_conc_0 = df_co2_concs["value"].iloc[0]
+        year_start = df_co2_concs["time"].min().year
+        year_end = df_co2_concs["time"].max().year
+
+        t_start_rise = df_co2_concs[df_co2_concs["value"] > co2_conc_0]["time"].iloc[
+            0
+        ] - relativedelta(years=1)
+        tcr_time = t_start_rise + relativedelta(years=70)
+        # TODO: put method like this in pyam for filtering time ranges more easily
+        spin_up_co2_concs = df_co2_concs.filter(
+            year=range(year_start, t_start_rise.year + 1)
+        )["value"].values
         if not (spin_up_co2_concs == co2_conc_0).all():
             raise ValueError(
                 "The TCR/ECS CO2 concs look wrong, they are not constant before they start rising"
             )
 
-        actual_rise_co2_concs = df_co2_concs[
-            (df_co2_concs.time >= yr_start_rise)
-            & (df_co2_concs.time <= (yr_start_rise + 70))
-        ].value.values
+        actual_rise_co2_concs = df_co2_concs.filter(
+            year=range(t_start_rise.year, year_end)
+        ).filter(year=range(year_start, tcr_time.year + 1))["value"]
+        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
         expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(71)
         rise_co2_concs_correct = np.isclose(
             actual_rise_co2_concs, expected_rise_co2_concs
@@ -662,27 +676,37 @@ class MAGICCBase(object):
             raise ValueError("The TCR/ECS CO2 concs look wrong during the rise period")
 
         co2_conc_final = max(expected_rise_co2_concs)
-        eqm_co2_concs = df_co2_concs[df_co2_concs.time >= tcr_yr].value.values
+        eqm_co2_concs = df_co2_concs.filter(year=range(tcr_time.year, year_end + 1))[
+            "value"
+        ].values
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
             raise ValueError(
                 "The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising"
             )
 
-        ecs_yr = df_co2_concs.time.iloc[-1]
+        ecs_time = df_co2_concs["time"].iloc[-1]
 
-        return tcr_yr, ecs_yr
+        return tcr_time, ecs_time
 
-    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_yr, ecs_yr):
-        total_rf_values = df_total_rf.value.values
-        if not (total_rf_values[df_total_rf.time <= (tcr_yr - 70)] == 0).all():
+    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
+        year_start = df_total_rf["time"].min().year
+        year_end = df_total_rf["time"].max().year
+        year_start_rise = tcr_time.year - 70
+
+        spin_up_rf = df_total_rf.filter(
+            year=range(year_start, year_start_rise + 1)
+        )["value"].values
+        if not (spin_up_rf == 0).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
             )
 
-        total_rf_max = total_rf_values.max()
-        actual_rise_rf = total_rf_values[
-            (df_total_rf.time >= (tcr_yr - 70)) & (df_total_rf.time <= tcr_yr)
-        ]
+
+        actual_rise_rf = df_total_rf.filter(
+            year=range(year_start_rise, year_end)
+        ).filter(year=range(year_start, tcr_time.year + 1))["value"]
+        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
+        total_rf_max = df_total_rf["value"].max()
         expected_rise_rf = total_rf_max / 70.0 * np.arange(71)
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
@@ -690,13 +714,16 @@ class MAGICCBase(object):
                 "The TCR/ECS total radiative forcing looks wrong during the rise period"
             )
 
-        if not (total_rf_values[df_total_rf.time > tcr_yr] == total_rf_max).all():
+        eqm_rf = df_total_rf.filter(year=range(tcr_time.year, year_end + 1))[
+            "value"
+        ].values
+        if not (eqm_rf == total_rf_max).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant"
             )
 
     def _check_tcr_ecs_temp(self, df_temp):
-        tmp_vls = df_temp.value.values
+        tmp_vls = df_temp["value"].values
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
             raise ValueError(
