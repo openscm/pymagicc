@@ -717,7 +717,7 @@ def test_persistant_state_integration(package):
         ),
     ],
 )
-def test_pymagicc_writing_compatibility(
+def test_pymagicc_writing_has_an_effect(
     package,
     test_filename,
     relevant_config,
@@ -768,3 +768,38 @@ def test_pymagicc_writing_compatibility(
         )
         abstol = np.max([result, expected]) * 10 ** -3
         np.testing.assert_allclose(result, expected, rtol=1e-5, atol=abstol)
+
+
+# TODO: move to integration tests folder
+@pytest.mark.parametrize(
+    "test_filename, relevant_config, outputs_to_check",
+    [
+        (
+            "RCP26.SCEN",
+            {
+                "file_emissionscenario": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            [("Emissions|C2F6", "World", 2050, "kt C2F6 / yr", 0.4712)],
+        ),
+    ],
+)
+def test_pymagicc_writing_compatibility_203(package, test_filename, relevant_config, outputs_to_check):
+    if ("SCEN" in test_filename) and (package.version == 7):
+        # special undocumented flags!!!
+        relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
+        relevant_config["mhalo_adjstfutremis2past_0no1scale"] = 0
+
+    for key, value in relevant_config.items():
+        if value == "test_filename":
+            relevant_config[key] = test_filename
+
+    package.set_config(**relevant_config)
+    results = package.run()
+
+    for output_to_check in outputs_to_check:
+        expected = output_to_check[-1]
+        result = results.df[(results.df["variable"] == output_to_check[0]) & (results.df["region"] == output_to_check[1]) & (results.df["time"] == output_to_check[2]) & (results.df["unit"] == output_to_check[3])]["value"].values
+
+        assert expected == result
