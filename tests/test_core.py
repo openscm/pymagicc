@@ -165,8 +165,8 @@ def test_run_success_binary(package):
     results = package.run(out_ascii_binary="BINARY", out_keydata_2=True)
 
     assert isinstance(results, MAGICCData)
-    assert len(results.df.variable.unique()) > 1
-    assert "Surface Temperature" in results.df.variable.unique()
+    assert len(results.variables()) > 1
+    assert "Surface Temperature" in results.variables().values
 
     assert len(package.config.keys()) != 0
 
@@ -178,8 +178,8 @@ def test_run_success_update_config(package):
     results = package.run()
 
     assert isinstance(results, MAGICCData)
-    assert len(results.df.variable.unique()) > 1
-    assert "Surface Temperature" in results.df.variable.unique()
+    assert len(results.variables()) > 1
+    assert "Surface Temperature" in results.variables().values
 
     assert len(package.config.keys()) != 0
 
@@ -527,7 +527,8 @@ def test_diagnose_tcr_ecs(
             "Atmospheric Concentrations|CO2",
             "Radiative Forcing",
             "Surface Temperature",
-        ]
+        ],
+        scenario=None
     )
     assert mock_get_tcr_ecs_from_results.call_count == 1
     assert mock_get_tcr_ecs_from_results.call_count == 1
@@ -797,11 +798,11 @@ def test_pymagicc_writing_compatibility_203(
 
     for output_to_check in outputs_to_check:
         expected = output_to_check[-1]
-        result = results.df[
-            (results.df["variable"] == output_to_check[0])
-            & (results.df["region"] == output_to_check[1])
-            & (results.df["time"] == output_to_check[2])
-            & (results.df["unit"] == output_to_check[3])
-        ]["value"].values
+        result = results.filter(
+            variable=output_to_check[0],
+            region=output_to_check[1],
+            year=output_to_check[2],
+            unit=output_to_check[3],
+        )["value"].values
 
         assert expected == result
