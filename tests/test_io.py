@@ -2308,6 +2308,32 @@ def test_magicc_input_init():
         mdata = MAGICCData()
 
 
+def test_magicc_input_init_preserves_columns():
+    tmodel = "test model"
+    tscenario = "test scenario"
+    tclimate_model = "test climate model"
+
+    test_df = pd.DataFrame(
+        {
+            "model": tmodel,
+            "scenario": tscenario,
+            "climate_model": tclimate_model,
+            "variable": "Surface Temperature",
+            "region": "World|R5REF",
+            "unit": "K",
+            "time": 2012,
+            "value": 0.9
+        },
+        index=[0],
+    )
+    mdata = MAGICCData(test_df)
+    import pdb
+    pdb.set_trace()
+    assert (mdata["model"] == tmodel).all()
+    assert (mdata["scenario"] == tscenario).all()
+    assert (mdata["climate_model"] == tclimate_model).all()
+
+
 def test_set_lines():
     reader = _Reader("test")
     with pytest.raises(FileNotFoundError):
