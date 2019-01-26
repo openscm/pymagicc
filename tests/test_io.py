@@ -2327,8 +2327,7 @@ def test_magicc_input_init_preserves_columns():
         index=[0],
     )
     mdata = MAGICCData(test_df)
-    import pdb
-    pdb.set_trace()
+
     assert (mdata["model"] == tmodel).all()
     assert (mdata["scenario"] == tscenario).all()
     assert (mdata["climate_model"] == tclimate_model).all()
