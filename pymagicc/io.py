@@ -1836,8 +1836,7 @@ class MAGICCData(OpenSCMDataFrame):
             The data with which to initialise the MAGICCData instance. If data is a str, it is assumed to be a filepath and the data is read from disk before being used to initialise the MAGICCData instance.
 
         model : str
-            If not None, used as the value for the "model" column in data. Otherwise
-            will be filled with "unspecified".
+            If not None and the value already in the "model" column is "unspecified", this input argument will overwrite the value for the "model" column in data. Otherwise the "model" column will be filled with "unspecified".
 
         scenario : str
             If not None, used as the value for the "model" column in data Otherwise
@@ -1863,7 +1862,13 @@ class MAGICCData(OpenSCMDataFrame):
             "climate_model": climate_model
         }
         for key, value in fill_cols_data.items():
-            self.data[key] = value if value is not None else "unspecified"
+            try:
+                if (self.data[key] == "unspecified").all() and value is not None:
+                    self.data[key] = value
+                elif not (self.data[key] == "unspecified").all() and value is not None:
+                    raise ValueError("Setting {} will overwrite existing values".format(key))
+            except KeyError:
+                self.data[key] = "unspecified"
 
         self._format_datetime_col()
         super().__init__(self.data)
