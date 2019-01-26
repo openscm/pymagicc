@@ -2593,6 +2593,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     pd.testing.assert_frame_equal(
         mdata.data.reset_index(drop=True),
         tdf_init.append(tdf_append).reset_index(drop=True),
+        check_like=True,
     )
 
 
