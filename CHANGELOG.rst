@@ -7,6 +7,9 @@ master
 - (`#202 <https://github.com/openclimatedata/pymagicc/pull/202>`_) Switched to OpenSCMDataFrame for the backend, also includes:
   - dropping Python3.5 support as OpenSCM typing is not Python3.5 compatible
   - ensuring that metadata is properly stripped when reading
+  - altering ``MAGICCData.append`` so that ``MAGICCData`` instances can be appended to ``MAGICCData`` instances
+  - allowing the user to specify, ``model``, ``scenario`` and ``climate_model`` when initialising a ``MAGICCData`` instance
+  - automatically filling ``model``, ``scenario`` and ``climate_model`` when running
 - (`#204 <https://github.com/openclimatedata/pymagicc/pull/204>`_) Addressed potential bug identified in (`#203 <https://github.com/openclimatedata/pymagicc/issues/203>`_) and updated robustness of output file read in
 - (`#198 <https://github.com/openclimatedata/pymagicc/pull/198>`_) Move all install requirements into ``setup.py``
 - (`#190 <https://github.com/openclimatedata/pymagicc/pull/190>`_) Speed up diagnosis of TCR and ECS by removing writing of scenario file
