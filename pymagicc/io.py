@@ -265,7 +265,7 @@ class _Reader(object):
 
     def _get_columns_multiindex_from_column_headers(self, ch):
         l = len(ch["variables"])
-        ch.setdefault("climate_models", ["MAGICC"] * l)
+        ch.setdefault("climate_models", ["unspecified"] * l)
         ch.setdefault("models", ["unspecified"] * l)
         ch.setdefault("scenarios", ["unspecified"] * l)
         return pd.MultiIndex.from_arrays(
@@ -1826,7 +1826,7 @@ class MAGICCData(OpenSCMDataFrame):
         The file the data was loaded from.
     """
 
-    def __init__(self, data):
+    def __init__(self, data, model=None, scenario=None, climate_model=None):
         """
         Initialise a MAGICCData object.
 
@@ -1835,7 +1835,17 @@ class MAGICCData(OpenSCMDataFrame):
         data : str, pd.DataFrame, pd.Series
             The data with which to initialise the MAGICCData instance. If data is a str, it is assumed to be a filepath and the data is read from disk before being used to initialise the MAGICCData instance.
 
+        model : str
+            If not None, used as the value for the "model" column in data. Otherwise
+            will be filled with "unspecified".
 
+        scenario : str
+            If not None, used as the value for the "model" column in data Otherwise
+            will be filled with "unspecified".
+
+        climate_model : str
+            If not None, used as the value for the "model" column in data Otherwise
+            will be filled with "unspecified".
         """
         # TODO: refactor to mirror pyam
         if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
@@ -1846,6 +1856,14 @@ class MAGICCData(OpenSCMDataFrame):
             filepath = data  # assume filepath
             self.filepath = filepath
             self.metadata, self.data = _read_and_return_metadata_df(filepath)
+
+        fill_cols_data = {
+            "model": model,
+            "scenario": scenario,
+            "climate_model": climate_model
+        }
+        for key, value in fill_cols_data.items():
+            self.data[key] = value if value is not None else "unspecified"
 
         self._format_datetime_col()
         super().__init__(self.data)
@@ -1905,26 +1923,28 @@ class MAGICCData(OpenSCMDataFrame):
         """bool: Whether the data has been loaded yet."""
         return self.data is not None
 
-    def append(self, filepath):
+    def append(self, other, **kwargs):
         """
-        Append data from an input file read from disk.
+        Append any input which can be converted to MAGICCData to self.
 
-        Thre resulting data will be appended to the ``df`` attribute of ``self``
+        The resulting data will be appended to the ``df`` attribute of ``self``
         whilst the metadata is stored in the ``metadata`` attribute. If ``self``
         currently contains no data, the read data will simply be assigned to the
         relevant attributes of ``self``.
 
         Parameters
         ----------
-        filepath : str, list of str
-            Filepath(s) of the file to read.
-        """
-        filepath = [filepath] if isinstance(filepath, str) else filepath
+        other : MAGICCData, pd.DataFrame, pd.Series, str
+            Source of data to append.
 
-        for fp in filepath:
-            metadata_to_add, df_to_add = _read_and_return_metadata_df(fp)
-            self.metadata.update(metadata_to_add)
-            super().append(MAGICCData(df_to_add), inplace=True)
+        kwargs
+            Used when reading data with MAGICCData.
+        """
+        if not isinstance(other, MAGICCData):
+            other = MAGICCData(other)
+
+        self.metadata.update(other.metadata)
+        super().append(other, inplace=True)
 
     def write(self, filepath, magicc_version):
         """
