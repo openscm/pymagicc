@@ -2263,10 +2263,10 @@ def join_timeseries(base, overwrite, join_linear=None):
 
     Parameters
     ----------
-    base : :obj:`pd.DataFrame`, filepath
+    base : :obj:`MAGICCData`, :obj:`pd.DataFrame`, filepath
         Base timeseries to use. If a filepath, the data will first be loaded from disk.
 
-    overwrite : :obj:`pd.DataFrame`, filepath
+    overwrite : :obj:`MAGICCData`, :obj:`pd.DataFrame`, filepath
         Timeseries to join onto base. Any points which are in both `base` and
         `overwrite` will be taken from `overwrite`. If a filepath, the data will first
         be loaded from disk.
@@ -2291,9 +2291,13 @@ def join_timeseries(base, overwrite, join_linear=None):
 
     if isinstance(base, str):
         base = MAGICCData(base).data.copy()
+    elif isinstance(base, MAGICCData):
+        base = base.data.copy()
 
     if isinstance(overwrite, str):
         overwrite = MAGICCData(overwrite).data.copy()
+    elif isinstance(overwrite, MAGICCData):
+        overwrite = overwrite.data.copy()
 
     result = _join_timeseries_mdata(base, overwrite, join_linear)
 
