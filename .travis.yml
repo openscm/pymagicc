@@ -2,7 +2,6 @@ language: python
 dist: xenial
 sudo: required
 python:
-  # - "3.5"  # incompatible with OpenSCM
   - "3.6"
   - "3.7"
 before_install:
