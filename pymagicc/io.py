@@ -2308,7 +2308,7 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
     if result.stack().index.intersection(ow.stack().index).empty:
         raise ValueError("No overlapping indices, a simple append will do")
 
-    result.update(ow, raise_conflict=False)
+    result.update(ow, errors="ignore")
 
     if join_linear is not None:
         if join_linear[0] > base["time"].max():
