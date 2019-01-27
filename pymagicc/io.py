@@ -1946,7 +1946,7 @@ class MAGICCData(OpenSCMDataFrame):
             Used when reading data with MAGICCData.
         """
         if not isinstance(other, MAGICCData):
-            other = MAGICCData(other)
+            other = MAGICCData(other, **kwargs)
 
         self.metadata.update(other.metadata)
         super().append(other, inplace=True)
