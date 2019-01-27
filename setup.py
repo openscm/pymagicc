@@ -47,7 +47,7 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
 install_requirements = [
-    "pandas",
+    "pandas>=0.24.0",
     "pandas-datapackage-reader",
     "f90nml",
     "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@master",
@@ -81,7 +81,6 @@ setup(
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
-        # "Programming Language :: Python :: 3.5",  # OpenSCM incompatible
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
