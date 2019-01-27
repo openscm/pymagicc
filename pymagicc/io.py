@@ -1272,7 +1272,7 @@ class _Writer(object):
 
         # for most data files, as long as the data is space separated, the
         # format doesn't matter
-        time_col_length = 12
+        time_col_length = 11
         if nml_initial["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] > 1:
             time_col_format = "f"
         else:
@@ -1282,11 +1282,6 @@ class _Writer(object):
             "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
         ).format
         other_col_format_str = "{:18.5e}".format
-        # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
-        pd_pad = " " * (
-            time_col_length - len(data_block.columns.get_level_values(0)[0]) - 1
-        )
-        output.write(pd_pad)
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
 
@@ -1497,7 +1492,7 @@ class _PrnWriter(_Writer):
 
         # format is irrelevant for the source
         # however it does matter for reading in again with pymagicc
-        time_col_length = 12
+        time_col_length = 11
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
 
         formatters = [other_col_format_str] * len(data_block.columns)
@@ -1637,7 +1632,7 @@ class _ScenWriter(_Writer):
             self._get_df_header_row("region"), scen7=self._scen_7
         )
         # format is vitally important for SCEN files as far as I can tell
-        time_col_length = 12
+        time_col_length = 11
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
         other_col_format_str = "{:10.4f}".format
 
@@ -1701,12 +1696,7 @@ class _ScenWriter(_Writer):
             region_block = region_block.rename(columns=str).reset_index()
             region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 
-            # I have no idea why these spaces are necessary at the moment, something wrong with pandas...?
-            pd_pad = " " * (
-                time_col_length - len(region_block.columns.get_level_values(0)[0]) - 1
-            )
             region_block_str = region + self._newline_char
-            region_block_str += pd_pad
             region_block_str += region_block.to_string(
                 index=False, formatters=formatters, sparsify=False
             )
