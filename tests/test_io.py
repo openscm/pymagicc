@@ -2772,14 +2772,15 @@ def test_join_timeseries():
 
 @patch("pymagicc.io.MAGICCData")
 @patch("pymagicc.io._join_timeseries_mdata")
-def test_join_timeseries_unit(mock_join_timeseries_mdata, mock_magicc_data):
+@patch("pymagicc.io.isinstance")
+def test_join_timeseries_unit(mock_isinstance, mock_join_timeseries_mdata, mock_magicc_data):
     tbase = 13
     toverwrite = 14
     tdf = "mocked as well"
     toutput = "mocked output"
 
-    mock_magicc_data.return_value
     mock_join_timeseries_mdata.return_value = toutput
+    mock_isinstance.return_value = False
 
     res = join_timeseries(base=tbase, overwrite=toverwrite)
 
