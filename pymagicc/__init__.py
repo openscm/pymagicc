@@ -45,7 +45,7 @@ def read_scen_file(filepath, **kwargs):
     filepath : str
         Filepath of the .SCEN file to read
     kwargs
-        Pass to init method of MAGICCData
+        Passed to init method of MAGICCData
 
     Returns
     -------
