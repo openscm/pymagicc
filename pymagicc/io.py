@@ -1974,6 +1974,7 @@ def determine_tool(filepath, tool_to_get):
     available regular expressions are.
 
     .. code:: python
+
         >>> mdata = MAGICCData()
         >>> mdata.read(MAGICC7_DIR, HISTRCP_CO2I_EMIS.txt)
         ValueError: Couldn't find appropriate writer for HISTRCP_CO2I_EMIS.txt.
