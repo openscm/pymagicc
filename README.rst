@@ -168,6 +168,9 @@ To get a test coverage report, run
 Conventions
 ***********
 
+Style
+~~~~~
+
 To unify coding style, allowing us to focus more on writing useful code and less time worrying about formatting, `black <https://github.com/ambv/black>`_ is used.
 
 To format the files in ``pymagicc`` and ``tests`` as well as ``setup.py`` run
@@ -176,9 +179,20 @@ To format the files in ``pymagicc`` and ``tests`` as well as ``setup.py`` run
 
     make black
 
+Csvs
+~~~~
+
 In our miscellaneous csv's, for example the definitional csv's, we follow the following conventions to make our lives easier:
 
 - column names are all lower case, with underscores as separators (i.e. no spaces)
+
+Dependencies
+~~~~~~~~~~~~
+
+A user of pymagicc should be able to pip install and run all of our notebooks.
+This means that all of the libraries for running notebooks should be explicit dependencies, rather than being included in an extras requirement.
+Whilst this means that we have more dependencies, it makes it easier for end users and avoids extremely cryptic import errors.
+
 
 Building the documentation
 **************************
