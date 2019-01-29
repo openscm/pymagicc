@@ -222,7 +222,6 @@ class MAGICCBase(object):
         if scenario is not None:
             read_kwargs["model"] = scenario["model"].unique()[0]
             read_kwargs["scenario"] = scenario["scenario"].unique()[0]
-
         for filepath in outfiles:
             try:
                 reader = determine_tool(filepath, "reader")(filepath)
@@ -231,8 +230,11 @@ class MAGICCBase(object):
                         reader._get_variable_from_filepath()
                     )
                 )
-                tempdata = MAGICCData(join(self.out_dir, filepath), **read_kwargs)
                 if only is None or openscm_var in only:
+                    tempdata = MAGICCData(
+                        join(self.out_dir, filepath),
+                        **read_kwargs,
+                    )
                     try:
                         mdata.append(tempdata)
                     except NameError:

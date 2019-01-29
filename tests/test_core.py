@@ -18,7 +18,7 @@ from pymagicc import MAGICC6, MAGICC7, rcp26
 from pymagicc.core import MAGICCBase, config, _clean_value
 from pymagicc.io import MAGICCData
 from .test_config import config_override  #  noqa
-from .conftest import MAGICC6_DIR
+from .conftest import MAGICC6_DIR, TEST_DATA_DIR
 
 
 @pytest.fixture(scope="function")
@@ -856,7 +856,10 @@ def test_pymagicc_writing_compatibility_203(
 
 @pytest.mark.parametrize("emms_co2_level", [0, 5])
 def test_co2_emms_other_rf_run(package, emms_co2_level):
-    emms_df = rcp26.filter(region="World", year=range(2050, 2500)).data.copy()
+    # TODO: add blank scenario dataframe so users can actually zero things sensibly
+
+    base = MAGICCData(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
+    emms_df = base.filter(region="World").data.copy()
     emms_df.loc[:, "value"] = 0
 
     time = emms_df.loc[
@@ -864,8 +867,26 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         "time"
     ]
 
-    emms_co2 = np.zeros_like(time)
-    emms_co2[3:] = emms_co2_level
+    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
+    forcing_external_df = pd.DataFrame({
+        "time": time,
+        "scenario": "idealised",
+        "model": "unspecified",
+        "climate_model": "unspecified",
+        "variable": "Radiative Forcing|Extra",
+        "unit": "W / m^2",
+        "todo": "SET",
+        "region": "World",
+        "value": forcing_external
+    })
+    forcing_ext = MAGICCData(forcing_external_df)
+    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
+    forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
+
+    emms_co2 = np.zeros(len(time))
+    jump_idx = 250
+    emms_co2[jump_idx:] = emms_co2_level
 
     emms_df.loc[
         emms_df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
@@ -874,30 +895,72 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     emms_df["scenario"] = "idealised"
     emms_df["model"] = "unspecified"
 
-    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
-    forcing_external_df = pd.DataFrame({
-        "time": time,
-        "scenario": "idealised",
-        "model": "unspecified",
-        "climate_model": "unspecified",
-        "variable": "Radiative Forcing|External",
-        "unit": "W / m^2",
-        "todo": "SET",
-        "region": "World",
-        "value": forcing_external
-    })
+    scen = MAGICCData(emms_df)
 
-    scen = MAGICCData(pd.concat([emms_df, forcing_external_df], sort=False))
+    # results = package.run(scen, startyear=2050)  # startyear does not work...
+    results = package.run(
+        scen,
+        scen_histadjust_0no1scale2shift=0,
+        endyear=2500,
+        rf_extra_read=1,  # fix writing of 'True'
+        file_extra_rf=forcing_ext_filename,
+        rf_total_runmodus="all",
+        rf_total_constantafteryr=5000,
+        rf_volcanic_scale=0,
+        rf_solar_scale=0,
+        rf_fgassum_scale=0,
+        rf_mhalosum_scale=0,
+        rf_cloud_albedo_aer_yr=1750,
+        rf_cloud_albedo_aer_wm2=0,
+        rf_cloud_cover_aer_yr=1750,
+        rf_cloud_cover_aer_wm2=0,
+        # rf_efficacy_ch4=0,
+        # rf_efficacy_ch4oxstrath2o=0,
+        # rf_efficacy_n2o=0,
+        # rf_efficacy_stratoz=0,
+        # rf_efficacy_tropoz=0,
+        # rf_efficacy_aer_dir=0,
+        # rf_efficacy_cloud_albedo=0,
+        # rf_efficacy_cloud_cover=0,
+        # rf_efficacy_solar=0,
+        # rf_efficacy_volc=0,
+        # rf_efficacy_landuse=0,
+        # rf_efficacy_bcsnow=0,
+        # rf_efficacy_fgas=0,
+        # rf_efficacy_mhalo=0,
+        # rf_efficacy_airh2o=0,
+        # rf_efficacy_contrail=0,
+        # rf_efficacy_cirrus=0,
+        fgas_switchfromconc2emis_year=1750,
+        mhalo_switch_conc2emis_yr=1750,
+        co2_switchfromconc2emis_year=1750,
+        ch4_switchfromconc2emis_year=1750,
+        n2o_switchfromconc2emis_year=1750,
+        bcoc_switchfromrf2emis_year=1750,
+        out_forcing=1,
+        out_ascii_binary="ASCII",
+        only=["Atmospheric Concentrations|CO2", "Radiative Forcing|CO2", "Emissions|CO2|MAGICC Fossil and Industrial", "Emissions|CO2|MAGICC AFOLU", "Radiative Forcing|Extra", "Radiative Forcing", "Surface Temperature"]
+    )  # startyear does not work...
+    # TODO: fix endyear so it takes from scenario input by default
 
-    results = package.run(scen)
-
-    # TODO: work out time range stuff should apply to
-    np.testing.assert_allclose(results.filter(variable="Em*CO2*Fossil*", region="World")["value"], emms_co2_level)
+    np.testing.assert_allclose(
+        results.filter(variable="Em*CO2*Fossil*", region="World")["value"],
+        emms_co2
+    )
     if emms_co2_level == 0:
-        np.testing.assert_allclose(results.filter(variable="Radiative Forcing", region="World")["value"], forcing_external)
-        # import pdb
-        # pdb.set_trace()
+        np.testing.assert_allclose(
+            results.filter(variable="Radiative Forcing", region="World")["value"],
+            forcing_external
+        )
+        from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CO2", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*Fossil*", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*AFOL*", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="*Conc*CO2*", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="*Extra*", region="World").line_plot(x="time"); plt.show()
+        from matplotlib import pyplot as plt; results.filter(variable="*Temp*", region="World").line_plot(x="time"); plt.show()
     else:
-        assert (results.filter(variable="Radiative Forcing", region="World")["value"] > forcing_external).all()
-        # import pdb
-        # pdb.set_trace()
+        assert (
+            results.filter(variable="Radiative Forcing", region="World")["value"]
+            >= forcing_external
+        ).all()
