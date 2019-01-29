@@ -14,7 +14,7 @@ import pandas as pd
 import f90nml
 
 
-from pymagicc import MAGICC6, MAGICC7
+from pymagicc import MAGICC6, MAGICC7, rcp26
 from pymagicc.core import MAGICCBase, config, _clean_value
 from pymagicc.io import MAGICCData
 from .test_config import config_override  #  noqa
@@ -852,3 +852,52 @@ def test_pymagicc_writing_compatibility_203(
         )
 
         assert expected == result
+
+
+@pytest.mark.parametrize("emms_co2_level", [0, 5])
+def test_co2_emms_other_rf_run(package, emms_co2_level):
+    emms_df = rcp26.filter(region="World", year=range(2050, 2500)).data.copy()
+    emms_df.loc[:, "value"] = 0
+
+    time = emms_df.loc[
+        emms_df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
+        "time"
+    ]
+
+    emms_co2 = np.zeros_like(time)
+    emms_co2[3:] = emms_co2_level
+
+    emms_df.loc[
+        emms_df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
+        "value"
+    ] = emms_co2
+    emms_df["scenario"] = "idealised"
+    emms_df["model"] = "unspecified"
+
+    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
+    forcing_external_df = pd.DataFrame({
+        "time": time,
+        "scenario": "idealised",
+        "model": "unspecified",
+        "climate_model": "unspecified",
+        "variable": "Radiative Forcing|External",
+        "unit": "W / m^2",
+        "todo": "SET",
+        "region": "World",
+        "value": forcing_external
+    })
+
+    scen = MAGICCData(pd.concat([emms_df, forcing_external_df], sort=False))
+
+    results = package.run(scen)
+
+    # TODO: work out time range stuff should apply to
+    np.testing.assert_allclose(results.filter(variable="Em*CO2*Fossil*", region="World")["value"], emms_co2_level)
+    if emms_co2_level == 0:
+        np.testing.assert_allclose(results.filter(variable="Radiative Forcing", region="World")["value"], forcing_external)
+        # import pdb
+        # pdb.set_trace()
+    else:
+        assert (results.filter(variable="Radiative Forcing", region="World")["value"] > forcing_external).all()
+        # import pdb
+        # pdb.set_trace()
