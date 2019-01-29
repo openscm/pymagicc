@@ -294,6 +294,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "HALON1202": "Halon1202",
             "SOLAR": "Solar",
             "VOLCANIC": "Volcanic",
+            "EXTRA": "Extra",
         }
         variable = apply_string_substitutions(variable, case_adjustments)
 
@@ -313,6 +314,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "MHALOSUM",
         "BIOMASSAER",
         "CO2CH4N2O",
+        "EXTRA",
     ]
     magicc7_vars = [
         base_var + suffix
