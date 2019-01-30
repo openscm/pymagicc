@@ -52,7 +52,7 @@ install_requirements = [
     "f90nml",
     "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@master",
     "PyYAML",
-    "expectexception @ git+https://github.com/thedataincubator/expectexception.git@684560f4dfb8cb69eb0693a1605ec0e81fd9b42a",
+    "expectexception",
      "ipywidgets",
      "appmode",
      "openscm @ git+https://github.com/openclimatedata/openscm.git@master",
