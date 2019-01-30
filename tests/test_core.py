@@ -896,24 +896,97 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     emms_df["model"] = "unspecified"
 
     scen = MAGICCData(emms_df)
-
     # results = package.run(scen, startyear=2050)  # startyear does not work...
     results = package.run(
         scen,
-        scen_histadjust_0no1scale2shift=0,
+        scen_histadjust_0no1scale2shift=1,
         endyear=2500,
         rf_extra_read=1,  # fix writing of 'True'
         file_extra_rf=forcing_ext_filename,
         rf_total_runmodus="all",
+        rf_preind_referenceyr=time.min().year,
+        rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
+        file_co2i_emis="",
+        file_co2b_emis="",
+        # file_co2_conc="",
+        file_ch4i_emis="",
+        file_ch4b_emis="",
+        file_ch4n_emis="",
+        # file_ch4_conc="",
+        file_n2oi_emis="",
+        file_n2ob_emis="",
+        file_n2on_emis="",
+        # file_n2o_conc="",
+        file_noxi_emis="",
+        file_noxb_emis="",
+        file_noxi_ot="",
+        file_noxb_ot="",
+        file_noxt_rf="",
+        # file_ss_ot="",
+        file_nh3i_emis="",
+        file_nh3b_emis="",
+        file_nmvoci_emis="",
+        file_nmvocb_emis="",
+        file_mineraldust_rf="",
+        file_landuse_rf="",
+        file_soxnb_ot="",
+        file_soxi_ot="",
+        file_soxt_rf="",
+        file_soxi_emis="",
+        file_soxb_emis="",
+        file_soxn_emis="",
+        file_coi_emis="",
+        file_cob_emis="",
+        file_bci_emis="",
+        file_bcb_emis="",
+        file_bci_ot="",
+        file_bcb_ot="",
+        file_bci_rf="",
+        file_bcb_rf="",
+        file_oci_emis="",
+        file_ocb_emis="",
+        file_oci_ot="",
+        file_ocb_ot="",
+        file_oci_rf="",
+        file_ocb_rf="",
+        file_bcsnow_rf="",
+        # rf_regions_normyear=time.min().year,
         rf_volcanic_scale=0,
         rf_solar_scale=0,
         rf_fgassum_scale=0,
         rf_mhalosum_scale=0,
-        rf_cloud_albedo_aer_yr=1750,
-        rf_cloud_albedo_aer_wm2=0,
-        rf_cloud_cover_aer_yr=1750,
-        rf_cloud_cover_aer_wm2=0,
+        # rf_soxi_dir_yr=time.min().year,
+        # rf_soxi_dir_wm2=0,
+        # rf_soxb_dir_yr=time.min().year,
+        # rf_soxb_dir_apply=1,
+        # rf_soxb_dir_wm2=0,
+        # rf_noxi_dir_yr=time.min().year,
+        # rf_noxi_dir_wm2=0,
+        # rf_noxb_dir_yr=time.min().year,
+        # rf_noxb_dir_wm2=0,
+        # rf_noxb_dir_apply=1,
+        # rf_bci_dir_yr=time.min().year,
+        # rf_bci_dir_wm2=0,
+        # rf_bcb_dir_yr=time.min().year,
+        # rf_bcb_dir_wm2=0,
+        # rf_oci_dir_yr=time.min().year,
+        # rf_oci_dir_wm2=0,
+        # rf_ocb_dir_yr=time.min().year,
+        # rf_ocb_dir_wm2=0,
+        # rf_bbaer_dir_yr=time.min().year,
+        # rf_bbaer_dir_wm2=0,
+        # rf_bbaer_dir_apply=1,
+        # rf_mineraldust_dir_yr=time.min().year,
+        # rf_mineraldust_dir_wm2=0,
+        # rf_landuse_albedo_yr=time.min().year,
+        # rf_landuse_albedo_wm2=0,
+        # rf_bcsnow_albedo_yr=time.min().year,
+        # rf_bcsnow_albedo_wm2=0,
+        # rf_cloud_albedo_aer_yr=time.min().year,
+        # rf_cloud_albedo_aer_wm2=0,
+        # rf_cloud_cover_aer_yr=time.min().year,
+        # rf_cloud_cover_aer_wm2=0,
         # rf_efficacy_ch4=0,
         # rf_efficacy_ch4oxstrath2o=0,
         # rf_efficacy_n2o=0,
@@ -939,7 +1012,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         bcoc_switchfromrf2emis_year=1750,
         out_forcing=1,
         out_ascii_binary="ASCII",
-        only=["Atmospheric Concentrations|CO2", "Radiative Forcing|CO2", "Emissions|CO2|MAGICC Fossil and Industrial", "Emissions|CO2|MAGICC AFOLU", "Radiative Forcing|Extra", "Radiative Forcing", "Surface Temperature"]
+        only=["Atmospheric Concentrations|CO2", "Radiative Forcing|CO2", "Emissions|CO2|MAGICC Fossil and Industrial", "Emissions|CO2|MAGICC AFOLU", "Radiative Forcing|Extra", "Radiative Forcing|OC|MAGICC Fossil and Industrial", "Radiative Forcing|OC|MAGICC AFOLU", "Radiative Forcing", "Surface Temperature", "Radiative Forcing|Montreal Protocol Halogen Gases"]
     )  # startyear does not work...
     # TODO: fix endyear so it takes from scenario input by default
 
@@ -952,6 +1025,10 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
             results.filter(variable="Radiative Forcing", region="World")["value"],
             forcing_external
         )
+        results.variables()
+        from pymagicc.definitions import convert_magicc7_to_openscm_variables
+        convert_magicc7_to_openscm_variables("MHALO_SUM_RF")
+        from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|Montreal Protocol Halogen Gases", region="World").line_plot(x="time"); plt.show()
         from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing", region="World").line_plot(x="time"); plt.show()
         from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CO2", region="World").line_plot(x="time"); plt.show()
         from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*Fossil*", region="World").line_plot(x="time"); plt.show()
