@@ -867,9 +867,9 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         "time"
     ]
 
-    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
+    # forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
     # line below gives you zero run
-    # forcing_external = 0.0 * np.arange(0, len(time)) / len(time)
+    forcing_external = 0.0 * np.arange(0, len(time)) / len(time)
     forcing_external_df = pd.DataFrame({
         "time": time,
         "scenario": "idealised",
@@ -929,7 +929,6 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         rf_total_constantafteryr=5000,
         file_co2i_emis="",
         file_co2b_emis="",
-        # file_co2_conc="",
         file_ch4i_emis="",
         file_ch4b_emis="",
         file_ch4n_emis="",
@@ -943,7 +942,6 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         file_noxi_ot="",
         file_noxb_ot="",
         file_noxt_rf="",
-        # file_ss_ot="",
         file_nh3i_emis="",
         file_nh3b_emis="",
         file_nmvoci_emis="",
@@ -971,61 +969,13 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         file_oci_rf="",
         file_ocb_rf="",
         file_bcsnow_rf="",
-        # rf_regions_normyear=time.min().year,
         rf_volcanic_scale=0,
         rf_solar_scale=0,
-        rf_fgassum_scale=0,
+        rf_fgassum_scale=0,  # this appears to do nothing
         rf_mhalosum_scale=0,
         stratoz_o3scale=0,
-        # rf_soxi_dir_yr=time.min().year,
-        # rf_soxi_dir_wm2=0,
-        # rf_soxb_dir_yr=time.min().year,
-        # rf_soxb_dir_apply=1,
-        # rf_soxb_dir_wm2=0,
-        # rf_noxi_dir_yr=time.min().year,
-        # rf_noxi_dir_wm2=0,
-        # rf_noxb_dir_yr=time.min().year,
-        # rf_noxb_dir_wm2=0,
-        # rf_noxb_dir_apply=1,
-        # rf_bci_dir_yr=time.min().year,
-        # rf_bci_dir_wm2=0,
-        # rf_bcb_dir_yr=time.min().year,
-        # rf_bcb_dir_wm2=0,
-        # rf_oci_dir_yr=time.min().year,
-        # rf_oci_dir_wm2=0,
-        # rf_ocb_dir_yr=time.min().year,
-        # rf_ocb_dir_wm2=0,
-        # rf_bbaer_dir_yr=time.min().year,
-        # rf_bbaer_dir_wm2=0,
-        # rf_bbaer_dir_apply=1,
-        # rf_mineraldust_dir_yr=time.min().year,
-        # rf_mineraldust_dir_wm2=0,
-        # rf_landuse_albedo_yr=time.min().year,
-        # rf_landuse_albedo_wm2=0,
-        # rf_bcsnow_albedo_yr=time.min().year,
-        # rf_bcsnow_albedo_wm2=0,
-        # rf_cloud_albedo_aer_yr=time.min().year,
-        # rf_cloud_albedo_aer_wm2=0,
-        # rf_cloud_cover_aer_yr=time.min().year,
-        # rf_cloud_cover_aer_wm2=0,
-        # rf_efficacy_ch4=0,
-        # rf_efficacy_ch4oxstrath2o=0,
-        # rf_efficacy_n2o=0,
-        # rf_efficacy_stratoz=0,
-        # rf_efficacy_tropoz=0,
-        # rf_efficacy_aer_dir=0,
-        # rf_efficacy_cloud_albedo=0,
-        # rf_efficacy_cloud_cover=0,
-        # rf_efficacy_solar=0,
-        # rf_efficacy_volc=0,
-        # rf_efficacy_landuse=0,
-        # rf_efficacy_bcsnow=0,
-        # rf_efficacy_fgas=0,
-        # rf_efficacy_mhalo=0,
-        # rf_efficacy_airh2o=0,
-        # rf_efficacy_contrail=0,
-        # rf_efficacy_cirrus=0,
-        fgas_switchfromconc2emis_year=1750,
+        fgas_switchfromconc2emis_year=10000,
+        file_fgas_conc=[ch4_c_filename]*12,
         mhalo_switch_conc2emis_yr=1750,
         co2_switchfromconc2emis_year=1750,
         ch4_switchfromconc2emis_year=10000,
@@ -1068,16 +1018,17 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     #         results.filter(variable="Radiative Forcing", region="World")["value"],
     #         forcing_external
     #     )
-    #     # results.variables()
-    #     # from pymagicc.definitions import convert_magicc7_to_openscm_variables, convert_magicc6_to_magicc7_variables
-    #     # convert_magicc7_to_openscm_variables(convert_magicc6_to_magicc7_variables("MCF_RF"))
-    #     # from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CH4", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CO2", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*Fossil*", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*AFOL*", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="*Conc*CH4*", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="*Extra*", region="World").line_plot(x="time"); plt.show()
-    #     # from matplotlib import pyplot as plt; results.filter(variable="*Temp*", region="World").line_plot(x="time"); plt.show()
-    # else:
+    import pdb
+    pdb.set_trace()
+    results.variables()
+    from pymagicc.definitions import convert_magicc7_to_openscm_variables, convert_magicc6_to_magicc7_variables
+    convert_magicc7_to_openscm_variables(convert_magicc6_to_magicc7_variables("MCF_RF"))
+    from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CH4", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CO2", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*Fossil*", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*AFOL*", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="*Conc*CH4*", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="*Extra*", region="World").line_plot(x="time"); plt.show()
+    from matplotlib import pyplot as plt; results.filter(variable="*Temp*", region="World").line_plot(x="time"); plt.show()
 
