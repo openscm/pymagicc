@@ -19,7 +19,7 @@ from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData
 from .scenarios import (
     read_scen_file,
-    rcp26, rcp45, rcp60, rcp85, scenarios, zero_emissions
+    rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions
 )
 
 
