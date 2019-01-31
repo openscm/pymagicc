@@ -933,181 +933,64 @@ def test_co2_emissions_only(package):
     )["value"].values
     assert (temperature_global[1:] - temperature_global[:-1] >= 0).all()
 
-# @pytest.mark.parametrize("emms_co2_level", [0, 5])
-# def test_co2_emms_other_rf_run(package, emms_co2_level):
-#     # TODO: add blank scenario dataframe so users can actually zero things sensibly
+@pytest.mark.parametrize("emms_co2_level", [0, 5])
+def test_co2_emms_other_rf_run(package, emms_co2_level):
+    package.set_zero_config()
 
-#     base = MAGICCData(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
-#     emms_df = base.filter(region="World").data.copy()
-#     emms_df.loc[:, "value"] = 0
+    scen = MAGICCData(zero_emissions.data.copy())
 
-#     time = emms_df.loc[
-#         emms_df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
-#         "time"
-#     ]
+    time = scen.filter(variable="Em*CO2*Fossil*")["time"].values
 
-#     # forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
-#     # line below gives you zero run
-#     forcing_external = 0.0 * np.arange(0, len(time)) / len(time)
-#     forcing_external_df = pd.DataFrame({
-#         "time": time,
-#         "scenario": "idealised",
-#         "model": "unspecified",
-#         "climate_model": "unspecified",
-#         "variable": "Radiative Forcing|Extra",
-#         "unit": "W / m^2",
-#         "todo": "SET",
-#         "region": "World",
-#         "value": forcing_external
-#     })
-#     forcing_ext = MAGICCData(forcing_external_df)
-#     forcing_ext_filename = "EXTERNAL_RF.IN"
-#     forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
-#     forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
+    emms_fossil_co2 = np.zeros(len(time))
+    emms_fossil_co2[250:] = emms_co2_level    
+    scen.data.loc[
+        scen["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
+        "value"
+    ] = emms_fossil_co2
 
+    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
+    forcing_external_df = pd.DataFrame({
+        "time": time,
+        "scenario": "idealised",
+        "model": "unspecified",
+        "climate_model": "unspecified",
+        "variable": "Radiative Forcing|Extra",
+        "unit": "W / m^2",
+        "todo": "SET",
+        "region": "World",
+        "value": forcing_external
+    })
+    forcing_ext = MAGICCData(forcing_external_df)
+    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
+    forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
 
-#     ch4_conc = 721.894107 * np.ones(len(time))
-#     ch4_conc_df = pd.DataFrame({
-#         "time": time,
-#         "scenario": "idealised",
-#         "model": "unspecified",
-#         "climate_model": "unspecified",
-#         "variable": "Atmospheric Concentrations|CH4",
-#         "unit": "ppb",
-#         "todo": "SET",
-#         "region": "World",
-#         "value": ch4_conc
-#     })
-#     ch4_c = MAGICCData(ch4_conc_df)
-#     ch4_c_filename = "HIST_ZERO_CH4_CONC.IN"
-#     ch4_c.metadata = {"header": "Zero CH4 concentrations file for testing"}
-#     ch4_c.write(join(package.run_dir, ch4_c_filename), package.version)
+    # TODO: fix endyear so it takes from scenario input by default
+    results = package.run(
+        scen,
+        endyear=max(time).year,
+        rf_extra_read=1,  # fix writing of 'True'
+        file_extra_rf=forcing_ext_filename,
+        rf_total_runmodus="all",
+        rf_initialization_method="ZEROSTARTSHIFT",
+        rf_total_constantafteryr=5000,
+    )
 
-#     emms_co2 = np.zeros(len(time))
-#     jump_idx = 250
-#     emms_co2[jump_idx:] = emms_co2_level
-
-#     emms_df.loc[
-#         emms_df["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
-#         "value"
-#     ] = emms_co2
-#     emms_df["scenario"] = "idealised"
-#     emms_df["model"] = "unspecified"
-
-#     scen = MAGICCData(emms_df)
-#     # results = package.run(scen, startyear=2050)  # startyear does not work...
-#     results = package.run(
-#         scen,
-#         scen_histadjust_0no1scale2shift=1,
-#         endyear=2500,
-#         rf_extra_read=1,  # fix writing of 'True'
-#         file_extra_rf=forcing_ext_filename,
-#         rf_total_runmodus="all",
-#         rf_preind_referenceyr=time.min().year,
-#         rf_initialization_method="ZEROSTARTSHIFT",
-#         rf_total_constantafteryr=5000,
-#         file_co2i_emis="",
-#         file_co2b_emis="",
-#         file_ch4i_emis="",
-#         file_ch4b_emis="",
-#         file_ch4n_emis="",
-#         file_ch4_conc=ch4_c_filename,
-#         file_n2oi_emis="",
-#         file_n2ob_emis="",
-#         file_n2on_emis="",
-#         file_n2o_conc="",
-#         file_noxi_emis="",
-#         file_noxb_emis="",
-#         file_noxi_ot="",
-#         file_noxb_ot="",
-#         file_noxt_rf="",
-#         file_nh3i_emis="",
-#         file_nh3b_emis="",
-#         file_nmvoci_emis="",
-#         file_nmvocb_emis="",
-#         file_mineraldust_rf="",
-#         file_landuse_rf="",
-#         file_soxnb_ot="",
-#         file_soxi_ot="",
-#         file_soxt_rf="",
-#         file_soxi_emis="",
-#         file_soxb_emis="",
-#         file_soxn_emis="",
-#         file_coi_emis="",
-#         file_cob_emis="",
-#         file_bci_emis="",
-#         file_bcb_emis="",
-#         file_bci_ot="",
-#         file_bcb_ot="",
-#         file_bci_rf="",
-#         file_bcb_rf="",
-#         file_oci_emis="",
-#         file_ocb_emis="",
-#         file_oci_ot="",
-#         file_ocb_ot="",
-#         file_oci_rf="",
-#         file_ocb_rf="",
-#         file_bcsnow_rf="",
-#         rf_volcanic_scale=0,
-#         rf_solar_scale=0,
-#         rf_fgassum_scale=0,  # this appears to do nothing
-#         rf_mhalosum_scale=0,
-#         stratoz_o3scale=0,
-#         fgas_switchfromconc2emis_year=10000,
-#         file_fgas_conc=[ch4_c_filename]*12,
-#         mhalo_switch_conc2emis_yr=1750,
-#         co2_switchfromconc2emis_year=1750,
-#         ch4_switchfromconc2emis_year=10000,
-#         n2o_switchfromconc2emis_year=1750,
-#         bcoc_switchfromrf2emis_year=1750,
-#         out_forcing=1,
-#         out_ascii_binary="ASCII",
-#         only=["Emissions|CO2|MAGICC Fossil and Industrial", "Radiative Forcing"]
-#     )  # startyear does not work...
-#     # TODO: fix endyear so it takes from scenario input by default
-
-#     np.testing.assert_allclose(
-#         results.filter(variable="Em*CO2*Fossil*", region="World")["value"],
-#         emms_co2
-#     )
-#     # CO2 temperature feedbacks mean that you get a CO2 outgassing, hence CO2 forcing
-#     # and hence values don't match exactly. Numerical precision adds to this
-#     greater_equal_rows = (
-#         results.filter(variable="Radiative Forcing", region="World")["value"]
-#         >= forcing_external
-#     )
-#     close_rows = (
-#         np.abs(
-#             results.filter(variable="Radiative Forcing", region="World")["value"]
-#             - forcing_external
-#         ) / forcing_external <= 10**-3
-#     )
-#     matching_rows = greater_equal_rows | close_rows
-#     assert matching_rows.all()
-
-#     # desired_precision = 2  # decimal places
-#     # good_rows = np.round(results.filter(variable="Radiative Forcing", region="World")["value"], desired_precision) >= np.round(forcing_external, desired_precision)
-#     # results.filter(variable="Radiative Forcing", region="World")[~good_rows]
-#     # assert (
-#     #     np.round(results.filter(variable="Radiative Forcing", region="World")["value"], 5) >= np.round(forcing_external, 5)
-#     #     results.filter(variable="Radiative Forcing", region="World")["value"] >= forcing_external
-#     # ).all()
-#     # if emms_co2_level == 0:
-#     #     np.testing.assert_allclose(
-#     #         results.filter(variable="Radiative Forcing", region="World")["value"],
-#     #         forcing_external
-#     #     )
-#     import pdb
-#     pdb.set_trace()
-#     results.variables()
-#     from pymagicc.definitions import convert_magicc7_to_openscm_variables, convert_magicc6_to_magicc7_variables
-#     convert_magicc7_to_openscm_variables(convert_magicc6_to_magicc7_variables("MCF_RF"))
-#     from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CH4", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="Radiative Forcing|CO2", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*Fossil*", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="Em*CO2*AFOL*", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="*Conc*CH4*", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="*Extra*", region="World").line_plot(x="time"); plt.show()
-#     from matplotlib import pyplot as plt; results.filter(variable="*Temp*", region="World").line_plot(x="time"); plt.show()
-
+    np.testing.assert_allclose(
+        results.filter(variable="Em*CO2*Fossil*", region="World")["value"],
+        emms_fossil_co2
+    )
+    # CO2 temperature feedbacks mean that you get a CO2 outgassing, hence CO2 forcing. As a
+    # result radiative forcing values don't match exactly. Numerical precision adds to this.
+    greater_equal_rows = (
+        results.filter(variable="Radiative Forcing", region="World")["value"]
+        >= forcing_external
+    )
+    close_rows = (
+        np.abs(
+            results.filter(variable="Radiative Forcing", region="World")["value"]
+            - forcing_external
+        ) / forcing_external <= 10**-3
+    )
+    matching_rows = greater_equal_rows | close_rows
+    assert matching_rows.all()
