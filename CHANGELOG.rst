@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#202 <https://github.com/openclimatedata/pymagicc/pull/202>`_) Switched to OpenSCMDataFrame for the backend, also includes:
+- (`#202 <https://github.com/openclimatedata/pymagicc/pull/202>`_) Switched to OpenSCMDataFrameBase for the backend, also includes:
   - dropping Python3.5 support as OpenSCM typing is not Python3.5 compatible
   - ensuring that metadata is properly stripped when reading
   - altering ``MAGICCData.append`` so that ``MAGICCData`` instances can be appended to ``MAGICCData`` instances
