@@ -855,14 +855,52 @@ def test_pymagicc_writing_compatibility_203(
 
 
 def test_zero_run(package):
-	package.set_zero_config()
-	vars_to_check = ["Surface Temperature", "Radiative Forcing"]
-	results = package.run(only=vars_to_check, endyear=2500)
-	for var in vars_to_check:
-		np.testing.assert_allclose(
-	        results.filter(variable=var)["value"],
-	        0
-	    )
+    package.set_zero_config()
+    vars_to_check = ["Surface Temperature", "Radiative Forcing"]
+    results = package.run(only=vars_to_check, endyear=2500)
+    for var in vars_to_check:
+        np.testing.assert_allclose(
+            results.filter(variable=var)["value"],
+            0
+        )
+
+
+def test_external_forcing_only_run(package):
+    time = [datetime(1765, 7, 12) + i*relativedelta(years=1) for i in range(700)]
+
+    forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
+    forcing_external_df = pd.DataFrame({
+        "time": time,
+        "scenario": "idealised",
+        "model": "unspecified",
+        "climate_model": "unspecified",
+        "variable": "Radiative Forcing|Extra",
+        "unit": "W / m^2",
+        "todo": "SET",
+        "region": "World",
+        "value": forcing_external
+    })
+    forcing_ext = MAGICCData(forcing_external_df)
+    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
+    forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
+
+    results = package.run(
+        rf_extra_read=1,
+        file_extra_rf=forcing_ext_filename,
+        rf_total_runmodus="QEXTRA",
+        endyear=max(time).year,  
+        rf_initialization_method="ZEROSTARTSHIFT",  # this is default but just in case
+        rf_total_constantafteryr=5000,
+    )
+
+    # MAGICC's weird last year business means that last result is just constant from previous
+    # year and is not treated properly
+    # TODO: add this in docs
+    validation_output = results.filter(variable="Radiative Forcing", region="World")["value"][:-1]
+    validation_input = forcing_external[:-1]
+    np.testing.assert_allclose(validation_input, validation_output, rtol=1e-5) 
+    assert (results.filter(variable="Surface Temperature", region="World")["value"] >= 0).all() 
 
 
 @pytest.mark.parametrize("emms_co2_level", [0, 5])
