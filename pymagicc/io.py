@@ -13,7 +13,7 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
-from openscm.highlevel import OpenSCMDataFrame
+from openscm.highlevel import OpenSCMDataFrameBase
 
 
 from .utils import apply_string_substitutions
@@ -1768,7 +1768,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(OpenSCMDataFrame):
+class MAGICCData(OpenSCMDataFrameBase):
     """
     An interface to read and write the input files used by MAGICC.
 
