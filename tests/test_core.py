@@ -854,6 +854,17 @@ def test_pymagicc_writing_compatibility_203(
         assert expected == result
 
 
+def test_zero_run(package):
+	package.set_zero_config()
+	vars_to_check = ["Surface Temperature", "Radiative Forcing"]
+	results = package.run(only=vars_to_check, endyear=2500)
+	for var in vars_to_check:
+		np.testing.assert_allclose(
+	        results.filter(variable=var)["value"],
+	        0
+	    )
+
+
 @pytest.mark.parametrize("emms_co2_level", [0, 5])
 def test_co2_emms_other_rf_run(package, emms_co2_level):
     # TODO: add blank scenario dataframe so users can actually zero things sensibly

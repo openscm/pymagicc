@@ -17,13 +17,14 @@ from ._version import get_versions
 from .config import config as _config
 from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData
+from .scenarios import (
+    read_scen_file,
+    rcp26, rcp45, rcp60, rcp85, scenarios, zero_emissions
+)
 
 
 __version__ = get_versions()["version"]
 del get_versions
-
-# Path used for data files loading.
-_magiccpath = MAGICC6().original_dir
 
 if not _config["is_windows"]:
     wine_installed = (
@@ -34,43 +35,6 @@ if not _config["is_windows"]:
     )
     if not wine_installed:
         logging.warning("Wine is not installed")
-
-
-def read_scen_file(filepath, **kwargs):
-    """
-    Read a MAGICC .SCEN file.
-
-    Parameters
-    ----------
-    filepath : str
-        Filepath of the .SCEN file to read
-    kwargs
-        Passed to init method of MAGICCData
-
-    Returns
-    -------
-    :obj:`pymagicc.io.MAGICCData`
-        ``MAGICCData`` object containing the data and metadata.
-    """
-    mdata = MAGICCData(filepath, **kwargs)
-
-    return mdata
-
-
-rcp26 = read_scen_file(
-    os.path.join(_magiccpath, "RCP26.SCEN"), model="IMAGE", scenario="RCP26"
-)
-rcp45 = read_scen_file(
-    os.path.join(_magiccpath, "RCP45.SCEN"), model="MiniCAM", scenario="RCP45"
-)
-rcp60 = read_scen_file(
-    os.path.join(_magiccpath, "RCP60.SCEN"), model="AIM", scenario="RCP60"
-)
-rcp85 = read_scen_file(
-    os.path.join(_magiccpath, "RCP85.SCEN"), model="MESSAGE", scenario="RCP85"
-)
-
-scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
 
 
 def run(scenario, magicc_version=6, **kwargs):

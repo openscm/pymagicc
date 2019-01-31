@@ -7,12 +7,13 @@ import numpy as np
 import pytest
 
 
-from pymagicc import _magiccpath, read_scen_file, rcp26, rcp45, rcp60, rcp85, run
+from pymagicc import read_scen_file, rcp26, rcp45, rcp60, rcp85, run
+from pymagicc.scenarios import _magicc6_included_distribution_path
 from pymagicc.io import MAGICCData
 
 
-RCP26_SCEN_FILE = os.path.join(_magiccpath, "RCP26.SCEN")
-RCP85_SCEN_FILE = os.path.join(_magiccpath, "RCP85.SCEN")
+RCP26_SCEN_FILE = os.path.join(_magicc6_included_distribution_path, "RCP26.SCEN")
+RCP85_SCEN_FILE = os.path.join(_magicc6_included_distribution_path, "RCP85.SCEN")
 WORLD_ONLY = read_scen_file(
     os.path.join(os.path.dirname(__file__), "./test_data/WORLD_ONLY.SCEN")
 )

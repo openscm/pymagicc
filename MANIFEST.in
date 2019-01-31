@@ -13,6 +13,7 @@ recursive-include pymagicc/MAGICC6 *.txt
 include pymagicc/MAGICC6/out/.gitkeep
 
 recursive-include pymagicc/ *.csv
+recursive-include pymagicc/ *.DAT
 recursive-include pymagicc/ *.json
 
 include versioneer.py
