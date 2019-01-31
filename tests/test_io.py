@@ -10,7 +10,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
-from openscm.highlevel import OpenSCMDataFrameBase
+from openscm.openscmdataframebase import OpenSCMDataFrameBase
 
 
 from pymagicc import MAGICC6

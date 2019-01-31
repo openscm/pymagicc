@@ -55,7 +55,7 @@ install_requirements = [
     "expectexception",
      "ipywidgets",
      "appmode",
-     "openscm @ git+https://github.com/openclimatedata/openscm.git@master",
+     "openscm @ git+https://github.com/openclimatedata/openscm.git@add-magicc-adapter",
      "seaborn"
 ]
 
