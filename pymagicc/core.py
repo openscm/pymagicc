@@ -419,7 +419,7 @@ class MAGICCBase(object):
         an obvious way. Adjusting the parameter settings still requires great care and
         may behave unepexctedly.
         """
-        # zero_emissions is import from scenarios package locally
+        # zero_emissions is imported from scenarios module
         zero_emissions.write(join(self.run_dir, self._scen_file_name), self.version)
 
         time = zero_emissions.filter(variable="Emissions|CH4", region="World")["time"].values

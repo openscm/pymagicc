@@ -33,7 +33,9 @@ rcp45 = read_scen_file(join(_magicc6_included_distribution_path, "RCP45.SCEN"), 
 rcp60 = read_scen_file(join(_magicc6_included_distribution_path, "RCP60.SCEN"), model="AIM", scenario="RCP60")
 rcp85 = read_scen_file(join(_magicc6_included_distribution_path, "RCP85.SCEN"), model="MESSAGE", scenario="RCP85")
 
-scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
+rcps = MAGICCData(rcp26.data.copy())
+for rcp in [rcp45, rcp60, rcp85]:
+    rcps.append(rcp)
 
 zero_emissions = MAGICCData(
     join(dirname(abspath(__file__)), "RCP3PD_EMISSIONS.DAT"),
