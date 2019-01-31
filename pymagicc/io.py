@@ -13,7 +13,7 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
-from openscm.highlevel import OpenSCMDataFrameBase
+from openscm.openscmdataframebase import OpenSCMDataFrameBase
 
 
 from .utils import apply_string_substitutions
