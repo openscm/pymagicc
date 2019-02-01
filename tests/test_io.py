@@ -10,7 +10,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
-from openscm.openscmdataframebase import OpenSCMDataFrameBase
+from openscm.scmdataframebase import ScmDataFrameBase
 
 
 from pymagicc import MAGICC6
@@ -54,7 +54,7 @@ def generic_mdata_tests(mdata):
     "Resusable tests to ensure data format."
     assert mdata.is_loaded == True
 
-    assert isinstance(mdata, OpenSCMDataFrameBase)
+    assert isinstance(mdata, ScmDataFrameBase)
     pd.testing.assert_index_equal(
         mdata.data.columns,
         pd.Index(

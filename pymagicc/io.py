@@ -1768,7 +1768,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(OpenSCMDataFrameBase):
+class MAGICCData(ScmDataFrameBase):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -1780,40 +1780,16 @@ class MAGICCData(OpenSCMDataFrameBase):
     treated as a Pandas DataFrame. All the methods available to a DataFrame
     can be called on MAGICCData.
 
-    .. code:: python
-
-        with MAGICC6() as magicc:
-            mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-            mdata.read(magicc.run_dir)
-            mdata.plot()
-
-    A MAGICCData instance can also be used to write files e.g.
-
-    .. code:: python
-
-        with MAGICC6() as magicc:
-            mdata = MAGICCData("HISTRCP_CO2I_EMIS.IN")
-            mdata.read(magicc.run_dir)
-            mdata.write("EXAMPLE_CO2I_EMIS.IN", "./")
-
-    See ``notebooks/Input-Examples.ipynb`` for further usage examples.
-
-    Parameters
-    ----------
-    filepath : str
-        Optional file name, including extension, for the target
-        file, i.e. 'HISTRCP_CO2I_EMIS.IN'. The file is not read until the search
-        directory is provided in ``read``. This allows for MAGICCData files to be
-        lazy-loaded once the appropriate MAGICC run directory is known.
+    See ``notebooks/Input-Examples.ipynb`` for usage examples.
 
     Attributes
     ----------
-    df : :obj:`pd.DataFrame`
+    data : :obj:`pd.DataFrame`
         A pandas dataframe with the data.
     metadata : dict
         Metadata for the data in ``self.df``.
     filepath : str
-        The file the data was loaded from.
+        The file the data was loaded from. None if data was not loaded from a file.
     """
 
     def __init__(self, data, model=None, scenario=None, climate_model=None):
