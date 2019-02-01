@@ -20,8 +20,8 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 PACKAGE_NAME = "pymagicc"
-AUTHOR = "Robert Gieseke"
-EMAIL = "robert.gieseke@pik-potsdam.de"
+AUTHOR = "Zebedee Nicholls, Robert Gieseke"
+EMAIL = "zebedee.nicholls@climate-energy-college.org, robert.gieseke@pik-potsdam.de"
 URL = "https://github.com/openclimatedata/pymagicc"
 
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
