@@ -245,9 +245,8 @@ class _Reader(object):
 
         df.index.name = "time"
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
-        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
 
-        return df
+        return df.T.reset_index()
 
     def _convert_to_string_columns(self, df):
         for categorical_column in [
@@ -842,8 +841,7 @@ class _PrnReader(_NonStandardEmisInReader):
             column_headers = self._read_units(column_headers)
 
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
-        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df = self._convert_to_string_columns(df)
+        df = self._convert_to_string_columns(df.T.reset_index())
 
         for k in ["gas", "unit"]:
             try:
@@ -1070,8 +1068,7 @@ class _BinaryOutReader(_Reader):
             "todos": ["SET"] * len(regions),
         }
         df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
-        df = pd.DataFrame(df.T.stack(), columns=["value"]).reset_index()
-        df = self._convert_to_string_columns(df)
+        df = self._convert_to_string_columns(df.T.reset_index())
 
         return df, metadata
 
@@ -1816,11 +1813,10 @@ class MAGICCData(ScmDataFrameBase):
         if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
             self.filepath = None
             self.metadata = {}
-            self.data = data
         else:
             filepath = data  # assume filepath
             self.filepath = filepath
-            self.metadata, self.data = _read_and_return_metadata_df(filepath)
+            self.metadata, data = _read_and_return_metadata_df(filepath)
 
         fill_cols_data = {
             "model": model,
@@ -1829,18 +1825,17 @@ class MAGICCData(ScmDataFrameBase):
         }
         for key, value in fill_cols_data.items():
             try:
-                if (self.data[key] == "unspecified").all() and value is not None:
-                    self.data[key] = value
-                elif not (self.data[key] == "unspecified").all() and value is not None:
+                if (data[key] == "unspecified").all() and value is not None:
+                    data[key] = value
+                elif not (data[key] == "unspecified").all() and value is not None:
                     raise ValueError("Setting {} will overwrite existing values".format(key))
             except KeyError:
-                self.data[key] = "unspecified"
+                data[key] = "unspecified"
 
-        self._format_datetime_col()
-        super().__init__(self.data)
+        super().__init__(data)
 
     def _format_datetime_col(self):
-        time_srs = self.data["time"]
+        time_srs = self["time"]
         if isinstance(time_srs.iloc[0], datetime):
             pass
         elif time_srs.iloc[0].dtype <= np.int:
@@ -1884,7 +1879,7 @@ class MAGICCData(ScmDataFrameBase):
 
             time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
 
-        self.data["time"] = time_srs
+        self["time"] = time_srs
 
     def _raise_not_loaded_error(self):
         raise ValueError("File has not been read from disk yet")
