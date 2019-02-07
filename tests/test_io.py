@@ -2581,29 +2581,30 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init = pd.DataFrame(
-        [
-            ["a", "b", "World", "PE", "EJ/y", 2010, 2.0],
-            ["a", "b", "World", "PE|Coal", "EJ/y", 2010, 1.2],
-            ["a", "b", "World", "PE|Gas", "EJ/y", 2010, 7.9],
-        ],
-        columns=["model", "scenario", "region", "variable", "unit", "time", "value"],
-    )
+    tdf_init = [[2.0, 1.2, 7.9]]
+    tdf_init_columns = {
+        'model': ['a'],
+        'scenario': ['b'],
+        'region': ['World|ASIA'],
+        'variable': ['GE', 'GE|Coal', 'GE|Gas'],
+        'unit': ['J/y']
+    }
+
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = pd.DataFrame(
-        [
-            ["d", "e", "World|ASIA", "GE", "J/y", 2015, -6.0],
-            ["d", "e", "World|ASIA", "GE|Coal", "J/y", 2015, 3.2],
-            ["d", "e", "World|ASIA", "GE|Gas", "J/y", 2015, 7.1],
-        ],
-        columns=["model", "scenario", "region", "variable", "unit", "time", "value"],
-    )
+    tdf_append = [[-6., 3.2, 7.1]]
+    tdf_append_columns = {
+        'model': ['d'],
+        'scenario': ['e'],
+        'region': ['World|ASIA'],
+        'variable': ['GE', 'GE|Coal', 'GE|Gas'],
+        'unit': ['J/y']
+    }
 
-    mock_read_and_return_metadata_df.return_value = (tmetadata_init, tdf_init)
+    mock_read_and_return_metadata_df.return_value = tmetadata_init, tdf_init, tdf_init_columns
     mdata = MAGICCData("mocked")
 
-    mock_read_and_return_metadata_df.return_value = (tmetadata_append, tdf_append)
+    mock_read_and_return_metadata_df.return_value = tmetadata_append, tdf_append, tdf_append_columns
     mdata.append(tfilepath)
 
     mock_read_and_return_metadata_df.assert_called_with(tfilepath)
