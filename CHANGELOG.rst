@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#208 <https://github.com/openclimatedata/pymagicc/pull/208>`_) Add set zero config method. Also adds scenarios module and examples of running in different modes.
 - (`#214 <https://github.com/openclimatedata/pymagicc/pull/214>`_) Refactor to use the timeseries capabilities of ScmDataFrameBase
 - (`#210 <https://github.com/openclimatedata/pymagicc/pull/210>`_) Updated to match new openscm naming
 - (`#199 <https://github.com/openclimatedata/pymagicc/pull/199>`_) Switched to OpenSCMDataFrameBase for the backend, also includes:
