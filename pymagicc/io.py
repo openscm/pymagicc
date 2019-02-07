@@ -1342,8 +1342,7 @@ class _Writer(object):
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"],  # drop everything else
-            aggfunc="sum",
+            meta=["variable", "todo", "unit", "region"]
         ).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
@@ -1430,8 +1429,7 @@ class _PrnWriter(_Writer):
         lines = output.getvalue().split(self._newline_char)
 
         data_block_full = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"],  # drop everything else
-            aggfunc="sum",
+            meta=["variable", "todo", "unit", "region"]
         ).T
         units = data_block_full.columns.get_level_values("unit").unique()
         unit = units[0].split(" ")[0]
@@ -1504,8 +1502,7 @@ class _PrnWriter(_Writer):
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"],  # drop everything else
-            aggfunc="sum",
+            meta=["variable", "todo", "unit", "region"]
         ).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]

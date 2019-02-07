@@ -52,7 +52,7 @@ def test_run_rcp26(package):
         variable="Surface Temperature",
         year=2100,
         region="World",
-    )["value"]
+    ).timeseries().squeeze()
 
     np.testing.assert_allclose(result_temp, 1.563254, rtol=1e-5)
     do_basic_run_checks(results)
@@ -68,7 +68,7 @@ def test_run_rcp45(package):
         variable="Surface Temperature",
         year=2100,
         region="World",
-    )["value"]
+    ).timeseries().squeeze()
     np.testing.assert_allclose(result_temp, 2.497057, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -83,7 +83,7 @@ def test_run_rcp60(package):
         variable="Surface Temperature",
         year=2100,
         region="World",
-    )["value"]
+    ).timeseries().squeeze()
     np.testing.assert_allclose(result_temp, 3.102484, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -98,7 +98,7 @@ def test_run_rcp85(package):
         variable="Surface Temperature",
         year=2100,
         region="World",
-    )["value"]
+    ).timeseries().squeeze()
     np.testing.assert_allclose(result_temp, 4.676012, rtol=1e-5)
     do_basic_run_checks(results)
 

@@ -635,19 +635,19 @@ class MAGICCBase(object):
     def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
         global_co2_concs = results_tcr_ecs_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
-        )
+        ).to_iamdataframe()
         tcr_time, ecs_time = self._get_tcr_ecs_yr_from_CO2_concs(global_co2_concs)
 
         global_total_rf = results_tcr_ecs_run.filter(
             variable="Radiative Forcing", region="World"
-        )
+        ).to_iamdataframe()
         self._check_tcr_ecs_total_RF(
             global_total_rf, tcr_time=tcr_time, ecs_time=ecs_time
         )
 
         global_temp = results_tcr_ecs_run.filter(
             variable="Surface Temperature", region="World"
-        )
+        ).to_iamdataframe()
         self._check_tcr_ecs_temp(global_temp)
 
         tcr = global_temp.filter(time=tcr_time).data.value.iloc[0]
