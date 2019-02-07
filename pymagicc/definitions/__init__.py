@@ -14,7 +14,7 @@ For more details about how these constants are used, see the documentation of
 """
 from pathlib import Path
 import warnings
-
+import functools
 
 import pandas as pd
 from pandas_datapackage_reader import read_datapackage
@@ -214,7 +214,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
-
     def get_openscm_replacement(in_var):
         if in_var.endswith("_EMIS"):
             prefix = "Emissions"
@@ -365,6 +364,22 @@ OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = get_magicc7_to_openscm_variable_mapping(
 """dict: Mappings from OpenSCM variables to MAGICC7 variables
 """
 
+@functools.lru_cache(None)
+def _apply_convert_magicc7_to_openscm_variables(v, inverse):
+    if inverse:
+        return apply_string_substitutions(
+            v,
+            OPENSCM_TO_MAGICC7_VARIABLES_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+        )
+    else:
+        return apply_string_substitutions(
+            v,
+            MAGICC7_TO_OPENSCM_VARIABLES_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+            case_insensitive=True,  # MAGICC variables are case insensitive
+        )
+
 
 def convert_magicc7_to_openscm_variables(variables, inverse=False):
     """
@@ -384,19 +399,10 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
     ``type(variables)``
         Set of converted variables
     """
-    if inverse:
-        return apply_string_substitutions(
-            variables,
-            OPENSCM_TO_MAGICC7_VARIABLES_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-        )
+    if isinstance(variables, list):
+        return [_apply_convert_magicc7_to_openscm_variables(v, inverse) for v in variables]
     else:
-        return apply_string_substitutions(
-            variables,
-            MAGICC7_TO_OPENSCM_VARIABLES_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-            case_insensitive=True,  # MAGICC variables are case insensitive
-        )
+        return _apply_convert_magicc7_to_openscm_variables(variables, inverse)
 
 
 def get_magicc6_to_magicc7_variable_mapping(inverse=False):
@@ -545,6 +551,34 @@ MAGICC7_TO_MAGICC6_VARIABLES_MAPPING = get_magicc6_to_magicc7_variable_mapping(
 """
 
 
+@functools.lru_cache(None)
+def _apply_convert_magicc6_to_magicc7_variables(variables, inverse):
+    def hfc245ca_included(variables):
+        variables = [variables] if isinstance(variables, str) else variables
+        return any([v.replace("-", "").lower() == "hfc245ca" for v in variables])
+
+    if hfc245ca_included(variables):
+        error_msg = (
+            "HFC245ca wasn't meant to be included in MAGICC6. Renaming to HFC245fa."
+        )
+        warnings.warn(error_msg)
+
+    if inverse:
+        return apply_string_substitutions(
+            variables,
+            MAGICC7_TO_MAGICC6_VARIABLES_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+            case_insensitive=True,  # MAGICC variables are case insensitive
+        )
+    else:
+        return apply_string_substitutions(
+            variables,
+            MAGICC6_TO_MAGICC7_VARIABLES_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+            case_insensitive=True,  # MAGICC variables are case insensitive
+        )
+
+
 def convert_magicc6_to_magicc7_variables(variables, inverse=False):
     """
     Convert MAGICC6 variables to MAGICC7 variables
@@ -572,31 +606,10 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
     ``type(variables)``
         Set of converted variables
     """
-
-    def hfc245ca_included(variables):
-        variables = [variables] if isinstance(variables, str) else variables
-        return any([v.replace("-", "").lower() == "hfc245ca" for v in variables])
-
-    if hfc245ca_included(variables):
-        error_msg = (
-            "HFC245ca wasn't meant to be included in MAGICC6. Renaming to HFC245fa."
-        )
-        warnings.warn(error_msg)
-
-    if inverse:
-        return apply_string_substitutions(
-            variables,
-            MAGICC7_TO_MAGICC6_VARIABLES_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-            case_insensitive=True,  # MAGICC variables are case insensitive
-        )
+    if isinstance(variables, list):
+        return [_apply_convert_magicc6_to_magicc7_variables(v, inverse) for v in variables]
     else:
-        return apply_string_substitutions(
-            variables,
-            MAGICC6_TO_MAGICC7_VARIABLES_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-            case_insensitive=True,  # MAGICC variables are case insensitive
-        )
+        return _apply_convert_magicc6_to_magicc7_variables(variables, inverse)
 
 
 def get_pint_to_fortran_safe_units_mapping(inverse=False):
