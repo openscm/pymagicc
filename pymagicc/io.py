@@ -136,9 +136,9 @@ class _Reader(object):
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
-        df, metadata = self.process_data(stream, metadata)
+        df, metadata, column_headers = self.process_data(stream, metadata)
 
-        return metadata, df
+        return metadata, df, column_headers
 
     def _find_nml(self):
         """
@@ -214,11 +214,11 @@ class _Reader(object):
             The second element is th updated metadata based on the processing performed.
         """
         ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
-        df = self._convert_data_block_and_headers_to_df(stream, ch)
+        df = self._convert_data_block_and_headers_to_df(stream)
 
-        return df, metadata
+        return df, metadata, ch
 
-    def _convert_data_block_and_headers_to_df(self, stream, column_headers):
+    def _convert_data_block_and_headers_to_df(self, stream):
         """
         stream : Streamlike object
             A Streamlike object (nominally StringIO) containing the data to be
@@ -243,10 +243,10 @@ class _Reader(object):
         if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
             df.index = df.index.to_series().round(3)
 
-        df.index.name = "time"
-        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
+        # reset the columns to be 0..n instead of starting at 1
+        df.columns = list(range(len(df.columns)))
 
-        return df.T.reset_index()
+        return df
 
     def _convert_to_string_columns(self, df):
         for categorical_column in [
@@ -262,31 +262,25 @@ class _Reader(object):
 
         return df
 
-    def _get_columns_multiindex_from_column_headers(self, ch):
-        l = len(ch["variables"])
-        ch.setdefault("climate_models", ["unspecified"] * l)
-        ch.setdefault("models", ["unspecified"] * l)
-        ch.setdefault("scenarios", ["unspecified"] * l)
-        return pd.MultiIndex.from_arrays(
-            [
-                ch["variables"],
-                ch["todos"],
-                ch["units"],
-                ch["regions"],
-                ch["climate_models"],
-                ch["models"],
-                ch["scenarios"],
-            ],
-            names=(
-                "variable",
-                "todo",
-                "unit",
-                "region",
-                "climate_model",
-                "model",
-                "scenario",
-            ),
-        )
+    def _set_column_defaults(self, ch):
+        l = len(ch["variable"])
+        ch.setdefault("climate_model", ["unspecified"] * l)
+        ch.setdefault("model", ["unspecified"] * l)
+        ch.setdefault("scenario", ["unspecified"] * l)
+
+        required_cols = [
+            "variable",
+            "todo",
+            "unit",
+            "region",
+            "climate_model",
+            "model",
+            "scenario"
+        ]
+        for col in required_cols:
+            assert col in ch
+
+        return ch
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
@@ -294,11 +288,11 @@ class _Reader(object):
         else:
             column_headers, metadata = self._read_magicc6_style_header(stream, metadata)
 
-        column_headers["variables"] = convert_magicc7_to_openscm_variables(
-            column_headers["variables"]
+        column_headers["variable"] = convert_magicc7_to_openscm_variables(
+            column_headers["variable"]
         )
-        column_headers["regions"] = convert_magicc_to_openscm_regions(
-            column_headers["regions"]
+        column_headers["region"] = convert_magicc_to_openscm_regions(
+            column_headers["region"]
         )
 
         return column_headers, metadata
@@ -312,12 +306,12 @@ class _Reader(object):
         # Note that regions header line is assumed to start with 'YEARS'
         # instead of 'REGIONS'
         column_headers = {
-            "variables": self._read_data_header_line(
+            "variable": self._read_data_header_line(
                 stream, self._variable_line_keyword
             ),
-            "todos": self._read_data_header_line(stream, "TODO"),
-            "units": self._read_data_header_line(stream, "UNITS"),
-            "regions": self._read_data_header_line(stream, "YEARS"),
+            "todo": self._read_data_header_line(stream, "TODO"),
+            "unit": self._read_data_header_line(stream, "UNITS"),
+            "region": self._read_data_header_line(stream, "YEARS"),
         }
         metadata.pop("units")
 
@@ -345,10 +339,10 @@ class _Reader(object):
             self._get_variable_from_filepath()
         )
         column_headers = {
-            "variables": [variable] * len(regions),
-            "todos": [self._default_todo_fill_value] * len(regions),
-            "units": [unit] * len(regions),
-            "regions": regions,
+            "variable": [variable] * len(regions),
+            "todo": [self._default_todo_fill_value] * len(regions),
+            "unit": [unit] * len(regions),
+            "region": regions,
         }
 
         for k in ["unit", "units", "gas"]:
@@ -451,13 +445,13 @@ class _Reader(object):
         return [region_mapping[r] for r in regions]
 
     def _read_units(self, column_headers):
-        column_headers["units"] = convert_pint_to_fortran_safe_units(
-            column_headers["units"], inverse=True
+        column_headers["unit"] = convert_pint_to_fortran_safe_units(
+            column_headers["unit"], inverse=True
         )
 
-        for i, unit in enumerate(column_headers["units"]):
+        for i, unit in enumerate(column_headers["unit"]):
             if unit in ("W/m2", "W/m^2"):
-                column_headers["units"][i] = "W / m^2"
+                column_headers["unit"][i] = "W / m^2"
 
         return column_headers
 
@@ -466,12 +460,12 @@ class _FourBoxReader(_Reader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
-        column_headers["regions"] = self._unify_magicc_regions(
-            column_headers["regions"]
+        column_headers["region"] = self._unify_magicc_regions(
+            column_headers["region"]
         )
 
         assert (
-            len(set(column_headers["units"])) == 1
+            len(set(column_headers["unit"])) == 1
         ), "Only one unit should be found for a MAGICC6 style file"
 
         return column_headers, metadata
@@ -495,8 +489,8 @@ class _OpticalThicknessInReader(_FourBoxReader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
-        metadata["unit normalisation"] = column_headers["units"][0]
-        column_headers["units"] = ["dimensionless"] * len(column_headers["units"])
+        metadata["unit normalisation"] = column_headers["unit"][0]
+        column_headers["unit"] = ["dimensionless"] * len(column_headers["unit"])
 
         return column_headers, metadata
 
@@ -531,8 +525,8 @@ class _EmisInReader(_Reader):
     def _read_units(self, column_headers):
         column_headers = super()._read_units(column_headers)
 
-        units = column_headers["units"]
-        variables = column_headers["variables"]
+        units = column_headers["unit"]
+        variables = column_headers["variable"]
         for i, (unit, variable) in enumerate(zip(units, variables)):
             unit = unit.replace("-", "")
             for tmass in ["Gt", "Mt", "kt", "t", "Pg", "Gg", "Mg", "kg", "g"]:
@@ -556,8 +550,8 @@ class _EmisInReader(_Reader):
             units[i] = "{} {}".format(mass, emissions_unit)
             variables[i] = variable
 
-        column_headers["units"] = units
-        column_headers["variables"] = variables
+        column_headers["unit"] = units
+        column_headers["variable"] = variables
 
         return column_headers
 
@@ -576,7 +570,7 @@ class _StandardEmisInReader(_EmisInReader):
         )
 
         tmp_vars = []
-        for v in column_headers["variables"]:
+        for v in column_headers["variable"]:
             # TODO: work out a way to avoid this fragile check and calling the
             # conversion once in the superclass method and again below
             if v.endswith("_EMIS") or v.startswith("Emissions"):
@@ -584,7 +578,7 @@ class _StandardEmisInReader(_EmisInReader):
             else:
                 tmp_vars.append(v + "_EMIS")
 
-        column_headers["variables"] = convert_magicc7_to_openscm_variables(tmp_vars)
+        column_headers["variable"] = convert_magicc7_to_openscm_variables(tmp_vars)
         column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
@@ -603,13 +597,13 @@ class _NonStandardEmisInReader(_EmisInReader):
         self._set_lines()
         self._stream = self._get_stream()
         header_notes_lines = self._read_header()
-        df = self.read_data_block()
+        df, columns = self.read_data_block()
         header_notes_lines += self._read_notes()
 
         metadata = {"header": "".join(header_notes_lines)}
         metadata.update(self.process_header(metadata["header"]))
 
-        return metadata, df
+        return metadata, df, columns
 
     def _get_stream(self):
         # Create a stream to work with, ignoring any blank lines
@@ -669,32 +663,36 @@ class _ScenReader(_NonStandardEmisInReader):
                 break
 
             variables = convert_magicc6_to_magicc7_variables(variables)
-            ch["variables"] = convert_magicc7_to_openscm_variables(
+            ch["variable"] = convert_magicc7_to_openscm_variables(
                 [v + "_EMIS" for v in variables]
             )
 
-            ch["units"] = self._read_data_header_line(self._stream, ["Yrs", "YEARS"])
+            ch["unit"] = self._read_data_header_line(self._stream, ["Yrs", "YEARS"])
 
             ch = self._read_units(ch)
-            ch["todos"] = ["SET"] * len(variables)
-            ch["regions"] = [region] * len(variables)
+            ch["todo"] = ["SET"] * len(variables)
+            ch["region"] = [region] * len(variables)
 
             region_block = StringIO()
             for i in range(no_years):
                 region_block.write(self._stream.readline())
             region_block.seek(0)
 
-            region_df = self._convert_data_block_and_headers_to_df(region_block, ch)
+            region_df = self._convert_data_block_and_headers_to_df(region_block)
 
             try:
-                df = pd.concat([region_df, df], axis="rows")
+                df = pd.concat([region_df, df], axis="columns")
+                columns = {
+                    key: ch[key] + columns[key] for key in columns
+                }
             except NameError:
                 df = region_df
+                columns = ch
 
         self._stream.seek(pos_block)
 
         try:
-            return self._convert_to_string_columns(df)
+            return df, columns
         except NameError:
             error_msg = (
                 "This is unexpected, please raise an issue on "
@@ -730,9 +728,9 @@ class _RCPDatReader(_Reader):
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
-        df, metadata = self.process_data(stream, metadata)
+        df, metadata, columns = self.process_data(stream, metadata)
 
-        return metadata, df
+        return metadata, df, columns
 
     def process_data(self, stream, metadata):
         # check headers are as we expect
@@ -750,27 +748,27 @@ class _RCPDatReader(_Reader):
         todos = ["SET"] * len(units)
 
         column_headers = {
-            "units": units,
-            "variables": variables,
-            "regions": regions,
-            "todos": todos,
+            "unit": units,
+            "variable": variables,
+            "region": regions,
+            "todo": todos,
         }
         column_headers = self._read_units(column_headers)
 
-        if column_headers["variables"][0].startswith("Emissions"):
+        if column_headers["variable"][0].startswith("Emissions"):
             # massive hack, refactor in cleanup
             converter = _EmisInReader("junk")
             # clean up ambiguous units so converter can do its thing
-            column_headers["units"] = [
+            column_headers["unit"] = [
                 u.replace("kt/yr", "kt").replace("Mt/yr", "Mt")
-                for u in column_headers["units"]
+                for u in column_headers["unit"]
             ]
 
             column_headers = converter._read_units(column_headers)
 
-        df = self._convert_data_block_and_headers_to_df(stream, column_headers)
+        df = self._convert_data_block_and_headers_to_df(stream)
 
-        return df, metadata
+        return df, metadata, column_headers
 
     def _convert_variables_to_openscm_variables(self, rcp_variables):
         magicc7_vars = convert_magicc6_to_magicc7_variables(rcp_variables)
@@ -800,11 +798,10 @@ class _RCPDatReader(_Reader):
 
 class _PrnReader(_NonStandardEmisInReader):
     def read(self):
-        metadata, df = super().read()
+        metadata, df, column_headers = super().read()
 
         # now fix labelling, have to copy index :(
-        variables = df.columns.get_level_values("VARIABLE").tolist()
-        variables = convert_magicc6_to_magicc7_variables(variables)
+        variables = convert_magicc6_to_magicc7_variables(column_headers['variable'])
         todos = ["SET"] * len(variables)
         region = convert_magicc_to_openscm_regions("WORLD")
 
@@ -832,16 +829,13 @@ class _PrnReader(_NonStandardEmisInReader):
             variables = [v + "_EMIS" for v in variables]
 
         column_headers = {
-            "variables": convert_magicc7_to_openscm_variables(variables),
-            "todos": todos,
-            "units": [unit] * len(variables),
-            "regions": [region] * len(variables),
+            "variable": convert_magicc7_to_openscm_variables(variables),
+            "todo": todos,
+            "unit": [unit] * len(variables),
+            "region": [region] * len(variables),
         }
         if emms:
             column_headers = self._read_units(column_headers)
-
-        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
-        df = self._convert_to_string_columns(df.T.reset_index())
 
         for k in ["gas", "unit"]:
             try:
@@ -849,7 +843,7 @@ class _PrnReader(_NonStandardEmisInReader):
             except KeyError:
                 pass
 
-        return metadata, df
+        return metadata, df, self._set_column_defaults(column_headers)
 
     def _read_header(self):
         # ignore first line, not useful for read
@@ -908,15 +902,17 @@ class _PrnReader(_NonStandardEmisInReader):
         data_block_stream.seek(0)
         df = pd.read_fwf(data_block_stream, widths=col_widths, header=None, index_col=0)
         df.index.name = "time"
-        df.columns = pd.MultiIndex.from_arrays(
-            [variables, todos, units, regions],
-            names=("VARIABLE", "TODO", "UNITS", "REGION"),
-        )
+        columns = {
+            'variable': variables,
+            'todo': todos,
+            'unit': units,
+            'region': regions
+        }
 
         # put stream back for notes reading
         self._stream.seek(prev_pos)
 
-        return df
+        return df, columns
 
     def _read_notes(self):
         notes = []
@@ -953,19 +949,19 @@ class _TempOceanLayersOutReader(_Reader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
-        if set(column_headers["variables"]) == {"TEMP_OCEANLAYERS"}:
+        if set(column_headers["variable"]) == {"TEMP_OCEANLAYERS"}:
             region = "GLOBAL"
-        elif set(column_headers["variables"]) == {"TEMP_OCEANLAYERS_NH"}:
+        elif set(column_headers["variable"]) == {"TEMP_OCEANLAYERS_NH"}:
             region = "NHOCEAN"
-        elif set(column_headers["variables"]) == {"TEMP_OCEANLAYERS_SH"}:
+        elif set(column_headers["variable"]) == {"TEMP_OCEANLAYERS_SH"}:
             region = "SHOCEAN"
         else:
             self._raise_cannot_determine_variable_from_filepath_error()
 
-        column_headers["variables"] = [
-            "OCEAN_TEMP_" + l for l in column_headers["regions"]
+        column_headers["variable"] = [
+            "OCEAN_TEMP_" + l for l in column_headers["region"]
         ]
-        column_headers["regions"] = [region] * len(column_headers["regions"])
+        column_headers["region"] = [region] * len(column_headers["region"])
 
         return column_headers, metadata
 
@@ -1011,9 +1007,9 @@ class _BinaryOutReader(_Reader):
         data = _BinData(self.filepath)
 
         metadata = self.process_header(data)
-        df, metadata = self.process_data(data, metadata)
+        df, metadata, columns = self.process_data(data, metadata)
 
-        return metadata, df
+        return metadata, df, columns
 
     def process_data(self, stream, metadata):
         """
@@ -1062,15 +1058,13 @@ class _BinaryOutReader(_Reader):
         )
         variable = convert_magicc7_to_openscm_variables(variable)
         column_headers = {
-            "variables": [variable] * (num_regions + 1),
-            "regions": regions,
-            "units": ["unknown"] * len(regions),
-            "todos": ["SET"] * len(regions),
+            "variable": [variable] * (num_regions + 1),
+            "region": regions,
+            "unit": ["unknown"] * len(regions),
+            "todo": ["SET"] * len(regions),
         }
-        df.columns = self._get_columns_multiindex_from_column_headers(column_headers)
-        df = self._convert_to_string_columns(df.T.reset_index())
 
-        return df, metadata
+        return df, metadata, self._set_column_defaults(column_headers)
 
     def process_header(self, data):
         """
@@ -1347,11 +1341,10 @@ class _Writer(object):
         return nml, data_block
 
     def _get_data_block(self):
-        data_block = self.minput.pivot_table(
-            index="time",
-            columns=["variable", "todo", "unit", "region"],  # drop everything else
+        data_block = self.minput.timeseries(
+            meta=["variable", "todo", "unit", "region"],  # drop everything else
             aggfunc="sum",
-        )
+        ).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
@@ -1436,11 +1429,10 @@ class _PrnWriter(_Writer):
     def _write_datablock(self, output):
         lines = output.getvalue().split(self._newline_char)
 
-        data_block_full = self.minput.pivot_table(
-            index="time",
-            columns=["variable", "todo", "unit", "region"],  # drop everything else
+        data_block_full = self.minput.timeseries(
+            meta=["variable", "todo", "unit", "region"],  # drop everything else
             aggfunc="sum",
-        )
+        ).T
         units = data_block_full.columns.get_level_values("unit").unique()
         unit = units[0].split(" ")[0]
         if unit == "t":
@@ -1511,11 +1503,10 @@ class _PrnWriter(_Writer):
         return output
 
     def _get_data_block(self):
-        data_block = self.minput.pivot_table(
-            index="time",
-            columns=["variable", "todo", "unit", "region"],  # drop everything else
+        data_block = self.minput.timeseries(
+            meta=["variable", "todo", "unit", "region"],  # drop everything else
             aggfunc="sum",
-        )
+        ).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
@@ -1551,7 +1542,7 @@ class _ScenWriter(_Writer):
 
     def write(self, magicc_input, filepath):
         orig_length = len(magicc_input)
-        orig_vars = magicc_input.variables()
+        orig_vars = magicc_input['variable']
 
         if not (set(self.SCEN_VARS_CODE_1) - set(orig_vars)):
             magicc_input.filter(variable=self.SCEN_VARS_CODE_1, inplace=True)
@@ -1813,26 +1804,29 @@ class MAGICCData(ScmDataFrameBase):
         if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
             self.filepath = None
             self.metadata = {}
+            super().__init__(data)
         else:
             filepath = data  # assume filepath
             self.filepath = filepath
-            self.metadata, data = _read_and_return_metadata_df(filepath)
+            self.metadata, data, columns = _read_and_return_metadata_df(filepath)
 
-        fill_cols_data = {
-            "model": model,
-            "scenario": scenario,
-            "climate_model": climate_model
-        }
-        for key, value in fill_cols_data.items():
-            try:
-                if (data[key] == "unspecified").all() and value is not None:
-                    data[key] = value
-                elif not (data[key] == "unspecified").all() and value is not None:
-                    raise ValueError("Setting {} will overwrite existing values".format(key))
-            except KeyError:
-                data[key] = "unspecified"
+            fill_cols_data = {
+                "model": model,
+                "scenario": scenario,
+                "climate_model": climate_model
+            }
+            for key, value in fill_cols_data.items():
+                if key not in columns:
+                    columns[key] = [value] if value is not None else ["unspecified"]
+                else:
+                    if value is None:
+                        continue
+                    if all([v == "unspecified" for v in columns[key]]):
+                        columns[key] = [value]
+                    else:
+                        raise ValueError("Setting {} will overwrite existing values".format(key))
 
-        super().__init__(data)
+            super().__init__(data, columns=columns)
 
     def _format_datetime_col(self):
         time_srs = self["time"]
@@ -1887,7 +1881,7 @@ class MAGICCData(ScmDataFrameBase):
     @property
     def is_loaded(self):
         """bool: Whether the data has been loaded yet."""
-        return self.data is not None
+        return self._meta is not None
 
     def append(self, other, **kwargs):
         """

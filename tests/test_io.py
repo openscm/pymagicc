@@ -56,18 +56,16 @@ def generic_mdata_tests(mdata):
 
     assert isinstance(mdata, ScmDataFrameBase)
     pd.testing.assert_index_equal(
-        mdata.data.columns,
+        mdata.meta.columns,
         pd.Index(
             [
-                "variable",
-                "todo",
-                "unit",
-                "region",
-                "climate_model",
                 "model",
                 "scenario",
-                "time",
-                "value",
+                "region",
+                "variable",
+                "unit",
+                "climate_model",
+                "todo"
             ]
         ),
     )
@@ -90,9 +88,9 @@ def assert_mdata_value(mdata, value, **kwargs):
     res = mdata.filter(**kwargs)
     assert len(res) == 1
     if value < 0.1:
-        np.testing.assert_allclose(res["value"], value, rtol=1e-4)
+        np.testing.assert_allclose(res.timeseries().iloc[0], value, rtol=1e-4)
     else:
-        np.testing.assert_allclose(res["value"], value)
+        np.testing.assert_allclose(res.timeseries().iloc[0], value)
 
 
 def test_cant_find_reader_writer():
@@ -2248,11 +2246,10 @@ def test_filter():
     tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
     tregion = "World|R5LAM"
     tyear = 1983
-    result = mdata.filter(variable=tvariable, region=tregion).data
-    expected = mdata.data[
-        (mdata["variable"] == tvariable) & (mdata["region"] == tregion)
-    ]
-    pd.testing.assert_frame_equal(result, expected)
+    result = mdata.filter(variable=tvariable, region=tregion).timeseries()
+    mask = np.array((mdata.meta['variable'] == tvariable) & (mdata.meta['region'] == tregion))
+    expected = mdata.timeseries()[mask]
+    pd.testing.assert_frame_equal(result, expected, check_names=False, check_like=True)
 
 
 def test_incomplete_filepath():
@@ -2423,7 +2420,7 @@ def test_in_file_read_write_functionally_identical(
 
     # drop index as we don't care about it
     pd.testing.assert_frame_equal(
-        mi_written.data.reset_index(drop=True), mi_initial.data.reset_index(drop=True)
+        mi_written.timeseries(), mi_initial.timeseries()
     )
 
 
@@ -2575,9 +2572,8 @@ def test_bin_and_ascii_equal(file_to_read):
     # There are some minor differences between in the dataframes due to availability
     # of metadata in BINOUT files
     drop_axes = ["unit", "todo"]
-    ascii_df = mdata_ascii.data.drop(drop_axes, axis="columns")
-    bin_df = mdata_bin.data.drop(drop_axes, axis="columns")
-    pd.testing.assert_frame_equal(ascii_df, bin_df)
+    pd.testing.assert_frame_equal(mdata_ascii._data, mdata_bin._data, check_like=False)
+    pd.testing.assert_frame_equal(mdata_ascii.meta.drop(drop_axes, axis='columns'), mdata_bin.meta.drop(drop_axes, axis='columns'))
 
 
 @patch("pymagicc.io._read_and_return_metadata_df")
@@ -2708,11 +2704,11 @@ def test_pull_cfg_from_parameters_out():
 def test_join_timeseries():
     mdata = MAGICCData(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
 
-    base = mdata.data.copy()
+    base = mdata.timeseries().copy()
     base["todo"] = "SET"
 
     mdata= MAGICCData(join(MAGICC6_DIR, "RCP60.SCEN"))
-    scen = mdata.data.copy()
+    scen = mdata.timeseries().copy()
 
     res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
 
@@ -2817,7 +2813,7 @@ def join_overwrite_df():
         columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield MAGICCData(odf).data.copy()
+    yield MAGICCData(odf).timeseries().copy()
 
 
 def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
