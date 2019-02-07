@@ -167,6 +167,22 @@ OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = get_magicc_region_to_openscm_region_ma
 """dict: Mappings from OpenSCM regions to MAGICC regions
 """
 
+@functools.lru_cache(None)
+def _apply_convert_magicc_to_openscm_regions(regions, inverse):
+    if inverse:
+        return apply_string_substitutions(
+            regions,
+            OPENSCM_REGION_TO_MAGICC_REGION_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+        )
+    else:
+        return apply_string_substitutions(
+            regions,
+            MAGICC_REGION_TO_OPENSCM_REGION_MAPPING,
+            unused_substitutions="ignore",  # TODO: make this warn and see what happens
+            case_insensitive=True,  # MAGICC regions are case insensitive
+        )
+
 
 def convert_magicc_to_openscm_regions(regions, inverse=False):
     """
@@ -186,19 +202,10 @@ def convert_magicc_to_openscm_regions(regions, inverse=False):
     ``type(regions)``
         Set of converted regions
     """
-    if inverse:
-        return apply_string_substitutions(
-            regions,
-            OPENSCM_REGION_TO_MAGICC_REGION_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-        )
+    if isinstance(regions, list):
+        return [_apply_convert_magicc_to_openscm_regions(r, inverse) for r in regions]
     else:
-        return apply_string_substitutions(
-            regions,
-            MAGICC_REGION_TO_OPENSCM_REGION_MAPPING,
-            unused_substitutions="ignore",  # TODO: make this warn and see what happens
-            case_insensitive=True,  # MAGICC regions are case insensitive
-        )
+        return _apply_convert_magicc_to_openscm_regions(regions, inverse)
 
 
 def get_magicc7_to_openscm_variable_mapping(inverse=False):
