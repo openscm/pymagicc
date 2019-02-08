@@ -58,15 +58,7 @@ def generic_mdata_tests(mdata):
     pd.testing.assert_index_equal(
         mdata.meta.columns,
         pd.Index(
-            [
-                "model",
-                "scenario",
-                "region",
-                "variable",
-                "unit",
-                "climate_model",
-                "todo"
-            ]
+            ["model", "scenario", "region", "variable", "unit", "climate_model", "todo"]
         ),
     )
 
@@ -744,7 +736,7 @@ def test_load_scen_specify_metadata():
         join(MAGICC6_DIR, "RCP26.SCEN"),
         model=tmodel,
         scenario=tscenario,
-        climate_model=tclimate_model
+        climate_model=tclimate_model,
     )
 
     generic_mdata_tests(mdata)
@@ -1921,7 +1913,7 @@ def test_load_out_emis():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"]== "N/A").all()
+    assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "Mt BC / yr").all()
     assert (mdata["variable"] == "Emissions|BC|MAGICC AFOLU").all()
 
@@ -2247,7 +2239,9 @@ def test_filter():
     tregion = "World|R5LAM"
     tyear = 1983
     result = mdata.filter(variable=tvariable, region=tregion).timeseries()
-    mask = np.array((mdata.meta['variable'] == tvariable) & (mdata.meta['region'] == tregion))
+    mask = np.array(
+        (mdata.meta["variable"] == tvariable) & (mdata.meta["region"] == tregion)
+    )
     expected = mdata.timeseries()[mask]
     pd.testing.assert_frame_equal(result, expected, check_names=False, check_like=True)
 
@@ -2319,7 +2313,7 @@ def test_magicc_input_init_preserves_columns():
             "region": "World|R5REF",
             "unit": "K",
             "time": 2012,
-            "value": 0.9
+            "value": 0.9,
         },
         index=[0],
     )
@@ -2419,9 +2413,7 @@ def test_in_file_read_write_functionally_identical(
                 assert value_written == mi_initial.metadata[key_written]
 
     # drop index as we don't care about it
-    pd.testing.assert_frame_equal(
-        mi_written.timeseries(), mi_initial.timeseries()
-    )
+    pd.testing.assert_frame_equal(mi_written.timeseries(), mi_initial.timeseries())
 
 
 emissions_valid = [
@@ -2573,7 +2565,10 @@ def test_bin_and_ascii_equal(file_to_read):
     # of metadata in BINOUT files
     drop_axes = ["unit", "todo"]
     pd.testing.assert_frame_equal(mdata_ascii._data, mdata_bin._data, check_like=False)
-    pd.testing.assert_frame_equal(mdata_ascii.meta.drop(drop_axes, axis='columns'), mdata_bin.meta.drop(drop_axes, axis='columns'))
+    pd.testing.assert_frame_equal(
+        mdata_ascii.meta.drop(drop_axes, axis="columns"),
+        mdata_bin.meta.drop(drop_axes, axis="columns"),
+    )
 
 
 @patch("pymagicc.io._read_and_return_metadata_df")
@@ -2583,28 +2578,35 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
     tdf_init = pd.DataFrame([[2.0, 1.2, 7.9]], index=[2000])
     tdf_init_columns = {
-        'model': ['a'],
-        'scenario': ['b'],
-        'region': ['World|ASIA'],
-        'variable': ['GE', 'GE|Coal', 'GE|Gas'],
-        'unit': ['J/y']
+        "model": ["a"],
+        "scenario": ["b"],
+        "region": ["World|ASIA"],
+        "variable": ["GE", "GE|Coal", "GE|Gas"],
+        "unit": ["J/y"],
     }
-
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = pd.DataFrame([[-6., 3.2, 7.1]], index=[2000])
+    tdf_append = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[2000])
     tdf_append_columns = {
-        'model': ['d'],
-        'scenario': ['e'],
-        'region': ['World|ASIA'],
-        'variable': ['GE', 'GE|Coal', 'GE|Gas'],
-        'unit': ['J/y']
+        "model": ["d"],
+        "scenario": ["e"],
+        "region": ["World|ASIA"],
+        "variable": ["GE", "GE|Coal", "GE|Gas"],
+        "unit": ["J/y"],
     }
 
-    mock_read_and_return_metadata_df.return_value = tmetadata_init, tdf_init, tdf_init_columns
+    mock_read_and_return_metadata_df.return_value = (
+        tmetadata_init,
+        tdf_init,
+        tdf_init_columns,
+    )
     mdata = MAGICCData("mocked")
 
-    mock_read_and_return_metadata_df.return_value = tmetadata_append, tdf_append, tdf_append_columns
+    mock_read_and_return_metadata_df.return_value = (
+        tmetadata_append,
+        tdf_append,
+        tdf_append_columns,
+    )
     mdata.append(tfilepath)
 
     mock_read_and_return_metadata_df.assert_called_with(tfilepath)
@@ -2769,7 +2771,9 @@ def test_join_timeseries():
 @patch("pymagicc.io.MAGICCData")
 @patch("pymagicc.io._join_timeseries_mdata")
 @patch("pymagicc.io.isinstance")
-def test_join_timeseries_unit(mock_isinstance, mock_join_timeseries_mdata, mock_magicc_data):
+def test_join_timeseries_unit(
+    mock_isinstance, mock_join_timeseries_mdata, mock_magicc_data
+):
     tbase = 13
     toverwrite = 14
     tdf = "mocked as well"
@@ -2852,9 +2856,11 @@ def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df)
         res, 1.3, variable="Emissions|CH4", region="World", year=2020, unit="MtCH4/yr"
     )
 
-    assert res.filter(
-        variable="Emissions|CH4", region="World", year=2100, unit="MtCH4/yr"
-    ).timeseries().empty
+    assert (
+        res.filter(variable="Emissions|CH4", region="World", year=2100, unit="MtCH4/yr")
+        .timeseries()
+        .empty
+    )
 
 
 def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):

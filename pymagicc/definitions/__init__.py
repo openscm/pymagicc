@@ -167,6 +167,7 @@ OPENSCM_REGION_TO_MAGICC_REGION_MAPPING = get_magicc_region_to_openscm_region_ma
 """dict: Mappings from OpenSCM regions to MAGICC regions
 """
 
+
 @functools.lru_cache(None)
 def _apply_convert_magicc_to_openscm_regions(regions, inverse):
     if inverse:
@@ -221,6 +222,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
+
     def get_openscm_replacement(in_var):
         if in_var.endswith("_EMIS"):
             prefix = "Emissions"
@@ -371,6 +373,7 @@ OPENSCM_TO_MAGICC7_VARIABLES_MAPPING = get_magicc7_to_openscm_variable_mapping(
 """dict: Mappings from OpenSCM variables to MAGICC7 variables
 """
 
+
 @functools.lru_cache(None)
 def _apply_convert_magicc7_to_openscm_variables(v, inverse):
     if inverse:
@@ -407,7 +410,9 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
         Set of converted variables
     """
     if isinstance(variables, (list, pd.Index)):
-        return [_apply_convert_magicc7_to_openscm_variables(v, inverse) for v in variables]
+        return [
+            _apply_convert_magicc7_to_openscm_variables(v, inverse) for v in variables
+        ]
     else:
         return _apply_convert_magicc7_to_openscm_variables(variables, inverse)
 
@@ -614,7 +619,9 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
         Set of converted variables
     """
     if isinstance(variables, (list, pd.Index)):
-        return [_apply_convert_magicc6_to_magicc7_variables(v, inverse) for v in variables]
+        return [
+            _apply_convert_magicc6_to_magicc7_variables(v, inverse) for v in variables
+        ]
     else:
         return _apply_convert_magicc6_to_magicc7_variables(variables, inverse)
 

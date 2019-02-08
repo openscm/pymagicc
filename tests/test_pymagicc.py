@@ -48,11 +48,11 @@ def test_run_rcp26(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp26, magicc_version=package.version)
 
-    result_temp = results.filter(
-        variable="Surface Temperature",
-        year=2100,
-        region="World",
-    ).timeseries().squeeze()
+    result_temp = (
+        results.filter(variable="Surface Temperature", year=2100, region="World")
+        .timeseries()
+        .squeeze()
+    )
 
     np.testing.assert_allclose(result_temp, 1.563254, rtol=1e-5)
     do_basic_run_checks(results)
@@ -64,11 +64,11 @@ def test_run_rcp45(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp45, magicc_version=package.version)
 
-    result_temp = results.filter(
-        variable="Surface Temperature",
-        year=2100,
-        region="World",
-    ).timeseries().squeeze()
+    result_temp = (
+        results.filter(variable="Surface Temperature", year=2100, region="World")
+        .timeseries()
+        .squeeze()
+    )
     np.testing.assert_allclose(result_temp, 2.497057, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -79,11 +79,11 @@ def test_run_rcp60(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp60, magicc_version=package.version)
 
-    result_temp = results.filter(
-        variable="Surface Temperature",
-        year=2100,
-        region="World",
-    ).timeseries().squeeze()
+    result_temp = (
+        results.filter(variable="Surface Temperature", year=2100, region="World")
+        .timeseries()
+        .squeeze()
+    )
     np.testing.assert_allclose(result_temp, 3.102484, rtol=1e-5)
     do_basic_run_checks(results)
 
@@ -94,11 +94,11 @@ def test_run_rcp85(package):
         pytest.skip(magicc7_not_included_msg)
     results = run(rcp85, magicc_version=package.version)
 
-    result_temp = results.filter(
-        variable="Surface Temperature",
-        year=2100,
-        region="World",
-    ).timeseries().squeeze()
+    result_temp = (
+        results.filter(variable="Surface Temperature", year=2100, region="World")
+        .timeseries()
+        .squeeze()
+    )
     np.testing.assert_allclose(result_temp, 4.676012, rtol=1e-5)
     do_basic_run_checks(results)
 

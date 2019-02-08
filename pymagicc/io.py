@@ -185,9 +185,7 @@ class _Reader(object):
                 # have to do this type coercion as nml reads things like
                 # 10superscript22 J into a threepart list, [10,
                 # 'superscript22', 'J'] where the first part is an int
-                value = "".join(
-                    [str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]]
-                )
+                value = "".join([str(v) for v in nml["THISFILE_SPECIFICATIONS"][k]])
                 metadata[metadata_key] = postprocess_edge_cases(value).strip()
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
@@ -275,7 +273,7 @@ class _Reader(object):
             "region",
             "climate_model",
             "model",
-            "scenario"
+            "scenario",
         ]
         for col in required_cols:
             assert col in ch
@@ -460,9 +458,7 @@ class _FourBoxReader(_Reader):
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
 
-        column_headers["region"] = self._unify_magicc_regions(
-            column_headers["region"]
-        )
+        column_headers["region"] = self._unify_magicc_regions(column_headers["region"])
 
         assert (
             len(set(column_headers["unit"])) == 1
@@ -682,9 +678,7 @@ class _ScenReader(_NonStandardEmisInReader):
 
             try:
                 df = pd.concat([region_df, df], axis="columns")
-                columns = {
-                    key: ch[key] + columns[key] for key in columns
-                }
+                columns = {key: ch[key] + columns[key] for key in columns}
             except NameError:
                 df = region_df
                 columns = ch
@@ -801,7 +795,7 @@ class _PrnReader(_NonStandardEmisInReader):
         metadata, df, column_headers = super().read()
 
         # now fix labelling, have to copy index :(
-        variables = convert_magicc6_to_magicc7_variables(column_headers['variable'])
+        variables = convert_magicc6_to_magicc7_variables(column_headers["variable"])
         todos = ["SET"] * len(variables)
         region = convert_magicc_to_openscm_regions("WORLD")
 
@@ -903,10 +897,10 @@ class _PrnReader(_NonStandardEmisInReader):
         df = pd.read_fwf(data_block_stream, widths=col_widths, header=None, index_col=0)
         df.index.name = "time"
         columns = {
-            'variable': variables,
-            'todo': todos,
-            'unit': units,
-            'region': regions
+            "variable": variables,
+            "todo": todos,
+            "unit": units,
+            "region": regions,
         }
 
         # put stream back for notes reading
@@ -1539,7 +1533,7 @@ class _ScenWriter(_Writer):
 
     def write(self, magicc_input, filepath):
         orig_length = len(magicc_input)
-        orig_vars = magicc_input['variable']
+        orig_vars = magicc_input["variable"]
 
         if not (set(self.SCEN_VARS_CODE_1) - set(orig_vars)):
             magicc_input.filter(variable=self.SCEN_VARS_CODE_1, inplace=True)
@@ -1810,7 +1804,7 @@ class MAGICCData(ScmDataFrameBase):
             fill_cols_data = {
                 "model": model,
                 "scenario": scenario,
-                "climate_model": climate_model
+                "climate_model": climate_model,
             }
             for key, value in fill_cols_data.items():
                 if key not in columns:
@@ -1821,7 +1815,9 @@ class MAGICCData(ScmDataFrameBase):
                     if all([v == "unspecified" for v in columns[key]]):
                         columns[key] = [value]
                     else:
-                        raise ValueError("Setting {} will overwrite existing values".format(key))
+                        raise ValueError(
+                            "Setting {} will overwrite existing values".format(key)
+                        )
 
             super().__init__(data, columns=columns)
 
@@ -1953,11 +1949,7 @@ def determine_tool(filepath, tool_to_get):
         Invalid values will throw a NoReaderWriterError.
     """
     file_regexp_reader_writer = {
-        "SCEN": {
-            "regexp": r"^.*\.SCEN$",
-            "reader": _ScenReader,
-            "writer": _ScenWriter,
-        },
+        "SCEN": {"regexp": r"^.*\.SCEN$", "reader": _ScenReader, "writer": _ScenWriter},
         "SCEN7": {
             "regexp": r"^.*\.SCEN7$",
             "reader": _Scen7Reader,
