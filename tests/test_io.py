@@ -2907,7 +2907,7 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
             join_linear=[2000, 2020, 2011],
         )
 
-    join_base_df = join_base_df[join_base_df["variable"] == "Emissions|CH4"]
+    join_base_df = join_base_df.filter(variable="Emissions|CH4")
     error_msg = re.escape("No overlapping indices, a simple append will do")
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(base=join_base_df, overwrite=join_overwrite_df)

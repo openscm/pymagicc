@@ -382,8 +382,8 @@ def valid_tcr_ecs_diagnosis_results():
 
     yield {
         "mock_results": mock_results,
-        "tcr_time": datetime(tcr_yr, 7, 12),
-        "ecs_time": datetime(ecs_yr, 7, 12),
+        "tcr_time": datetime(tcr_yr, 1, 1),
+        "ecs_time": datetime(ecs_yr, 1, 1),
     }
 
 
