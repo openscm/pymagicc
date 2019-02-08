@@ -171,7 +171,10 @@ def test_run_success(package):
 def test_run_with_magiccdata(package, temp_dir):
     tmodel = "IMAGE"
     tscenario = "RCP26"
-    scen = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), model=tmodel, scenario=tscenario)
+    scen = MAGICCData(
+        join(MAGICC6_DIR, "RCP26.SCEN"),
+        columns={"model": [tmodel], "scenario": [tscenario]},
+    )
 
     results = package.run(scen, only=["Surface Temperature"])
 
@@ -218,11 +221,12 @@ def test_run_rewritten_scen_file(package, temp_dir):
     starting_scen = join(MAGICC6_DIR, "RCP26.SCEN")
     written_scen = join(package.run_dir, "RCP26.SCEN7")
 
-    mdata_initial = MAGICCData(starting_scen)
+    cols = {"model": ["IMAGE"], "scenario": ["RCP26"], "climate_model": ["MAGICC6"]}
+    mdata_initial = MAGICCData(starting_scen, columns=cols)
 
     mdata_initial.write(written_scen, magicc_version=7)
 
-    mdata_written = MAGICCData(written_scen)
+    mdata_written = MAGICCData(written_scen, columns=cols)
 
     results = package.run(mdata_written, only=["Surface Temperature"])
 
@@ -782,7 +786,10 @@ def test_pymagicc_writing_has_an_effect(
 
     ttweak_factor = 0.9
 
-    mdata = MAGICCData(join(package.run_dir, test_filename))
+    mdata = MAGICCData(
+        join(package.run_dir, test_filename),
+        columns={"model": ["unspecified"], "scenario": ["unspecified"]},
+    )
     mdata._data *= ttweak_factor
     mdata.write(join(package.run_dir, test_filename), package.version)
 
@@ -859,28 +866,26 @@ def test_zero_run(package):
     vars_to_check = ["Surface Temperature", "Radiative Forcing"]
     results = package.run(only=vars_to_check, endyear=2500)
     for var in vars_to_check:
-        np.testing.assert_allclose(
-            results.filter(variable=var)["value"],
-            0
-        )
+        np.testing.assert_allclose(results.filter(variable=var).timeseries().values, 0)
 
 
 def test_external_forcing_only_run(package):
-    time = [datetime(1765, 7, 12) + i*relativedelta(years=1) for i in range(700)]
+    time = zero_emissions["time"]
 
     forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
-    forcing_external_df = pd.DataFrame({
-        "time": time,
-        "scenario": "idealised",
-        "model": "unspecified",
-        "climate_model": "unspecified",
-        "variable": "Radiative Forcing|Extra",
-        "unit": "W / m^2",
-        "todo": "SET",
-        "region": "World",
-        "value": forcing_external
-    })
-    forcing_ext = MAGICCData(forcing_external_df)
+    forcing_ext = MAGICCData(
+        forcing_external,
+        columns={
+            "index": time,
+            "scenario": ["idealised"],
+            "model": ["unspecified"],
+            "climate_model": ["unspecified"],
+            "variable": ["Radiative Forcing|Extra"],
+            "unit": ["W / m^2"],
+            "todo": ["SET"],
+            "region": ["World"],
+        },
+    )
     forcing_ext_filename = "EXTERNAL_RF.IN"
     forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
     forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
@@ -889,7 +894,7 @@ def test_external_forcing_only_run(package):
         rf_extra_read=1,
         file_extra_rf=forcing_ext_filename,
         rf_total_runmodus="QEXTRA",
-        endyear=max(time).year,  
+        endyear=max(time).year,
         rf_initialization_method="ZEROSTARTSHIFT",  # this is default but just in case
         rf_total_constantafteryr=5000,
     )
@@ -897,72 +902,95 @@ def test_external_forcing_only_run(package):
     # MAGICC's weird last year business means that last result is just constant from previous
     # year and is not treated properly
     # TODO: add this in docs
-    validation_output = results.filter(variable="Radiative Forcing", region="World")["value"][:-1]
+    validation_output = (
+        results.filter(variable="Radiative Forcing", region="World")
+        .timeseries()
+        .values.squeeze()[:-1]
+    )
     validation_input = forcing_external[:-1]
     np.testing.assert_allclose(validation_input, validation_output, rtol=1e-5)
-    temperature_global = results.filter(
-        variable="Surface Temperature", 
-        region="World"
-    )["value"].values
+    temperature_global = (
+        results.filter(variable="Surface Temperature", region="World")
+        .timeseries()
+        .values.squeeze()
+    )
     assert (temperature_global[1:] - temperature_global[:-1] >= 0).all()
 
+
 def test_co2_emissions_only(package):
-    scen = MAGICCData(zero_emissions.data.copy())
+    df = zero_emissions.timeseries()
 
-    emms_fossil_co2 = np.linspace(0, 30, len(scen.filter(variable="Em*CO2*Fossil*")["time"]))
-
-    scen.data.loc[
-        scen["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
-        "value"
+    time = zero_emissions["time"]
+    emms_fossil_co2 = np.linspace(0, 30, len(time))
+    df.loc[
+        (
+            df.index.get_level_values("variable")
+            == "Emissions|CO2|MAGICC Fossil and Industrial"
+        ),
+        :,
     ] = emms_fossil_co2
 
+    scen = MAGICCData(df)
     results = package.run(
         scen,
-        endyear=max(scen["time"]).year,  
+        endyear=max(scen["time"]).year,
         rf_total_constantafteryr=5000,
         rf_total_runmodus="CO2",
         co2_switchfromconc2emis_year=min(scen["time"]).year,
     )
 
-    output_co2 = results.filter(variable="Em*CO2*Fossil*", region="World")["value"] 
+    output_co2 = (
+        results.filter(variable="Em*CO2*Fossil*", region="World")
+        .timeseries()
+        .values.squeeze()
+    )
     assert not (output_co2 == 0).all()
     np.testing.assert_allclose(output_co2, emms_fossil_co2, rtol=0.0005)
-    temperature_global = results.filter(
-        variable="Surface Temperature", 
-        region="World"
-    )["value"].values
+
+    temperature_global = (
+        results.filter(variable="Surface Temperature", region="World")
+        .timeseries()
+        .values.squeeze()
+    )
     assert (temperature_global[1:] - temperature_global[:-1] >= 0).all()
+
 
 @pytest.mark.parametrize("emms_co2_level", [0, 5])
 def test_co2_emms_other_rf_run(package, emms_co2_level):
     package.set_zero_config()
 
-    scen = MAGICCData(zero_emissions.data.copy())
+    df = zero_emissions.timeseries()
 
-    time = scen.filter(variable="Em*CO2*Fossil*")["time"].values
-
+    time = zero_emissions["time"]
     emms_fossil_co2 = np.zeros(len(time))
-    emms_fossil_co2[20:] = emms_co2_level    
-    scen.data.loc[
-        scen["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
-        "value"
+    emms_fossil_co2[20:] = emms_co2_level
+
+    df.loc[
+        (
+            df.index.get_level_values("variable")
+            == "Emissions|CO2|MAGICC Fossil and Industrial"
+        ),
+        :,
     ] = emms_fossil_co2
 
+    scen = MAGICCData(df)
+
     forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
-    forcing_external_df = pd.DataFrame({
-        "time": time,
-        "scenario": "idealised",
-        "model": "unspecified",
-        "climate_model": "unspecified",
-        "variable": "Radiative Forcing|Extra",
-        "unit": "W / m^2",
-        "todo": "SET",
-        "region": "World",
-        "value": forcing_external
-    })
-    forcing_ext = MAGICCData(forcing_external_df)
-    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext = MAGICCData(
+        forcing_external,
+        columns={
+            "index": time,
+            "scenario": ["idealised"],
+            "model": ["unspecified"],
+            "climate_model": ["unspecified"],
+            "variable": ["Radiative Forcing|Extra"],
+            "unit": ["W / m^2"],
+            "todo": ["SET"],
+            "region": ["World"],
+        },
+    )
     forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
+    forcing_ext_filename = "EXTERNAL_RF.IN"
     forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
 
     # TODO: fix endyear so it takes from scenario input by default
@@ -977,20 +1005,26 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     )
 
     np.testing.assert_allclose(
-        results.filter(variable="Em*CO2*Fossil*", region="World")["value"],
-        emms_fossil_co2
+        results.filter(variable="Em*CO2*Fossil*", region="World")
+        .timeseries()
+        .values.squeeze(),
+        emms_fossil_co2,
     )
     # CO2 temperature feedbacks mean that you get a CO2 outgassing, hence CO2 forcing. As a
     # result radiative forcing values don't match exactly. Numerical precision adds to this.
-    greater_equal_rows = (
-        results.filter(variable="Radiative Forcing", region="World")["value"]
-        >= forcing_external
+    ext_rf_output_vals = (
+        results.filter(variable="Radiative Forcing", region="World")
+        .timeseries()
+        .values.squeeze()
     )
+    zero_rows = (forcing_external == 0) & (ext_rf_output_vals == 0)
+
+    greater_equal_rows = ext_rf_output_vals >= forcing_external
+    close_rows_denominator = forcing_external
+    close_rows_denominator[zero_rows] = 10 ** -10  # avoid divide by zero
     close_rows = (
-        np.abs(
-            results.filter(variable="Radiative Forcing", region="World")["value"]
-            - forcing_external
-        ) / forcing_external <= 10**-3
+        np.abs(ext_rf_output_vals - forcing_external) / close_rows_denominator
+        <= 10 ** -3
     )
     matching_rows = greater_equal_rows | close_rows
     assert matching_rows.all()

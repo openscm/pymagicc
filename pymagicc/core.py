@@ -4,10 +4,13 @@ from os import listdir, makedirs
 from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
 from dateutil.relativedelta import relativedelta
+from copy import deepcopy
+
 
 import numpy as np
 import f90nml
 import pandas as pd
+
 
 from .scenarios import zero_emissions
 from .config import config
@@ -17,6 +20,7 @@ from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
 )
+
 
 IS_WINDOWS = config["is_windows"]
 
@@ -173,6 +177,9 @@ class MAGICCBase(object):
         only : list of str
             If not None, only extract variables in this list.
 
+        kwargs
+            Other config values to pass to MAGICC for the run
+
         Returns
         -------
         :obj:`pymagicc.io.MAGICCData`
@@ -220,10 +227,14 @@ class MAGICCBase(object):
 
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
-        read_kwargs = {"climate_model": "MAGICC{}".format(self.version)}
+        read_cols = {"climate_model": ["MAGICC{}".format(self.version)]}
         if scenario is not None:
-            read_kwargs["model"] = scenario["model"].unique()[0]
-            read_kwargs["scenario"] = scenario["scenario"].unique()[0]
+            read_cols["model"] = scenario["model"].unique().tolist()
+            read_cols["scenario"] = scenario["scenario"].unique().tolist()
+        else:
+            read_cols.setdefault("model", ["unspecified"])
+            read_cols.setdefault("scenario", ["unspecified"])
+
         for filepath in outfiles:
             try:
                 reader = determine_tool(filepath, "reader")(filepath)
@@ -234,8 +245,7 @@ class MAGICCBase(object):
                 )
                 if only is None or openscm_var in only:
                     tempdata = MAGICCData(
-                        join(self.out_dir, filepath),
-                        **read_kwargs,
+                        join(self.out_dir, filepath), columns=deepcopy(read_cols)
                     )
                     try:
                         mdata.append(tempdata)
@@ -422,26 +432,32 @@ class MAGICCBase(object):
         # zero_emissions is imported from scenarios module
         zero_emissions.write(join(self.run_dir, self._scen_file_name), self.version)
 
-        time = zero_emissions.filter(variable="Emissions|CH4", region="World")["time"].values
+        time = zero_emissions.filter(variable="Emissions|CH4", region="World")[
+            "time"
+        ].values
         no_timesteps = len(time)
-        # value doesn't actually matter as calculations are done from difference but 
+        # value doesn't actually matter as calculations are done from difference but
         # chose sensible value nonetheless
         ch4_conc_pi = 722
         ch4_conc = ch4_conc_pi * np.ones(no_timesteps)
-        ch4_conc_df = pd.DataFrame({
-            "time": time,
-            "scenario": "idealised",
-            "model": "unspecified",
-            "climate_model": "unspecified",
-            "variable": "Atmospheric Concentrations|CH4",
-            "unit": "ppb",
-            "todo": "SET",
-            "region": "World",
-            "value": ch4_conc
-        })
+        ch4_conc_df = pd.DataFrame(
+            {
+                "time": time,
+                "scenario": "idealised",
+                "model": "unspecified",
+                "climate_model": "unspecified",
+                "variable": "Atmospheric Concentrations|CH4",
+                "unit": "ppb",
+                "todo": "SET",
+                "region": "World",
+                "value": ch4_conc,
+            }
+        )
         ch4_conc_writer = MAGICCData(ch4_conc_df)
         ch4_conc_filename = "HIST_CONSTANT_CH4_CONC.IN"
-        ch4_conc_writer.metadata = {"header": "Constant pre-industrial CH4 concentrations"}
+        ch4_conc_writer.metadata = {
+            "header": "Constant pre-industrial CH4 concentrations"
+        }
         ch4_conc_writer.write(join(self.run_dir, ch4_conc_filename), self.version)
 
         fgas_conc_pi = 0
@@ -449,17 +465,19 @@ class MAGICCBase(object):
         # MAGICC6 doesn't read this so not a problem, for MAGICC7 we might have to write
         # each file separately
         varname = "NA"
-        fgas_conc_df = pd.DataFrame({
-            "time": time,
-            "scenario": "idealised",
-            "model": "unspecified",
-            "climate_model": "unspecified",
-            "variable": varname, 
-            "unit": "ppt",
-            "todo": "SET",
-            "region": "World",
-            "value": fgas_conc
-        })
+        fgas_conc_df = pd.DataFrame(
+            {
+                "time": time,
+                "scenario": "idealised",
+                "model": "unspecified",
+                "climate_model": "unspecified",
+                "variable": varname,
+                "unit": "ppt",
+                "todo": "SET",
+                "region": "World",
+                "value": fgas_conc,
+            }
+        )
         fgas_conc_writer = MAGICCData(fgas_conc_df)
         fgas_conc_filename = "HIST_ZERO_FGAS_CONC.IN"
         fgas_conc_writer.metadata = {"header": "Zero concentrations"}
@@ -519,7 +537,7 @@ class MAGICCBase(object):
             file_landuse_rf="",
             file_bcsnow_rf="",
             # rf_fgassum_scale=0,  # this appears to do nothing, hence the next two lines
-            file_fgas_conc=[fgas_conc_filename]*12,
+            file_fgas_conc=[fgas_conc_filename] * 12,
             fgas_switchfromconc2emis_year=10000,
             rf_mhalosum_scale=0,
             mhalo_switch_conc2emis_yr=1750,

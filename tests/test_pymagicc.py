@@ -23,7 +23,7 @@ WORLD_ONLY = read_scen_file(
 def test_read_scen_file(mock_magicc_data):
     result = read_scen_file(RCP26_SCEN_FILE)
 
-    mock_magicc_data.assert_called_with(RCP26_SCEN_FILE)
+    mock_magicc_data.assert_called()
 
 
 def do_basic_run_checks(results):

@@ -1,4 +1,7 @@
 from os.path import dirname, join, abspath
+from copy import deepcopy
+
+
 from ..io import MAGICCData
 from ..config import default_config
 
@@ -7,7 +10,15 @@ from ..config import default_config
 _magicc6_included_distribution_path = dirname(default_config["EXECUTABLE_6"])
 
 
-def read_scen_file(filepath, **kwargs):
+def read_scen_file(
+    filepath,
+    columns={
+        "model": ["unspecified"],
+        "scenario": ["unspecified"],
+        "climate_model": ["unspecified"],
+    },
+    **kwargs
+):
     """
     Read a MAGICC .SCEN file.
 
@@ -15,33 +26,53 @@ def read_scen_file(filepath, **kwargs):
     ----------
     filepath : str
         Filepath of the .SCEN file to read
+
+    columns : dict
+        Passed to ``__init__`` method of MAGICCData. See 
+        ``MAGICCData.__init__`` for details.
+
     kwargs
-        Passed to init method of MAGICCData
+        Passed to ``__init__`` method of MAGICCData. See 
+        ``MAGICCData.__init__`` for details.
 
     Returns
     -------
     :obj:`pymagicc.io.MAGICCData`
         ``MAGICCData`` object containing the data and metadata.
     """
-    mdata = MAGICCData(filepath, **kwargs)
+    mdata = MAGICCData(filepath, columns=columns, **kwargs)
 
     return mdata
 
 
-rcp26 = read_scen_file(join(_magicc6_included_distribution_path, "RCP26.SCEN"), model="IMAGE", scenario="RCP26")
-rcp45 = read_scen_file(join(_magicc6_included_distribution_path, "RCP45.SCEN"), model="MiniCAM", scenario="RCP45")
-rcp60 = read_scen_file(join(_magicc6_included_distribution_path, "RCP60.SCEN"), model="AIM", scenario="RCP60")
-rcp85 = read_scen_file(join(_magicc6_included_distribution_path, "RCP85.SCEN"), model="MESSAGE", scenario="RCP85")
+rcp26 = read_scen_file(
+    join(_magicc6_included_distribution_path, "RCP26.SCEN"),
+    columns={"model": ["IMAGE"], "scenario": ["RCP26"]},
+)
+rcp45 = read_scen_file(
+    join(_magicc6_included_distribution_path, "RCP45.SCEN"),
+    columns={"model": ["MiniCAM"], "scenario": ["RCP45"]},
+)
+rcp60 = read_scen_file(
+    join(_magicc6_included_distribution_path, "RCP60.SCEN"),
+    columns={"model": ["AIM"], "scenario": ["RCP60"]},
+)
+rcp85 = read_scen_file(
+    join(_magicc6_included_distribution_path, "RCP85.SCEN"),
+    columns={"model": ["MESSAGE"], "scenario": ["RCP85"]},
+)
 
-rcps = MAGICCData(rcp26.data.copy())
+rcps = deepcopy(rcp26)
 for rcp in [rcp45, rcp60, rcp85]:
     rcps.append(rcp)
 
 zero_emissions = MAGICCData(
     join(dirname(abspath(__file__)), "RCP3PD_EMISSIONS.DAT"),
-    scenario="idealised",
-    model="unspecified",
-    climate_model="unspecified",
+    columns={
+        "scenario": ["idealised"],
+        "model": ["unspecified"],
+        "climate_model": ["unspecified"],
+    },
 ).filter(region="World")
 
-zero_emissions.data.loc[:, "value"] = 0
+zero_emissions._data[:] = 0
