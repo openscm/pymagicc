@@ -1771,55 +1771,45 @@ class MAGICCData(ScmDataFrameBase):
         The file the data was loaded from. None if data was not loaded from a file.
     """
 
-    def __init__(self, data, model=None, scenario=None, climate_model=None):
+    def __init__(self, data, columns=None, **kwargs):
         """
-        Initialise a MAGICCData object.
+        Initialise a MAGICCData instance
+
+        Here we provide a brief over of inputs, for more details 
+        see ``openscm.ScmDataFrameBase``. 
 
         Parameters
         ----------
-        data : str, pd.DataFrame, pd.Series
-            The data with which to initialise the MAGICCData instance. If data is a str, it is assumed to be a filepath and the data is read from disk before being used to initialise the MAGICCData instance.
+        data: pd.DataFrame, pd.Series, np.ndarray or string
+            A pd.DataFrame or data file, or a numpy array of timeseries data if `columns` is specified.
+            If a string is passed, data will be attempted to be read from file.
+        
+        columns: dict
+            Dictionary to use to write the metadata for each timeseries in data. MAGICCData will 
+            also attempt to infer values from data. Any values in columns will be used in 
+            preference to any values found in data. The default value for "model", "scenario"
+            and "climate_model" is "unspecified". See ``openscm.ScmDataFrameBase`` for details.
 
-        model : str
-            If not None and the value already in the "model" column is "unspecified", this input argument will overwrite the value for the "model" column in data. Otherwise the "model" column will be filled with "unspecified".
-
-        scenario : str
-            If not None, used as the value for the "model" column in data Otherwise
-            will be filled with "unspecified".
-
-        climate_model : str
-            If not None, used as the value for the "model" column in data Otherwise
-            will be filled with "unspecified".
+        kwargs:
+            Additional parameters passed to `pyam.core.read_files` to read non-standard files.
         """
-        # TODO: refactor to mirror pyam
-        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+        if not isinstance(data, str):
             self.filepath = None
             self.metadata = {}
-            super().__init__(data)
+            super().__init__(data, columns=columns, **kwargs)
         else:
             filepath = data  # assume filepath
             self.filepath = filepath
-            self.metadata, data, columns = _read_and_return_metadata_df(filepath)
+            self.metadata, data, read_columns = _read_and_return_metadata_df(filepath)
+            columns = columns if columns is not None else {}
+            for k, v in read_columns.items():
+                columns.setdefault(k, v)
 
-            fill_cols_data = {
-                "model": model,
-                "scenario": scenario,
-                "climate_model": climate_model,
-            }
-            for key, value in fill_cols_data.items():
-                if key not in columns:
-                    columns[key] = [value] if value is not None else ["unspecified"]
-                else:
-                    if value is None:
-                        continue
-                    if all([v == "unspecified" for v in columns[key]]):
-                        columns[key] = [value]
-                    else:
-                        raise ValueError(
-                            "Setting {} will overwrite existing values".format(key)
-                        )
+            columns.setdefault("model", ["unspecified"])
+            columns.setdefault("scenario", ["unspecified"])
+            columns.setdefault("climate_model", ["unspecified"])
 
-            super().__init__(data, columns=columns)
+            super().__init__(data, columns=columns, **kwargs)
 
     def _format_datetime_col(self):
         time_srs = self["time"]

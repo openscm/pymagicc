@@ -735,9 +735,11 @@ def test_load_scen_specify_metadata():
 
     mdata = MAGICCData(
         join(MAGICC6_DIR, "RCP26.SCEN"),
-        model=tmodel,
-        scenario=tscenario,
-        climate_model=tclimate_model,
+        columns={
+            "model": [tmodel],
+            "scenario": [tscenario],
+            "climate_model": [tclimate_model],
+        },
     )
 
     generic_mdata_tests(mdata)
@@ -2576,8 +2578,9 @@ def test_bin_and_ascii_equal(file_to_read):
 def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
 
+    tindex_yr = 2000
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init_df = pd.DataFrame([[2.0, 1.2, 7.9]], index=[2000])
+    tdf_init_df = pd.DataFrame([[2.0, 1.2, 7.9]], index=[tindex_yr])
     tdf_init_columns = {
         "model": ["a"],
         "scenario": ["b"],
@@ -2592,7 +2595,6 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tdf_init.index = pd.MultiIndex.from_product(tdf_init_columns.values(), names=tdf_init_columns.keys())
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tindex_yr = 2000
     tdf_append_df = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[tindex_yr])
     tdf_append_columns = {
         "model": ["d"],
