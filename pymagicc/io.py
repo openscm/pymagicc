@@ -13,7 +13,7 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
-from openscm.scmdataframebase import ScmDataFrameBase
+from openscm.scmdataframebase import ScmDataFrameBase, to_int
 
 
 from .utils import apply_string_substitutions
@@ -1656,7 +1656,7 @@ class _ScenWriter(_Writer):
             region_block.columns = region_block.columns.droplevel("todo")
             region_block.columns = region_block.columns.droplevel("region")
 
-            variables = region_block.columns.get_level_values("variable").tolist()
+            variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
                 levels=[v.replace("_EMIS", "") for v in variables], level="variable"
@@ -1829,9 +1829,8 @@ class MAGICCData(ScmDataFrameBase):
         time_srs = self["time"]
         if isinstance(time_srs.iloc[0], datetime):
             pass
-        elif time_srs.iloc[0].dtype <= np.int:
-            # years, put in middle of year
-            time_srs = time_srs.apply(lambda x: datetime(x, 7, 12))
+        elif isinstance(time_srs.iloc[0], int):
+            time_srs = [datetime(y, 1, 1) for y in to_int(time_srs)]
         else:
             # decimal years
             def _convert_to_datetime(decimal_year):
@@ -2243,14 +2242,14 @@ def join_timeseries(base, overwrite, join_linear=None):
             raise ValueError("join_linear must have a length of 2")
 
     if isinstance(base, str):
-        base = MAGICCData(base).data.copy()
+        base = MAGICCData(base)
     elif isinstance(base, MAGICCData):
-        base = base.data.copy()
+        base = deepcopy(base)
 
     if isinstance(overwrite, str):
-        overwrite = MAGICCData(overwrite).data.copy()
+        overwrite = MAGICCData(overwrite)
     elif isinstance(overwrite, MAGICCData):
-        overwrite = overwrite.data.copy()
+        overwrite = deepcopy(overwrite)
 
     result = _join_timeseries_mdata(base, overwrite, join_linear)
 
@@ -2282,28 +2281,18 @@ def _join_timeseries_mdata(base, overwrite, join_linear):
             )
         result = _overwrite_period_linearly(result.T, join_linear).T
 
-    result = (
-        pd.DataFrame(result.stack(dropna=False))
-        .rename({0: "value"}, axis="columns")
-        .reset_index()
-    )
-
     if result.isnull().values.any():
         warn_msg = (
             "There are nan values in joint arrays, this is likely because, once "
-            "joined, your input timeseries do not all cover the same timespan. I will "
-            "drop the unfilled regions. However, this likely means that your "
-            "output arrays do not all cover the same timespan either."
+            "joined, your input timeseries do not all cover the same timespan."
         )
         warnings.warn(warn_msg)
-
-        result.dropna(inplace=True)
 
     return result
 
 
 def _reduce_time_to_year(in_df):
-    out_df = in_df.copy()
+    out_df = deepcopy(in_df)
     orig_length_time = len(in_df["time"].unique())
     out_df["time"] = out_df["time"].apply(lambda x: x.year)
     new_length_time = len(out_df["time"].unique())
@@ -2324,16 +2313,9 @@ def _overwrite_period_linearly(df_in, join_linear):
 
 def _reindex_df(in_df, new_index):
     return (
-        _reshape_df(in_df)
+        in_df.timeseries()
         .T.sort_index()
         .reindex(new_index)
         .interpolate(method="values", limit_area="inside")
         .T
     )
-
-
-def _reshape_df(in_df):
-    out_df = in_df.copy()
-    other_cols = list(set(out_df.columns) - set(["value"]))
-
-    return out_df.groupby(other_cols)["value"].max().unstack("time")

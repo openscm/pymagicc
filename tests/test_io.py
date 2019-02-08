@@ -2581,7 +2581,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init = [[2.0, 1.2, 7.9]]
+    tdf_init = pd.DataFrame([[2.0, 1.2, 7.9]], index=[2000])
     tdf_init_columns = {
         'model': ['a'],
         'scenario': ['b'],
@@ -2592,7 +2592,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
 
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = [[-6., 3.2, 7.1]]
+    tdf_append = pd.DataFrame([[-6., 3.2, 7.1]], index=[2000])
     tdf_append_columns = {
         'model': ['d'],
         'scenario': ['e'],
@@ -2613,8 +2613,8 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     expected_metadata.update(tmetadata_append)
     assert mdata.metadata == expected_metadata
     pd.testing.assert_frame_equal(
-        mdata.data.reset_index(drop=True),
-        tdf_init.append(tdf_append).reset_index(drop=True),
+        mdata.timeseries().reset_index(drop=True),
+        tdf_init.T.append(tdf_append.T).reset_index(drop=True),
         check_like=True,
     )
 
@@ -2705,11 +2705,10 @@ def test_pull_cfg_from_parameters_out():
 def test_join_timeseries():
     mdata = MAGICCData(join(TEST_DATA_DIR, "RCP3PD_EMISSIONS.DAT"))
 
-    base = mdata.timeseries().copy()
+    base = deepcopy(mdata)
     base["todo"] = "SET"
 
-    mdata= MAGICCData(join(MAGICC6_DIR, "RCP60.SCEN"))
-    scen = mdata.timeseries().copy()
+    scen = MAGICCData(join(MAGICC6_DIR, "RCP60.SCEN"))
 
     res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
 
@@ -2800,7 +2799,7 @@ def join_base_df():
         columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield MAGICCData(bdf).data.copy()
+    yield MAGICCData(bdf)
 
 
 @pytest.fixture(scope="function")
@@ -2814,15 +2813,13 @@ def join_overwrite_df():
         columns=["time", "variable", "unit", "region", "value", "model", "scenario"],
     )
 
-    yield MAGICCData(odf).timeseries().copy()
+    yield MAGICCData(odf)
 
 
 def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df):
     msg = (
         "There are nan values in joint arrays, this is likely because, once "
-        "joined, your input timeseries do not all cover the same timespan. I will "
-        "drop the unfilled regions. However, this likely means that your "
-        "output arrays do not all cover the same timespan either."
+        "joined, your input timeseries do not all cover the same timespan."
     )
     with warnings.catch_warnings(record=True) as warn_result:
         res = MAGICCData(
@@ -2857,7 +2854,7 @@ def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df)
 
     assert res.filter(
         variable="Emissions|CH4", region="World", year=2100, unit="MtCH4/yr"
-    ).data.empty
+    ).timeseries().empty
 
 
 def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
@@ -2924,8 +2921,7 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
     tmdata = 54
     treturn = 12
 
-    mock_magicc_data.return_value.data = MagicMock()
-    mock_magicc_data.return_value.data.copy.return_value = tmdata
+    mock_magicc_data.return_value = tmdata
 
     mock_join_timeseries_mdata.return_value = treturn
 

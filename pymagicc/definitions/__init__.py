@@ -202,7 +202,7 @@ def convert_magicc_to_openscm_regions(regions, inverse=False):
     ``type(regions)``
         Set of converted regions
     """
-    if isinstance(regions, list):
+    if isinstance(regions, (list, pd.Index)):
         return [_apply_convert_magicc_to_openscm_regions(r, inverse) for r in regions]
     else:
         return _apply_convert_magicc_to_openscm_regions(regions, inverse)
@@ -406,7 +406,7 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
     ``type(variables)``
         Set of converted variables
     """
-    if isinstance(variables, list):
+    if isinstance(variables, (list, pd.Index)):
         return [_apply_convert_magicc7_to_openscm_variables(v, inverse) for v in variables]
     else:
         return _apply_convert_magicc7_to_openscm_variables(variables, inverse)
@@ -613,7 +613,7 @@ def convert_magicc6_to_magicc7_variables(variables, inverse=False):
     ``type(variables)``
         Set of converted variables
     """
-    if isinstance(variables, list):
+    if isinstance(variables, (list, pd.Index)):
         return [_apply_convert_magicc6_to_magicc7_variables(v, inverse) for v in variables]
     else:
         return _apply_convert_magicc6_to_magicc7_variables(variables, inverse)
