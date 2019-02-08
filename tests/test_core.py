@@ -942,7 +942,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     time = scen.filter(variable="Em*CO2*Fossil*")["time"].values
 
     emms_fossil_co2 = np.zeros(len(time))
-    emms_fossil_co2[250:] = emms_co2_level    
+    emms_fossil_co2[20:] = emms_co2_level    
     scen.data.loc[
         scen["variable"] == "Emissions|CO2|MAGICC Fossil and Industrial",
         "value"
