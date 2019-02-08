@@ -53,17 +53,31 @@ install_requirements = [
     "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@master",
     "PyYAML",
     "expectexception",
-     "ipywidgets",
-     "appmode",
-     "openscm @ git+https://github.com/openclimatedata/openscm.git@scmcallib",
-     "seaborn"
+    "ipywidgets",
+    "appmode",
+    "openscm @ git+https://github.com/openclimatedata/openscm.git@scmcallib",
+    "seaborn",
 ]
 
 extra_requirements = {
-    "tests": ["pytest>=4.0", "pytest-cov", "codecov", "goodtables", "notebook", "matplotlib", "nbval", "goodtables"],
-    "docs": ["sphinx>=1.4", "sphinx_rtd_theme", "sphinx-autodoc-typehints", "pydoc-markdown"],
+    "tests": [
+        "pytest>=4.0",
+        "pytest-cov",
+        "codecov",
+        "goodtables",
+        "notebook",
+        "matplotlib",
+        "nbval",
+        "goodtables",
+    ],
+    "docs": [
+        "sphinx>=1.4",
+        "sphinx_rtd_theme",
+        "sphinx-autodoc-typehints",
+        "pydoc-markdown",
+    ],
     "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"],
-    "dev": ["flake8", "black"]
+    "dev": ["flake8", "black"],
 }
 
 setup(

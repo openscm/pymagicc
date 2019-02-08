@@ -57,10 +57,18 @@ def read_scen_file(filepath, **kwargs):
     return mdata
 
 
-rcp26 = read_scen_file(os.path.join(_magiccpath, "RCP26.SCEN"), model="IMAGE", scenario="RCP26")
-rcp45 = read_scen_file(os.path.join(_magiccpath, "RCP45.SCEN"), model="MiniCAM", scenario="RCP45")
-rcp60 = read_scen_file(os.path.join(_magiccpath, "RCP60.SCEN"), model="AIM", scenario="RCP60")
-rcp85 = read_scen_file(os.path.join(_magiccpath, "RCP85.SCEN"), model="MESSAGE", scenario="RCP85")
+rcp26 = read_scen_file(
+    os.path.join(_magiccpath, "RCP26.SCEN"), model="IMAGE", scenario="RCP26"
+)
+rcp45 = read_scen_file(
+    os.path.join(_magiccpath, "RCP45.SCEN"), model="MiniCAM", scenario="RCP45"
+)
+rcp60 = read_scen_file(
+    os.path.join(_magiccpath, "RCP60.SCEN"), model="AIM", scenario="RCP60"
+)
+rcp85 = read_scen_file(
+    os.path.join(_magiccpath, "RCP85.SCEN"), model="MESSAGE", scenario="RCP85"
+)
 
 scenarios = {"RCP26": rcp26, "RCP45": rcp45, "RCP60": rcp60, "RCP85": rcp85}
 

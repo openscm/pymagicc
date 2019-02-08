@@ -231,10 +231,7 @@ class MAGICCBase(object):
                         reader._get_variable_from_filepath()
                     )
                 )
-                tempdata = MAGICCData(
-                    join(self.out_dir, filepath),
-                    **read_kwargs,
-                )
+                tempdata = MAGICCData(join(self.out_dir, filepath), **read_kwargs)
                 if only is None or openscm_var in only:
                     try:
                         mdata.append(tempdata)
@@ -615,7 +612,7 @@ class MAGICCBase(object):
                 "Atmospheric Concentrations|CO2",
                 "Radiative Forcing",
                 "Surface Temperature",
-            ]
+            ],
         )
         tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
@@ -702,14 +699,13 @@ class MAGICCBase(object):
         year_end = df_total_rf["time"].max().year
         year_start_rise = tcr_time.year - 70
 
-        spin_up_rf = df_total_rf.filter(
-            year=range(year_start, year_start_rise + 1)
-        )["value"].values
+        spin_up_rf = df_total_rf.filter(year=range(year_start, year_start_rise + 1))[
+            "value"
+        ].values
         if not (spin_up_rf == 0).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
             )
-
 
         actual_rise_rf = df_total_rf.filter(
             year=range(year_start_rise, year_end)
