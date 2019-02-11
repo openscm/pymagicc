@@ -19,7 +19,7 @@ WORLD_ONLY = read_scen_file(
 )
 
 
-@patch("pymagicc.scenarios.MAGICCData")
+@patch("pymagicc.io.MAGICCData")
 def test_read_scen_file(mock_magicc_data):
     result = read_scen_file(RCP26_SCEN_FILE)
 
