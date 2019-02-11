@@ -231,8 +231,8 @@ class MAGICCBase(object):
                         reader._get_variable_from_filepath()
                     )
                 )
-                tempdata = MAGICCData(join(self.out_dir, filepath), **read_kwargs)
                 if only is None or openscm_var in only:
+                    tempdata = MAGICCData(join(self.out_dir, filepath), **read_kwargs)
                     try:
                         mdata.append(tempdata)
                     except NameError:
