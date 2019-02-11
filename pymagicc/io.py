@@ -1775,18 +1775,18 @@ class MAGICCData(ScmDataFrameBase):
         """
         Initialise a MAGICCData instance
 
-        Here we provide a brief over of inputs, for more details 
-        see ``openscm.ScmDataFrameBase``. 
+        Here we provide a brief over of inputs, for more details
+        see ``openscm.ScmDataFrameBase``.
 
         Parameters
         ----------
         data: pd.DataFrame, pd.Series, np.ndarray or string
             A pd.DataFrame or data file, or a numpy array of timeseries data if `columns` is specified.
             If a string is passed, data will be attempted to be read from file.
-        
+
         columns: dict
-            Dictionary to use to write the metadata for each timeseries in data. MAGICCData will 
-            also attempt to infer values from data. Any values in columns will be used in 
+            Dictionary to use to write the metadata for each timeseries in data. MAGICCData will
+            also attempt to infer values from data. Any values in columns will be used in
             preference to any values found in data. The default value for "model", "scenario"
             and "climate_model" is "unspecified". See ``openscm.ScmDataFrameBase`` for details.
 
@@ -2301,3 +2301,38 @@ def _reindex_df(in_df, new_index):
         .interpolate(method="values", limit_area="inside")
         .T
     )
+
+
+def read_scen_file(
+    filepath,
+    columns={
+        "model": ["unspecified"],
+        "scenario": ["unspecified"],
+        "climate_model": ["unspecified"],
+    },
+    **kwargs
+):
+    """
+    Read a MAGICC .SCEN file.
+
+    Parameters
+    ----------
+    filepath : str
+        Filepath of the .SCEN file to read
+
+    columns : dict
+        Passed to ``__init__`` method of MAGICCData. See
+        ``MAGICCData.__init__`` for details.
+
+    kwargs
+        Passed to ``__init__`` method of MAGICCData. See
+        ``MAGICCData.__init__`` for details.
+
+    Returns
+    -------
+    :obj:`pymagicc.io.MAGICCData`
+        ``MAGICCData`` object containing the data and metadata.
+    """
+    mdata = MAGICCData(filepath, columns=columns, **kwargs)
+
+    return mdata
