@@ -27,7 +27,7 @@ URL = "https://github.com/openclimatedata/pymagicc"
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
 README = "README.rst"
 
-with open(README, "r") as f:
+with open(README, "r", encoding="utf-8") as f:
     README_TEXT = f.read()
 
 
