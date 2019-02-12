@@ -2614,6 +2614,10 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     expected_metadata = deepcopy(tmetadata_init)
     expected_metadata.update(tmetadata_append)
     assert mdata.metadata == expected_metadata
+
+    # update the tdf_init index as year values are converted to datetimes
+    tdf_init.index = mdata.timeseries().columns
+    tdf_append.index = mdata.timeseries().columns
     pd.testing.assert_frame_equal(
         mdata.timeseries().reset_index(drop=True),
         tdf_init.T.append(tdf_append.T).reset_index(drop=True),
