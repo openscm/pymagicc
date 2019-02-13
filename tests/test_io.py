@@ -2619,7 +2619,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tdf_init.index = mdata.timeseries().columns
     tdf_append.index = mdata.timeseries().columns
     pd.testing.assert_frame_equal(
-        mdata.timeseries().reset_index(drop=True),
+        mdata.timeseries().sort_index().reset_index(drop=True),
         tdf_init.T.append(tdf_append.T).reset_index(drop=True),
         check_like=True,
     )
