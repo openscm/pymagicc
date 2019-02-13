@@ -2592,7 +2592,9 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     # TODO: refactor MAGICCData so it can be instantiated with timeseries
     # like ScmDataFrameBase
     tdf_init = tdf_init_df.T
-    tdf_init.index = pd.MultiIndex.from_product(tdf_init_columns.values(), names=tdf_init_columns.keys())
+    tdf_init.index = pd.MultiIndex.from_product(
+        tdf_init_columns.values(), names=tdf_init_columns.keys()
+    )
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
     tdf_append_df = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[tindex_yr])
@@ -2605,7 +2607,9 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
         "unit": ["J/y"],
     }
     tdf_append = tdf_append_df.T
-    tdf_append.index = pd.MultiIndex.from_product(tdf_append_columns.values(), names=tdf_append_columns.keys())
+    tdf_append.index = pd.MultiIndex.from_product(
+        tdf_append_columns.values(), names=tdf_append_columns.keys()
+    )
 
     mock_read_and_return_metadata_df.return_value = (
         tmetadata_init,
@@ -2628,7 +2632,9 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     assert mdata.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])
-    expected.columns = pd.Index([datetime.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object")
+    expected.columns = pd.Index(
+        [datetime.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object"
+    )
 
     pd.testing.assert_frame_equal(
         mdata.timeseries(),
