@@ -3,6 +3,7 @@ from os.path import join, isfile, basename
 from copy import deepcopy
 import warnings
 from unittest.mock import patch, MagicMock
+import datetime
 
 
 import numpy as np
@@ -2576,35 +2577,44 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     tfilepath = "mocked/out/here.txt"
 
     tmetadata_init = {"mock": 12, "mock 2": "written here"}
-    tdf_init = pd.DataFrame([[2.0, 1.2, 7.9]], index=[2000])
+    tdf_init_df = pd.DataFrame([[2.0, 1.2, 7.9]], index=[2000])
     tdf_init_columns = {
         "model": ["a"],
         "scenario": ["b"],
+        "climate_model": ["c"],
         "region": ["World|ASIA"],
         "variable": ["GE", "GE|Coal", "GE|Gas"],
         "unit": ["J/y"],
     }
+    # TODO: refactor MAGICCData so it can be instantiated with timeseries
+    # like ScmDataFrameBase
+    tdf_init = tdf_init_df.T
+    tdf_init.index = pd.MultiIndex.from_product(tdf_init_columns.values(), names=tdf_init_columns.keys())
 
     tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
-    tdf_append = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[2000])
+    tindex_yr = 2000
+    tdf_append_df = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[tindex_yr])
     tdf_append_columns = {
         "model": ["d"],
         "scenario": ["e"],
+        "climate_model": ["f"],
         "region": ["World|ASIA"],
         "variable": ["GE", "GE|Coal", "GE|Gas"],
         "unit": ["J/y"],
     }
+    tdf_append = tdf_append_df.T
+    tdf_append.index = pd.MultiIndex.from_product(tdf_append_columns.values(), names=tdf_append_columns.keys())
 
     mock_read_and_return_metadata_df.return_value = (
         tmetadata_init,
-        tdf_init,
+        tdf_init_df,
         tdf_init_columns,
     )
     mdata = MAGICCData("mocked")
 
     mock_read_and_return_metadata_df.return_value = (
         tmetadata_append,
-        tdf_append,
+        tdf_append_df,
         tdf_append_columns,
     )
     mdata.append(tfilepath)
@@ -2615,12 +2625,12 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     expected_metadata.update(tmetadata_append)
     assert mdata.metadata == expected_metadata
 
-    # update the tdf_init index as year values are converted to datetimes
-    tdf_init.index = mdata.timeseries().columns
-    tdf_append.index = mdata.timeseries().columns
+    expected = pd.concat([tdf_init, tdf_append])
+    expected.columns = pd.Index([datetime.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object")
+
     pd.testing.assert_frame_equal(
-        mdata.timeseries().sort_index().reset_index(drop=True),
-        tdf_init.T.append(tdf_append.T).reset_index(drop=True),
+        mdata.timeseries(),
+        expected.sort_index().reorder_levels(mdata.timeseries().index.names),
         check_like=True,
     )
 
