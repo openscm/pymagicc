@@ -266,7 +266,7 @@ class MAGICCBase(object):
     def _get_output_filenames(self):
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
-        bin_out = [f.split('.')[0] for f in outfiles if f.endswith('.BINOUT')]
+        bin_out = [f.split('.')[0] for f in outfiles if f.startswith('DAT_') and f.endswith('.BINOUT')]
 
         extras = []
         for f in outfiles:

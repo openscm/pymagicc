@@ -1035,6 +1035,8 @@ def test_get_output_filenames(mock_listdir):
     mock_listdir.return_value = [
         'DAT_SLR_SEMIEMPI_RATE.OUT',
         'DAT_SLR_SEMIEMPI_RATE.BINOUT',
+        'TEMP_OCEANLAYERS.BINOUT',
+        'TEMP_OCEANLAYERS.OUT',
         'DAT_SLR_AIS_SMB.OUT',
         'EXTRA.OTHER',
         'PARAMETERS.OUT'
@@ -1045,6 +1047,7 @@ def test_get_output_filenames(mock_listdir):
     exp = sorted([
         'DAT_SLR_SEMIEMPI_RATE.BINOUT',
         'DAT_SLR_AIS_SMB.OUT',
+        'TEMP_OCEANLAYERS.OUT',
         'EXTRA.OTHER'
     ])
     np.testing.assert_array_equal(obs, exp)
