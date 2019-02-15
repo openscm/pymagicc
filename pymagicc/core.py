@@ -225,7 +225,7 @@ class MAGICCBase(object):
         # On Windows shell=True is required.
         subprocess.check_call(command, cwd=self.run_dir, shell=IS_WINDOWS)
 
-        outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
+        outfiles = self._get_output_filenames()
 
         read_cols = {"climate_model": ["MAGICC{}".format(self.version)]}
         if scenario is not None:
@@ -262,6 +262,19 @@ class MAGICCBase(object):
             pass
 
         return mdata
+
+    def _get_output_filenames(self):
+        outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
+
+        bin_out = [f.split('.')[0] for f in outfiles if f.endswith('.BINOUT')]
+
+        extras = []
+        for f in outfiles:
+            var_name, ext = f.split('.')
+            if ext != 'BINOUT' and var_name not in bin_out:
+                extras.append(f)
+
+        return [f + '.BINOUT' for f in bin_out] + extras
 
     def check_config(self):
         """Check that our MAGICC ``.CFG`` files are set to safely work with PYMAGICC
