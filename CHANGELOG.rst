@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#222 <https://github.com/openclimatedata/pymagicc/pull/222>`_) Remove trailing `/` in `MANIFEST.IN` recursive includes as this is invalid syntax on windows.
 - (`#208 <https://github.com/openclimatedata/pymagicc/pull/208>`_) Add set zero config method. Also adds scenarios module, tidies up the notebooks and adds a notebook showing how to run in different modes.
 - (`#214 <https://github.com/openclimatedata/pymagicc/pull/214>`_) Refactor to use the timeseries capabilities of ScmDataFrameBase
 - (`#210 <https://github.com/openclimatedata/pymagicc/pull/210>`_) Updated to match new openscm naming
