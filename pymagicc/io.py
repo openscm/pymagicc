@@ -963,7 +963,8 @@ class _TempOceanLayersOutReader(_Reader):
 class _BinData(object):
     def __init__(self, filepath):
         # read the entire file into memory
-        self.data = open(filepath, "rb").read()
+        with open(filepath, "rb") as fh:
+            self.data = fh.read()
         self.data = memoryview(self.data)
         self.pos = 0
 
