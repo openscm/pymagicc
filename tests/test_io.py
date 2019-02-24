@@ -43,9 +43,10 @@ INVALID_OUT_FILES = [
     r"DAT_VOLCANIC_RF\.BINOUT",
     r"PF.*OUT",
     r"DATBASKET_.*",
-    r".*INVERSE.*EMIS.*OUT",
     r"PRECIPINPUT.*OUT",
     r"TEMP_OCEANLAYERS.*\.BINOUT",
+    r"INVERSEEMIS\.BINOUT",
+    r".*INVERSE\_.*EMIS.*OUT",
     r"TIMESERIESMIX.*OUT",
     r"SUMMARY_INDICATORS.OUT",
 ]
@@ -2191,6 +2192,57 @@ def test_load_out_ocean_layers_hemisphere():
         region="World|Northern Hemisphere|Ocean",
         year=2100,
         unit="K",
+    )
+
+
+def test_load_out_inverseemis():
+    mdata = MAGICCData(join(TEST_OUT_DIR, "INVERSEEMIS.OUT"))
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["region"] == "World").all()
+
+    assert_mdata_value(
+        mdata,
+        0.01369638,
+        variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=1765,
+        unit="Gt C / yr",
+    )
+
+    assert_mdata_value(
+        mdata,
+        2.6233208,
+        variable="Inverse Emissions|N2O",
+        region="World",
+        year=1770,
+        unit="Mt N2ON / yr",
+    )
+
+    assert_mdata_value(
+        mdata,
+        155.925,
+        variable="Inverse Emissions|CH3Br",
+        region="World",
+        year=2099,
+        unit="Gt C / yr",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Inverse Emissions|CH3Cl",
+        region="World",
+        year=2100,
+        unit="kt CH3Cl / yr",
     )
 
 
