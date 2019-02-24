@@ -36,7 +36,7 @@ UNSUPPORTED_OUT_FILES = [
     r".*DAT_VOLCANIC_RF\.BINOUT",
     r".*PF\_.*OUT",
     r".*DATBASKET_.*",
-    r".*INVERSE.*EMIS.*OUT",
+    r".*INVERSE\_.*EMIS.*OUT",
     r".*PRECIPINPUT.*OUT",
     r".*TEMP_OCEANLAYERS.*\.BINOUT",
     r".*TIMESERIESMIX.*OUT",
@@ -933,6 +933,10 @@ class _OutReader(_FourBoxReader):
 
 
 class _EmisOutReader(_EmisInReader, _OutReader):
+    pass
+
+
+class _InverseEmisReader(_EmisInReader):
     pass
 
 
@@ -1976,6 +1980,11 @@ def determine_tool(filepath, tool_to_get):
         "EmisOut": {
             "regexp": r"^DAT\_.*EMIS\.OUT$",
             "reader": _EmisOutReader,
+            "writer": None,
+        },
+        "InverseEmis": {
+            "regexp": r"^INVERSEEMIS\.OUT$",
+            "reader": _InverseEmisReader,
             "writer": None,
         },
         "TempOceanLayersOut": {
