@@ -37,6 +37,7 @@ UNSUPPORTED_OUT_FILES = [
     r".*PF\_.*OUT",
     r".*DATBASKET_.*",
     r".*INVERSE\_.*EMIS.*OUT",
+    r".*INVERSEEMIS\.BINOUT",
     r".*PRECIPINPUT.*OUT",
     r".*TEMP_OCEANLAYERS.*\.BINOUT",
     r".*TIMESERIESMIX.*OUT",
@@ -936,8 +937,33 @@ class _EmisOutReader(_EmisInReader, _OutReader):
     pass
 
 
-class _InverseEmisReader(_EmisInReader):
-    pass
+class _InverseEmisReader(_EmisOutReader):
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
+        units = self._read_data_header_line(stream, "UNITS:")
+        variables = convert_magicc7_to_openscm_variables(convert_magicc6_to_magicc7_variables(
+            self._read_data_header_line(stream, "YEARS:")
+        ))
+
+        column_headers = {
+            "variable": variables,
+            "todo": [self._default_todo_fill_value] * len(variables),
+            "unit": units,
+            "region": ["World"] * len(variables),
+        }
+
+        for k in ["unit", "units", "gas"]:
+            try:
+                metadata.pop(k)
+            except KeyError:
+                pass
+
+        # get rid of confusing units before passing to read_units
+        column_headers["unit"] = [
+            v.replace("kt/yr", "kt") for v in column_headers["unit"]
+        ]
+        column_headers = super()._read_units(column_headers)
+
+        return column_headers, metadata
 
 
 class _TempOceanLayersOutReader(_Reader):
