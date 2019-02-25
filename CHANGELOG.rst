@@ -4,8 +4,9 @@ Changelog
 master
 ------
 
+- (`#224 <https://github.com/openclimatedata/pymagicc/pull/224>`_) Add ``INVERSEEMIS.OUT`` reader
 - (`#223 <https://github.com/openclimatedata/pymagicc/pull/223>`_) Ensure `pymagicc.io._BinaryOutReader` closes the input file
-- (`#222 <https://github.com/openclimatedata/pymagicc/pull/222>`_) Remove trailing `/` in `MANIFEST.IN` recursive includes as this is invalid syntax on windows.
+- (`#222 <https://github.com/openclimatedata/pymagicc/pull/222>`_) Remove trailing ``/`` in ``MANIFEST.IN`` recursive includes as this is invalid syntax on windows.
 - (`#220 <https://github.com/openclimatedata/pymagicc/pull/220>`_) If binary and ascii output files exist for a given variable only read the binary file
 - (`#208 <https://github.com/openclimatedata/pymagicc/pull/208>`_) Add set zero config method. Also adds scenarios module, tidies up the notebooks and adds a notebook showing how to run in different modes.
 - (`#214 <https://github.com/openclimatedata/pymagicc/pull/214>`_) Refactor to use the timeseries capabilities of ScmDataFrameBase

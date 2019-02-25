@@ -56,7 +56,8 @@ Some more details about why these files are not supported:
 - Sub annual binary files (including volcanic RF) are asking for trouble
 - Permafrost output files don't make any sense right now
 - Output baskets have inconsistent variable names from other outputs
-- Inverse emissions files have no units and we don't want to hardcode them
+- Inverse emissions files (except `INVERSEEMIS.OUT`) have no units and we don't want 
+  to hardcode them
 - We have no idea what the precipitation input is
 - Temp ocean layers is hard to predict because it has many layers
 - Time series mix output files don't have units or regions
