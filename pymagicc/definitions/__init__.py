@@ -224,7 +224,9 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     """
 
     def get_openscm_replacement(in_var):
-        if in_var.endswith("_EMIS"):
+        if in_var.endswith("_INVERSE_EMIS"):
+            prefix = "Inverse Emissions"
+        elif in_var.endswith("_EMIS"):
             prefix = "Emissions"
         elif in_var.endswith("_CONC"):
             prefix = "Atmospheric Concentrations"
@@ -300,7 +302,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
-    magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT"]
+    magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT", "_INVERSE_EMIS"]
     magicc7_base_vars = MAGICC7_EMISSIONS_UNITS.magicc_variable.tolist() + [
         "SOLAR",
         "VOLCANIC",
@@ -444,6 +446,8 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     # is the one which will be used for inverse mappings
     magicc6_simple_mapping_vars = [
         "KYOTO-CO2EQ",
+        "CO2I",
+        "CO2B",
         "CH4",
         "N2O",
         "BC",
@@ -543,7 +547,8 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
             replacements[m6v] = one_way_replacements[m6v]
         else:
             m7v = m6v.replace("-", "").replace(" ", "").upper()
-            # i.e. if we've already got a value for the inverse, we don't # want to overwrite
+            # i.e. if we've already got a value for the inverse, we don't 
+            # want to overwrite it
             if (m7v in replacements.values()) and inverse:
                 continue
             replacements[m6v] = m7v
