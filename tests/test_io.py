@@ -2205,7 +2205,7 @@ def test_load_out_inverseemis():
         mdata.metadata["magicc-version"]
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
-    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert "__MAGICC 6.X MISC DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["region"] == "World").all()
 
@@ -2229,11 +2229,11 @@ def test_load_out_inverseemis():
 
     assert_mdata_value(
         mdata,
-        155.925,
+        155.86567,
         variable="Inverse Emissions|CH3Br",
         region="World",
         year=2099,
-        unit="Gt C / yr",
+        unit="kt CH3Br / yr",
     )
 
     assert_mdata_value(
