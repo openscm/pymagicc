@@ -2246,6 +2246,57 @@ def test_load_out_inverseemis():
     )
 
 
+def test_load_out_co2pf_emis():
+    mdata = MAGICCData(join(TEST_OUT_DIR, "DAT_CO2PF_EMIS.OUT"))
+
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["date"] == "2018-09-23 18:33"
+    assert (
+        mdata.metadata["magicc-version"]
+        == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
+    )
+    assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
+    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["unit"] == "Gt C / yr").all()
+    assert (mdata["variable"] == "Emissions|CO2|MAGICC Permafrost").all()
+
+    assert_mdata_value(
+        mdata,
+        0,
+        region="World",
+        year=1765,
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        region="World|Northern Hemisphere|Land",
+        year=1765,
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        region="World|Northern Hemisphere|Ocean",
+        year=1765,
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        region="World|Southern Hemisphere|Land",
+        year=1765,
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        region="World|Southern Hemisphere|Ocean",
+        year=1765,
+    )
+
+
 def test_load_parameters_out_with_magicc_input():
     test_file = "PARAMETERS.OUT"
     expected_error_msg = (

@@ -71,6 +71,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("CH4_CONC", "Atmospheric Concentrations|CH4"),
         ("EXTRA_RF", "Radiative Forcing|Extra"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
+        ("CO2PF_EMIS", "Emissions|CO2|MAGICC Permafrost"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -87,6 +88,7 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CH4_EMIS", "Emissions|CH4"),
         ("CH3CCL3_EMIS", "Emissions|CH3CCl3"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
+        ("CO2PF_EMIS", "Emissions|CO2|MAGICC Permafrost"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
