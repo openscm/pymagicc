@@ -251,6 +251,9 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         if "CO2CH4N2O" in variable:
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
 
+        if "PF" in variable:
+            variable = variable.replace("PF", "|MAGICC Permafrost")
+
         aggregate_indicators = {
             "KYOTO": "Kyoto Gases",
             "FGASSUM": "F Gases",
@@ -307,6 +310,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "SOLAR",
         "VOLCANIC",
         "CO2EQ",
+        "CO2PF",
         "KYOTOCO2EQ",
         "FGASSUMHFC134AEQ",
         "MHALOSUMCFC12EQ",
