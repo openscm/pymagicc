@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#225 <https://github.com/openclimatedata/pymagicc/pull/225>`_) Fix reading of ``DAT_CO2PF_EMIS.OUT``
 - (`#224 <https://github.com/openclimatedata/pymagicc/pull/224>`_) Add ``INVERSEEMIS.OUT`` reader
 - (`#223 <https://github.com/openclimatedata/pymagicc/pull/223>`_) Ensure `pymagicc.io._BinaryOutReader` closes the input file
 - (`#222 <https://github.com/openclimatedata/pymagicc/pull/222>`_) Remove trailing ``/`` in ``MANIFEST.IN`` recursive includes as this is invalid syntax on windows.
