@@ -251,9 +251,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         if "CO2CH4N2O" in variable:
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
 
-        if "PF" in variable:
-            variable = variable.replace("PF", "|MAGICC Permafrost")
-
         aggregate_indicators = {
             "KYOTO": "Kyoto Gases",
             "FGASSUM": "F Gases",
@@ -310,7 +307,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "SOLAR",
         "VOLCANIC",
         "CO2EQ",
-        "CO2PF",
         "KYOTOCO2EQ",
         "FGASSUMHFC134AEQ",
         "MHALOSUMCFC12EQ",
@@ -344,6 +340,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",  # what is this
             "LANDUSE_RF": "Radiative Forcing|Land-use Change",
             "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
+            "CO2PF_EMIS": "Emissions|CO2|MAGICC Permafrost",
+            "CH4PF_EMIS": "Emissions|CH4|MAGICC Permafrost",
         }
     )
 
