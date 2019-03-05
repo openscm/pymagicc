@@ -3183,7 +3183,7 @@ def test_write_temp_in(temp_dir, update_expected_file, writing_base):
     # restrictive in future if required
     tregions = [
         "World|{}|{}".format(r, sr)
-        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for r in ["Southern Hemisphere", "Northern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
     writing_base.set_meta(tregions, name="region")
@@ -3218,5 +3218,39 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
 
 
 def test_surface_temp_in_reader():
-    # TODO: write this
-    assert False
+    mdata = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_SURFACE_TEMP.IN"))
+
+    generic_mdata_tests(mdata)
+
+    assert "Test Surface temperature input file" in mdata.metadata["header"]
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["unit"] == "K").all()
+    assert (mdata["variable"] == "Surface Temperature").all()
+
+    assert_mdata_value(
+        mdata,
+        6,
+        region="World|Northern Hemisphere|Ocean",
+        year=1996,
+    )
+
+    assert_mdata_value(
+        mdata,
+        3,
+        region="World|Northern Hemisphere|Land",
+        year=1995,
+    )
+
+    assert_mdata_value(
+        mdata,
+        4,
+        region="World|Southern Hemisphere|Ocean",
+        year=1996,
+    )
+
+    assert_mdata_value(
+        mdata,
+        5,
+        region="World|Southern Hemisphere|Land",
+        year=1996,
+    )
