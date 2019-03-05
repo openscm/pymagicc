@@ -87,6 +87,23 @@ def temp_dir():
 
 @pytest.fixture
 def writing_base():
+    no_cols = 4
+    yield MAGICCData(
+        np.arange(0, 2*no_cols).reshape((2, no_cols)),
+        columns={
+            "index": np.arange(1995, 1997),
+            "region": ["region {}".format(i) for i in range(no_cols)],
+            "scenario": ["test"],
+            "model": ["unspecified"],
+            "variable": ["variable"],
+            "unit": ["unit"],
+            "todo": ["SET"],
+        }
+    )
+
+
+@pytest.fixture
+def writing_base_emissions():
     no_cols = 5
     yield MAGICCData(
         np.arange(0, 2*no_cols).reshape((2, no_cols)),

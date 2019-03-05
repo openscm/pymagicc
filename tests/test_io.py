@@ -3070,22 +3070,22 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
 # TODO: improve join timeseries so it can also handle datetimes in the time axis
 
 
-def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base):
+def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base_emissions):
     tregions = ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Emissions|CO2", name="variable")
-    writing_base.metadata = {"header": "TODO: fix error message"}
+    writing_base_emissions.set_meta(tregions, name="region")
+    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions.metadata = {"header": "TODO: fix error message"}
 
     error_msg = re.escape(
         "Are all of your regions OpenSCM regions, I don't "
         "recognise: {}".format(sorted(tregions))
     )
     with pytest.raises(ValueError, match=error_msg):
-        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
 
 
-def test_unrecognised_region_combination_error(temp_dir, writing_base):
-    writing_base.set_meta("Emissions|CO2", name="variable")
+def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emissions):
+    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
     error_msg = re.escape(
         "Unrecognised regions, they must be part of "
         "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
@@ -3094,24 +3094,24 @@ def test_unrecognised_region_combination_error(temp_dir, writing_base):
     )
     assert isinstance(pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS, pd.DataFrame)
     with pytest.raises(ValueError, match=error_msg):
-        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
 
 
-def test_write_no_header_error(temp_dir, writing_base):
-    writing_base.set_meta("Emissions|CO2", name="variable")
+def test_write_no_header_error(temp_dir, writing_base_emissions):
+    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
     tregions = [
         "World|{}".format(r)
         for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Emissions|CO2", name="variable")
-    writing_base.set_meta("GtC / yr", name="unit")
+    writing_base_emissions.set_meta(tregions, name="region")
+    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions.set_meta("GtC / yr", name="unit")
 
     error_msg = re.escape(
         'Please provide a file header in ``self.metadata["header"]``'
     )
     with pytest.raises(KeyError, match=error_msg):
-        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
 
 
 def run_writing_comparison(res, expected, update=False):
@@ -3142,36 +3142,74 @@ def run_writing_comparison(res, expected, update=False):
 
 
 # integration test
-def test_write_emis_in(temp_dir, update_expected_file, writing_base):
+def test_write_emis_in(temp_dir, update_expected_file, writing_base_emissions):
     tregions = [
         "World|{}".format(r)
         for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Emissions|CO2", name="variable")
-    writing_base.set_meta("GtC / yr", name="unit")
+    writing_base_emissions.set_meta(tregions, name="region")
+    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions.set_meta("GtC / yr", name="unit")
 
     res = join(temp_dir, "TMP_CO2_EMIS.IN")
-    writing_base.metadata = {"header": "Test CO2 Emissions file"}
-    writing_base.write(res, magicc_version=6)
+    writing_base_emissions.metadata = {"header": "Test CO2 Emissions file"}
+    writing_base_emissions.write(res, magicc_version=6)
 
-    expected = join(EXPECTED_FILES_DIR, "CO2_EMIS.IN")
+    expected = join(EXPECTED_FILES_DIR, "EXPECTED_CO2_EMIS.IN")
 
     run_writing_comparison(res, expected, update=update_expected_file)
 
 
-def test_emis_in_variable_name_error(temp_dir, writing_base):
+def test_write_emis_in_variable_name_error(temp_dir, writing_base_emissions):
     tregions = [
         "World|{}".format(r)
         for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Emissions|CO2|MAGICC AFOLU", name="variable")
-    writing_base.metadata = {"header": "Test misnamed CO2 Emissions file"}
+    writing_base_emissions.set_meta(tregions, name="region")
+    writing_base_emissions.set_meta("Emissions|CO2|MAGICC AFOLU", name="variable")
+    writing_base_emissions.metadata = {"header": "Test misnamed CO2 Emissions file"}
 
     error_msg = re.escape(
         "Your filename variable, Emissions|CO2, does not match the data "
         "variable, Emissions|CO2|MAGICC AFOLU"
     )
     with pytest.raises(ValueError, match=error_msg):
-        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+
+
+# integration test
+def test_write_temp_in(temp_dir, update_expected_file, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Surface Temperature", name="variable")
+    writing_base.set_meta("K", name="unit")
+
+    res = join(temp_dir, "TMP_TEMP.IN")
+    writing_base.metadata = {"header": "Test Surface temperature input file"}
+    writing_base.write(res, magicc_version=6)
+
+    expected = join(EXPECTED_FILES_DIR, "EXPECTED_TEMP.IN")
+
+    run_writing_comparison(res, expected, update=update_expected_file)
+
+
+def test_write_temp_in_variable_name_error(temp_dir, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base.metadata = {"header": "Test misnamed Surface temperature file"}
+
+    error_msg = re.escape(
+        "Your filename variable, Surface Temperature, does not match the data "
+        "variable, Ocean Temperature"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base.write(join(temp_dir, "TMP_TEMP.IN"), magicc_version=6)
