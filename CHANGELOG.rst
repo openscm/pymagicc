@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#226 <https://github.com/openclimatedata/pymagicc/pull/226>`_) Add ``SURFACE_TEMP.IN`` writer, closing `#211 <https://github.com/openclimatedata/pymagicc/issues/211>`_
 - (`#225 <https://github.com/openclimatedata/pymagicc/pull/225>`_) Fix reading of ``DAT_CO2PF_EMIS.OUT``
 - (`#224 <https://github.com/openclimatedata/pymagicc/pull/224>`_) Add ``INVERSEEMIS.OUT`` reader
 - (`#223 <https://github.com/openclimatedata/pymagicc/pull/223>`_) Ensure `pymagicc.io._BinaryOutReader` closes the input file
