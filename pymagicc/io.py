@@ -1400,7 +1400,7 @@ class _Writer(object):
         unrecognised_regions = set(regions) - set(region_order)
         if unrecognised_regions:
             error_msg = (
-                "Are all of your regions OpenSCM regions, I don't "
+                "Are all of your regions OpenSCM regions? I don't "
                 "recognise: {}".format(sorted(unrecognised_regions))
             )
             raise ValueError(error_msg)
