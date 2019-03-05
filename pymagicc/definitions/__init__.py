@@ -549,7 +549,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
             replacements[m6v] = one_way_replacements[m6v]
         else:
             m7v = m6v.replace("-", "").replace(" ", "").upper()
-            # i.e. if we've already got a value for the inverse, we don't 
+            # i.e. if we've already got a value for the inverse, we don't
             # want to overwrite it
             if (m7v in replacements.values()) and inverse:
                 continue
