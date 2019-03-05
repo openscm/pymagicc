@@ -944,11 +944,14 @@ class _EmisOutReader(_EmisInReader, _OutReader):
 
 class _InverseEmisReader(_EmisOutReader):
     _regexp_capture_variable = re.compile(r"(INVERSEEMIS)\.OUT$")
+
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         units = self._read_data_header_line(stream, "UNITS:")
-        variables = convert_magicc7_to_openscm_variables(convert_magicc6_to_magicc7_variables(
-            self._read_data_header_line(stream, "YEARS:")
-        ))
+        variables = convert_magicc7_to_openscm_variables(
+            convert_magicc6_to_magicc7_variables(
+                self._read_data_header_line(stream, "YEARS:")
+            )
+        )
 
         column_headers = {
             "variable": variables,
@@ -2438,9 +2441,7 @@ def _get_openscm_var_from_filepath(filepath):
     """
     reader = determine_tool(filepath, "reader")(filepath)
     openscm_var = convert_magicc7_to_openscm_variables(
-        convert_magicc6_to_magicc7_variables(
-            reader._get_variable_from_filepath()
-        )
+        convert_magicc6_to_magicc7_variables(reader._get_variable_from_filepath())
     )
 
     return openscm_var

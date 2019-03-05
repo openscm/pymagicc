@@ -2264,40 +2264,15 @@ def test_load_out_co2pf_emis():
     assert (mdata["unit"] == "Gt C / yr").all()
     assert (mdata["variable"] == "Emissions|CO2|MAGICC Permafrost").all()
 
-    assert_mdata_value(
-        mdata,
-        0,
-        region="World",
-        year=1765,
-    )
+    assert_mdata_value(mdata, 0, region="World", year=1765)
 
-    assert_mdata_value(
-        mdata,
-        0,
-        region="World|Northern Hemisphere|Land",
-        year=1765,
-    )
+    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", year=1765)
 
-    assert_mdata_value(
-        mdata,
-        0,
-        region="World|Northern Hemisphere|Ocean",
-        year=1765,
-    )
+    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Ocean", year=1765)
 
-    assert_mdata_value(
-        mdata,
-        0,
-        region="World|Southern Hemisphere|Land",
-        year=1765,
-    )
+    assert_mdata_value(mdata, 0, region="World|Southern Hemisphere|Land", year=1765)
 
-    assert_mdata_value(
-        mdata,
-        0,
-        region="World|Southern Hemisphere|Ocean",
-        year=1765,
-    )
+    assert_mdata_value(mdata, 0, region="World|Southern Hemisphere|Ocean", year=1765)
 
 
 def test_load_parameters_out_with_magicc_input():
@@ -3081,7 +3056,9 @@ def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base_emission
         "recognise: {}".format(sorted(tregions))
     )
     with pytest.raises(ValueError, match=error_msg):
-        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(
+            join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6
+        )
 
 
 def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emissions):
@@ -3094,24 +3071,25 @@ def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emis
     )
     assert isinstance(pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS, pd.DataFrame)
     with pytest.raises(ValueError, match=error_msg):
-        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(
+            join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6
+        )
 
 
 def test_write_no_header_error(temp_dir, writing_base_emissions):
     writing_base_emissions.set_meta("Emissions|CO2", name="variable")
     tregions = [
-        "World|{}".format(r)
-        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+        "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
     writing_base_emissions.set_meta(tregions, name="region")
     writing_base_emissions.set_meta("Emissions|CO2", name="variable")
     writing_base_emissions.set_meta("GtC / yr", name="unit")
 
-    error_msg = re.escape(
-        'Please provide a file header in ``self.metadata["header"]``'
-    )
+    error_msg = re.escape('Please provide a file header in ``self.metadata["header"]``')
     with pytest.raises(KeyError, match=error_msg):
-        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(
+            join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6
+        )
 
 
 def run_writing_comparison(res, expected, update=False):
@@ -3144,8 +3122,7 @@ def run_writing_comparison(res, expected, update=False):
 # integration test
 def test_write_emis_in(temp_dir, update_expected_file, writing_base_emissions):
     tregions = [
-        "World|{}".format(r)
-        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+        "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
     writing_base_emissions.set_meta(tregions, name="region")
     writing_base_emissions.set_meta("Emissions|CO2", name="variable")
@@ -3162,8 +3139,7 @@ def test_write_emis_in(temp_dir, update_expected_file, writing_base_emissions):
 
 def test_write_emis_in_variable_name_error(temp_dir, writing_base_emissions):
     tregions = [
-        "World|{}".format(r)
-        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+        "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
     writing_base_emissions.set_meta(tregions, name="region")
     writing_base_emissions.set_meta("Emissions|CO2|MAGICC AFOLU", name="variable")
@@ -3174,7 +3150,9 @@ def test_write_emis_in_variable_name_error(temp_dir, writing_base_emissions):
         "variable, Emissions|CO2|MAGICC AFOLU"
     )
     with pytest.raises(ValueError, match=error_msg):
-        writing_base_emissions.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+        writing_base_emissions.write(
+            join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6
+        )
 
 
 # integration test
@@ -3227,30 +3205,10 @@ def test_surface_temp_in_reader():
     assert (mdata["unit"] == "K").all()
     assert (mdata["variable"] == "Surface Temperature").all()
 
-    assert_mdata_value(
-        mdata,
-        6,
-        region="World|Northern Hemisphere|Ocean",
-        year=1996,
-    )
+    assert_mdata_value(mdata, 6, region="World|Northern Hemisphere|Ocean", year=1996)
 
-    assert_mdata_value(
-        mdata,
-        3,
-        region="World|Northern Hemisphere|Land",
-        year=1995,
-    )
+    assert_mdata_value(mdata, 3, region="World|Northern Hemisphere|Land", year=1995)
 
-    assert_mdata_value(
-        mdata,
-        4,
-        region="World|Southern Hemisphere|Ocean",
-        year=1996,
-    )
+    assert_mdata_value(mdata, 4, region="World|Southern Hemisphere|Ocean", year=1996)
 
-    assert_mdata_value(
-        mdata,
-        5,
-        region="World|Southern Hemisphere|Land",
-        year=1996,
-    )
+    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Land", year=1996)
