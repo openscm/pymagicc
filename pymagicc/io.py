@@ -2438,6 +2438,11 @@ def _get_openscm_var_from_filepath(filepath):
     ----------
     filepath : str
         Filepath from which to determine the OpenSCM variable.
+
+    Returns
+    -------
+    str
+        The OpenSCM variable implied by the filepath.
     """
     reader = determine_tool(filepath, "reader")(filepath)
     openscm_var = convert_magicc7_to_openscm_variables(
