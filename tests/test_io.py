@@ -3077,7 +3077,7 @@ def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base_emission
     writing_base_emissions.metadata = {"header": "TODO: fix error message"}
 
     error_msg = re.escape(
-        "Are all of your regions OpenSCM regions, I don't "
+        "Are all of your regions OpenSCM regions? I don't "
         "recognise: {}".format(sorted(tregions))
     )
     with pytest.raises(ValueError, match=error_msg):
