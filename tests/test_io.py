@@ -3179,6 +3179,8 @@ def test_write_emis_in_variable_name_error(temp_dir, writing_base_emissions):
 
 # integration test
 def test_write_temp_in(temp_dir, update_expected_file, writing_base):
+    # almost certain spacing doesn't matter for fourbox data, can always make more
+    # restrictive in future if required
     tregions = [
         "World|{}|{}".format(r, sr)
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
@@ -3188,11 +3190,11 @@ def test_write_temp_in(temp_dir, update_expected_file, writing_base):
     writing_base.set_meta("Surface Temperature", name="variable")
     writing_base.set_meta("K", name="unit")
 
-    res = join(temp_dir, "TMP_TEMP.IN")
+    res = join(temp_dir, "TMP_SURFACE_TEMP.IN")
     writing_base.metadata = {"header": "Test Surface temperature input file"}
     writing_base.write(res, magicc_version=6)
 
-    expected = join(EXPECTED_FILES_DIR, "EXPECTED_TEMP.IN")
+    expected = join(EXPECTED_FILES_DIR, "EXPECTED_SURFACE_TEMP.IN")
 
     run_writing_comparison(res, expected, update=update_expected_file)
 
@@ -3212,4 +3214,9 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         "variable, Ocean Temperature"
     )
     with pytest.raises(ValueError, match=error_msg):
-        writing_base.write(join(temp_dir, "TMP_TEMP.IN"), magicc_version=6)
+        writing_base.write(join(temp_dir, "TMP_SURFACE_TEMP.IN"), magicc_version=6)
+
+
+def test_surface_temp_in_reader():
+    # TODO: write this
+    assert False

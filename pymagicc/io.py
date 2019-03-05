@@ -519,6 +519,10 @@ class _RadiativeForcingInReader(_FourBoxReader):
         return column_headers, metadata
 
 
+class _SurfaceTemperatureInReader(_FourBoxReader):
+    _regexp_capture_variable = re.compile(r".*\_(SURFACE_TEMP)\.IN$")
+
+
 class _EmisInReader(_Reader):
     def _read_units(self, column_headers):
         column_headers = super()._read_units(column_headers)
@@ -1467,6 +1471,10 @@ class _RadiativeForcingInWriter(_Writer):
     pass
 
 
+class _SurfaceTemperatureInWriter(_Writer):
+    pass
+
+
 class _HistEmisInWriter(_Writer):
     _variable_header_row_name = "GAS"
 
@@ -2034,6 +2042,11 @@ def determine_tool(filepath, tool_to_get):
             "regexp": r"^.*\_RF\.(IN|MON)$",
             "reader": _RadiativeForcingInReader,
             "writer": _RadiativeForcingInWriter,
+        },
+        "SurfaceTemperatureIn": {
+            "regexp": r"^.*SURFACE\_TEMP\.(IN|MON)$",
+            "reader": _SurfaceTemperatureInReader,
+            "writer": _SurfaceTemperatureInWriter,
         },
         "Out": {
             "regexp": r"^DAT\_.*(?<!EMIS)\.OUT$",
