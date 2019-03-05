@@ -56,7 +56,7 @@ Some more details about why these files are not supported:
 - Sub annual binary files (including volcanic RF) are asking for trouble
 - Permafrost output files don't make any sense right now
 - Output baskets have inconsistent variable names from other outputs
-- Inverse emissions files (except `INVERSEEMIS.OUT`) have no units and we don't want 
+- Inverse emissions files (except `INVERSEEMIS.OUT`) have no units and we don't want
   to hardcode them
 - We have no idea what the precipitation input is
 - Temp ocean layers is hard to predict because it has many layers
@@ -1190,7 +1190,14 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
     dattype_rows = scen7_rows if scen7 else ~scen7_rows
 
     region_dattype_row = region_rows & dattype_rows
-    assert sum(region_dattype_row) == 1
+    if sum(region_dattype_row) != 1:
+        error_msg = (
+            "Unrecognised regions, they must be part of "
+            "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
+            "sense, please raise an issue at "
+            "https://github.com/openclimatedata/pymagicc/issues"
+        )
+        raise ValueError(error_msg)
 
     return region_dattype_row
 
@@ -1251,7 +1258,12 @@ class _Writer(object):
         return output
 
     def _get_header(self):
-        return self.minput.metadata["header"]
+        try:
+            return self.minput.metadata["header"]
+        except KeyError:
+            raise KeyError(
+                'Please provide a file header in ``self.metadata["header"]``'
+            )
 
     def _write_namelist(self, output):
         nml_initial, data_block = self._get_initial_nml_and_data_block()
@@ -1378,6 +1390,14 @@ class _Writer(object):
         region_order_magicc = get_region_order(regions, self._scen_7)
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
+        unrecognised_regions = set(regions) - set(region_order)
+        if unrecognised_regions:
+            error_msg = (
+                "Are all of your regions OpenSCM regions, I don't "
+                "recognise: {}".format(unrecognised_regions)
+            )
+            raise ValueError(error_msg)
+
         data_block = data_block.reindex(region_order, axis=1, level="region")
 
         data_block = self._convert_data_block_to_magicc_time(data_block)
@@ -2213,6 +2233,7 @@ def get_generic_rcp_name(inname):
     >>> get_generic_rcp_name("RCP3PD")
     "rcp26"
     """
+    # TODO: move into OpenSCM
     mapping = {
         "rcp26": "rcp26",
         "rcp3pd": "rcp26",

@@ -6,19 +6,26 @@ from shutil import rmtree
 
 
 import pytest
+import numpy as np
 
 
 from pymagicc import MAGICC6, MAGICC7
+from pymagicc.io import MAGICCData
 
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
 TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
+EXPECTED_FILES_DIR = join(TEST_DATA_DIR, "expected_files")
+
 
 def pytest_addoption(parser):
     parser.addoption(
         "--skip-slow", action="store_true", default=False, help="skip any slow tests"
+    )
+    parser.addoption(
+        "--update-expected-file", action="store_true", default=False, help="Overwrite expected files"
     )
 
 
@@ -29,6 +36,11 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
+
+
+@pytest.fixture
+def update_expected_file(request):
+    return request.config.getoption("--update-expected-file")
 
 
 @pytest.fixture(scope="function", params=[MAGICC6, MAGICC7])
@@ -71,3 +83,22 @@ def temp_dir():
     yield temp_dir
     print("deleting {}".format(temp_dir))
     rmtree(temp_dir)
+
+
+@pytest.fixture
+def writing_base():
+    no_cols = 5
+    yield MAGICCData(
+        np.arange(0, 2*no_cols).reshape((2, no_cols)),
+        columns={
+            "index": np.arange(1995, 1997),
+            "region": ["region {}".format(i) for i in range(no_cols)],
+            "scenario": ["test"],
+            "model": ["unspecified"],
+            "variable": ["variable"],
+            "unit": ["unit"],
+            "todo": ["SET"],
+        }
+    )
+
+

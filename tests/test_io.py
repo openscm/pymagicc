@@ -4,6 +4,8 @@ from copy import deepcopy
 import warnings
 from unittest.mock import patch, MagicMock
 import datetime
+import shutil
+import filecmp
 
 
 import numpy as np
@@ -14,6 +16,7 @@ import f90nml
 from openscm.scmdataframebase import ScmDataFrameBase
 
 
+import pymagicc.definitions
 from pymagicc import MAGICC6
 from pymagicc.io import (
     MAGICCData,
@@ -31,7 +34,7 @@ from pymagicc.io import (
     _join_timeseries_mdata,
     determine_tool,
 )
-from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
+from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR, EXPECTED_FILES_DIR
 
 
 # Not all files can be read in
@@ -3065,3 +3068,89 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
 
 
 # TODO: improve join timeseries so it can also handle datetimes in the time axis
+
+
+def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base):
+    tregions = ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.metadata = {"header": "TODO: fix error message"}
+
+    error_msg = re.escape(
+        "Are all of your regions OpenSCM regions, I don't "
+        "recognise: {}".format(set(tregions))
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+
+
+def test_unrecognised_region_combination_error(temp_dir, writing_base):
+    error_msg = re.escape(
+        "Unrecognised regions, they must be part of "
+        "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
+        "sense, please raise an issue at "
+        "https://github.com/openclimatedata/pymagicc/issues"
+    )
+    assert isinstance(pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS, pd.DataFrame)
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+
+
+def test_write_no_header_error(temp_dir, writing_base):
+    tregions = [
+        "World|{}".format(r)
+        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Emissions|CO2", name="variable")
+    writing_base.set_meta("GtC / yr", name="unit")
+
+    error_msg = re.escape(
+        'Please provide a file header in ``self.metadata["header"]``'
+    )
+    with pytest.raises(KeyError, match=error_msg):
+        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
+
+
+def run_writing_comparison(res, expected, update=False):
+    """Run test that writing file is behaving as expected
+
+    Parameters
+    ----------
+    res : str
+        File written as part of the test
+
+    expected : str
+        File against which the comparison should be done
+
+    update : bool
+        If True, don't perform the test and instead simply
+        overwrite the existing expected file with ``res``
+
+    Raises
+    ------
+    AssertionError
+        If ``update`` is ``False`` and ``res`` and ``expected``
+        are not identical.
+    """
+    if update:
+        shutil.copy(res, expected)
+    else:
+        assert filecmp.cmp(res, expected, shallow=False)
+
+
+def test_write_emis_in(temp_dir, update_expected_file, writing_base):
+    tregions = [
+        "World|{}".format(r)
+        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Emissions|CO2", name="variable")
+    writing_base.set_meta("GtC / yr", name="unit")
+
+    res = join(temp_dir, "TMP_CO2_EMIS.IN")
+    writing_base.metadata = {"header": "Test CO2 Emissions file"}
+    writing_base.write(res, magicc_version=6)
+
+    expected = join(EXPECTED_FILES_DIR, "CO2_EMIS.IN")
+
+    run_writing_comparison(res, expected, update=update_expected_file)
