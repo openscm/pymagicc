@@ -25,7 +25,10 @@ def pytest_addoption(parser):
         "--skip-slow", action="store_true", default=False, help="skip any slow tests"
     )
     parser.addoption(
-        "--update-expected-file", action="store_true", default=False, help="Overwrite expected files"
+        "--update-expected-file",
+        action="store_true",
+        default=False,
+        help="Overwrite expected files",
     )
 
 
@@ -89,7 +92,7 @@ def temp_dir():
 def writing_base():
     no_cols = 4
     yield MAGICCData(
-        np.arange(0, 2*no_cols).reshape((2, no_cols)),
+        np.arange(0, 2 * no_cols).reshape((2, no_cols)),
         columns={
             "index": np.arange(1995, 1997),
             "region": ["region {}".format(i) for i in range(no_cols)],
@@ -98,7 +101,7 @@ def writing_base():
             "variable": ["variable"],
             "unit": ["unit"],
             "todo": ["SET"],
-        }
+        },
     )
 
 
@@ -106,7 +109,7 @@ def writing_base():
 def writing_base_emissions():
     no_cols = 5
     yield MAGICCData(
-        np.arange(0, 2*no_cols).reshape((2, no_cols)),
+        np.arange(0, 2 * no_cols).reshape((2, no_cols)),
         columns={
             "index": np.arange(1995, 1997),
             "region": ["region {}".format(i) for i in range(no_cols)],
@@ -115,7 +118,5 @@ def writing_base_emissions():
             "variable": ["variable"],
             "unit": ["unit"],
             "todo": ["SET"],
-        }
+        },
     )
-
-

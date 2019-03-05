@@ -1030,24 +1030,26 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     assert matching_rows.all()
 
 
-@patch('pymagicc.core.listdir')
+@patch("pymagicc.core.listdir")
 def test_get_output_filenames(mock_listdir):
     mock_listdir.return_value = [
-        'DAT_SLR_SEMIEMPI_RATE.OUT',
-        'DAT_SLR_SEMIEMPI_RATE.BINOUT',
-        'TEMP_OCEANLAYERS.BINOUT',
-        'TEMP_OCEANLAYERS.OUT',
-        'DAT_SLR_AIS_SMB.OUT',
-        'EXTRA.OTHER',
-        'PARAMETERS.OUT'
+        "DAT_SLR_SEMIEMPI_RATE.OUT",
+        "DAT_SLR_SEMIEMPI_RATE.BINOUT",
+        "TEMP_OCEANLAYERS.BINOUT",
+        "TEMP_OCEANLAYERS.OUT",
+        "DAT_SLR_AIS_SMB.OUT",
+        "EXTRA.OTHER",
+        "PARAMETERS.OUT",
     ]
 
     m = MAGICC6()
     obs = sorted(m._get_output_filenames())
-    exp = sorted([
-        'DAT_SLR_SEMIEMPI_RATE.BINOUT',
-        'DAT_SLR_AIS_SMB.OUT',
-        'TEMP_OCEANLAYERS.OUT',
-        'EXTRA.OTHER'
-    ])
+    exp = sorted(
+        [
+            "DAT_SLR_SEMIEMPI_RATE.BINOUT",
+            "DAT_SLR_AIS_SMB.OUT",
+            "TEMP_OCEANLAYERS.OUT",
+            "EXTRA.OTHER",
+        ]
+    )
     np.testing.assert_array_equal(obs, exp)

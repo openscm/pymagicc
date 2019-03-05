@@ -15,7 +15,13 @@ import pandas as pd
 from .scenarios import zero_emissions
 from .config import config
 from .utils import get_date_time_string
-from .io import MAGICCData, NoReaderWriterError, read_cfg_file, determine_tool, _get_openscm_var_from_filepath
+from .io import (
+    MAGICCData,
+    NoReaderWriterError,
+    read_cfg_file,
+    determine_tool,
+    _get_openscm_var_from_filepath,
+)
 from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
@@ -261,15 +267,19 @@ class MAGICCBase(object):
     def _get_output_filenames(self):
         outfiles = [f for f in listdir(self.out_dir) if f != "PARAMETERS.OUT"]
 
-        bin_out = [f.split('.')[0] for f in outfiles if f.startswith('DAT_') and f.endswith('.BINOUT')]
+        bin_out = [
+            f.split(".")[0]
+            for f in outfiles
+            if f.startswith("DAT_") and f.endswith(".BINOUT")
+        ]
 
         extras = []
         for f in outfiles:
-            var_name, ext = f.split('.')
-            if ext != 'BINOUT' and var_name not in bin_out:
+            var_name, ext = f.split(".")
+            if ext != "BINOUT" and var_name not in bin_out:
                 extras.append(f)
 
-        return [f + '.BINOUT' for f in bin_out] + extras
+        return [f + ".BINOUT" for f in bin_out] + extras
 
     def check_config(self):
         """Check that our MAGICC ``.CFG`` files are set to safely work with PYMAGICC
