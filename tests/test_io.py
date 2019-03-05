@@ -3073,17 +3073,19 @@ def test_join_timeseries_filenames(mock_join_timeseries_mdata, mock_magicc_data)
 def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base):
     tregions = ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Emissions|CO2", name="variable")
     writing_base.metadata = {"header": "TODO: fix error message"}
 
     error_msg = re.escape(
         "Are all of your regions OpenSCM regions, I don't "
-        "recognise: {}".format(set(tregions))
+        "recognise: {}".format(sorted(tregions))
     )
     with pytest.raises(ValueError, match=error_msg):
         writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
 
 
 def test_unrecognised_region_combination_error(temp_dir, writing_base):
+    writing_base.set_meta("Emissions|CO2", name="variable")
     error_msg = re.escape(
         "Unrecognised regions, they must be part of "
         "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
@@ -3096,6 +3098,7 @@ def test_unrecognised_region_combination_error(temp_dir, writing_base):
 
 
 def test_write_no_header_error(temp_dir, writing_base):
+    writing_base.set_meta("Emissions|CO2", name="variable")
     tregions = [
         "World|{}".format(r)
         for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
@@ -3138,6 +3141,7 @@ def run_writing_comparison(res, expected, update=False):
         assert filecmp.cmp(res, expected, shallow=False)
 
 
+# integration test
 def test_write_emis_in(temp_dir, update_expected_file, writing_base):
     tregions = [
         "World|{}".format(r)
@@ -3154,3 +3158,20 @@ def test_write_emis_in(temp_dir, update_expected_file, writing_base):
     expected = join(EXPECTED_FILES_DIR, "CO2_EMIS.IN")
 
     run_writing_comparison(res, expected, update=update_expected_file)
+
+
+def test_emis_in_variable_name_error(temp_dir, writing_base):
+    tregions = [
+        "World|{}".format(r)
+        for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Emissions|CO2|MAGICC AFOLU", name="variable")
+    writing_base.metadata = {"header": "Test misnamed CO2 Emissions file"}
+
+    error_msg = re.escape(
+        "Your filename variable, Emissions|CO2, does not match the data "
+        "variable, Emissions|CO2|MAGICC AFOLU"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base.write(join(temp_dir, "TMP_CO2_EMIS.IN"), magicc_version=6)
