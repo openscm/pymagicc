@@ -15,7 +15,7 @@ import pandas as pd
 from .scenarios import zero_emissions
 from .config import config
 from .utils import get_date_time_string
-from .io import MAGICCData, NoReaderWriterError, read_cfg_file, determine_tool
+from .io import MAGICCData, NoReaderWriterError, read_cfg_file, determine_tool, _get_openscm_var_from_filepath
 from .definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
@@ -237,12 +237,7 @@ class MAGICCBase(object):
 
         for filepath in outfiles:
             try:
-                reader = determine_tool(filepath, "reader")(filepath)
-                openscm_var = convert_magicc7_to_openscm_variables(
-                    convert_magicc6_to_magicc7_variables(
-                        reader._get_variable_from_filepath()
-                    )
-                )
+                openscm_var = _get_openscm_var_from_filepath(filepath)
                 if only is None or openscm_var in only:
                     tempdata = MAGICCData(
                         join(self.out_dir, filepath), columns=deepcopy(read_cols)
@@ -437,8 +432,8 @@ class MAGICCBase(object):
 
     def set_zero_config(self):
         """Set config such that radiative forcing and temperature output will be zero
-        
-        This method is intended as a convenience only, it does not handle everything in 
+
+        This method is intended as a convenience only, it does not handle everything in
         an obvious way. Adjusting the parameter settings still requires great care and
         may behave unepexctedly.
         """
@@ -475,9 +470,9 @@ class MAGICCBase(object):
 
         fgas_conc_pi = 0
         fgas_conc = fgas_conc_pi * np.ones(no_timesteps)
-        # MAGICC6 doesn't read this so not a problem, for MAGICC7 we might have to write
-        # each file separately
-        varname = "NA"
+        # MAGICC6 doesn't read this so not a problem, for MAGICC7 we might have to
+        # write each file separately
+        varname = "FGAS_CONC"
         fgas_conc_df = pd.DataFrame(
             {
                 "time": time,
@@ -492,7 +487,7 @@ class MAGICCBase(object):
             }
         )
         fgas_conc_writer = MAGICCData(fgas_conc_df)
-        fgas_conc_filename = "HIST_ZERO_FGAS_CONC.IN"
+        fgas_conc_filename = "HIST_ZERO_{}.IN".format(varname)
         fgas_conc_writer.metadata = {"header": "Zero concentrations"}
         fgas_conc_writer.write(join(self.run_dir, fgas_conc_filename), self.version)
 

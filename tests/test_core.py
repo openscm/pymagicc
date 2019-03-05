@@ -886,7 +886,7 @@ def test_external_forcing_only_run(package):
             "region": ["World"],
         },
     )
-    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext_filename = "CUSTOM_EXTRA_RF.IN"
     forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
     forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
 
@@ -990,7 +990,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         },
     )
     forcing_ext.metadata = {"header": "External radiative forcing file for testing"}
-    forcing_ext_filename = "EXTERNAL_RF.IN"
+    forcing_ext_filename = "CUSTOM_EXTRA_RF.IN"
     forcing_ext.write(join(package.run_dir, forcing_ext_filename), package.version)
 
     # TODO: fix endyear so it takes from scenario input by default

@@ -1237,6 +1237,7 @@ class _Writer(object):
         filepath : str
             Filepath of the file to write to.
         """
+        self._filepath = filepath
         # TODO: make copy attribute for MAGICCData
         self.minput = deepcopy(magicc_input)
         self.data_block = self._get_data_block()
@@ -1386,6 +1387,8 @@ class _Writer(object):
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
+        self._check_data_filename_variable_consistency(data_block)
+
         regions = data_block.columns.get_level_values("region").tolist()
         region_order_magicc = get_region_order(regions, self._scen_7)
 
@@ -1394,7 +1397,7 @@ class _Writer(object):
         if unrecognised_regions:
             error_msg = (
                 "Are all of your regions OpenSCM regions, I don't "
-                "recognise: {}".format(unrecognised_regions)
+                "recognise: {}".format(sorted(unrecognised_regions))
             )
             raise ValueError(error_msg)
 
@@ -1403,6 +1406,18 @@ class _Writer(object):
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
         return data_block
+
+    def _check_data_filename_variable_consistency(self, data_block):
+        data_var = data_block.columns.get_level_values("variable").unique()
+        if len(data_var) == 1:
+            data_var = data_var[0]
+            filename_var = _get_openscm_var_from_filepath(self._filepath)
+            if data_var != filename_var:
+                error_msg = (
+                    "Your filename variable, {}, does not match the data "
+                    "variable, {}".format(filename_var, data_var)
+                )
+                raise ValueError(error_msg)
 
     def _convert_data_block_to_magicc_time(self, data_block):
         timestamp_months = data_block.index.map(lambda x: x.month)
@@ -2395,3 +2410,24 @@ def read_scen_file(
     mdata = MAGICCData(filepath, columns=columns, **kwargs)
 
     return mdata
+
+
+def _get_openscm_var_from_filepath(filepath):
+    """
+    Determine the OpenSCM variable from a filepath.
+
+    Uses MAGICC's internal, implicit, filenaming conventions.
+
+    Parameters
+    ----------
+    filepath : str
+        Filepath from which to determine the OpenSCM variable.
+    """
+    reader = determine_tool(filepath, "reader")(filepath)
+    openscm_var = convert_magicc7_to_openscm_variables(
+        convert_magicc6_to_magicc7_variables(
+            reader._get_variable_from_filepath()
+        )
+    )
+
+    return openscm_var
