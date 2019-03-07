@@ -2262,7 +2262,7 @@ def test_load_out_co2pf_emis():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "Gt C / yr").all()
-    assert (mdata["variable"] == "Emissions|CO2|MAGICC Permafrost").all()
+    assert (mdata["variable"] == "Air to Land Flux|CO2|MAGICC Permafrost").all()
 
     assert_mdata_value(mdata, 0, region="World", year=1765)
 
