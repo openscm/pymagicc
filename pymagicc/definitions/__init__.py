@@ -341,7 +341,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "LANDUSE_RF": "Radiative Forcing|Land-use Change",
             "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
             "CO2PF_EMIS": "Land to Air Flux|CO2|MAGICC Permafrost",
-            # "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",
+            # "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",  # TODO: test and then add when needed
         }
     )
 
