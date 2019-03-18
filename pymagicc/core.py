@@ -578,20 +578,23 @@ class MAGICCBase(object):
         return config_dict
 
     def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
-        magicc6_emissions_scen_key = "file_emissionscenario"
-        magicc7_emissions_scen_key = "file_emisscen"
+        magicc6_keys = {
+            "file_emissionscenario": "file_emisscen",
+        }
+        magicc7_keys = {
+            "file_emisscen": "file_emissionscenario",
+        }
 
-        if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
-            config_dict[magicc6_emissions_scen_key] = config_dict[
-                magicc7_emissions_scen_key
-            ]
-            config_dict.pop(magicc7_emissions_scen_key)
-        if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
-            config_dict[magicc7_emissions_scen_key] = config_dict[
-                magicc6_emissions_scen_key
-            ]
-            config_dict.pop(magicc6_emissions_scen_key)
+        mapper = magicc6_keys if self.version == 7 else magicc7_keys
 
+        for old_key, new_key in mapper.items():
+            if old_key in config_dict:
+                if isinstance(new_key, list):
+                    for k in new_key:
+                        config_dict[k] = config_dict[old_key]
+                else:
+                    config_dict[new_key] = config_dict[old_key]
+                config_dict.pop(old_key)
         return config_dict
 
     def set_years(self, startyear=1765, endyear=2100):
