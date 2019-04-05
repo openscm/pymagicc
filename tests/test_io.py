@@ -4,8 +4,6 @@ from copy import deepcopy
 import warnings
 from unittest.mock import patch, MagicMock
 import datetime
-import shutil
-import filecmp
 
 
 import numpy as np
@@ -34,7 +32,7 @@ from pymagicc.io import (
     _join_timeseries_mdata,
     determine_tool,
 )
-from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR, EXPECTED_FILES_DIR
+from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR, EXPECTED_FILES_DIR, run_writing_comparison
 
 
 # Not all files can be read in
@@ -3102,33 +3100,6 @@ def test_write_no_header_error(temp_dir, writing_base_emissions):
         )
 
 
-def run_writing_comparison(res, expected, update=False):
-    """Run test that writing file is behaving as expected
-
-    Parameters
-    ----------
-    res : str
-        File written as part of the test
-
-    expected : str
-        File against which the comparison should be done
-
-    update : bool
-        If True, don't perform the test and instead simply
-        overwrite the existing expected file with ``res``
-
-    Raises
-    ------
-    AssertionError
-        If ``update`` is ``False`` and ``res`` and ``expected``
-        are not identical.
-    """
-    if update:
-        shutil.copy(res, expected)
-    else:
-        assert filecmp.cmp(res, expected, shallow=False)
-
-
 # integration test
 def test_write_emis_in(temp_dir, update_expected_file, writing_base_emissions):
     tregions = [
@@ -3203,6 +3174,29 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
     )
     with pytest.raises(ValueError, match=error_msg):
         writing_base.write(join(temp_dir, "TMP_SURFACE_TEMP.IN"), magicc_version=6)
+
+
+# integration test
+@pytest.mark.parametrize(
+    "starting_file",
+    [
+        "RCPODS_WMO2006_Emissions_A1.prn",
+        "RCPODS_WMO2006_MixingRatios_A1.prn",
+    ],
+)
+def test_writing_is_insensitive_to_column_order(temp_dir, starting_file):
+    base = join(MAGICC6_DIR, starting_file)
+    writing_base = MAGICCData(base)
+
+    # thank you https://stackoverflow.com/a/34879805
+    writer = MAGICCData(writing_base.timeseries().sample(frac=1))
+
+    res = join(temp_dir, starting_file)
+    writer.metadata = {"header": "Testing columns come out in fixed order"}
+    writer.write(res, magicc_version=6)
+    # import pdb
+    # pdb.set_trace()
+    run_writing_comparison(res, base, update=False)
 
 
 def test_surface_temp_in_reader():
