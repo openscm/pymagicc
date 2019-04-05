@@ -649,7 +649,7 @@ class _ScenReader(_NonStandardEmisInReader):
         return header_notes_lines
 
     def read_data_block(self):
-        no_years = int(self.lines[0].strip())
+        number_years = int(self.lines[0].strip())
 
         # go through datablocks until there are none left
         while True:
@@ -676,7 +676,7 @@ class _ScenReader(_NonStandardEmisInReader):
             ch["region"] = [region] * len(variables)
 
             region_block = StringIO()
-            for i in range(no_years):
+            for i in range(number_years):
                 region_block.write(self._stream.readline())
             region_block.seek(0)
 
@@ -807,17 +807,22 @@ class _PrnReader(_NonStandardEmisInReader):
 
         concs = False
         emms = False
-        if "unit" in metadata:
-            if metadata["unit"] == "ppt":
-                concs = True
-            elif metadata["unit"] == "metric tons":
-                emms = True
-            else:
-                error_msg = "I do not recognise the unit, {}, in file{}".format(
-                    metadata["unit"], self.filepath
-                )
-                raise ValueError(error_msg)
-        else:
+
+        unit_keys = ["Unit", "unit"]
+        for unit_key in unit_keys:
+            if unit_key in metadata:
+                if metadata[unit_key] == "ppt":
+                    concs = True
+                elif metadata[unit_key] == "metric tons":
+                    emms = True
+                else:
+                    error_msg = "I do not recognise the unit, {}, in file{}".format(
+                        metadata[unit_key], self.filepath
+                    )
+                    raise ValueError(error_msg)
+                break
+
+        if not (concs or emms):
             # just have to assume global emissions in tons
             emms = True
 
@@ -837,7 +842,7 @@ class _PrnReader(_NonStandardEmisInReader):
         if emms:
             column_headers = self._read_units(column_headers)
 
-        for k in ["gas", "unit"]:
+        for k in ["gas"] + unit_keys:
             try:
                 metadata.pop(k)
             except KeyError:
@@ -872,13 +877,17 @@ class _PrnReader(_NonStandardEmisInReader):
 
     def read_data_block(self):
         data_block_stream = StringIO()
-        # read out the header
-        data_block_header_line = self._stream.readline()
+        # read in data block header, removing "Years" because it's just confusing
+        # and can't be used for validation as it only appears in some files.
+        data_block_header_line = self._stream.readline().replace(
+            "Years",
+            "",
+        ).strip()
         variables = []
         col_width = 10
-        for n in np.arange(0, len(data_block_header_line), col_width):
-            pos = int(n)
-            variable = data_block_header_line[pos : pos + col_width].strip()
+
+        for w in range(0, len(data_block_header_line), col_width):
+            variable = data_block_header_line[w : w + col_width].strip()
             if variable != "Years":
                 variables.append(variable)
 
@@ -889,7 +898,7 @@ class _PrnReader(_NonStandardEmisInReader):
 
         while True:
             prev_pos = self._stream.tell()
-            line = self._stream.readline()
+            line = self._stream.readline()  # skip blank line in files
             if not line:
                 # reached end of file
                 break
@@ -1278,14 +1287,14 @@ class _Writer(object):
         nml = nml_initial.copy()
 
         # '&NML_INDICATOR' goes above, '/'' goes at end
-        no_lines_nml_header_end = 2
+        number_lines_nml_header_end = 2
         line_after_nml = self._newline_char
 
         try:
-            no_col_headers = len(data_block.columns.levels)
+            number_col_headers = len(data_block.columns.levels)
         except AttributeError:
             assert isinstance(data_block.columns, pd.core.indexes.base.Index)
-            no_col_headers = 1
+            number_col_headers = 1
 
         if self._magicc_version == 6:
             nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
@@ -1294,9 +1303,9 @@ class _Writer(object):
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split(self._newline_char))
             + len(nml["THISFILE_SPECIFICATIONS"])
-            + no_lines_nml_header_end
+            + number_lines_nml_header_end
             + len(line_after_nml.split(self._newline_char))
-            + no_col_headers
+            + number_col_headers
         )
 
         nml.uppercase = True
@@ -1428,8 +1437,8 @@ class _Writer(object):
 
     def _convert_data_block_to_magicc_time(self, data_block):
         timestamp_months = data_block.index.map(lambda x: x.month)
-        no_months = len(timestamp_months.unique())
-        if no_months == 1:  # yearly data
+        number_months = len(timestamp_months.unique())
+        if number_months == 1:  # yearly data
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
 
@@ -1510,13 +1519,11 @@ class _PrnWriter(_Writer):
             assert all(
                 [u.startswith("t ") and u.endswith(" / yr") for u in units]
             ), "Prn emissions file with non tonne per year units won't work"
-            lines.append("Unit: metric tons")
             other_col_format_str = "{:9.0f}".format
         elif unit == "ppt":
             assert all(
                 [u == "ppt" for u in units]
             ), "Prn concentrations file with non ppt units won't work"
-            lines.append("Unit: {}".format(unit))
             other_col_format_str = "{:9.3e}".format
         else:
             raise ValueError("Unit of {} is not recognised for prn file".format(unit))
@@ -1524,21 +1531,23 @@ class _PrnWriter(_Writer):
         data_block = self._get_data_block()
 
         # line with number of rows to skip, start year and end year
-        no_indicator_lines = 1
-        no_blank_lines_after_indicator = 1
+        number_indicator_lines = 1
+        number_blank_lines_after_indicator = 1
 
-        no_header_lines = len(lines)
-        no_blank_lines_after_header = 1
+        number_header_lines = len(lines)
+        number_blank_lines_after_header = 1
 
         data_block_header_rows = 1
+        number_blank_lines_after_data_block_header_rows = 1
 
         # we don't need other blank lines as they're skipped in source anyway
         line_above_data_block = (
-            no_indicator_lines
-            + no_blank_lines_after_indicator
-            + no_header_lines
-            + no_blank_lines_after_header
+            number_indicator_lines
+            + number_blank_lines_after_indicator
+            + number_header_lines
+            + number_blank_lines_after_header
             + data_block_header_rows
+            + number_blank_lines_after_data_block_header_rows
         )
 
         firstyear = int(np.floor(data_block.iloc[0, 0]))
@@ -1552,22 +1561,26 @@ class _PrnWriter(_Writer):
 
         # format is irrelevant for the source
         # however it does matter for reading in again with pymagicc
-        time_col_length = 11
+        time_col_length = 10
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
 
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
 
         col_headers = data_block.columns.tolist()
-        first_pad = " " * (time_col_length - len(col_headers[0]))
-        col_header = first_pad + "".join(["{:10}".format(c) for c in col_headers])
+        col_header = (
+            " {: <10}".format(col_headers[0])
+            + "".join(["{: <10}".format(c) for c in col_headers[1:]]).strip()
+        )
         lines.append(col_header)
+        lines.append("")  # add blank line between data block header and data block
 
         data_block_str = data_block.to_string(
             index=False, header=False, formatters=formatters, sparsify=False
         )
 
         lines.append(data_block_str)
+        lines.append("")  # new line at end of file
         output.seek(0)
         output.write(self._newline_char.join(lines))
 
@@ -1594,6 +1607,7 @@ class _PrnWriter(_Writer):
             "the following species: {}".format(PART_OF_PRNFILE)
         )
         assert set(data_block.columns) == set(PART_OF_PRNFILE), emms_assert_msg
+        data_block = data_block[PART_OF_PRNFILE]
 
         data_block.index.name = "Years"
         data_block = self._convert_data_block_to_magicc_time(data_block)
@@ -1678,13 +1692,13 @@ class _ScenWriter(_Writer):
         # we have to work out a better way of matching up all these conventions/testing them, tight coupling between pymagicc and MAGICC may solve it for us...
         lines = output.getvalue().split(self._newline_char)
         # notes are everything except the first 6 lines
-        no_notes_lines = len(lines) - 6
+        number_notes_lines = len(lines) - 6
 
-        def _gip(lines, no_notes_lines):
+        def _gip(lines, number_notes_lines):
             """
             Get the point where we should insert the data block.
             """
-            return len(lines) - no_notes_lines
+            return len(lines) - number_notes_lines
 
         region_order = get_region_order(
             self._get_df_header_row("region"), scen7=self._scen_7
@@ -1760,7 +1774,7 @@ class _ScenWriter(_Writer):
             )
             region_block_str += self._newline_char * 2
 
-            lines.insert(_gip(lines, no_notes_lines), region_block_str)
+            lines.insert(_gip(lines, number_notes_lines), region_block_str)
 
         output.seek(0)
         output.write(self._newline_char.join(lines))

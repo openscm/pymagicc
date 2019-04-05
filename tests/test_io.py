@@ -3180,23 +3180,39 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
 @pytest.mark.parametrize(
     "starting_file",
     [
-        "RCPODS_WMO2006_Emissions_A1.prn",
-        "RCPODS_WMO2006_MixingRatios_A1.prn",
+        # Notes about expected files (move to docs before merging):
+        # =========================================================
+        #
+        # - prn files
+        #     - data block header not read by MAGICC so not worried about
+        #       differences
+        #     - first number tells MAGICC how many lines to skip to get to data
+        #       block so we can remove the line between the data block header
+        #       and the data block which appears in the original files
+        #     - the header is different from the original files because the
+        #       original files have spurious lines of notes at the end...
+        "EXPECTED_RCPODS_WMO2006_Emissions_A1.prn",
+        "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn",
+        "EXPECTED_RCP26.SCEN",
+        "EXPECTED_HISTRCP_NOXI_EMIS.IN",
+        "EXPECTED_HISTRCP_HFC43-10_CONC.IN",
+        "EXPECTED_HISTRCP85_SOLAR_RF.IN",
+        "EXPECTED_GISS_BCI_OT.IN",
     ],
 )
-def test_writing_is_insensitive_to_column_order(temp_dir, starting_file):
-    base = join(MAGICC6_DIR, starting_file)
+def test_writing_is_insensitive_to_column_order(temp_dir, update_expected_file, starting_file):
+    base = join(EXPECTED_FILES_DIR, starting_file)
     writing_base = MAGICCData(base)
 
     # thank you https://stackoverflow.com/a/34879805
     writer = MAGICCData(writing_base.timeseries().sample(frac=1))
 
     res = join(temp_dir, starting_file)
-    writer.metadata = {"header": "Testing columns come out in fixed order"}
+    writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
     # import pdb
     # pdb.set_trace()
-    run_writing_comparison(res, base, update=False)
+    run_writing_comparison(res, base, update=update_expected_file)
 
 
 def test_surface_temp_in_reader():
