@@ -2,7 +2,8 @@ import os
 from os.path import exists, join, dirname
 import pkg_resources
 from tempfile import mkstemp, mkdtemp
-from shutil import rmtree
+import shutil
+import filecmp
 
 
 import pytest
@@ -39,6 +40,33 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
+
+
+def run_writing_comparison(res, expected, update=False):
+    """Run test that writing file is behaving as expected
+
+    Parameters
+    ----------
+    res : str
+        File written as part of the test
+
+    expected : str
+        File against which the comparison should be done
+
+    update : bool
+        If True, don't perform the test and instead simply
+        overwrite the existing expected file with ``res``
+
+    Raises
+    ------
+    AssertionError
+        If ``update`` is ``False`` and ``res`` and ``expected``
+        are not identical.
+    """
+    if update:
+        shutil.copy(res, expected)
+    else:
+        assert filecmp.cmp(res, expected, shallow=False)
 
 
 @pytest.fixture
@@ -85,7 +113,7 @@ def temp_dir():
     temp_dir = mkdtemp()
     yield temp_dir
     print("deleting {}".format(temp_dir))
-    rmtree(temp_dir)
+    shutil.rmtree(temp_dir)
 
 
 @pytest.fixture
