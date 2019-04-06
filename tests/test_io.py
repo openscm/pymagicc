@@ -3211,7 +3211,7 @@ def test_writing_is_insensitive_to_column_order(temp_dir, update_expected_file, 
     base = join(EXPECTED_FILES_DIR, starting_file)
     writing_base = MAGICCData(base)
 
-    # thank you https://stackoverflow.com/a/34879805
+    # shuffle column order, thank you https://stackoverflow.com/a/34879805
     writer = MAGICCData(writing_base.timeseries().sample(frac=1))
 
     res = join(temp_dir, starting_file)

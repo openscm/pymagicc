@@ -10,9 +10,9 @@ Test CO2 Emissions file
     THISFILE_FIRSTDATAROW = 17
 /
 
-        GAS                CO2                CO2                CO2                CO2                CO2
-       TODO                SET                SET                SET                SET                SET
-      UNITS           GtCperyr           GtCperyr           GtCperyr           GtCperyr           GtCperyr
-      YEARS             R5OECD              R5REF             R5ASIA              R5MAF              R5LAM
-       1995        1.00000e+00        0.00000e+00        3.00000e+00        4.00000e+00        2.00000e+00
-       1996        6.00000e+00        5.00000e+00        8.00000e+00        9.00000e+00        7.00000e+00
+        GAS                 CO2                 CO2                 CO2                 CO2                 CO2
+       TODO                 SET                 SET                 SET                 SET                 SET
+      UNITS            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr
+      YEARS              R5OECD               R5REF              R5ASIA               R5MAF               R5LAM
+       1995         1.00000e+00         0.00000e+00         3.00000e+00         4.00000e+00         2.00000e+00
+       1996         6.00000e+00         5.00000e+00         8.00000e+00         9.00000e+00         7.00000e+00
