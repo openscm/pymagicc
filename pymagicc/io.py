@@ -1271,7 +1271,7 @@ class _Writer(object):
             copyfileobj(output, output_file)
 
     def _write_header(self, output):
-        output.write(self._get_header() + 2 * self._newline_char)
+        output.write(self._get_header())
         return output
 
     def _get_header(self):
@@ -1328,7 +1328,7 @@ class _Writer(object):
         first_col_format_str = (
             "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
         ).format
-        other_col_format_str = "{:18.5e}".format
+        other_col_format_str = "{:19.5e}".format
         formatters = [other_col_format_str] * len(data_block.columns)
         formatters[0] = first_col_format_str
 

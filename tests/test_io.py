@@ -3191,6 +3191,13 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         #       and the data block which appears in the original files
         #     - the header is different from the original files because the
         #       original files have spurious lines of notes at the end...
+        # - SCEN files
+        #     - variable names aren't read so making them match original files
+        #       isn't a priority
+        # - HIST IN files
+        #     - column width doesn't matter as these files are read in looking
+        #       for whitespace as a delimiter, hence difference from original is
+        #       ok
         "EXPECTED_RCPODS_WMO2006_Emissions_A1.prn",
         "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn",
         "EXPECTED_RCP26.SCEN",
