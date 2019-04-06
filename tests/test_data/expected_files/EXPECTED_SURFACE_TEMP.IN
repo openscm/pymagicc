@@ -10,9 +10,9 @@ Test Surface temperature input file
     THISFILE_FIRSTDATAROW = 17
 /
 
-   VARIABLE       SURFACE_TEMP       SURFACE_TEMP       SURFACE_TEMP       SURFACE_TEMP
-       TODO                SET                SET                SET                SET
-      UNITS                  K                  K                  K                  K
-      YEARS            NHOCEAN             NHLAND            SHOCEAN             SHLAND
-       1995        2.00000e+00        3.00000e+00        0.00000e+00        1.00000e+00
-       1996        6.00000e+00        7.00000e+00        4.00000e+00        5.00000e+00
+   VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP
+       TODO                 SET                 SET                 SET                 SET
+      UNITS                   K                   K                   K                   K
+      YEARS             NHOCEAN              NHLAND             SHOCEAN              SHLAND
+       1995         2.00000e+00         3.00000e+00         0.00000e+00         1.00000e+00
+       1996         6.00000e+00         7.00000e+00         4.00000e+00         5.00000e+00

@@ -1276,7 +1276,11 @@ class _Writer(object):
 
     def _get_header(self):
         try:
-            return self.minput.metadata["header"]
+            header = self.minput.metadata["header"]
+            if not header.endswith("\n"):
+                header = "{}\n\n".format(header)
+
+            return header
         except KeyError:
             raise KeyError(
                 'Please provide a file header in ``self.metadata["header"]``'
