@@ -16,6 +16,9 @@ from pymagicc.definitions import (
     [
         ("HCFC-141b", "HCFC141B"),
         ("HCFC141b", "HCFC141B"),
+        ("HFC4310", "HFC4310"),
+        ("HFC43-10", "HFC4310"),
+        ("HFC-43-10", "HFC4310"),
         ("OtherCO2", "CO2B"),
         ("FossilCO2", "CO2I"),
         ("SOx", "SOX"),
@@ -41,7 +44,9 @@ def test_convert_magicc6_to_magicc7_variables_hfc245ca_warning(magicc6):
 @pytest.mark.parametrize(
     "magicc7, magicc6",
     [
-        ("HCFC141B", "HCFC-141b"),
+        ("HCFC141B", "HCFC141b"),
+        ("HFC23", "HFC23"),
+        ("HFC4310", "HFC4310"),
         ("CO2B", "OtherCO2"),
         ("CO2I", "FossilCO2"),
         ("SOX", "SOx"),

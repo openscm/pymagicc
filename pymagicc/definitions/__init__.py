@@ -426,9 +426,9 @@ def convert_magicc7_to_openscm_variables(variables, inverse=False):
 def get_magicc6_to_magicc7_variable_mapping(inverse=False):
     """Get the mappings from MAGICC6 to MAGICC7 variables.
 
-    Note that this mapping is not one to one. For example, "HFC43-10" and
+    Note that this mapping is not one to one. For example, "HFC4310", "HFC43-10" and
     "HFC-43-10" in MAGICC6 both map to "HFC4310" in MAGICC7 but "HFC4310" in
-    MAGICC7 maps back to "HFC43-10".
+    MAGICC7 maps back to "HFC4310".
 
     Note that HFC-245fa was mistakenly labelled as HFC-245ca in MAGICC6. In reality,
     they are not the same thing. However, the MAGICC6 labelling was merely a typo so
@@ -462,6 +462,7 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "NH3",
         "CF4",
         "C2F6",
+        "HFC4310",
         "HFC43-10",
         "HFC-43-10",
         "HFC4310",
@@ -501,9 +502,9 @@ def get_magicc6_to_magicc7_variable_mapping(inverse=False):
         "HFC-227ea",
         "HFC-245fa",
     ]
-    magicc6_sometimes_hyphen_vars += [
+    magicc6_sometimes_hyphen_vars = [
         v.replace("-", "") for v in magicc6_sometimes_hyphen_vars
-    ]
+    ] + magicc6_sometimes_hyphen_vars
 
     magicc6_sometimes_underscore_vars = [
         "HFC43_10",
