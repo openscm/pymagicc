@@ -258,7 +258,11 @@ class MAGICCBase(object):
         try:
             run_paras = self.read_parameters()
             self.config = run_paras
-            mdata.metadata["parameters"] = run_paras
+            try:
+                mdata.metadata["parameters"] = run_paras
+            except UnboundLocalError:
+                error_msg = "No output found for only={}".format(only)
+                raise ValueError(error_msg)
         except FileNotFoundError:
             pass
 
