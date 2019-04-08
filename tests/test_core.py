@@ -763,6 +763,10 @@ def test_persistant_state_integration(package):
             2030,
             20000,
         ),
+        # "EXPECTED_RCPODS_WMO2006_Emissions_A1.prn",
+        # "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn",
+        # "EXPECTED_HISTRCP85_SOLAR_RF.IN",
+        # "EXPECTED_GISS_BCI_OT.IN",
     ],
 )
 def test_pymagicc_writing_has_an_effect(
