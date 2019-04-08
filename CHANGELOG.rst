@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#233 <https://github.com/openclimatedata/pymagicc/pull/233>`_) Fix inplace append hard coding as identified in `#232 <https://github.com/openclimatedata/pymagicc/issues/232>`_
 - (`#234 <https://github.com/openclimatedata/pymagicc/pull/234>`_) Raise ``ValueError`` if ``only`` doesn't match an output variable in ``MAGICC.run`` (solves `#231 <https://github.com/openclimatedata/pymagicc/issues/231>`_)
 - (`#227 <https://github.com/openclimatedata/pymagicc/pull/227>`_) Fixed up permafrost naming to avoid confusing inclusion when summing up "Emissions|CO2"
 - (`#226 <https://github.com/openclimatedata/pymagicc/pull/226>`_) Add ``SURFACE_TEMP.IN`` writer, closing `#211 <https://github.com/openclimatedata/pymagicc/issues/211>`_
