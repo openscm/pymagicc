@@ -246,6 +246,7 @@ class MAGICCBase(object):
             read_cols.setdefault("model", ["unspecified"])
             read_cols.setdefault("scenario", ["unspecified"])
 
+        mdata = None
         for filepath in outfiles:
             try:
                 openscm_var = _get_openscm_var_from_filepath(filepath)
@@ -253,21 +254,22 @@ class MAGICCBase(object):
                     tempdata = MAGICCData(
                         join(self.out_dir, filepath), columns=deepcopy(read_cols)
                     )
-                    try:
-                        mdata.append(tempdata)
-                    except NameError:
+                    if mdata is None:
                         mdata = tempdata
+                    else:
+                        mdata.append(tempdata)
+
             except NoReaderWriterError:
                 continue
+
+        if mdata is None:
+            error_msg = "No output found for only={}".format(only)
+            raise ValueError(error_msg)
 
         try:
             run_paras = self.read_parameters()
             self.config = run_paras
-            try:
-                mdata.metadata["parameters"] = run_paras
-            except UnboundLocalError:
-                error_msg = "No output found for only={}".format(only)
-                raise ValueError(error_msg)
+            mdata.metadata["parameters"] = run_paras
         except FileNotFoundError:
             pass
 
