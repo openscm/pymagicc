@@ -67,13 +67,11 @@ def test_run_failure(package):
     assert package.config is None
 
 
-@pytest.mark.parametrize("tonly", ("junk", ["junk", "junkier"], ["junk"]))
+@pytest.mark.parametrize("tonly", (["junk"], ["junk", "junkier"]))
 def test_run_no_output(package, tonly):
     error_msg = re.escape("No output found for only={}".format(tonly))
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=error_msg):
         package.run(only=tonly)
-
-    assert package.config is None
 
 
 def test_run_failure_no_magcfg_user(package):
