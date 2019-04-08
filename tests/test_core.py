@@ -763,10 +763,40 @@ def test_persistant_state_integration(package):
             2030,
             20000,
         ),
-        # "EXPECTED_RCPODS_WMO2006_Emissions_A1.prn",
-        # "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn",
-        # "EXPECTED_HISTRCP85_SOLAR_RF.IN",
-        # "EXPECTED_GISS_BCI_OT.IN",
+        (
+            "RCPODS_WMO2006_Emissions_A1.prn",
+            {
+                "file_mhalo_emis": "test_filename",
+                "out_emissions": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+            },
+            ["Emissions|CFC11", "Emissions|CCl4", "Emissions|CH3Cl"],
+            1,
+            20000,
+        ),
+        (
+            "RCPODS_WMO2006_MixingRatios_A1.prn",
+            {
+                "file_mhalo_conc": "test_filename",
+                "out_concentrations": 1,
+                "scen_histadjust_0no1scale2shift": 0,
+                "mhalO_switch_conc2emis_yr": 20000,
+            },
+            [
+                "Atmospheric Concentrations|CFC11",
+                "Atmospheric Concentrations|CCl4",
+                "Atmospheric Concentrations|CH3Cl",
+            ],
+            1,
+            20000,
+        ),
+        (
+            "HISTRCP85_SOLAR_RF.IN",
+            {"file_solar_rf": "test_filename", "out_forcing": 1},
+            ["Radiative Forcing|Solar"],
+            1,
+            20000,
+        ),
     ],
 )
 def test_pymagicc_writing_has_an_effect(
@@ -793,7 +823,7 @@ def test_pymagicc_writing_has_an_effect(
             relevant_config[key] = test_filename
 
     package.set_config(**relevant_config)
-    initial_results = package.run()
+    initial_results = package.run(only=outputs_to_check)
 
     ttweak_factor = 0.9
 
@@ -804,7 +834,7 @@ def test_pymagicc_writing_has_an_effect(
     mdata._data *= ttweak_factor
     mdata.write(join(package.run_dir, test_filename), package.version)
 
-    tweaked_results = package.run()
+    tweaked_results = package.run(only=outputs_to_check)
 
     for output_to_check in outputs_to_check:
         result = (
@@ -814,14 +844,15 @@ def test_pymagicc_writing_has_an_effect(
             .timeseries()
             .values
         )
-        expected = (
-            ttweak_factor
-            * initial_results.filter(
+        initial = (
+            initial_results.filter(
                 variable=output_to_check, year=range(time_check_min, time_check_max + 1)
             )
             .timeseries()
             .values
         )
+        expected = ttweak_factor * initial
+
         abstol = np.max([result, expected]) * 10 ** -3
         np.testing.assert_allclose(result, expected, rtol=1e-5, atol=abstol)
 
