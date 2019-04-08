@@ -2709,7 +2709,10 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
         mdata.append(tfilepath, inplace=inplace)
         res = mdata
     else:
+        original = deepcopy(mdata)
         res = mdata.append(tfilepath, inplace=inplace)
+        pd.testing.assert_frame_equal(original.timeseries(), mdata.timeseries())
+        assert original.metadata == mdata.metadata
 
     mock_read_and_return_metadata_df.assert_called_with(tfilepath)
 
