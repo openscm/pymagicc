@@ -1944,28 +1944,37 @@ class MAGICCData(ScmDataFrameBase):
         """bool: Whether the data has been loaded yet."""
         return self._meta is not None
 
-    def append(self, other, **kwargs):
+    def append(self, other, inplace=False, **kwargs):
         """
         Append any input which can be converted to MAGICCData to self.
-
-        The resulting data will be appended to the ``df`` attribute of ``self``
-        whilst the metadata is stored in the ``metadata`` attribute. If ``self``
-        currently contains no data, the read data will simply be assigned to the
-        relevant attributes of ``self``.
 
         Parameters
         ----------
         other : MAGICCData, pd.DataFrame, pd.Series, str
             Source of data to append.
 
-        kwargs
-            Used when reading data with MAGICCData.
+        inplace : bool
+            If True, append ``other`` inplace, otherwise return a new ``MAGICCData``
+            instance.
+
+        **kwargs
+            Passed to ``MAGICCData`` constructor (only used if ``MAGICCData`` is not a
+            ``MAGICCData`` instance).
         """
         if not isinstance(other, MAGICCData):
             other = MAGICCData(other, **kwargs)
 
-        self.metadata.update(other.metadata)
-        super().append(other, inplace=True)
+        if inplace:
+            super().append(other, inplace=inplace)
+            self.metadata.update(other.metadata)
+        else:
+            res = super().append(other, inplace=inplace)
+            res.metadata = deepcopy(self.metadata)
+            res.metadata.update(other.metadata)
+
+            return res
+
+
 
     def write(self, filepath, magicc_version):
         """

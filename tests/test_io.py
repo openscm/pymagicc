@@ -2656,11 +2656,12 @@ def test_bin_and_ascii_equal(file_to_read):
 
 
 @patch("pymagicc.io._read_and_return_metadata_df")
-def test_magicc_data_append(mock_read_and_return_metadata_df):
+@pytest.mark.parametrize("inplace", (True, False))
+def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
     tfilepath = "mocked/out/here.txt"
 
     tindex_yr = 2000
-    tmetadata_init = {"mock": 12, "mock 2": "written here"}
+    tmetadata_init = {"mock": 12, "mock overwrite": "written here"}
     tdf_init_df = pd.DataFrame([[2.0, 1.2, 7.9]], index=[tindex_yr])
     tdf_init_columns = {
         "model": ["a"],
@@ -2677,7 +2678,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
         tdf_init_columns.values(), names=tdf_init_columns.keys()
     )
 
-    tmetadata_append = {"mock 12": 7, "mock 24": "written here too"}
+    tmetadata_append = {"mock 12": 7, "mock overwrite": "written here too"}
     tdf_append_df = pd.DataFrame([[-6.0, 3.2, 7.1]], index=[tindex_yr])
     tdf_append_columns = {
         "model": ["d"],
@@ -2704,13 +2705,17 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
         tdf_append_df,
         tdf_append_columns,
     )
-    mdata.append(tfilepath)
+    if inplace:
+        mdata.append(tfilepath, inplace=inplace)
+        res = mdata
+    else:
+        res = mdata.append(tfilepath, inplace=inplace)
 
     mock_read_and_return_metadata_df.assert_called_with(tfilepath)
 
     expected_metadata = deepcopy(tmetadata_init)
     expected_metadata.update(tmetadata_append)
-    assert mdata.metadata == expected_metadata
+    assert res.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])
     expected.columns = pd.Index(
@@ -2718,7 +2723,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df):
     )
 
     pd.testing.assert_frame_equal(
-        mdata.timeseries(),
+        res.timeseries(),
         expected.sort_index().reorder_levels(mdata.timeseries().index.names),
         check_like=True,
     )
