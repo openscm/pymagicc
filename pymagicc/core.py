@@ -192,6 +192,11 @@ class MAGICCBase(object):
             MAGICCData object containing that data in its ``df`` attribute and
             metadata and parameters (depending on the value of ``include_parameters``)
             in its ``metadata`` attribute.
+
+        Raises
+        ------
+        ValueError
+            If no output is found which matches the list specified in ``only``.
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
