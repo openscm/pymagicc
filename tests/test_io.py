@@ -2713,6 +2713,8 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
 
     mock_read_and_return_metadata_df.assert_called_with(tfilepath)
 
+    assert isinstance(res, MAGICCData)
+
     expected_metadata = deepcopy(tmetadata_init)
     expected_metadata.update(tmetadata_append)
     assert res.metadata == expected_metadata
