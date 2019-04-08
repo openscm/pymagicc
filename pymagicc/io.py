@@ -1974,8 +1974,6 @@ class MAGICCData(ScmDataFrameBase):
 
             return res
 
-
-
     def write(self, filepath, magicc_version):
         """
         Write an input file to disk.
