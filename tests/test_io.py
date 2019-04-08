@@ -32,7 +32,13 @@ from pymagicc.io import (
     _join_timeseries_mdata,
     determine_tool,
 )
-from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR, EXPECTED_FILES_DIR, run_writing_comparison
+from .conftest import (
+    MAGICC6_DIR,
+    TEST_DATA_DIR,
+    TEST_OUT_DIR,
+    EXPECTED_FILES_DIR,
+    run_writing_comparison,
+)
 
 
 # Not all files can be read in
@@ -3207,7 +3213,9 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         "EXPECTED_GISS_BCI_OT.IN",
     ],
 )
-def test_writing_is_insensitive_to_column_order(temp_dir, update_expected_file, starting_file):
+def test_writing_is_insensitive_to_column_order(
+    temp_dir, update_expected_file, starting_file
+):
     base = join(EXPECTED_FILES_DIR, starting_file)
     writing_base = MAGICCData(base)
 

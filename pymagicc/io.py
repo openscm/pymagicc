@@ -879,10 +879,7 @@ class _PrnReader(_NonStandardEmisInReader):
         data_block_stream = StringIO()
         # read in data block header, removing "Years" because it's just confusing
         # and can't be used for validation as it only appears in some files.
-        data_block_header_line = self._stream.readline().replace(
-            "Years",
-            "",
-        ).strip()
+        data_block_header_line = self._stream.readline().replace("Years", "").strip()
         variables = []
         col_width = 10
 
@@ -898,7 +895,7 @@ class _PrnReader(_NonStandardEmisInReader):
 
         while True:
             prev_pos = self._stream.tell()
-            line = self._stream.readline()  # skip blank line in files
+            line = self._stream.readline()
             if not line:
                 # reached end of file
                 break
@@ -1277,7 +1274,7 @@ class _Writer(object):
     def _get_header(self):
         try:
             header = self.minput.metadata["header"]
-            if not header.endswith("\n"):
+            if not header.endswith("\n"):  # add spacing if needed
                 header = "{}\n\n".format(header)
 
             return header
