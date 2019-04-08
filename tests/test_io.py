@@ -3195,9 +3195,7 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         "EXPECTED_GISS_BCI_OT.IN",
     ],
 )
-def test_writing_spacing_column_order(
-    temp_dir, update_expected_file, starting_file
-):
+def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_file):
     """
     Test io writes files with correct order and spacing.
 

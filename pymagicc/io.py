@@ -815,6 +815,7 @@ class _PrnReader(_NonStandardEmisInReader):
             emms = True
         elif len(units) != 1:
             import pdb
+
             pdb.set_trace()
             raise ValueError(
                 "Multiple unit identifiers detected in {}, please rectify".format(
@@ -826,7 +827,7 @@ class _PrnReader(_NonStandardEmisInReader):
         elif units[0] == "metric tons":
             emms = True
 
-        assert (emms or concs), "Should have deteced either emms or concs..."
+        assert emms or concs, "Should have deteced either emms or concs..."
         if concs:
             unit = "ppt"
             variables = [v + "_CONC" for v in variables]
