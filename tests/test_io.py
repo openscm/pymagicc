@@ -3186,24 +3186,6 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
 @pytest.mark.parametrize(
     "starting_file",
     [
-        # Notes about expected files (move to docs before merging):
-        # =========================================================
-        #
-        # - prn files
-        #     - data block header not read by MAGICC so not worried about
-        #       differences
-        #     - first number tells MAGICC how many lines to skip to get to data
-        #       block so we can remove the line between the data block header
-        #       and the data block which appears in the original files
-        #     - the header is different from the original files because the
-        #       original files have spurious lines of notes at the end...
-        # - SCEN files
-        #     - variable names aren't read so making them match original files
-        #       isn't a priority
-        # - HIST IN files
-        #     - column width doesn't matter as these files are read in looking
-        #       for whitespace as a delimiter, hence difference from original is
-        #       ok
         "EXPECTED_RCPODS_WMO2006_Emissions_A1.prn",
         "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn",
         "EXPECTED_RCP26.SCEN",
@@ -3213,9 +3195,15 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         "EXPECTED_GISS_BCI_OT.IN",
     ],
 )
-def test_writing_is_insensitive_to_column_order(
+def test_writing_spacing_column_order(
     temp_dir, update_expected_file, starting_file
 ):
+    """
+    Test io writes files with correct order and spacing.
+
+    See docs (MAGICC file conventions) for notes about why files may differ from
+    files in the ``pymagicc/MAGICC6/run`` directory.
+    """
     base = join(EXPECTED_FILES_DIR, starting_file)
     writing_base = MAGICCData(base)
 
@@ -3225,8 +3213,6 @@ def test_writing_is_insensitive_to_column_order(
     res = join(temp_dir, starting_file)
     writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
-    # import pdb
-    # pdb.set_trace()
     run_writing_comparison(res, base, update=update_expected_file)
 
 

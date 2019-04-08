@@ -41,8 +41,8 @@ each of these files).
    files.
 
 
-Columns
-+++++++
+Column meaning
+++++++++++++++
 
 In MAGICC data and input files there are a number of columns, each of which is explained here.
 
@@ -54,13 +54,38 @@ In MAGICC data and input files there are a number of columns, each of which is e
 
 - time: the point in time at which the data occurs
 
-    - note that the internal convention is that state variables are start of year values (i.e. 1st January 1990) whilst fluxes are annual averages/midyear values
+    - note that the internal convention is that state variables are start of time period values (e.g. 1st January 1990) whilst fluxes are time period averages/middle of time period values
 
 - set: a MAGICC flag which defines what MAGICC should do with the data in the timeseries
 
     - SET: set the given variable in the given region to the value provided (standard setting)
     - ADD: add the data for the given variable in the given region to any already read in data for that variable in that region (although it is not clear to the authors of Pymagicc how exactly to use this flag)
     - SUBTRACT: subtract the data for the given variable in the given region from any already read in data for that variable in that region (although it is not clear to the authors of Pymagicc how exactly to use this flag)
+
+Column ordering and spacing
++++++++++++++++++++++++++++
+
+For some of MAGICC's input files, the column ordering and spacing is crucially important.
+For these files, if the columns are out of order or a single character too long/short, MAGICC will not read the data correctly and the run will be erroneous.
+
+We check that ``pymagicc.io`` writes files with the correct column order and spacing with ``tests/test_io.py::test_writing_spacing_column_order``.
+In these tests, we check against pre-written files.
+The files we use as verification can differ from the files in ``pymagicc/MAGICC6/run`` for a number of reasons, which we summarise here.
+
+- ``.prn`` files
+
+    - data block header not read by MAGICC so not worried about differences
+    - first number tells MAGICC how many lines to skip to get to data block so we can remove the line between the data block header and the data block which appears in the original files
+    - the header is different from the original files because the original files have spurious lines of notes at the end (we do not attempt to write a reader which can handle this very confusing edge case)
+
+- ``.SCEN`` files
+
+    - variable names aren't read so making them match original files
+      isn't a priority
+
+- ``HIST*.IN`` files
+
+    - column width doesn't matter as MAGICC looks for a whitespace delimiter when reading in these files, hence differences from originals are ok
 
 
 Namelists
