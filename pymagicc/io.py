@@ -808,24 +808,25 @@ class _PrnReader(_NonStandardEmisInReader):
         concs = False
         emms = False
 
-        unit_keys = ["Unit", "unit"]
-        for unit_key in unit_keys:
-            if unit_key in metadata:
-                if metadata[unit_key] == "ppt":
-                    concs = True
-                elif metadata[unit_key] == "metric tons":
-                    emms = True
-                else:
-                    error_msg = "I do not recognise the unit, {}, in file{}".format(
-                        metadata[unit_key], self.filepath
-                    )
-                    raise ValueError(error_msg)
-                break
-
-        if not (concs or emms):
-            # just have to assume global emissions in tons
+        unit_keys = [k for k in metadata.keys() if k.lower() == "unit"]
+        units = [metadata.pop(k) for k in unit_keys]
+        if not units:
+            # have to assume global emissions in tons
+            emms = True
+        elif len(units) != 1:
+            import pdb
+            pdb.set_trace()
+            raise ValueError(
+                "Multiple unit identifiers detected in {}, please rectify".format(
+                    self.filename
+                )
+            )
+        elif units[0] == "ppt":
+            concs = True
+        elif units[0] == "metric tons":
             emms = True
 
+        assert (emms or concs), "Should have deteced either emms or concs..."
         if concs:
             unit = "ppt"
             variables = [v + "_CONC" for v in variables]
@@ -842,7 +843,7 @@ class _PrnReader(_NonStandardEmisInReader):
         if emms:
             column_headers = self._read_units(column_headers)
 
-        for k in ["gas"] + unit_keys:
+        for k in ["gas"]:
             try:
                 metadata.pop(k)
             except KeyError:
@@ -885,8 +886,7 @@ class _PrnReader(_NonStandardEmisInReader):
 
         for w in range(0, len(data_block_header_line), col_width):
             variable = data_block_header_line[w : w + col_width].strip()
-            if variable != "Years":
-                variables.append(variable)
+            variables.append(variable)
 
         # update in read method using metadata
         todos = ["unknown"] * len(variables)
