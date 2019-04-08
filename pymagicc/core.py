@@ -254,10 +254,7 @@ class MAGICCBase(object):
                     tempdata = MAGICCData(
                         join(self.out_dir, filepath), columns=deepcopy(read_cols)
                     )
-                    if mdata is None:
-                        mdata = tempdata
-                    else:
-                        mdata.append(tempdata)
+                    mdata = mdata.append(tempdata) if mdata is not None else tempdata
 
             except NoReaderWriterError:
                 continue
