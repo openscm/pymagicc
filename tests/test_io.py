@@ -3182,6 +3182,40 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         writing_base.write(join(temp_dir, "TMP_SURFACE_TEMP.IN"), magicc_version=6)
 
 
+def test_surface_temp_in_reader():
+    mdata = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_SURFACE_TEMP.IN"))
+
+    generic_mdata_tests(mdata)
+
+    assert "Test Surface temperature input file" in mdata.metadata["header"]
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["unit"] == "K").all()
+    assert (mdata["variable"] == "Surface Temperature").all()
+
+    assert_mdata_value(mdata, 6, region="World|Northern Hemisphere|Ocean", year=1996)
+
+    assert_mdata_value(mdata, 3, region="World|Northern Hemisphere|Land", year=1995)
+
+    assert_mdata_value(mdata, 4, region="World|Southern Hemisphere|Ocean", year=1996)
+
+    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Land", year=1996)
+
+
+def test_prn_wrong_region_error():
+    base = MAGICCData(
+        join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
+    ).timeseries().reset_index()
+
+    other = base.copy()
+    other["region"] = "World|R5ASIA"
+
+    writer = MAGICCData(pd.concat([base, other]))
+
+    error_msg = re.escape(".prn files can only contain the 'World' region")
+    with pytest.raises(AssertionError, match=error_msg):
+        writer.write("Unused.prn", magicc_version=6)
+
+
 # integration test
 @pytest.mark.parametrize(
     "starting_file",
@@ -3212,22 +3246,3 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
     writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
     run_writing_comparison(res, base, update=update_expected_file)
-
-
-def test_surface_temp_in_reader():
-    mdata = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_SURFACE_TEMP.IN"))
-
-    generic_mdata_tests(mdata)
-
-    assert "Test Surface temperature input file" in mdata.metadata["header"]
-    assert (mdata["todo"] == "SET").all()
-    assert (mdata["unit"] == "K").all()
-    assert (mdata["variable"] == "Surface Temperature").all()
-
-    assert_mdata_value(mdata, 6, region="World|Northern Hemisphere|Ocean", year=1996)
-
-    assert_mdata_value(mdata, 3, region="World|Northern Hemisphere|Land", year=1995)
-
-    assert_mdata_value(mdata, 4, region="World|Southern Hemisphere|Ocean", year=1996)
-
-    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Land", year=1996)

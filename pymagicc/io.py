@@ -1595,6 +1595,10 @@ class _PrnWriter(_Writer):
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
+        regions = data_block.columns.get_level_values("region").unique()
+        region_error_msg = ".prn files can only contain the 'World' region"
+        assert (len(regions) == 1) and (regions[0] == "World"), region_error_msg
+
         magicc7_vars = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable"), inverse=True
         )
