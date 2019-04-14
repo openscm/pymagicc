@@ -3216,6 +3216,25 @@ def test_prn_wrong_region_error():
         writer.write("Unused.prn", magicc_version=6)
 
 
+def test_prn_wrong_unit_error():
+    base = MAGICCData(
+        join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
+    ).timeseries().reset_index()
+    base.loc[
+        base["variable"] == "Atmospheric Concentrations|CFC11",
+        "unit"
+    ] = "ppb"
+    writer = MAGICCData(base)
+    writer.metadata = {"header": "not used"}
+
+    error_msg = re.escape(
+        "prn file units should either all be 'ppt' or all be 't [gas] / yr', "
+        "units of ['ppb', 'ppt'] do not meet this requirement"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        writer.write("Unused.prn", magicc_version=6)
+
+
 # integration test
 @pytest.mark.parametrize(
     "starting_file",

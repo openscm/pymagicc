@@ -814,20 +814,17 @@ class _PrnReader(_NonStandardEmisInReader):
             # have to assume global emissions in tons
             emms = True
         elif len(units) != 1:
-            import pdb
-
-            pdb.set_trace()
-            raise ValueError(
-                "Multiple unit identifiers detected in {}, please rectify".format(
-                    self.filename
-                )
+            error_msg = (
+                "Cannot read {} as there are multiple units (prn files should "
+                "contain only one unit)".format(self.filepath)
             )
+            raise ValueError(error_msg)
         elif units[0] == "ppt":
             concs = True
         elif units[0] == "metric tons":
             emms = True
 
-        assert emms or concs, "Should have deteced either emms or concs..."
+        assert emms or concs, "Should have detected either emms or concs..."
         if concs:
             unit = "ppt"
             variables = [v + "_CONC" for v in variables]
@@ -1515,20 +1512,28 @@ class _PrnWriter(_Writer):
         data_block_full = self.minput.timeseries(
             meta=["variable", "todo", "unit", "region"]
         ).T
-        units = data_block_full.columns.get_level_values("unit").unique()
+        units = data_block_full.columns.get_level_values("unit").unique().tolist()
+        # if len(units) != 1:
+        #     error_msg = "All variables should have the same unit in .prn files"
+        #     raise AssertionError(error_msg)
+
         unit = units[0].split(" ")[0]
         if unit == "t":
             assert all(
                 [u.startswith("t ") and u.endswith(" / yr") for u in units]
-            ), "Prn emissions file with non tonne per year units won't work"
+            ), "Prn emissions file with units other than tonne per year won't work"
             other_col_format_str = "{:9.0f}".format
         elif unit == "ppt":
             assert all(
                 [u == "ppt" for u in units]
-            ), "Prn concentrations file with non ppt units won't work"
+            ), "Prn concentrations file with units other than ppt won't work"
             other_col_format_str = "{:9.3e}".format
         else:
-            raise ValueError("Unit of {} is not recognised for prn file".format(unit))
+            error_msg = (
+                "prn file units should either all be 'ppt' or all be 't [gas] / yr', "
+                "units of {} do not meet this requirement".format(units)
+            )
+            raise ValueError(error_msg)
 
         data_block = self._get_data_block()
 
