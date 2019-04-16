@@ -33,7 +33,7 @@ from .definitions import (
 UNSUPPORTED_OUT_FILES = [
     r".*CARBONCYCLE.*OUT",
     r".*SUBANN.*BINOUT",
-    r".*DAT_VOLCANIC_RF\.BINOUT",
+    r".*DAT_VOLCANIC_RF\.*OUT",
     r".*PF\_.*OUT",
     r".*DATBASKET_.*",
     r".*INVERSE\_.*EMIS.*OUT",
@@ -2111,6 +2111,10 @@ def determine_tool(filepath, tool_to_get):
         "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }
+    if _unsupported_file(filepath):
+        raise NoReaderWriterError("{} is in an odd format for which we will never provide a reader/writer.".format(
+            filepath
+        ))
 
     fbase = basename(filepath)
     for file_type, file_tools in file_regexp_reader_writer.items():
@@ -2136,11 +2140,6 @@ def determine_tool(filepath, tool_to_get):
         error_msg = (
             "MAGCCInput cannot read PARAMETERS.OUT as it is a config "
             "style file, please use pymagicc.io.read_cfg_file"
-        )
-
-    elif _unsupported_file(filepath):
-        error_msg = "{} is in an odd format for which we will never provide a reader/writer.".format(
-            filepath
         )
 
     else:

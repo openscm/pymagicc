@@ -1123,3 +1123,12 @@ def test_default_config(package):
     cfg = read_cfg_file(join(package.run_dir, 'MAGCFG_USER.CFG'))
     for key, expected in expected_config.items():
         assert cfg['nml_allcfgs'][key] == expected
+
+
+def test_out_forcing():
+    with MAGICC6() as magicc:
+        res = magicc.run(out_forcing=True)
+
+    # The results should only include annual timeseries
+    idx = res.filter(variable='Radiative Forcing|Volcanic').timeseries().T.index
+    assert (idx[1] - idx[0]).days == 365
