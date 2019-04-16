@@ -3,7 +3,7 @@ Changelog
 
 master
 ------
-
+- (`#236 <https://github.com/openclimatedata/pymagicc/pull/236>`_) Ignore subannual volcanic timeseries
 - (`#239 <https://github.com/openclimatedata/pymagicc/pull/239>`_) Explicitly overwrite tuning model and emission scenario parameters for MAGICC7 when a temporary copy is created
 - (`#229 <https://github.com/openclimatedata/pymagicc/pull/229>`_) Add more robust tests of io, in particular that column order and spacing in files is preserved
 - (`#233 <https://github.com/openclimatedata/pymagicc/pull/233>`_) Fix inplace append hard coding as identified in `#232 <https://github.com/openclimatedata/pymagicc/issues/232>`_
