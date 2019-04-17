@@ -31,17 +31,15 @@ from .definitions import (
 
 
 UNSUPPORTED_OUT_FILES = [
-    r".*CARBONCYCLE.*OUT",
-    r".*SUBANN.*BINOUT",
-    r".*DAT_VOLCANIC_RF\.*OUT",
-    r".*PF\_.*OUT",
-    r".*DATBASKET_.*",
+    r"CARBONCYCLE.*OUT",
+    r"PF\_.*OUT",
+    r"DATBASKET_.*",
     r".*INVERSE\_.*EMIS.*OUT",
     r".*INVERSEEMIS\.BINOUT",
-    r".*PRECIPINPUT.*OUT",
-    r".*TEMP_OCEANLAYERS.*\.BINOUT",
-    r".*TIMESERIESMIX.*OUT",
-    r".*SUMMARY_INDICATORS.OUT",
+    r"PRECIPINPUT.*OUT",
+    r"TEMP_OCEANLAYERS.*\.BINOUT",
+    r"TIMESERIESMIX.*OUT",
+    r"SUMMARY_INDICATORS.OUT",
 ]
 """list: List of regular expressions which define output files we cannot read.
 
@@ -191,6 +189,14 @@ class _Reader(object):
                 metadata[metadata_key] = postprocess_edge_cases(value).strip()
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
+
+        # One input file has annualsteps == 0, but annual timesteps
+        if "annualsteps" in metadata and metadata["annualsteps"] > 1:
+            raise InvalidTemporalResError(
+                "{}: Only annual files can currently be processed".format(
+                    self.filepath
+                )
+            )
 
         return metadata
 
@@ -1119,7 +1125,7 @@ class _BinaryOutReader(_Reader):
         }
         if metadata["annualsteps"] != 1:
             raise InvalidTemporalResError(
-                "{}: Only annual binary files can currently be processed".format(
+                "{}: Only annual files can currently be processed".format(
                     self.filepath
                 )
             )
@@ -2111,12 +2117,13 @@ def determine_tool(filepath, tool_to_get):
         "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }
-    if _unsupported_file(filepath):
+
+    fbase = basename(filepath)
+    if _unsupported_file(fbase):
         raise NoReaderWriterError("{} is in an odd format for which we will never provide a reader/writer.".format(
             filepath
         ))
 
-    fbase = basename(filepath)
     for file_type, file_tools in file_regexp_reader_writer.items():
         if re.match(file_tools["regexp"], fbase):
             try:
