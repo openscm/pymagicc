@@ -46,8 +46,8 @@ TEST_OUT_FILES = listdir(TEST_OUT_DIR)
 
 INVALID_OUT_FILES = [
     r"CARBONCYCLE.*OUT",
-    r".*SUBANN.*BINOUT",
-    r"DAT_VOLCANIC_RF\.BINOUT",
+    r".*SUBANN.*OUT",
+    r"DAT_VOLCANIC_RF\..*OUT",
     r"PF.*OUT",
     r"DATBASKET_.*",
     r"PRECIPINPUT.*OUT",
@@ -493,6 +493,7 @@ def test_load_solar_rf():
     )
 
 
+@pytest.mark.xfail(reason="Not currently supporting subannual files because scmdataframe")
 def test_load_volcanic_rf():
     mdata = MAGICCData(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
 
@@ -2458,7 +2459,6 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         (MAGICC6_DIR, "MIXED_NOXI_OT.IN", True),  # weird units handling
         (MAGICC6_DIR, "GISS_BCB_RF.IN", True),  # weird units handling
         (MAGICC6_DIR, "HISTRCP_SOLAR_RF.IN", True),  # weird units handling
-        (MAGICC6_DIR, "HIST_VOLCANIC_RF.MON", True),  # weird units handling
         (
             MAGICC6_DIR,
             "RCPODS_WMO2006_Emissions_A1.prn",
@@ -2578,7 +2578,7 @@ def test_get_scen_special_code(regions, emissions, expected):
 
 @pytest.mark.parametrize("file_to_read", [f for f in listdir(MAGICC6_DIR)])
 def test_can_read_all_files_in_magicc6_in_dir(file_to_read):
-    if file_to_read.endswith((".exe")):
+    if file_to_read.endswith((".exe", ".MON")):
         pass
     elif file_to_read.endswith(".CFG"):
         read_cfg_file(join(MAGICC6_DIR, file_to_read))
@@ -2613,10 +2613,10 @@ def test_cant_read_all_invalid_files_in_magicc6_out_dir(file_to_read):
     if valid_filepath:
         return
 
-    if ("SUBANN" in file_to_read) or ("VOLCANIC_RF.BINOUT" in file_to_read):
+    if ("SUBANN" in file_to_read) or ("VOLCANIC_RF" in file_to_read):
         error_msg = (
             r"^.*"
-            + re.escape(": Only annual binary files can currently be processed")
+            + re.escape(": Only annual files can currently be processed")
             + r".*$"
         )
         with pytest.raises(InvalidTemporalResError, match=error_msg):
