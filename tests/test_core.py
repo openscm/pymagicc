@@ -1130,5 +1130,5 @@ def test_out_forcing():
         res = magicc.run(out_forcing=True)
 
     # The results should only include annual timeseries
-    idx = res.filter(variable='Radiative Forcing|Volcanic').timeseries().T.index
+    idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index
     assert (idx[1] - idx[0]).days == 365
