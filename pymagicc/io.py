@@ -193,9 +193,7 @@ class _Reader(object):
         # One input file has annualsteps == 0, but annual timesteps
         if "annualsteps" in metadata and metadata["annualsteps"] > 1:
             raise InvalidTemporalResError(
-                "{}: Only annual files can currently be processed".format(
-                    self.filepath
-                )
+                "{}: Only annual files can currently be processed".format(self.filepath)
             )
 
         return metadata
@@ -1125,9 +1123,7 @@ class _BinaryOutReader(_Reader):
         }
         if metadata["annualsteps"] != 1:
             raise InvalidTemporalResError(
-                "{}: Only annual files can currently be processed".format(
-                    self.filepath
-                )
+                "{}: Only annual files can currently be processed".format(self.filepath)
             )
 
         return metadata
@@ -2120,9 +2116,11 @@ def determine_tool(filepath, tool_to_get):
 
     fbase = basename(filepath)
     if _unsupported_file(fbase):
-        raise NoReaderWriterError("{} is in an odd format for which we will never provide a reader/writer.".format(
-            filepath
-        ))
+        raise NoReaderWriterError(
+            "{} is in an odd format for which we will never provide a reader/writer.".format(
+                filepath
+            )
+        )
 
     for file_type, file_tools in file_regexp_reader_writer.items():
         if re.match(file_tools["regexp"], fbase):

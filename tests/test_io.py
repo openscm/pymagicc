@@ -493,7 +493,9 @@ def test_load_solar_rf():
     )
 
 
-@pytest.mark.xfail(reason="Not currently supporting subannual files because scmdataframe")
+@pytest.mark.xfail(
+    reason="Not currently supporting subannual files because scmdataframe"
+)
 def test_load_volcanic_rf():
     mdata = MAGICCData(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
 
@@ -3202,9 +3204,13 @@ def test_surface_temp_in_reader():
 
 
 def test_prn_wrong_region_error():
-    base = MAGICCData(
-        join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
-    ).timeseries().reset_index()
+    base = (
+        MAGICCData(
+            join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
+        )
+        .timeseries()
+        .reset_index()
+    )
 
     other = base.copy()
     other["region"] = "World|R5ASIA"
@@ -3217,13 +3223,14 @@ def test_prn_wrong_region_error():
 
 
 def test_prn_wrong_unit_error():
-    base = MAGICCData(
-        join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
-    ).timeseries().reset_index()
-    base.loc[
-        base["variable"] == "Atmospheric Concentrations|CFC11",
-        "unit"
-    ] = "ppb"
+    base = (
+        MAGICCData(
+            join(EXPECTED_FILES_DIR, "EXPECTED_RCPODS_WMO2006_MixingRatios_A1.prn")
+        )
+        .timeseries()
+        .reset_index()
+    )
+    base.loc[base["variable"] == "Atmospheric Concentrations|CFC11", "unit"] = "ppb"
     writer = MAGICCData(base)
     writer.metadata = {"header": "not used"}
 
