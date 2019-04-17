@@ -190,7 +190,8 @@ class _Reader(object):
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
 
-        if "annualsteps" in metadata and metadata["annualsteps"] != 1:
+        # One input file has annualsteps == 0, but annual timesteps
+        if "annualsteps" in metadata and metadata["annualsteps"] > 1:
             raise InvalidTemporalResError(
                 "{}: Only annual files can currently be processed".format(self.filepath)
             )
