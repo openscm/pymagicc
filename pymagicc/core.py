@@ -18,6 +18,7 @@ from .utils import get_date_time_string
 from .io import (
     MAGICCData,
     NoReaderWriterError,
+    InvalidTemporalResError,
     read_cfg_file,
     determine_tool,
     _get_openscm_var_from_filepath,
@@ -256,7 +257,7 @@ class MAGICCBase(object):
                     )
                     mdata = mdata.append(tempdata) if mdata is not None else tempdata
 
-            except NoReaderWriterError:
+            except (NoReaderWriterError, InvalidTemporalResError):
                 continue
 
         if mdata is None:
