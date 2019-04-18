@@ -16,7 +16,7 @@ import f90nml
 
 from pymagicc import MAGICC6, MAGICC7, rcp26, zero_emissions
 from pymagicc.core import MAGICCBase, config, _clean_value
-from pymagicc.io import MAGICCData
+from pymagicc.io import MAGICCData, read_cfg_file
 from .test_config import config_override  #  noqa
 from .conftest import MAGICC6_DIR, TEST_DATA_DIR
 
@@ -1095,3 +1095,31 @@ def test_get_output_filenames(mock_listdir):
         ]
     )
     np.testing.assert_array_equal(obs, exp)
+
+
+def test_default_config(package):
+    if package.version == 6:
+        pytest.skip('Only checking MAGICC7')
+
+    expected_config = {
+        'file_emisscen_2': "NONE",
+        'file_emisscen_3': "NONE",
+        'file_emisscen_4': "NONE",
+        'file_emisscen_5': "NONE",
+        'file_emisscen_6': "NONE",
+        'file_emisscen_7': "NONE",
+        'file_emisscen_8': "NONE",
+        'file_tuningmodel_1': "PYMAGICC",
+        'file_tuningmodel_2': "USER",
+        'file_tuningmodel_3': "USER",
+        'file_tuningmodel_4': "USER",
+        'file_tuningmodel_5': "USER",
+        'file_tuningmodel_6': "USER",
+        'file_tuningmodel_7': "USER",
+        'file_tuningmodel_8': "USER",
+        'file_tuningmodel_9': "USER",
+        'file_tuningmodel_10': "USER"
+    }
+    cfg = read_cfg_file(join(package.run_dir, 'MAGCFG_USER.CFG'))
+    for key, expected in expected_config.items():
+        assert cfg['nml_allcfgs'][key] == expected
