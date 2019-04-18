@@ -494,7 +494,7 @@ def test_load_solar_rf():
 
 
 @pytest.mark.xfail(
-    reason="Not currently supporting subannual files because scmdataframe"
+    reason="Not currently supporting subannual files because scmdataframe cannot handle merging annual and subannual timeseries"
 )
 def test_load_volcanic_rf():
     mdata = MAGICCData(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
