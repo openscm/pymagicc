@@ -206,6 +206,10 @@ MAGICC6 there can only be ``SCEN`` files so this isn't an issue). All other
 that SCEN files don't contain easy to read metadata hence overwriting with them is
 difficult/dangerous.
 
+*Gotcha:* If the scenario file has a region mode other than World, all World region data are ignored.
+This means that all emissions cannot be *currently* stored in a single SCEN7 file as MHalo data is only
+provided as a single World region, while most other species are disaggregated by region.
+
 *Gotcha:* If you set ``FILE_EMISSCEN_X=NONE`` then MAGICC will just move on to the
 next ``FILE_EMISSCEN_X`` flag. However, from above it's clear that if you set
 ``FILE_TUNINGMODEL_X=NONE``, MAGICC will look for ``MAGTUNE_NONE.CFG``, not find it
