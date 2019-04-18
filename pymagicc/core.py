@@ -936,22 +936,25 @@ class MAGICC7(MAGICCBase):
         super(MAGICC7, self).create_copy()
         # Override the USER configuration for MAGICC7 so that it always conforms with pymagicc's expectations
         # The MAGCFG_USER.CFG configuration for MAGICC7 changes frequently in the repository
-        self.update_config('MAGCFG_USER.CFG', **{
-            'file_emisscen_2': "NONE",
-            'file_emisscen_3': "NONE",
-            'file_emisscen_4': "NONE",
-            'file_emisscen_5': "NONE",
-            'file_emisscen_6': "NONE",
-            'file_emisscen_7': "NONE",
-            'file_emisscen_8': "NONE",
-            'file_tuningmodel_1': "PYMAGICC",
-            'file_tuningmodel_2': "USER",
-            'file_tuningmodel_3': "USER",
-            'file_tuningmodel_4': "USER",
-            'file_tuningmodel_5': "USER",
-            'file_tuningmodel_6': "USER",
-            'file_tuningmodel_7': "USER",
-            'file_tuningmodel_8': "USER",
-            'file_tuningmodel_9': "USER",
-            'file_tuningmodel_10': "USER"
-        })
+        self.update_config(
+            "MAGCFG_USER.CFG",
+            **{
+                "file_emisscen_2": "NONE",
+                "file_emisscen_3": "NONE",
+                "file_emisscen_4": "NONE",
+                "file_emisscen_5": "NONE",
+                "file_emisscen_6": "NONE",
+                "file_emisscen_7": "NONE",
+                "file_emisscen_8": "NONE",
+                "file_tuningmodel_1": "PYMAGICC",
+                "file_tuningmodel_2": "USER",
+                "file_tuningmodel_3": "USER",
+                "file_tuningmodel_4": "USER",
+                "file_tuningmodel_5": "USER",
+                "file_tuningmodel_6": "USER",
+                "file_tuningmodel_7": "USER",
+                "file_tuningmodel_8": "USER",
+                "file_tuningmodel_9": "USER",
+                "file_tuningmodel_10": "USER",
+            },
+        )
