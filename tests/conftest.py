@@ -65,6 +65,7 @@ def run_writing_comparison(res, expected, update=False):
     """
     if update:
         shutil.copy(res, expected)
+        print("Updated {}".format(expected))
     else:
         assert filecmp.cmp(res, expected, shallow=False)
 
@@ -121,8 +122,8 @@ def writing_base():
     no_cols = 4
     yield MAGICCData(
         np.arange(0, 2 * no_cols).reshape((2, no_cols)),
+        index=np.arange(1995, 1997),
         columns={
-            "index": np.arange(1995, 1997),
             "region": ["region {}".format(i) for i in range(no_cols)],
             "scenario": ["test"],
             "model": ["unspecified"],
@@ -138,8 +139,8 @@ def writing_base_emissions():
     no_cols = 5
     yield MAGICCData(
         np.arange(0, 2 * no_cols).reshape((2, no_cols)),
+        index=np.arange(1995, 1997),
         columns={
-            "index": np.arange(1995, 1997),
             "region": ["region {}".format(i) for i in range(no_cols)],
             "scenario": ["test"],
             "model": ["unspecified"],
