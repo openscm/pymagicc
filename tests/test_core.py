@@ -917,8 +917,8 @@ def test_external_forcing_only_run(package):
     forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
     forcing_ext = MAGICCData(
         forcing_external,
+        index=time,
         columns={
-            "index": time,
             "scenario": ["idealised"],
             "model": ["unspecified"],
             "climate_model": ["unspecified"],
@@ -1020,8 +1020,8 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
     forcing_ext = MAGICCData(
         forcing_external,
+        index=time,
         columns={
-            "index": time,
             "scenario": ["idealised"],
             "model": ["unspecified"],
             "climate_model": ["unspecified"],
