@@ -5,7 +5,7 @@ DESCRIPTION - need better solution for how to control this
 NOTES - need better solution for how to control this
 
 WORLD
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     6.7350     1.1488   300.2070     7.4567    53.8413  1068.0009   210.6230    38.1623     7.8048    35.5434    40.0185    12.0000     2.3750     0.4624    10.3949     4.0000     0.0000     8.5381    75.0394     6.2341     1.9510    17.9257     5.5382
        2001     6.8960     1.1320   303.4093     7.5029    54.4192  1066.7447   211.5938    38.2888     7.8946    35.7143    40.3916    11.9250     2.4344     0.4651    10.4328     5.3987     0.6470     9.0301    84.0409     7.4947     1.6450    19.7183     5.6990
@@ -59,7 +59,7 @@ WORLD
 
 
 R5OECD
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     3.1914     0.1259    60.7020     2.2125    14.2655   189.7346    37.7615    11.8799     1.2477     3.3082     9.0417     6.5963     1.3991     0.4092     5.7836     2.8079     0.0000     5.8167    55.2891     4.2570     1.8031    14.6904     3.3879
        2001     3.2221     0.1259    60.4933     2.1927    14.1021   181.1249    36.8144    11.4918     1.1707     3.1810     9.0441     6.5433     1.4280     0.4122     5.2565     3.5977     0.5698     5.7615    61.0549     4.7493     1.5096    16.1594     3.4031
@@ -113,7 +113,7 @@ R5OECD
 
 
 R5REF
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     0.8236     0.0564    29.7256     0.4733     7.7408    80.8602    17.8591     3.5622     0.5665     4.2295     4.1095     1.8347     0.0925     0.0532     0.1919     0.1170     0.0000     0.1957     3.0471     0.1309     0.0970     0.3012     0.4857
        2001     0.8489     0.0564    29.6924     0.4718     6.9106    80.9185    18.1060     3.5749     0.6443     4.6705     4.1056     1.7181     0.0881     0.0529     0.1609     0.1663     0.0177     0.2703     3.5753     0.1747     0.0908     0.3313     0.5074
@@ -167,7 +167,7 @@ R5REF
 
 
 R5ASIA
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     1.7682     0.3556   124.9821     2.5456    15.6484   397.4390    70.5829     7.9931     3.0468    11.6361    17.2404     2.0834     0.8209     0.0000     4.0968     0.8673     0.0000     1.4132     9.0097     1.0371     0.0197     2.2457     1.2265
        2001     1.8490     0.3417   127.0101     2.5877    17.1752   401.2106    71.5319     8.3352     3.1090    11.5306    17.4509     2.1260     0.8518     0.0000     4.6912     1.3009     0.0384     1.6966    10.4367     1.4637     0.0161     2.4703     1.3357
@@ -221,7 +221,7 @@ R5ASIA
 
 
 R5MAF
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     0.5808     0.2460    44.2991     1.1804     6.1024   285.9596    56.8898     5.5397     1.8766    11.1482     5.0363     0.7337     0.0464     0.0000     0.0000     0.0799     0.0000     0.6803     3.9365     0.4498     0.0188     0.3524     0.2075
        2001     0.5885     0.2467    45.3592     1.1961     6.7229   289.8121    57.5915     5.6291     1.8983    11.1858     5.1389     0.7805     0.0507     0.0000     0.0000     0.1376     0.0106     0.7974     4.6235     0.6277     0.0165     0.3877     0.2136
@@ -275,7 +275,7 @@ R5MAF
 
 
 R5LAM
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     0.3710     0.3649    40.0656     1.0448     4.5451   112.8220    24.6027     2.9056     0.9311     5.0820     4.5907     0.7520     0.0160     0.0000     0.3226     0.1279     0.0000     0.4322     3.7569     0.3592     0.0123     0.3360     0.2306
        2001     0.3874     0.3613    40.4120     1.0547     3.9259   112.4775    24.5651     2.8854     0.9298     5.0028     4.6521     0.7571     0.0159     0.0000     0.3242     0.1962     0.0106     0.5043     4.3505     0.4793     0.0119     0.3696     0.2392
@@ -329,7 +329,7 @@ R5LAM
 
 
 BUNKERS
-      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14     HFC-23     HFC-32   HFC43-10    HFC-125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
+      YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
         Yrs        GtC        GtC      MtCH4     MtN2ON        MtS       MtCO    MtNMVOC        MtN       MtBC       MtOC        MtN      ktCF4     ktC2F6    ktC6F14    ktHFC23    ktHFC32  ktHFC4310   ktHFC125  ktHFC134a  ktHFC143a ktHFC227ea ktHFC245fa      ktSF6
        2000     0.0000     0.0000     0.4325     0.0000     5.5390     1.1854     2.9270     6.2818     0.1361     0.1395     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
        2001     0.0000     0.0000     0.4422     0.0000     5.5824     1.2012     2.9849     6.3724     0.1424     0.1436     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000

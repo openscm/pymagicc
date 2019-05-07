@@ -1972,7 +1972,7 @@ class MAGICCData(ScmDataFrameBase):
         """bool: Whether the data has been loaded yet."""
         return self._meta is not None
 
-    def append(self, other, inplace=False, **kwargs):
+    def append(self, other, inplace=False, constructor_kwargs={}, **kwargs):
         """
         Append any input which can be converted to MAGICCData to self.
 
@@ -1985,18 +1985,23 @@ class MAGICCData(ScmDataFrameBase):
             If True, append ``other`` inplace, otherwise return a new ``MAGICCData``
             instance.
 
-        **kwargs
-            Passed to ``MAGICCData`` constructor (only used if ``MAGICCData`` is not a
+        constructor_kwargs : dict
+            Passed to ``MAGICCData`` constructor (only used if ``other`` is not a
             ``MAGICCData`` instance).
+
+        **kwargs
+            Passed to ``super().append()``
         """
         if not isinstance(other, MAGICCData):
-            other = MAGICCData(other, **kwargs)
+            other = MAGICCData(other, **constructor_kwargs)
 
         if inplace:
-            super().append(other, inplace=inplace)
+            super().append(other, inplace=inplace, **kwargs)
+            # updating metadata is why we can't just use ``ScmDataFrameBase``'s append
+            # method
             self.metadata.update(other.metadata)
         else:
-            res = super().append(other, inplace=inplace)
+            res = super().append(other, inplace=inplace, **kwargs)
             res.metadata = deepcopy(self.metadata)
             res.metadata.update(other.metadata)
 
