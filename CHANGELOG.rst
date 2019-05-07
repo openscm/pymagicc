@@ -3,6 +3,8 @@ Changelog
 
 master
 ------
+
+- (`#244 <https://github.com/openclimatedata/pymagicc/pull/244>`_) Use openscm from pip and drop pyam dependency (moved into notebooks dependencies)
 - (`#236 <https://github.com/openclimatedata/pymagicc/pull/236>`_) Made all subannual files raise an InvalidTemporalResError exception as ScmDataFrame can't handle merging annual and subannual timeseries together yet
 - (`#239 <https://github.com/openclimatedata/pymagicc/pull/239>`_) Explicitly overwrite tuning model and emission scenario parameters for MAGICC7 when a temporary copy is created
 - (`#229 <https://github.com/openclimatedata/pymagicc/pull/229>`_) Add more robust tests of io, in particular that column order and spacing in files is preserved
@@ -25,7 +27,7 @@ master
   - altering ``MAGICCData.append`` so that ``MAGICCData`` instances can be appended to ``MAGICCData`` instances
   - allowing the user to specify, ``model``, ``scenario`` and ``climate_model`` when initialising a ``MAGICCData`` instance
   - automatically filling ``model``, ``scenario`` and ``climate_model`` when running
-  
+
 - (`#204 <https://github.com/openclimatedata/pymagicc/pull/204>`_) Addressed potential bug identified in (`#203 <https://github.com/openclimatedata/pymagicc/issues/203>`_) and updated robustness of output file read in
 - (`#198 <https://github.com/openclimatedata/pymagicc/pull/198>`_) Move all install requirements into ``setup.py``
 - (`#190 <https://github.com/openclimatedata/pymagicc/pull/190>`_) Speed up diagnosis of TCR and ECS by removing writing of scenario file
@@ -47,7 +49,7 @@ master
   - Adding a function to pull a single configuration file from a MAGICC ``PARAMETERS.OUT`` file to aid the transition to the change referred to above (i.e. one could run MAGICC with whatever config elsewhere and then get a single config file which can be used with Pymagicc from the resulting ``PARAMETERS.OUT`` file).
   - Tidying up the docs to make linking a bit simpler and more reusable.
   - Only passing ``filepath`` (i.e. the combination of path and name) to reading/writing functions to remove ambiguity in previous language which used ``file``, ``filepath``, ``path``, ``name`` and ``filename``, sometimes in a self-contradictory way.
-  
+
 - (`#167 <https://github.com/openclimatedata/pymagicc/pull/167>`_) Updated release instructions
 - (`#162 <https://github.com/openclimatedata/pymagicc/pull/162>`_) Added basic tests of integration with MAGICC binaries
 - (`#163 <https://github.com/openclimatedata/pymagicc/pull/163>`_) Confirmed HFC-245fa misnaming in MAGICC6. Accordingly, we:
@@ -55,12 +57,12 @@ master
   - fixed this naming in the SRES scenarios
   - removed ``pymagicc/MAGICC6/run/HISTRCP_HFC245ca_CONC.IN`` to avoid repeating this confusion
   - ensured that anyone who finds a file with "HFC-245ca" in it in future will get a warning, see ``tests/test_definitions.py``
-  
+
 - (`#164 <https://github.com/openclimatedata/pymagicc/pull/164>`_) Improved missing MAGICC binary message in tests as discussed in `#124 <https://github.com/openclimatedata/pymagicc/issues/124>`_
 - (`#154 <https://github.com/openclimatedata/pymagicc/pull/154>`_) Change to using OpenSCM variables for all user facing data as well as preparing to move to using OpenSCM dataframes
 
   - Note that this change breaks direct access but that we will gain a lot of features once we start using the capabilities of pyam as part of an OpenSCM dataframe
-  
+
 - (`#160 <https://github.com/openclimatedata/pymagicc/pull/159>`_) Made notebooks CI more opinionated (`#158 <https://github.com/openclimatedata/pymagicc/issues/158>`_)
 - (`#139 <https://github.com/openclimatedata/pymagicc/pull/139>`_) Added the ability to read all MAGICC output files/throw an explanatory error with ``pymagicc.io.MAGICCData``
 - (`#135 <https://github.com/openclimatedata/pymagicc/pull/135>`_) Moved emissions definitions to a single csv and packaged all of the definitions files using the `data package standard <https://frictionlessdata.io/docs/creating-tabular-data-packages-in-python/>`_
