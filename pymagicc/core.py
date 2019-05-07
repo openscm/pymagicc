@@ -812,35 +812,36 @@ class MAGICCBase(object):
         )
         self._check_tcr_ecs_temp(global_temp)
 
-        tcr = global_temp.filter(time=tcr_time).data.value.iloc[0]
-        ecs = global_temp.filter(time=ecs_time).data.value.iloc[0]
+        tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
+        ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
 
         return tcr, ecs
 
     def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
-        import pdb
-        pdb.set_trace()
         co2_concs = df_co2_concs.timeseries()
         co2_conc_0 = co2_concs.iloc[0, 0]
-        year_start = co2_concs.columns.min()
-        year_end = co2_concs.columns.max()
+        t_start = co2_concs.columns.min()
+        t_end = co2_concs.columns.max()
 
-        t_start_rise = df_co2_concs[df_co2_concs["value"] > co2_conc_0]["time"].iloc[
-            0
-        ] - relativedelta(years=1)
+        t_start_rise = co2_concs.iloc[
+            :,
+            co2_concs.values.squeeze() > co2_conc_0
+        ].columns[0] - relativedelta(years=1)
         tcr_time = t_start_rise + relativedelta(years=70)
-        # TODO: put method like this in pyam for filtering time ranges more easily
-        spin_up_co2_concs = df_co2_concs.filter(
-            year=range(year_start, t_start_rise.year + 1)
-        )["value"].values
+
+        spin_up_co2_concs = _filter_time_range(
+            df_co2_concs,
+            lambda x: t_start <= x <= t_start_rise
+        ).timeseries().values.squeeze()
         if not (spin_up_co2_concs == co2_conc_0).all():
             raise ValueError(
                 "The TCR/ECS CO2 concs look wrong, they are not constant before they start rising"
             )
 
-        actual_rise_co2_concs = df_co2_concs.filter(
-            year=range(t_start_rise.year, year_end)
-        ).filter(year=range(year_start, tcr_time.year + 1))["value"]
+        actual_rise_co2_concs = _filter_time_range(
+            df_co2_concs,
+            lambda x: t_start_rise <= x <= tcr_time
+        ).timeseries().values.squeeze()
         # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
         expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(71)
         rise_co2_concs_correct = np.isclose(
@@ -850,9 +851,10 @@ class MAGICCBase(object):
             raise ValueError("The TCR/ECS CO2 concs look wrong during the rise period")
 
         co2_conc_final = max(expected_rise_co2_concs)
-        eqm_co2_concs = df_co2_concs.filter(year=range(tcr_time.year, year_end + 1))[
-            "value"
-        ].values
+        eqm_co2_concs = _filter_time_range(
+            df_co2_concs,
+            lambda x: tcr_time <= x <= t_end
+        ).timeseries().values.squeeze()
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
             raise ValueError(
                 "The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising"
@@ -863,23 +865,26 @@ class MAGICCBase(object):
         return tcr_time, ecs_time
 
     def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
-        year_start = df_total_rf["time"].min().year
-        year_end = df_total_rf["time"].max().year
-        year_start_rise = tcr_time.year - 70
+        total_rf = df_total_rf.timeseries()
+        t_start = total_rf.columns.min()
+        t_end = total_rf.columns.max()
+        t_start_rise = tcr_time - relativedelta(years=70)
 
-        spin_up_rf = df_total_rf.filter(year=range(year_start, year_start_rise + 1))[
-            "value"
-        ].values
+        spin_up_rf = _filter_time_range(
+            df_total_rf,
+            lambda x: t_start <= x <= t_start_rise
+        ).timeseries().values.squeeze()
         if not (spin_up_rf == 0).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
             )
 
-        actual_rise_rf = df_total_rf.filter(
-            year=range(year_start_rise, year_end)
-        ).filter(year=range(year_start, tcr_time.year + 1))["value"]
+        actual_rise_rf = _filter_time_range(
+            df_total_rf,
+            lambda x: t_start_rise <= x <= tcr_time
+        ).timeseries().values.squeeze()
         # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
-        total_rf_max = df_total_rf["value"].max()
+        total_rf_max = total_rf.values.squeeze().max()
         expected_rise_rf = total_rf_max / 70.0 * np.arange(71)
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
@@ -887,16 +892,17 @@ class MAGICCBase(object):
                 "The TCR/ECS total radiative forcing looks wrong during the rise period"
             )
 
-        eqm_rf = df_total_rf.filter(year=range(tcr_time.year, year_end + 1))[
-            "value"
-        ].values
+        eqm_rf = _filter_time_range(
+            df_total_rf,
+            lambda x: tcr_time <= x <= t_end
+        ).timeseries().values.squeeze()
         if not (eqm_rf == total_rf_max).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant"
             )
 
     def _check_tcr_ecs_temp(self, df_temp):
-        tmp_vls = df_temp["value"].values
+        tmp_vls = df_temp.timeseries().values.squeeze()
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
             raise ValueError(
@@ -961,3 +967,10 @@ class MAGICC7(MAGICCBase):
                 "file_tuningmodel_10": "USER",
             },
         )
+
+
+def _filter_time_range(scmdf, filter_func):
+    # TODO: move into openscm
+    tdf = scmdf.timeseries()
+    tdf = tdf.iloc[:, tdf.columns.map(filter_func)]
+    return MAGICCData(tdf)
