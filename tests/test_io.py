@@ -11,7 +11,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
-from openscm.scmdataframebase import ScmDataFrameBase
+from openscm.scmdataframe.base import ScmDataFrameBase
 
 
 import pymagicc.definitions
@@ -2831,7 +2831,14 @@ def test_join_timeseries():
 
     scen = MAGICCData(join(MAGICC6_DIR, "RCP60.SCEN"))
 
-    res = join_timeseries(base=base, overwrite=scen, join_linear=[2005, 2012])
+    res = join_timeseries(
+        base=base,
+        overwrite=scen,
+        join_linear=[
+            datetime.datetime(2005, 1, 1),
+            datetime.datetime(2012, 1, 1)
+        ],
+    )
 
     assert_mdata_value(
         res,
@@ -2985,7 +2992,12 @@ def test_join_timeseries_mdata_no_harmonisation(join_base_df, join_overwrite_df)
 def test_join_timeseries_mdata_harmonisation(join_base_df, join_overwrite_df):
     res = MAGICCData(
         _join_timeseries_mdata(
-            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2010, 2020]
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[
+                datetime.datetime(2010, 1, 1),
+                datetime.datetime(2020, 1, 1)
+            ],
         )
     )
 
@@ -3013,7 +3025,12 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     error_msg = re.escape("join_linear start year is after end of base timeseries")
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(
-            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2025, 2030]
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[
+                datetime.datetime(2025, 1, 1),
+                datetime.datetime(2030, 1, 1)
+            ],
         )
 
     error_msg = re.escape(
@@ -3021,7 +3038,12 @@ def test_join_timeseries_mdata_harmonisation_errors(join_base_df, join_overwrite
     )
     with pytest.raises(ValueError, match=error_msg):
         join_timeseries(
-            base=join_base_df, overwrite=join_overwrite_df, join_linear=[2005, 2010]
+            base=join_base_df,
+            overwrite=join_overwrite_df,
+            join_linear=[
+                datetime.datetime(2005, 1, 1),
+                datetime.datetime(2010, 1, 1)
+            ],
         )
 
     error_msg = re.escape("join_linear must have a length of 2")
