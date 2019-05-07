@@ -76,7 +76,12 @@ extra_requirements = {
         "pydoc-markdown",
     ],
     "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"],
-    "dev": ["flake8", "black"],
+    "dev": [
+        "flake8",
+        "black",
+        # TODO use pypi version
+        "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
+    ],
 }
 
 setup(
