@@ -64,11 +64,15 @@ extra_requirements = {
         "pytest-cov",
         "codecov",
         "goodtables",
+        "goodtables",
+    ],
+    "notebooks": [
         "notebook",
         "matplotlib",
         "nbval",
-        "goodtables",
-    ],
+        # TODO use pypi version
+        "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
+    ]
     "docs": [
         "sphinx>=1.4",
         "sphinx_rtd_theme",
@@ -79,8 +83,6 @@ extra_requirements = {
     "dev": [
         "flake8",
         "black",
-        # TODO use pypi version
-        "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
     ],
 }
 
