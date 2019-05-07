@@ -13,7 +13,9 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
-from openscm.scmdataframebase import ScmDataFrameBase, to_int
+from openscm.scmdataframe.base import ScmDataFrameBase, df_append
+from openscm.scmdataframe.timeindex import to_int
+from openscm.scmdataframe.offsets import generate_range, to_offset
 
 
 from .utils import apply_string_substitutions
@@ -2315,22 +2317,21 @@ def get_generic_rcp_name(inname):
         raise ValueError(error_msg)
 
 
-# TODO: move out of here in clean up, see issue #166
-# can probably supercede with OpenSCM functionality for fiddly joins
+# TODO: move into openscm in clean up, see issue #166
 def join_timeseries(base, overwrite, join_linear=None):
     """Join two sets of timeseries
 
     Parameters
     ----------
-    base : :obj:`MAGICCData`, :obj:`pd.DataFrame`, filepath
+    base : :obj:`MAGICCData`, :obj:`pd.DataFrame`, str
         Base timeseries to use. If a filepath, the data will first be loaded from disk.
 
-    overwrite : :obj:`MAGICCData`, :obj:`pd.DataFrame`, filepath
+    overwrite : :obj:`MAGICCData`, :obj:`pd.DataFrame`, str
         Timeseries to join onto base. Any points which are in both `base` and
         `overwrite` will be taken from `overwrite`. If a filepath, the data will first
         be loaded from disk.
 
-    join_linear : tuple of len(2)
+    join_linear : (:obj:`datetime.datetime`, :obj:`datetime.datetime`)
         A list/array which specifies the period over which the two timeseries should
         be joined. The first element is the start time of the join period, the second
         element is the end time of the join period. In the join period (excluding the
@@ -2342,7 +2343,7 @@ def join_timeseries(base, overwrite, join_linear=None):
     Returns
     -------
     :obj:`MAGICCData`
-        The joint timeseries. The resulting data is linearly interpolated onto annual steps
+        The joint timeseries. The resulting data is linearly interpolated onto annual steps.
     """
     if join_linear is not None:
         if len(join_linear) != 2:
@@ -2350,17 +2351,30 @@ def join_timeseries(base, overwrite, join_linear=None):
 
     if isinstance(base, str):
         base = MAGICCData(base)
-    elif isinstance(base, MAGICCData):
-        base = deepcopy(base)
+    base = base.copy()
 
     if isinstance(overwrite, str):
         overwrite = MAGICCData(overwrite)
-    elif isinstance(overwrite, MAGICCData):
-        overwrite = deepcopy(overwrite)
+    overwrite = overwrite.copy()
 
-    result = _join_timeseries_mdata(base, overwrite, join_linear)
+    if join_linear is not None:
+        if join_linear[0] > base["time"].max():
+            raise ValueError("join_linear start year is after end of base timeseries")
+        if join_linear[1] < overwrite["time"].min():
+            raise ValueError(
+                "join_linear end year is before start of overwrite timeseries"
+            )
+        # TODO add greater than and less than time filtering to openscm
+        base_ts = base.timeseries()
+        base = MAGICCData(base_ts.iloc[:, base_ts.columns <= join_linear[0]])
 
-    return MAGICCData(result)
+        overwrite_ts = overwrite.timeseries()
+        overwrite = MAGICCData(overwrite_ts.iloc[:, overwrite_ts.columns >= join_linear[1]])
+
+    result = df_append([base, overwrite])
+    import pdb
+    pdb.set_trace()
+    return result.resample("YS")
 
 
 def _join_timeseries_mdata(base, overwrite, join_linear):
