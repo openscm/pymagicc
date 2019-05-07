@@ -446,22 +446,22 @@ def assert_bad_tcr_ecs_diagnosis_values_caught(
     if test_target != "temperature":
         times_to_break.append(test_time[0])
     for time_to_break in times_to_break:
-        broken_data = copy.deepcopy(base_data)
-        row_to_adjust = broken_data.data.time == time_to_break
+        broken_data = base_data.timeseries()
+        col_to_adjust = broken_data.columns == time_to_break
         if test_target == "temperature":
-            broken_data.data.loc[row_to_adjust, "value"] -= 0.1
+            broken_data.iloc[:, col_to_adjust] -= 0.1
         else:
-            broken_data.data.loc[row_to_adjust, "value"] *= 1.01
-            broken_data.data.loc[row_to_adjust, "value"] += 0.01
+            broken_data.iloc[:, col_to_adjust] *= 1.01
+            broken_data.iloc[:, col_to_adjust] += 0.01
         with pytest.raises(ValueError, match=regexp_to_match):
-            method_to_run(broken_data, *args)
+            method_to_run(MAGICCData(broken_data), *args)
 
 
 def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
     test_CO2_data = test_results_df.filter(
         variable="Atmospheric Concentrations|CO2"
-    ).to_iamdataframe()
+    )
 
     actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_yr_from_CO2_concs(
         test_CO2_data
@@ -480,7 +480,7 @@ def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(
         variable="Radiative Forcing"
-    ).to_iamdataframe()
+    )
     magicc_base._check_tcr_ecs_total_RF(
         test_RF_data,
         valid_tcr_ecs_diagnosis_results["tcr_time"],
@@ -500,7 +500,7 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
     test_temp_data = test_results_df.filter(
         variable="Surface Temperature"
-    ).to_iamdataframe()
+    )
 
     magicc_base._check_tcr_ecs_temp(test_temp_data)
 
