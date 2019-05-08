@@ -13,7 +13,7 @@ install:
 script:
   - pytest --cov -rfsxEX
   - pip install .[notebooks]
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then ./scripts/test_notebooks.sh; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then goodtables pymagicc/definitions/datapackage.json; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then ./scripts/test_notebooks.sh; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.7 ]]; then goodtables pymagicc/definitions/datapackage.json; fi
 after_success:
   - codecov
