@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#244 <https://github.com/openclimatedata/pymagicc/pull/244>`_) Use openscm from pip and drop pyam dependency (moved into notebooks dependencies)
+- (`#244 <https://github.com/openclimatedata/pymagicc/pull/244>`_) Use openscm from pip, hence drop Python3.6 support, and drop pyam dependency (moved into notebooks dependencies)
 - (`#236 <https://github.com/openclimatedata/pymagicc/pull/236>`_) Made all subannual files raise an InvalidTemporalResError exception as ScmDataFrame can't handle merging annual and subannual timeseries together yet
 - (`#239 <https://github.com/openclimatedata/pymagicc/pull/239>`_) Explicitly overwrite tuning model and emission scenario parameters for MAGICC7 when a temporary copy is created
 - (`#229 <https://github.com/openclimatedata/pymagicc/pull/229>`_) Add more robust tests of io, in particular that column order and spacing in files is preserved
