@@ -20,12 +20,93 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 PACKAGE_NAME = "pymagicc"
-AUTHOR = "Zebedee Nicholls, Robert Gieseke"
-EMAIL = "zebedee.nicholls@climate-energy-college.org, robert.gieseke@pik-potsdam.de"
-URL = "https://github.com/openclimatedata/pymagicc"
-
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
+KEYWORDS =["simple climate model MAGICC python"]
+AUTHORS = [
+    ("Robert Gieseke", "robert.gieseke@pik-potsdam.de"),
+    ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
+    ("Jared Lewis", "jared.lewis@climate-energy-college.org"),
+]
+URL = "https://github.com/openclimatedata/pymagicc"
+PROJECT_URLS = {
+    "Bug Reports": "https://github.com/openclimatedata/pymagicc/issues",
+    "Documentation": "https://pymagicc.readthedocs.io/en/latest",
+    "Source": "https://github.com/openclimatedata/pymagicc",
+}
+LICENSE = "GNU Affero General Public License v3"
+CLASSIFIERS = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.7",
+]
+REQUIREMENTS_INSTALL = [
+    "pandas>=0.24.0",
+    "pandas-datapackage-reader",
+    "f90nml",
+    "PyYAML",
+    "openscm>=0.1.0a",
+]
+REQUIREMENTS_NOTEBOOKS = [
+    "notebook",
+    "matplotlib",
+    "nbval",
+    "expectexception",
+    "ipywidgets",
+    "appmode",
+    "seaborn",
+    # TODO use pypi version
+    "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
+]
+REQUIREMENTS_TESTS = [
+    "pytest>=4.0",
+    "pytest-cov",
+    "codecov",
+    "goodtables",
+    "goodtables",
+]
+REQUIREMENTS_DOCS = [
+    "sphinx>=1.4",
+    "sphinx_rtd_theme",
+    "sphinx-autodoc-typehints",
+    "pydoc-markdown",
+]
+REQUIREMENTS_DEPLOY = ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"]
+REQUIREMENTS_DEV = (
+    [
+        "black",
+        "flake8",
+    ]
+    + REQUIREMENTS_NOTEBOOKS
+    + REQUIREMENTS_TESTS
+    + REQUIREMENTS_DOCS
+    + REQUIREMENTS_DEPLOY
+)
+
 README = "README.rst"
+
+REQUIREMENTS_EXTRAS = {
+    "notebooks": REQUIREMENTS_NOTEBOOKS,
+    "docs": REQUIREMENTS_DOCS,
+    "tests": REQUIREMENTS_TESTS,
+    "deploy": REQUIREMENTS_DEPLOY,
+    "dev": REQUIREMENTS_DEV,
+}
+
+PACKAGE_DATA = {
+    "": ["*.csv"],
+    "pymagicc": [
+        "MAGICC6/*.txt",
+        "MAGICC6/out/.gitkeep",
+        "MAGICC6/run/*.CFG",
+        "MAGICC6/run/*.exe",
+        "MAGICC6/run/*.IN",
+        "MAGICC6/run/*.MON",
+        "MAGICC6/run/*.prn",
+        "MAGICC6/run/*.SCEN",
+    ],
+}
 
 with open(README, "r", encoding="utf-8") as f:
     README_TEXT = f.read()
@@ -46,80 +127,23 @@ class PyTest(TestCommand):
 cmdclass = versioneer.get_cmdclass()
 cmdclass.update({"test": PyTest})
 
-install_requirements = [
-    "pandas>=0.24.0",
-    "pandas-datapackage-reader",
-    "f90nml",
-    "PyYAML",
-    "expectexception",
-    "ipywidgets",
-    "appmode",
-    "openscm>=0.1.0a",
-    "seaborn",
-]
-
-extra_requirements = {
-    "tests": [
-        "pytest>=4.0",
-        "pytest-cov",
-        "codecov",
-        "goodtables",
-        "goodtables",
-    ],
-    "notebooks": [
-        "notebook",
-        "matplotlib",
-        "nbval",
-        # TODO use pypi version
-        "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
-    ]
-    "docs": [
-        "sphinx>=1.4",
-        "sphinx_rtd_theme",
-        "sphinx-autodoc-typehints",
-        "pydoc-markdown",
-    ],
-    "deploy": ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"],
-    "dev": [
-        "flake8",
-        "black",
-    ],
-}
-
 setup(
     name=PACKAGE_NAME,
     version=versioneer.get_version(),
     description=DESCRIPTION,
     long_description=README_TEXT,
     long_description_content_type="text/x-rst",
-    author=AUTHOR,
-    author_email=EMAIL,
+    author=", ".join([author[0] for author in AUTHORS]),
+    author_email=", ".join([author[1] for author in AUTHORS]),
     url=URL,
-    license="GNU Affero General Public License v3",
-    keywords=[],
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-    ],
+    project_urls=PROJECT_URLS,
+    license=LICENSE,
+    keywords=KEYWORDS,
+    classifiers=CLASSIFIERS,
     packages=find_packages(exclude=["tests"]),
-    package_data={
-        "": ["*.csv"],
-        "pymagicc": [
-            "MAGICC6/*.txt",
-            "MAGICC6/out/.gitkeep",
-            "MAGICC6/run/*.CFG",
-            "MAGICC6/run/*.exe",
-            "MAGICC6/run/*.IN",
-            "MAGICC6/run/*.MON",
-            "MAGICC6/run/*.prn",
-            "MAGICC6/run/*.SCEN",
-        ],
-    },
+    package_data=PACKAGE_DATA,
     include_package_data=True,
-    install_requires=install_requirements,
-    extras_require=extra_requirements,
+    install_requires=REQUIREMENTS_INSTALL,
+    extras_require=REQUIREMENTS_EXTRAS,
     cmdclass=cmdclass,
 )
