@@ -109,7 +109,15 @@ PACKAGE_DATA = {
 }
 
 with open(README, "r", encoding="utf-8") as f:
-    README_TEXT = f.read()
+    README_LINES = ["Pymagicc", "========", ""]
+    add_line = False
+    for line in f:
+        if line.strip() == ".. sec-begin-long-description":
+            add_line = True
+        elif line.strip() == ".. sec-end-long-description":
+            break
+        elif add_line:
+            README_LINES.append(line)
 
 
 class PyTest(TestCommand):
@@ -131,7 +139,7 @@ setup(
     name=PACKAGE_NAME,
     version=versioneer.get_version(),
     description=DESCRIPTION,
-    long_description=README_TEXT,
+    long_description="\n".join(README_LINES),
     long_description_content_type="text/x-rst",
     author=", ".join([author[0] for author in AUTHORS]),
     author_email=", ".join([author[1] for author in AUTHORS]),
