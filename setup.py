@@ -57,7 +57,7 @@ REQUIREMENTS_NOTEBOOKS = [
     "appmode",
     "seaborn",
     # TODO use pypi version
-    "pyam-iamc @ git+https://github.com/IAMconsortium/pyam.git@a6ac0c574c3d5363fb8dba7d8b42a845fd3dbe87",
+    "pyam-iamc>=0.2.0",
 ]
 REQUIREMENTS_TESTS = [
     "pytest>=4.0",
