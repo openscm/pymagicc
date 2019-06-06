@@ -167,6 +167,34 @@ class MAGICCBase(object):
             return None
         return join(self.root_dir, "out")
 
+    @property
+    def default_config(self):
+        """
+        Default configuration to use in a run
+        """
+        base = f90nml.read(join(self.run_dir, "MAGCFG_DEFAULTALL.CFG"))
+        user = f90nml.read(join(self.run_dir, "MAGCFG_USER.CFG"))
+        self._default_config = deepcopy(base)
+
+        def _deep_update(b, o):
+            for k, v in o.items():
+                if isinstance(v, dict):
+                    _deep_update(b[k], v)
+                else:
+                    b.update(o)
+
+        _deep_update(self._default_config, user)
+
+        return self._default_config
+
+    @property
+    def fgas_files_conc(self):
+        return "fgas_files_conc"
+
+    @property
+    def mhalo_switchfromconc2emis_year(self):
+        return "mhalo_switchfromconc2emis_year"
+
     def run(self, scenario=None, only=None, **kwargs):
         """
         Run MAGICC and parse the output.
@@ -449,6 +477,7 @@ class MAGICCBase(object):
 
         return conf
 
+
     def set_zero_config(self):
         """Set config such that radiative forcing and temperature output will be zero
 
@@ -465,6 +494,28 @@ class MAGICCBase(object):
         no_timesteps = len(time)
         # value doesn't actually matter as calculations are done from difference but
         # chose sensible value nonetheless
+        co2_conc_pi = 722
+        co2_conc = co2_conc_pi * np.ones(no_timesteps)
+        co2_conc_df = pd.DataFrame(
+            {
+                "time": time,
+                "scenario": "idealised",
+                "model": "unspecified",
+                "climate_model": "unspecified",
+                "variable": "Atmospheric Concentrations|CO2",
+                "unit": "ppm",
+                "todo": "SET",
+                "region": "World",
+                "value": co2_conc,
+            }
+        )
+        co2_conc_writer = MAGICCData(co2_conc_df)
+        co2_conc_filename = "HIST_CONSTANT_CO2_CONC.IN"
+        co2_conc_writer.metadata = {
+            "header": "Constant pre-industrial CO2 concentrations"
+        }
+        co2_conc_writer.write(join(self.run_dir, co2_conc_filename), self.version)
+
         ch4_conc_pi = 722
         ch4_conc = ch4_conc_pi * np.ones(no_timesteps)
         ch4_conc_df = pd.DataFrame(
@@ -513,13 +564,17 @@ class MAGICCBase(object):
         emis_config = self._fix_any_backwards_emissions_scen_key_in_config(
             {"file_emissionscenario": self._scen_file_name}
         )
+
+        def_config = self.default_config
+
         self.set_config(
             **emis_config,
             rf_initialization_method="ZEROSTARTSHIFT",
             rf_total_constantafteryr=10000,
             file_co2i_emis="",
             file_co2b_emis="",
-            co2_switchfromconc2emis_year=1750,
+            file_co2_conc=co2_conc_filename,
+            co2_switchfromconc2emis_year=10000,
             file_ch4i_emis="",
             file_ch4b_emis="",
             file_ch4n_emis="",
@@ -564,13 +619,15 @@ class MAGICCBase(object):
             file_landuse_rf="",
             file_bcsnow_rf="",
             # rf_fgassum_scale=0,  # this appears to do nothing, hence the next two lines
-            file_fgas_conc=[fgas_conc_filename] * 12,
             fgas_switchfromconc2emis_year=10000,
             rf_mhalosum_scale=0,
-            mhalo_switch_conc2emis_yr=1750,
             stratoz_o3scale=0,
             rf_volcanic_scale=0,
             rf_solar_scale=0,
+            **{
+                self.fgas_files_conc: [fgas_conc_filename] * len(def_config["nml_allcfgs"][self.fgas_files_conc]),
+                self.mhalo_switchfromconc2emis_year: 1750
+            },
         )
 
     def _format_config(self, config_dict):
@@ -925,6 +982,27 @@ class MAGICCBase(object):
 
 class MAGICC6(MAGICCBase):
     version = 6
+
+    @property
+    def fgas_files_conc(self):
+        return "file_fgas_conc"
+
+    @property
+    def mhalo_switchfromconc2emis_year(self):
+        return "mhalo_switch_conc2emis_yr"
+
+    @property
+    def default_config(self):
+        """
+        Default configuration to use in a run
+        """
+        base = f90nml.read(join(self.run_dir, "MAGCFG_DEFAULTALL_69.CFG"))
+        user = f90nml.read(join(self.run_dir, "MAGCFG_USER.CFG"))
+        self._default_config = deepcopy(base)
+        self._default_config.update(user)
+
+        return self._default_config
+
     def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
         super()._check_tcr_ecs_total_RF(df_total_rf, tcr_time, ecs_time)
         # can be more careful with checks MAGICC6 only has logarithmic CO2 forcing

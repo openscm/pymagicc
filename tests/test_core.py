@@ -324,6 +324,7 @@ def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_update_config, magic
     mock_set_years.assert_called_with(startyear=1750, endyear=4200)
     mock_update_config.assert_called_with(
         FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
+        CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
         RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
     )
@@ -453,6 +454,7 @@ def assert_bad_tcr_ecs_diagnosis_values_caught(
         else:
             broken_data.iloc[:, col_to_adjust] *= 1.01
             broken_data.iloc[:, col_to_adjust] += 0.01
+            broken_data.iloc[-1, col_to_adjust] += 0.1
         with pytest.raises(ValueError, match=regexp_to_match):
             method_to_run(MAGICCData(broken_data), *args)
 
