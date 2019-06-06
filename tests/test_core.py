@@ -515,10 +515,6 @@ def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
 # integration test (i.e. actually runs magicc) hence slow
 @pytest.mark.slow
 def test_integration_diagnose_tcr_ecs(package):
-    if package.version == 7:
-        pytest.xfail(reason="MAGICC7 TCR/ECS diagnosis is currently broken")
-        package.diagnose_tcr_ecs()
-
     actual_result = package.diagnose_tcr_ecs()
     assert isinstance(actual_result, dict)
     assert "tcr" in actual_result
@@ -531,6 +527,14 @@ def test_integration_diagnose_tcr_ecs(package):
         assert (
             actual_result["ecs"] == 2.9968448
         )  # MAGICC6 shipped with pymagicc should be stable
+    if isinstance(package, MAGICC7):
+        # see how stable this is, can delete the test later if it's overly restrictive
+        assert (
+            actual_result["tcr"] == 2.0875821584565704
+        )
+        assert (
+            actual_result["ecs"] == 3.155772857010324
+        )
 
 
 def test_missing_config(config_override):
