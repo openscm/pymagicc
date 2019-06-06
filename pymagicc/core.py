@@ -768,8 +768,6 @@ class MAGICCBase(object):
             the experiment i.e. atmospheric |CO2| concentrations, total radiative
             forcing and global-mean surface temperature
         """
-        if self.version == 7:
-            raise NotImplementedError("MAGICC7 cannot yet diagnose ECS and TCR")
         self._diagnose_tcr_ecs_config_setup(**kwargs)
         timeseries = self.run(
             scenario=None,
@@ -789,8 +787,10 @@ class MAGICCBase(object):
 
         self.update_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
+            CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
+            # CORE_CO2CH4N2O_RFMETHOD="IPCCTAR",
             **kwargs,
         )
 
@@ -866,6 +866,8 @@ class MAGICCBase(object):
 
     def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
         total_rf = df_total_rf.timeseries()
+        total_rf_max = total_rf.values.squeeze().max()
+
         t_start = total_rf.columns.min()
         t_end = total_rf.columns.max()
         t_start_rise = tcr_time - relativedelta(years=70)
@@ -877,19 +879,6 @@ class MAGICCBase(object):
         if not (spin_up_rf == 0).all():
             raise ValueError(
                 "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
-            )
-
-        actual_rise_rf = _filter_time_range(
-            df_total_rf,
-            lambda x: t_start_rise <= x <= tcr_time
-        ).timeseries().values.squeeze()
-        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
-        total_rf_max = total_rf.values.squeeze().max()
-        expected_rise_rf = total_rf_max / 70.0 * np.arange(71)
-        rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
-        if not rise_rf_correct:
-            raise ValueError(
-                "The TCR/ECS total radiative forcing looks wrong during the rise period"
             )
 
         eqm_rf = _filter_time_range(
@@ -936,6 +925,29 @@ class MAGICCBase(object):
 
 class MAGICC6(MAGICCBase):
     version = 6
+    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
+        super()._check_tcr_ecs_total_RF(df_total_rf, tcr_time, ecs_time)
+        # can be more careful with checks MAGICC6 only has logarithmic CO2 forcing
+        # i.e. linear rise in forcing
+        total_rf = df_total_rf.timeseries()
+        total_rf_max = total_rf.values.squeeze().max()
+
+        t_start = total_rf.columns.min()
+        t_end = total_rf.columns.max()
+        t_start_rise = tcr_time - relativedelta(years=70)
+
+        actual_rise_rf = _filter_time_range(
+            df_total_rf,
+            lambda x: t_start_rise <= x <= tcr_time
+        ).timeseries().values.squeeze()
+
+        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
+        expected_rise_rf = total_rf_max / 70.0 * np.arange(71)
+        rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
+        if not rise_rf_correct:
+            raise ValueError(
+                "The TCR/ECS total radiative forcing looks wrong during the rise period"
+            )
 
 
 class MAGICC7(MAGICCBase):
@@ -966,6 +978,16 @@ class MAGICC7(MAGICCBase):
                 "file_tuningmodel_9": "USER",
                 "file_tuningmodel_10": "USER",
             },
+        )
+
+    def _diagnose_tcr_ecs_config_setup(self, **kwargs):
+        super()._diagnose_tcr_ecs_config_setup(**kwargs)
+        # also need to lock CH4 and N2O in case OLBL forcing mode is being used
+        self.update_config(
+            FILE_CH4_CONC="TCRECS_CH4_CONC.IN",
+            CH4_SWITCHFROMCONC2EMIS_YEAR=30000,
+            FILE_N2O_CONC="TCRECS_N2O_CONC.IN",
+            N2O_SWITCHFROMCONC2EMIS_YEAR=30000,
         )
 
 
