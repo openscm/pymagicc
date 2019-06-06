@@ -685,9 +685,6 @@ def test_persistant_state(package):
 
 
 def test_persistant_state_integration(package):
-    if package.version == 7:
-        pytest.xfail(reason="MAGICC7 TCR/ECS diagnosis is currently broken")
-        package.diagnose_tcr_ecs()
     test_ecs = 1.75
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     actual_results = package.diagnose_tcr_ecs()
@@ -985,6 +982,8 @@ def test_co2_emissions_only(package):
         rf_total_constantafteryr=5000,
         rf_total_runmodus="CO2",
         co2_switchfromconc2emis_year=min(scen["time"]).year,
+        out_emissions=1,
+        # only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial", "Emissions|CO2|MAGICC AFOLU"]
     )
 
     output_co2 = (
@@ -1050,6 +1049,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         rf_total_runmodus="all",
         rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
+        co2_switchfromconc2emis_year=min(scen["time"]).year,
     )
 
     np.testing.assert_allclose(
@@ -1104,8 +1104,9 @@ def test_get_output_filenames(mock_listdir):
 
 
 def test_default_config(package):
+    package.default_config
     if package.version == 6:
-        pytest.skip("Only checking MAGICC7")
+        return
 
     expected_config = {
         "file_emisscen_2": "NONE",
