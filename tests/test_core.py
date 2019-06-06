@@ -677,6 +677,7 @@ def test_output_variables(package):
 def test_persistant_state(package):
     test_ecs = 4.3
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
+
     actual_results = package.run(out_parameters=1)
     assert (
         actual_results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"]
@@ -687,6 +688,10 @@ def test_persistant_state(package):
 def test_persistant_state_integration(package):
     test_ecs = 1.75
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
+    if package.version == 7:
+        # ecs only follows its definition with IPCCTAR forcing (MAGICC7 bug...)
+        package.update_config(CORE_CO2CH4N2O_RFMETHOD="IPCCTAR")
+
     actual_results = package.diagnose_tcr_ecs()
     np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
 
@@ -983,7 +988,7 @@ def test_co2_emissions_only(package):
         rf_total_runmodus="CO2",
         co2_switchfromconc2emis_year=min(scen["time"]).year,
         out_emissions=1,
-        # only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial", "Emissions|CO2|MAGICC AFOLU"]
+        only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial"]
     )
 
     output_co2 = (
@@ -1050,6 +1055,8 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
         co2_switchfromconc2emis_year=min(scen["time"]).year,
+        out_emissions=1,
+        only=["Radiative Forcing", "Emissions|CO2|MAGICC Fossil and Industrial"],
     )
 
     np.testing.assert_allclose(
