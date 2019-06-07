@@ -815,12 +815,6 @@ def test_pymagicc_writing_has_an_effect(
     time_check_min,
     time_check_max,
 ):
-    if (package.version == 6) and test_filename.endswith("SCEN7"):
-        # maybe this should throw error instead
-        pytest.skip("MAGICC6 cannot run SCEN7 files")
-    if ("SRES" in test_filename) and (package.version == 7):
-        # maybe this should throw error instead
-        pytest.skip("MAGICC7 cannot run SRES SCEN files")
     if ("SCEN" in test_filename) and (package.version == 7):
         # special undocumented flags!!!
         relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
@@ -831,6 +825,19 @@ def test_pymagicc_writing_has_an_effect(
             relevant_config[key] = test_filename
 
     package.set_config(**relevant_config)
+
+    if (package.version == 6) and test_filename.endswith("SCEN7"):
+        error_msg = re.compile("MAGICC6 cannot run SCEN7 files")
+        with pytest.raises(ValueError, match=error_msg):
+            package.run(only=outputs_to_check)
+            return
+
+    if ("SRES" in test_filename) and (package.version == 7):
+        error_msg = re.compile("MAGICC7 cannot run SRES SCEN files")
+        with pytest.raises(ValueError, match=error_msg):
+            package.run(only=outputs_to_check)
+            return
+
     initial_results = package.run(only=outputs_to_check)
 
     ttweak_factor = 0.9
@@ -986,7 +993,7 @@ def test_co2_emissions_only(package):
         endyear=max(scen["time"]).year,
         rf_total_constantafteryr=5000,
         rf_total_runmodus="CO2",
-        co2_switchfromconc2emis_year=min(scen["time"]).year,
+        co2_switchfromconc2emis_year=min(scen["time"]).year - 1,
         out_emissions=1,
         only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial"]
     )
@@ -1051,7 +1058,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         endyear=max(time).year,
         rf_extra_read=1,  # fix writing of 'True'
         file_extra_rf=forcing_ext_filename,
-        rf_total_runmodus="all",
+        rf_total_runmodus="ALL",
         rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
         co2_switchfromconc2emis_year=min(scen["time"]).year,
