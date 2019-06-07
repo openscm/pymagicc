@@ -358,6 +358,8 @@ class MAGICCBase(object):
                 if usr_cfg[nml_to_check][k] not in ["NONE", ""]:
                     raise ValueError(emisscen_error_msg)
 
+        self._check_config()
+
     def write(self, mdata, name):
         """Write an input file to disk
 
@@ -1027,6 +1029,12 @@ class MAGICC6(MAGICCBase):
                 "The TCR/ECS total radiative forcing looks wrong during the rise period"
             )
 
+    def _check_config(self):
+        cfg = self.update_config()
+        if "file_emissionscenario" in cfg["nml_allcfgs"]:
+            if cfg["nml_allcfgs"]["file_emissionscenario"].endswith("SCEN7"):
+                raise ValueError("MAGICC6 cannot run SCEN7 files")
+
 
 class MAGICC7(MAGICCBase):
     version = 7
@@ -1067,6 +1075,9 @@ class MAGICC7(MAGICCBase):
             FILE_N2O_CONC="TCRECS_N2O_CONC.IN",
             N2O_SWITCHFROMCONC2EMIS_YEAR=30000,
         )
+
+    def _check_config(self):
+        pass
 
 
 def _filter_time_range(scmdf, filter_func):
