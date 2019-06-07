@@ -6,18 +6,15 @@
 # Sarah Raper, and Malte Meinshausen included in this package is licensed under
 # a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
 # License (https://creativecommons.org/licenses/by-nc-sa/3.0/)
-
-
 import logging
-import os
 import subprocess
 
 
 from ._version import get_versions
 from .config import config as _config
 from .core import MAGICC6, MAGICC7  # noqa
-from .io import MAGICCData, read_scen_file
-from .scenarios import rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions
+from .io import MAGICCData, read_scen_file  # noqa
+from .scenarios import rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions  # noqa
 
 
 __version__ = get_versions()["version"]

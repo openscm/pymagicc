@@ -461,9 +461,7 @@ def assert_bad_tcr_ecs_diagnosis_values_caught(
 
 def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
-    test_CO2_data = test_results_df.filter(
-        variable="Atmospheric Concentrations|CO2"
-    )
+    test_CO2_data = test_results_df.filter(variable="Atmospheric Concentrations|CO2")
 
     actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_yr_from_CO2_concs(
         test_CO2_data
@@ -480,9 +478,7 @@ def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_b
 
 def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
-    test_RF_data = test_results_df.filter(
-        variable="Radiative Forcing"
-    )
+    test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_tcr_ecs_total_RF(
         test_RF_data,
         valid_tcr_ecs_diagnosis_results["tcr_time"],
@@ -500,9 +496,7 @@ def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
 
 def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
-    test_temp_data = test_results_df.filter(
-        variable="Surface Temperature"
-    )
+    test_temp_data = test_results_df.filter(variable="Surface Temperature")
 
     magicc_base._check_tcr_ecs_temp(test_temp_data)
 
@@ -531,12 +525,8 @@ def test_integration_diagnose_tcr_ecs(package):
         )  # MAGICC6 shipped with pymagicc should be stable
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
-        assert (
-            actual_result["tcr"] == 2.0875821584565704
-        )
-        assert (
-            actual_result["ecs"] == 3.155772857010324
-        )
+        assert actual_result["tcr"] == 2.0875821584565704
+        assert actual_result["ecs"] == 3.155772857010324
 
 
 def test_missing_config(config_override):
@@ -713,7 +703,11 @@ def test_persistant_state_integration(package):
         ),
         (
             "HISTRCP_CH4_CONC.IN",
-            {"file_ch4_conc": "test_filename", "out_concentrations": 1, "ch4_switchfromconc2emis_year": 2010},
+            {
+                "file_ch4_conc": "test_filename",
+                "out_concentrations": 1,
+                "ch4_switchfromconc2emis_year": 2010,
+            },
             ["Atmospheric Concentrations|CH4"],
             1,
             1999,
@@ -1010,7 +1004,7 @@ def test_co2_emissions_only(package):
         rf_total_runmodus="CO2",
         co2_switchfromconc2emis_year=min(scen["time"]).year - 1,
         out_emissions=1,
-        only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial"]
+        only=["Surface Temperature", "Emissions|CO2|MAGICC Fossil and Industrial"],
     )
 
     output_co2 = (

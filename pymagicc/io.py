@@ -2,7 +2,7 @@ from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
-from datetime import datetime, timedelta
+from datetime import datetime
 from calendar import monthrange
 import warnings
 
@@ -13,9 +13,8 @@ from f90nml.namelist import Namelist
 import pandas as pd
 import re
 from six import StringIO
-from openscm.scmdataframe.base import ScmDataFrameBase, df_append
+from openscm.scmdataframe.base import ScmDataFrameBase
 from openscm.scmdataframe.timeindex import to_int
-from openscm.scmdataframe.offsets import generate_range, to_offset
 
 
 from .utils import apply_string_substitutions
@@ -268,10 +267,10 @@ class _Reader(object):
         return df
 
     def _set_column_defaults(self, ch):
-        l = len(ch["variable"])
-        ch.setdefault("climate_model", ["unspecified"] * l)
-        ch.setdefault("model", ["unspecified"] * l)
-        ch.setdefault("scenario", ["unspecified"] * l)
+        length = len(ch["variable"])
+        ch.setdefault("climate_model", ["unspecified"] * length)
+        ch.setdefault("model", ["unspecified"] * length)
+        ch.setdefault("scenario", ["unspecified"] * length)
 
         required_cols = [
             "variable",
