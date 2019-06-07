@@ -21,7 +21,7 @@ from setuptools.command.test import test as TestCommand
 
 PACKAGE_NAME = "pymagicc"
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
-KEYWORDS =["simple climate model MAGICC python"]
+KEYWORDS = ["simple climate model MAGICC python"]
 AUTHORS = [
     ("Robert Gieseke", "robert.gieseke@pik-potsdam.de"),
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
@@ -74,10 +74,7 @@ REQUIREMENTS_DOCS = [
 ]
 REQUIREMENTS_DEPLOY = ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"]
 REQUIREMENTS_DEV = (
-    [
-        "black",
-        "flake8",
-    ]
+    ["black", "flake8"]
     + REQUIREMENTS_NOTEBOOKS
     + REQUIREMENTS_TESTS
     + REQUIREMENTS_DOCS
