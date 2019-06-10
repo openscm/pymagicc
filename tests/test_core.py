@@ -897,8 +897,6 @@ def test_pymagicc_writing_has_an_effect(
 def test_pymagicc_writing_compatibility_203(
     package, test_filename, relevant_config, outputs_to_check
 ):
-    if package.version != 7:
-        pytest.skip("temp")
     if ("SCEN" in test_filename) and (package.version == 7):
         # special undocumented flags!!!
         relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
@@ -909,7 +907,7 @@ def test_pymagicc_writing_compatibility_203(
             relevant_config[key] = test_filename
 
     package.set_config(**relevant_config)
-    results = package.run(out_emissions=1, out_ascii_binary="ASCII")
+    results = package.run(out_emissions=1)
 
     for output_to_check in outputs_to_check:
         expected = output_to_check[-1]
@@ -1071,7 +1069,6 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
         co2_switchfromconc2emis_year=min(scen["time"]).year,
-        out_emissions=1,
         only=["Radiative Forcing", "Emissions|CO2|MAGICC Fossil and Industrial"],
     )
 
@@ -1129,27 +1126,31 @@ def test_get_output_filenames(mock_listdir):
 def test_default_config(package):
     package.default_config
     if package.version == 6:
-        return
+        expected_config = {
+            "file_emissionscenario": "RCP26.SCEN"
+            "file_tuningmodel": "PYMAGICC",
+        }
+    else:
+        expected_config = {
+            "file_emisscen_2": "NONE",
+            "file_emisscen_3": "NONE",
+            "file_emisscen_4": "NONE",
+            "file_emisscen_5": "NONE",
+            "file_emisscen_6": "NONE",
+            "file_emisscen_7": "NONE",
+            "file_emisscen_8": "NONE",
+            "file_tuningmodel_1": "PYMAGICC",
+            "file_tuningmodel_2": "USER",
+            "file_tuningmodel_3": "USER",
+            "file_tuningmodel_4": "USER",
+            "file_tuningmodel_5": "USER",
+            "file_tuningmodel_6": "USER",
+            "file_tuningmodel_7": "USER",
+            "file_tuningmodel_8": "USER",
+            "file_tuningmodel_9": "USER",
+            "file_tuningmodel_10": "USER",
+        }
 
-    expected_config = {
-        "file_emisscen_2": "NONE",
-        "file_emisscen_3": "NONE",
-        "file_emisscen_4": "NONE",
-        "file_emisscen_5": "NONE",
-        "file_emisscen_6": "NONE",
-        "file_emisscen_7": "NONE",
-        "file_emisscen_8": "NONE",
-        "file_tuningmodel_1": "PYMAGICC",
-        "file_tuningmodel_2": "USER",
-        "file_tuningmodel_3": "USER",
-        "file_tuningmodel_4": "USER",
-        "file_tuningmodel_5": "USER",
-        "file_tuningmodel_6": "USER",
-        "file_tuningmodel_7": "USER",
-        "file_tuningmodel_8": "USER",
-        "file_tuningmodel_9": "USER",
-        "file_tuningmodel_10": "USER",
-    }
     cfg = read_cfg_file(join(package.run_dir, "MAGCFG_USER.CFG"))
     for key, expected in expected_config.items():
         assert cfg["nml_allcfgs"][key] == expected
