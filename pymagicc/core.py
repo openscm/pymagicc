@@ -79,6 +79,16 @@ class MAGICCBase(object):
     _scen_file_name = "SCENARIO.SCEN"
 
     def __init__(self, root_dir=None):
+        """
+        Initialise
+
+        Parameters
+        ----------
+        root_dir : str
+            Root directory of the MAGICC package. If ``None``, a temporary
+            copy of MAGICC is made based on the result of `
+            `self.get_exectuable()``.
+        """
         self.root_dir = root_dir
         self.config = None
         self.executable = self.get_executable()
@@ -144,20 +154,58 @@ class MAGICCBase(object):
 
     @property
     def binary_name(self):
+        """
+        Name of the MAGICC binary file
+
+        Returns
+        -------
+        str
+            Name of the binary file
+        """
         return basename(self.executable)
 
     @property
     def original_dir(self):
+        """
+        Directory of the MAGICC package.
+
+        This is the directory which contains the ``run`` and ``out`` folders.
+
+        Returns
+        -------
+        str
+            Path of the MAGICC package
+        """
         return dirname(self.executable)
 
     @property
     def run_dir(self):
+        """
+        Run directory of the MAGICC package.
+
+        This path always ends in ``run``.
+
+        Returns
+        -------
+        str
+            Path of the run directory
+        """
         if self.root_dir is None:
             return None
         return join(self.root_dir, "run")
 
     @property
     def out_dir(self):
+        """
+        Output directory of the MAGICC package.
+
+        This path always ends in ``out``.
+
+        Returns
+        -------
+        str
+            Path of the output directory
+        """
         if self.root_dir is None:
             return None
         return join(self.root_dir, "out")
@@ -165,7 +213,12 @@ class MAGICCBase(object):
     @property
     def default_config(self):
         """
-        Default configuration to use in a run
+        Default configuration for a run
+
+        Returns
+        -------
+        :obj:`f90nml.Namelist`
+            Namelist object containing the default configuration
         """
         base = f90nml.read(join(self.run_dir, "MAGCFG_DEFAULTALL.CFG"))
         user = f90nml.read(join(self.run_dir, "MAGCFG_USER.CFG"))
@@ -184,10 +237,26 @@ class MAGICCBase(object):
 
     @property
     def fgas_files_conc(self):
+        """
+        Flag used to set the F-gas concentration input files.
+
+        Returns
+        -------
+        str
+            Name of the flag
+        """
         return "fgas_files_conc"
 
     @property
     def mhalo_switchfromconc2emis_year(self):
+        """
+        Flag used to set the year in which Montreal protocol halogens should switch from concentration-driven to emissions-driven mode
+
+        Returns
+        -------
+        str
+            Name of the flag
+        """
         return "mhalo_switchfromconc2emis_year"
 
     def run(self, scenario=None, only=None, **kwargs):
@@ -844,7 +913,6 @@ class MAGICCBase(object):
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
-            # CORE_CO2CH4N2O_RFMETHOD="IPCCTAR",
             **kwargs,
         )
 
@@ -979,6 +1047,12 @@ class MAGICCBase(object):
         config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
 
         return config_dict
+
+    def _check_config(self):
+        """
+        Check config above and beyond those checked by ``self.check_config``
+        """
+        pass
 
 
 class MAGICC6(MAGICCBase):
