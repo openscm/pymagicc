@@ -1127,7 +1127,7 @@ def test_default_config(package):
     package.default_config
     if package.version == 6:
         expected_config = {
-            "file_emissionscenario": "RCP26.SCEN"
+            "file_emissionscenario": "RCP26.SCEN",
             "file_tuningmodel": "PYMAGICC",
         }
     else:
