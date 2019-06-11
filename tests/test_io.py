@@ -57,16 +57,17 @@ INVALID_OUT_FILES = [
 ]
 
 
-def generic_mdata_tests(mdata):
-    "Resusable tests to ensure data format."
+def generic_mdata_tests(mdata, include_todo=True):
+    """Resusable tests to ensure data format"""
     assert mdata.is_loaded == True
 
     assert isinstance(mdata, ScmDataFrameBase)
+    index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
+    if include_todo:
+    	index += ["todo"]
     pd.testing.assert_index_equal(
         mdata.meta.columns,
-        pd.Index(
-            ["model", "scenario", "region", "variable", "unit", "climate_model", "todo"]
-        ),
+        pd.Index(index),
     )
 
     assert mdata["variable"].dtype == "object"
@@ -2472,6 +2473,7 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         (MAGICC6_DIR, "RCP26.SCEN", True),  # metadata all over the place
         (MAGICC6_DIR, "SRESA1B.SCEN", True),  # metadata all over the place
         (TEST_DATA_DIR, "TESTSCEN7.SCEN7", False),
+        (TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG", False),
     ],
 )
 def test_in_file_read_write_functionally_identical(
@@ -3031,3 +3033,65 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
     writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
     run_writing_comparison(res, base, update=update_expected_file)
+
+
+def test_write_mag_valid_egion_mode(temp_dir, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
+
+    file_to_write = join(temp_dir, "TEST_NAME.MAG")
+    writing_base.write(file_to_write, magicc_version=7)
+    
+    with open(file_to_write) as f:
+    	content = f.read()
+
+    assert 'THISFILE_REGIONMODE     = "FOURBOX"' in content
+
+
+def test_write_mag_error_if_magicc6(temp_dir, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
+    
+    error_msg = re.escape(
+        "MAG files are not MAGICC6 compatible"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+    	writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
+        
+
+
+def test_surface_temp_in_reader():
+    mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
+
+    generic_mdata_tests(mdata, include_todo=False)
+
+    assert "Date crunched: DATESTRING" in mdata.metadata["header"]
+    assert "Affiliation: Climate & Energy College, The University of Melbourne " in mdata.metadata["header"]
+
+    assert mdata.metadata["key"] == "value"
+    assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
+    assert mdata.metadata["length"] == "53 furlongs"
+    assert "region abbreviations" in mdata.metadata
+    
+    assert (mdata["unit"] == "K").all()
+    assert (mdata["variable"] == "Surface Temperature").all()
+
+    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", time=datetime.datetime(0, 1, 15))
+
+    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", time=datetime.datetime(0, 8, 15))
+
+    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", time=datetime.datetime(1, 2, 14))
+
+    assert_mdata_value(mdata, 9, region="World|El Nino 34", time=datetime.datetime(1, 6, 15))
