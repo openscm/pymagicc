@@ -1,0 +1,52 @@
+---- HEADER ----
+
+Date crunched: DATESTRING
+Crunched by: Zebedee Nicholls 
+Tool used: pymagicc vX.Y.Z, available at 
+Affiliation: Climate & Energy College, The University of Melbourne 
+
+---- METADATA ----
+
+key: value
+original source: somewhere over the rainbow of 125 moons
+length: 53 furlongs
+region abbreviations: Currently understood MAGICC abbreviations: GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NO (northern hemisphere ocean average), SO (southern hemisphere ocean average), NL (northern hemisphere land average), NO (northern hemisphere ocean average), OC (ocean average), LA (land average), N34 (El Nino 3.4 region average), AMV (northern Atlantic Ocean average)
+
+---- DATA
+
+&THISFILE_SPECIFICATIONS 
+ THISFILE_DATACOLUMNS    =    5  ,
+ THISFILE_DATAROWS       =   19  ,
+ THISFILE_FIRSTYEAR      =    0  ,   ! always an integer
+ THISFILE_LASTYEAR       =    1  ,   ! always an integer
+ THISFILE_ANNUALSTEPS    =   12  ,   ! the number of steps per year in the timeseries i.e. the annual resolution so equal to 1 if annual steps, 12 if monthly steps. Special case: 0 if the file is at less than annual resolution
+ THISFILE_FIRSTDATAROW   =   34  ,   ! first row of the data block
+ THISFILE_DATTYPE        = "MAG"  ,  ! DATTYPE flag used in MAGICC
+ THISFILE_REGIONMODE     = "NONE"  , ! REGIONMODE flag, defines the regions included in this file. Available options: SRES, RCP, RCPPLUSBUNKERS, WORLD, RCPPLUSSPLITBUNKERS, FOURBOX, HEMISPHERIC, NONE (NONE indicates the regions could be anything i.e. supplied regions are not compatible with any of MAGICC's internal REGIONMODE flags)
+ THISFILE_TIMESERIESTYPE = "MONTHLY"  , ! Convention used to report this timeseries. Available options: MONTHLY (monthly mean values), POINT_END_OF_YEAR (end of year values), POINT_MID_YEAR (middle of year values), AVERAGE_YEAR_END_OF_YEAR (average over a year, centred on December 31 of the stated year i.e. uses data from July of year until June of next year), AVERAGE_YEAR_MID_YEAR (average over a year only using the monthly averages of the months in the specified year)
+/ 
+
+! data block, always with 4 header rows
+   VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP
+       TODO                 SET                 SET                 SET                 SET                 SET
+      UNITS                   K                   K                   K                   K                   K
+      YEARS                  NL                  SL                  NO                  SO                 N34
+   0.041667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.125000      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.208333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.291667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.375000      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.458333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.541667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.625000      0.00000000e+00      3.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.708333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.791667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.875000      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   0.958333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.041667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.125000      0.00000000e+00      0.00000000e+00      0.00000000e+00      5.00000000e+00      0.00000000e+00 
+   1.208333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.291667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.375000      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.458333      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00 
+   1.541667      0.00000000e+00      0.00000000e+00      0.00000000e+00      0.00000000e+00      9.00000000e+00
