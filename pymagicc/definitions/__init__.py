@@ -101,6 +101,10 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
             return world
         if in_region in ("BUNKERS"):
             return DATA_HIERARCHY_SEPARATOR.join([world, "Bunkers"])
+        if in_region in ("OCEAN"):
+            return DATA_HIERARCHY_SEPARATOR.join([world, "Ocean"])
+        if in_region in ("LAND"):
+            return DATA_HIERARCHY_SEPARATOR.join([world, "Land"])
         if in_region in ("N34"):
             return DATA_HIERARCHY_SEPARATOR.join([world, "El Nino 34"])
         if in_region in ("NATLOCEAN"):
@@ -148,6 +152,8 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         "BUNKERS",
         "N34",
         "NATLOCEAN",
+        "OCEAN",
+        "LAND",
     ]
 
     replacements = {}

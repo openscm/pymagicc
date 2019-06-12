@@ -10,7 +10,7 @@ Affiliation: Climate & Energy College, The University of Melbourne
 key: value
 length: 53 furlongs
 original source: somewhere over the rainbow of 125 moons
-region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NHOCEAN (northern hemisphere ocean average), SHOCEAN (southern hemisphere ocean average), NHLAND (northern hemisphere land average), SHLAND (southern hemisphere land average), OC (ocean average), LA (land average), N34 (El Nino 3.4 region average), NATLOCEAN (northern Atlantic Ocean average)
+region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NHOCEAN (northern hemisphere ocean average), SHOCEAN (southern hemisphere ocean average), NHLAND (northern hemisphere land average), SHLAND (southern hemisphere land average), OCEAN (ocean average), LAND (land average), N34 (El Nino 3.4 region average), NATLOCEAN (northern Atlantic Ocean average)
 
 &THISFILE_SPECIFICATIONS
  THISFILE_DATACOLUMNS    =    6  ,
