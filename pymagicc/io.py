@@ -1904,7 +1904,21 @@ class _MAGWriter(_Writer):
     def _get_initial_nml_and_data_block(self):
         nml, data_block = super()._get_initial_nml_and_data_block()
         try:
-            nml["thisfile_specifications"]["thisfile_timeseriestype"] = self.minput.metadata["timeseriestype"]
+            ttype = self.minput.metadata["timeseriestype"]
+            if ttype == "MONTHLY" and nml["thisfile_specifications"]["annualsteps"] != 12:
+                warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
+                ttype = "MONTHLY"
+
+            nml["thisfile_specifications"]["thisfile_timeseriestype"] = ttype
+            if ttype not in [
+                "MONTLY",
+                "POINT_END_OF_YEAR",
+                "POINT_MID_YEAR",
+                "AVERAGE_YEAR_END_OF_YEAR",
+                "AVERAGE_YEAR_MID_YEAR",
+            ]:
+                raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
+
         except KeyError:
             raise KeyError(
                 "Please specify your 'timeseriestype' in "
@@ -1921,10 +1935,21 @@ class _MAGWriter(_Writer):
 
     def _get_region_order(self, regions):
         try:
-            get_region_order(regions, self._scen_7)
+            return get_region_order(regions, self._scen_7)
         except ValueError:
-            # unrecognised region order, return same as input
-            return regions
+            abbreviations = [
+                convert_magicc_to_openscm_regions(r, inverse=True)
+                for r in set(regions)
+            ]
+            unrecognised_regions = [
+                a for a in abbreviations
+                if a in regions or DATA_HIERARCHY_SEPARATOR in a
+            ]
+            if unrecognised_regions:
+                warnings.warn("Not abbreviating regions, could not find abbreviation for {}".format(unrecognised_regions))
+                return regions
+            else:
+                return abbreviations
 
     def _get_dattype_regionmode(self, regions):
         try:
