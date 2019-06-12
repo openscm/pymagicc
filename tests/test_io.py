@@ -3107,8 +3107,8 @@ def test_mag_writer(temp_dir):
     assert "THISFILE_ANNUALSTEPS = 0" in content
     assert "other info: checking time point handling" in content
     assert "Test mag file" in content
-    assert "LA" in content
-    assert "OC" in content
+    assert "LAND" in content
+    assert "OCEAN" in content
 
     res = MAGICCData(file_to_write)
     assert (
@@ -3127,15 +3127,15 @@ def test_mag_writer(temp_dir):
         res.filter(
             region="World|Land", year=2099, month=5
         ).values.squeeze()
-        == 32
+        == 23
     )
     assert (
         res.filter(
             region="World|Ocean", year=2099, month=12
         ).values.squeeze()
-        == 32
+        == 59
     )
-    assert res.filter(region="World", year=2101, month=3).values.squeeze() == 42
+    assert res.filter(region="World", year=2101, month=3).values.squeeze() == 70
 
 
 def test_mag_writer_valid_region_mode(temp_dir, writing_base):
