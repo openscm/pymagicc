@@ -31,7 +31,6 @@ from .definitions import (
 )
 
 
-
 DATTYPE_FLAG = "THISFILE_DATTYPE"
 """str: Flag used to indicate the file's data type in MAGICCC"""
 
@@ -133,7 +132,11 @@ class _Reader(object):
         nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
 
         # ignore all nml_values except units
-        metadata = {key: value for key, value in nml_values.items() if key in ["units", "timeseriestype"]}
+        metadata = {
+            key: value
+            for key, value in nml_values.items()
+            if key in ["units", "timeseriestype"]
+        }
         metadata["header"] = "".join(self.lines[:nml_start])
         header_metadata = self.process_header(metadata["header"])
         metadata.update(header_metadata)
@@ -1424,12 +1427,6 @@ class _Writer(object):
             np.floor(data_block.iloc[-1, 0])
         )
 
-        number_years = (
-            nml["THISFILE_SPECIFICATIONS"]["THISFILE_LASTYEAR"]
-            - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
-            + 1
-        )
-
         step_length = data_block.iloc[1:, 0].values - data_block.iloc[:-1, 0].values
         try:
             np.testing.assert_allclose(step_length, step_length[0], rtol=0.02)
@@ -1450,9 +1447,7 @@ class _Writer(object):
             else "MISC"
         )
 
-        nml["THISFILE_SPECIFICATIONS"].update(
-            self._get_dattype_regionmode(regions)
-        )
+        nml["THISFILE_SPECIFICATIONS"].update(self._get_dattype_regionmode(regions))
 
         return nml, data_block
 
@@ -1516,17 +1511,16 @@ class _Writer(object):
                 # day = itime.day
                 # hr = itime.hour
 
-                year_fraction = (
-                    (itime-datetime(year, 1, 1)).total_seconds()
-                    / (datetime(year+1,1,1)-datetime(year, 1, 1)).total_seconds()
-                )
+                year_fraction = (itime - datetime(year, 1, 1)).total_seconds() / (
+                    datetime(year + 1, 1, 1) - datetime(year, 1, 1)
+                ).total_seconds()
 
-                startmonths = np.arange(0, 1, 1/12)
-                midmonths = startmonths + 1/24
+                startmonths = np.arange(0, 1, 1 / 12)
+                midmonths = startmonths + 1 / 24
 
-                if (np.abs(year_fraction - midmonths) < 10**-3).any():
+                if (np.abs(year_fraction - midmonths) < 10 ** -3).any():
                     decimal_bit = ((month - 1) * 2 + 1) / 24
-                elif (np.abs(year_fraction - startmonths) < 10**-3).any():
+                elif (np.abs(year_fraction - startmonths) < 10 ** -3).any():
                     decimal_bit = (month - 1) / 12
                 else:
                     error_msg = (
@@ -1882,21 +1876,20 @@ class _MAGWriter(_Writer):
                 "desired metadata."
             )
             from . import __version__
-            header = (
-                "Date: {}\n"
-                "Writer: pymagicc v{}".format(
-                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                    __version__
-                )
+
+            header = "Date: {}\n" "Writer: pymagicc v{}".format(
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"), __version__
             )
 
         mdata = self.minput.metadata
         sorted_keys = sorted(mdata.keys())
-        metadata = "\n".join([
-            "{}: {}".format(k, mdata[k])
-            for k in sorted_keys
-            if k not in ["timeseriestype"]  # timeseriestype goes in namelist
-        ])
+        metadata = "\n".join(
+            [
+                "{}: {}".format(k, mdata[k])
+                for k in sorted_keys
+                if k not in ["timeseriestype"]  # timeseriestype goes in namelist
+            ]
+        )
 
         return (
             "---- HEADER ----\n"
@@ -1919,7 +1912,10 @@ class _MAGWriter(_Writer):
                 "`self.metadata['timeseriestype'] before writing '.MAG' files"
             )
 
-        if ttype == "MONTHLY" and nml["thisfile_specifications"]["thisfile_annualsteps"] != 12:
+        if (
+            ttype == "MONTHLY"
+            and nml["thisfile_specifications"]["thisfile_annualsteps"] != 12
+        ):
             warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
             ttype = "MONTHLY"
 
@@ -1946,15 +1942,19 @@ class _MAGWriter(_Writer):
             return get_region_order(regions, self._scen_7)
         except ValueError:
             abbreviations = [
-                convert_magicc_to_openscm_regions(r, inverse=True)
-                for r in set(regions)
+                convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)
             ]
             unrecognised_regions = [
-                a for a in abbreviations
+                a
+                for a in abbreviations
                 if a in regions or DATA_HIERARCHY_SEPARATOR in a
             ]
             if unrecognised_regions:
-                warnings.warn("Not abbreviating regions, could not find abbreviation for {}".format(unrecognised_regions))
+                warnings.warn(
+                    "Not abbreviating regions, could not find abbreviation for {}".format(
+                        unrecognised_regions
+                    )
+                )
                 return regions
             else:
                 return abbreviations
