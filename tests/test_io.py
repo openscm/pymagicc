@@ -2750,9 +2750,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
     assert res.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])
-    expected.columns = pd.Index(
-        [dt.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object"
-    )
+    expected.columns = pd.Index([dt.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object")
 
     pd.testing.assert_frame_equal(
         res.timeseries(),
@@ -3059,8 +3057,7 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
 def test_write_mag(temp_dir):
 
     tregions = ["World"] + [
-        "World|{}".format(r)
-        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        "World|{}".format(r) for r in ["Northern Hemisphere", "Southern Hemisphere"]
     ]
     writing_base = MAGICCData(
         data=np.arange(45).reshape(15, 3),
@@ -3088,7 +3085,7 @@ def test_write_mag(temp_dir):
             "scenario": "mag test",
             "unit": "gC/yr",
             "todo": "SET",
-        }
+        },
     )
 
     writing_base.metadata = {
@@ -3109,8 +3106,18 @@ def test_write_mag(temp_dir):
     assert "Test mag file" in content
 
     res = MAGICCData(file_to_write)
-    assert res.filter(region="World|Northern Hemisphere", year=2099, month=2).values.squeeze() == 4
-    assert res.filter(region="World|Southern Hemisphere", year=2099, month=11).values.squeeze() == 32
+    assert (
+        res.filter(
+            region="World|Northern Hemisphere", year=2099, month=2
+        ).values.squeeze()
+        == 4
+    )
+    assert (
+        res.filter(
+            region="World|Southern Hemisphere", year=2099, month=11
+        ).values.squeeze()
+        == 32
+    )
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 42
 
 

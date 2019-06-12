@@ -908,8 +908,7 @@ def test_pymagicc_writing_compatibility_203(
 
     package.set_config(**relevant_config)
     results = package.run(
-        out_emissions=1,
-        out_ascii_binary="ASCII"  # ensure units included
+        out_emissions=1, out_ascii_binary="ASCII"  # ensure units included
     )
 
     for output_to_check in outputs_to_check:
