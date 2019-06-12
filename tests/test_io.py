@@ -2480,14 +2480,15 @@ def test_in_file_read_write_functionally_identical(
     starting_fpath, starting_fname, confusing_metadata, temp_dir
 ):
     mi_writer = MAGICCData(join(starting_fpath, starting_fname))
-    mi_writer.write(join(temp_dir, starting_fname), magicc_version=6)
+    magicc_version = 7 if starting_fname.endswith((".MAG", ".SCEN7")) else 6
+    mi_writer.write(join(temp_dir, starting_fname), magicc_version=magicc_version)
 
     mi_written = MAGICCData(join(temp_dir, starting_fname))
     mi_initial = MAGICCData(join(starting_fpath, starting_fname))
 
     if not starting_fname.endswith((".SCEN", ".prn")):
         nml_written = f90nml.read(join(temp_dir, starting_fname))
-        nml_initial = f90nml.read(join(temp_dir, starting_fname))
+        nml_initial = f90nml.read(join(starting_fpath, starting_fname))
         assert sorted(nml_written["thisfile_specifications"]) == sorted(
             nml_initial["thisfile_specifications"]
         )
@@ -3091,7 +3092,6 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
     	writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
 
 
-
 def test_mag_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
 
@@ -3114,24 +3114,40 @@ def test_mag_reader():
     assert_mdata_value(mdata, 12, region="World|Northen Atlantic Ocean", year=1911, month=6)
     assert_mdata_value(mdata, 9, region="World|El Nino 34", year=1911, month=7)
 
-def test_mag_writer_default_header():
-    assert False, "should automatically fill out with date and tool as well as throwing warning"
-    mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
 
-    generic_mdata_tests(mdata)
+def test_mag_writer_default_header(temp_dir, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Ocean Temperature", name="variable")
 
-    assert "Date crunched: DATESTRING" in mdata.metadata["header"]
-    assert "Affiliation: Climate & Energy College, The University of Melbourne" in mdata.metadata["header"]
+    write_file = join(temp_dir, "TEST_NAME.MAG")
+    default_header_lines = [
+        re.escape("Date: .*"),
+        re.escape("Writer: pymagicc v.*"),
+    ]
 
-    assert mdata.metadata["key"] == "value"
-    assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
-    assert mdata.metadata["length"] == "53 furlongs"
-    assert "region abbreviations" in mdata.metadata
+    warn_msg = (
+        "No header detected, it will be automatically added. We recommend setting "
+        "`self.metadata['header']` to ensure your files have the desired metadata"
+    )
+    with warnings.catch_warnings(record=True) as warn_no_header:
+        writing_base.write(write_file, magicc_version=7)
 
-    assert (mdata["unit"] == "K").all()
-    assert (mdata["variable"] == "Surface Temperature").all()
+    assert len(warn_no_header) == 1
+    assert str(warn_no_header[0]) == warn_msg
 
-    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", time=datetime.datetime(1910, 1, 15))
-    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", time=datetime.datetime(1910, 8, 15))
-    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", time=datetime.datetime(1911, 2, 14))
-    assert_mdata_value(mdata, 9, region="World|El Nino 34", time=datetime.datetime(1911, 6, 15))
+    with open(write_file) as f:
+        content = f.read()
+
+    for d in default_header_lines:
+        found_line = False
+        for l in content:
+            if d.match(l):
+                found_line = True
+                break
+        if not found_line:
+            assert False, "Missing header line: {}".format(d)
