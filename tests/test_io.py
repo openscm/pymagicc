@@ -3035,7 +3035,7 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
     run_writing_comparison(res, base, update=update_expected_file)
 
 
-def test_write_mag_valid_egion_mode(temp_dir, writing_base):
+def test_write_mag_valid_region_mode(temp_dir, writing_base):
     tregions = [
         "World|{}|{}".format(r, sr)
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
@@ -3047,11 +3047,31 @@ def test_write_mag_valid_egion_mode(temp_dir, writing_base):
 
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
     writing_base.write(file_to_write, magicc_version=7)
-    
+
     with open(file_to_write) as f:
     	content = f.read()
 
     assert 'THISFILE_REGIONMODE     = "FOURBOX"' in content
+
+
+def test_write_mag_unrecognised_region_warning(temp_dir, writing_base):
+    tregions = [
+        "World|{}|{}".format(r, sr)
+        for r in ["Northern Hemisphere", "Southern Hemisphare"]
+        for sr in ["Ocean", "Land"]
+    ]
+    writing_base.set_meta(tregions, name="region")
+    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base.metadata = {"header": "Test mag file where regions are misnamed"}
+
+    warn_msg = re.escape(
+        "Region 'Southern Hemisphare' not recognised, no abbreviation will be applied"
+    )
+    with warnings.catch_warnings(record=True) as warn_unrecognised_region:
+        writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=7)
+
+    assert len(warn_unrecognised_region) == 2
+    assert any([str(w) == warn_msg for w in warn_unrecognised_region])
 
 
 def test_write_mag_error_if_magicc6(temp_dir, writing_base):
@@ -3063,16 +3083,16 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
     writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
-    
+
     error_msg = re.escape(
         "MAG files are not MAGICC6 compatible"
     )
     with pytest.raises(ValueError, match=error_msg):
     	writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
-        
 
 
-def test_surface_temp_in_reader():
+
+def test_mag_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
 
     generic_mdata_tests(mdata, include_todo=False)
@@ -3084,14 +3104,11 @@ def test_surface_temp_in_reader():
     assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
     assert mdata.metadata["length"] == "53 furlongs"
     assert "region abbreviations" in mdata.metadata
-    
+
     assert (mdata["unit"] == "K").all()
     assert (mdata["variable"] == "Surface Temperature").all()
 
     assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", time=datetime.datetime(0, 1, 15))
-
     assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", time=datetime.datetime(0, 8, 15))
-
     assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", time=datetime.datetime(1, 2, 14))
-
     assert_mdata_value(mdata, 9, region="World|El Nino 34", time=datetime.datetime(1, 6, 15))
