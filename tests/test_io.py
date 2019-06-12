@@ -3091,7 +3091,7 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
     ]
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
-    writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
+    writing_base.metadata = {"header": "MAGICC6 error test"}
 
     error_msg = re.escape(
         ".MAG files are not MAGICC6 compatible"
@@ -3131,25 +3131,26 @@ def test_mag_writer_default_header(temp_dir, writing_base):
     ]
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base.metadata = {"timeseriestype": "AVERAGE_YEAR_MID_YEAR"}
 
     write_file = join(temp_dir, "TEST_NAME.MAG")
     default_header_lines = [
-        re.escape("Date: .*"),
-        re.escape("Writer: pymagicc v.*"),
+        re.compile("Date: .*"),
+        re.compile("Writer: pymagicc v.*"),
     ]
 
     warn_msg = (
         "No header detected, it will be automatically added. We recommend setting "
-        "`self.metadata['header']` to ensure your files have the desired metadata"
+        "`self.metadata['header']` to ensure your files have the desired metadata."
     )
     with warnings.catch_warnings(record=True) as warn_no_header:
         writing_base.write(write_file, magicc_version=7)
 
     assert len(warn_no_header) == 1
-    assert str(warn_no_header[0]) == warn_msg
+    assert str(warn_no_header[0].message) == warn_msg
 
     with open(write_file) as f:
-        content = f.read()
+        content = f.read().split("\n")
 
     for d in default_header_lines:
         found_line = False
