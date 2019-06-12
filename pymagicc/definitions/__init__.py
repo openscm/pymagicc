@@ -108,7 +108,7 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         if in_region in ("N34"):
             return DATA_HIERARCHY_SEPARATOR.join([world, "El Nino 34"])
         if in_region in ("NATLOCEAN"):
-            return DATA_HIERARCHY_SEPARATOR.join([world, "Northen Atlantic Ocean"])
+            return DATA_HIERARCHY_SEPARATOR.join([world, "Northern Atlantic Ocean"])
         elif in_region.startswith(("NH", "SH")):
             in_region = in_region.replace("-", "")
             hem = "Northern Hemisphere" if "NH" in in_region else "Southern Hemisphere"

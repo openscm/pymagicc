@@ -3063,7 +3063,7 @@ def test_mag_writer(temp_dir):
     )
 
     writing_base = MAGICCData(
-        data=np.arange(15*len(tregions)).reshape(15, len(tregions)),
+        data=np.arange(15 * len(tregions)).reshape(15, len(tregions)),
         index=[
             dt.datetime(2099, 1, 16, 12, 0),
             dt.datetime(2099, 2, 15, 0, 0),
@@ -3123,18 +3123,8 @@ def test_mag_writer(temp_dir):
         ).values.squeeze()
         == 52
     )
-    assert (
-        res.filter(
-            region="World|Land", year=2099, month=5
-        ).values.squeeze()
-        == 23
-    )
-    assert (
-        res.filter(
-            region="World|Ocean", year=2099, month=12
-        ).values.squeeze()
-        == 59
-    )
+    assert res.filter(region="World|Land", year=2099, month=5).values.squeeze() == 23
+    assert res.filter(region="World|Ocean", year=2099, month=12).values.squeeze() == 59
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 70
 
 
@@ -3231,7 +3221,7 @@ def test_mag_reader():
         mdata, 5, region="World|Southern Hemisphere|Ocean", year=1911, month=2
     )
     assert_mdata_value(
-        mdata, 12, region="World|Northen Atlantic Ocean", year=1911, month=6
+        mdata, 12, region="World|Northern Atlantic Ocean", year=1911, month=6
     )
     assert_mdata_value(mdata, 9, region="World|El Nino 34", year=1911, month=7)
 
