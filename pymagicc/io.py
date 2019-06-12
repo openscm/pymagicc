@@ -1913,25 +1913,25 @@ class _MAGWriter(_Writer):
         nml, data_block = super()._get_initial_nml_and_data_block()
         try:
             ttype = self.minput.metadata["timeseriestype"]
-            if ttype == "MONTHLY" and nml["thisfile_specifications"]["annualsteps"] != 12:
-                warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
-                ttype = "MONTHLY"
-
-            nml["thisfile_specifications"]["thisfile_timeseriestype"] = ttype
-            if ttype not in [
-                "MONTLY",
-                "POINT_END_OF_YEAR",
-                "POINT_MID_YEAR",
-                "AVERAGE_YEAR_END_OF_YEAR",
-                "AVERAGE_YEAR_MID_YEAR",
-            ]:
-                raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
-
         except KeyError:
             raise KeyError(
                 "Please specify your 'timeseriestype' in "
                 "`self.metadata['timeseriestype'] before writing '.MAG' files"
             )
+
+        if ttype == "MONTHLY" and nml["thisfile_specifications"]["thisfile_annualsteps"] != 12:
+            warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
+            ttype = "MONTHLY"
+
+        nml["thisfile_specifications"]["thisfile_timeseriestype"] = ttype
+        if ttype not in [
+            "MONTHLY",
+            "POINT_END_OF_YEAR",
+            "POINT_MID_YEAR",
+            "AVERAGE_YEAR_END_OF_YEAR",
+            "AVERAGE_YEAR_MID_YEAR",
+        ]:
+            raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
 
         # don't bother writing this as it's in the header
         nml["thisfile_specifications"].pop("thisfile_units")
