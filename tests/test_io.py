@@ -3044,7 +3044,10 @@ def test_write_mag_valid_region_mode(temp_dir, writing_base):
     ]
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
-    writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
+    writing_base.metadata = {
+        "header": "Test mag file where regionmode is picked up",
+        "timeseriestype": "AVERAGE_YEAR_MID_YEAR",
+    }
 
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
     writing_base.write(file_to_write, magicc_version=7)
@@ -3052,7 +3055,7 @@ def test_write_mag_valid_region_mode(temp_dir, writing_base):
     with open(file_to_write) as f:
     	content = f.read()
 
-    assert 'THISFILE_REGIONMODE     = "FOURBOX"' in content
+    assert "THISFILE_REGIONMODE = 'FOURBOX'" in content
 
 
 def test_write_mag_unrecognised_region_warning(temp_dir, writing_base):
@@ -3063,16 +3066,21 @@ def test_write_mag_unrecognised_region_warning(temp_dir, writing_base):
     ]
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
-    writing_base.metadata = {"header": "Test mag file where regions are misnamed"}
+    writing_base.metadata = {
+        "header": "Test mag file where regions are misnamed",
+        "timeseriestype": "AVERAGE_YEAR_MID_YEAR",
+    }
 
-    warn_msg = re.escape(
-        "Region 'Southern Hemisphare' not recognised, no abbreviation will be applied"
+    warn_msg = re.compile(
+        r"^Not abbreviating regions, could not find abbreviation for "
+        r"\['WORLD\|Southern Hemisphare\|.*', "
+        r"'WORLD\|Southern Hemisphare\|.*'\]$"
     )
     with warnings.catch_warnings(record=True) as warn_unrecognised_region:
         writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=7)
 
-    assert len(warn_unrecognised_region) == 2
-    assert any([str(w) == warn_msg for w in warn_unrecognised_region])
+    assert len(warn_unrecognised_region) == 1
+    assert warn_msg.match(str(warn_unrecognised_region[0].message))
 
 
 def test_write_mag_error_if_magicc6(temp_dir, writing_base):
