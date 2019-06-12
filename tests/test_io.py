@@ -3095,10 +3095,10 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
 def test_mag_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
 
-    generic_mdata_tests(mdata, include_todo=False)
+    generic_mdata_tests(mdata)
 
     assert "Date crunched: DATESTRING" in mdata.metadata["header"]
-    assert "Affiliation: Climate & Energy College, The University of Melbourne " in mdata.metadata["header"]
+    assert "Affiliation: Climate & Energy College, The University of Melbourne" in mdata.metadata["header"]
 
     assert mdata.metadata["key"] == "value"
     assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
@@ -3108,7 +3108,30 @@ def test_mag_reader():
     assert (mdata["unit"] == "K").all()
     assert (mdata["variable"] == "Surface Temperature").all()
 
-    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", time=datetime.datetime(0, 1, 15))
-    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", time=datetime.datetime(0, 8, 15))
-    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", time=datetime.datetime(1, 2, 14))
-    assert_mdata_value(mdata, 9, region="World|El Nino 34", time=datetime.datetime(1, 6, 15))
+    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", year=1910, month=1)
+    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", year=1910, month=8)
+    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", year=1911, month=2)
+    assert_mdata_value(mdata, 12, region="World|Northen Atlantic Ocean", year=1911, month=6)
+    assert_mdata_value(mdata, 9, region="World|El Nino 34", year=1911, month=7)
+
+def test_mag_writer_default_header():
+    assert False, "should automatically fill out with date and tool as well as throwing warning"
+    mdata = MAGICCData(join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"))
+
+    generic_mdata_tests(mdata)
+
+    assert "Date crunched: DATESTRING" in mdata.metadata["header"]
+    assert "Affiliation: Climate & Energy College, The University of Melbourne" in mdata.metadata["header"]
+
+    assert mdata.metadata["key"] == "value"
+    assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
+    assert mdata.metadata["length"] == "53 furlongs"
+    assert "region abbreviations" in mdata.metadata
+
+    assert (mdata["unit"] == "K").all()
+    assert (mdata["variable"] == "Surface Temperature").all()
+
+    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", time=datetime.datetime(1910, 1, 15))
+    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", time=datetime.datetime(1910, 8, 15))
+    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", time=datetime.datetime(1911, 2, 14))
+    assert_mdata_value(mdata, 9, region="World|El Nino 34", time=datetime.datetime(1911, 6, 15))

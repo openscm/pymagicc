@@ -126,7 +126,7 @@ class _Reader(object):
         nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
 
         # ignore all nml_values except units
-        metadata = {key: value for key, value in nml_values.items() if key == "units"}
+        metadata = {key: value for key, value in nml_values.items() if key in ["units", "timeseriestype"]}
         metadata["header"] = "".join(self.lines[:nml_start])
         header_metadata = self.process_header(metadata["header"])
         metadata.update(header_metadata)
@@ -191,10 +191,10 @@ class _Reader(object):
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
 
-        if "annualsteps" in metadata and metadata["annualsteps"] > 1:
-            raise InvalidTemporalResError(
-                "{}: Only annual files can currently be processed".format(self.filepath)
-            )
+        # if "annualsteps" in metadata and metadata["annualsteps"] > 1:
+        #     raise InvalidTemporalResError(
+        #         "{}: Only annual files can currently be processed".format(self.filepath)
+        #     )
 
         return metadata
 
@@ -317,7 +317,7 @@ class _Reader(object):
             "unit": self._read_data_header_line(stream, "UNITS"),
             "region": self._read_data_header_line(stream, "YEARS"),
         }
-        metadata.pop("units")
+        metadata.pop("units", None)
 
         return column_headers, metadata
 
@@ -1009,7 +1009,47 @@ class _TempOceanLayersOutReader(_Reader):
 
 
 class _MAGReader(_Reader):
-    pass
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata.
+
+        Parameters
+        ----------
+        header : str
+            All the lines in the header.
+
+        Returns
+        -------
+        dict
+            The metadata in the header.
+        """
+        metadata = {}
+        in_header = False
+        header_lines = []
+        for line in header.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            if line == "---- HEADER ----":
+                in_header = True
+            elif line == "---- METADATA ----":
+                in_header = False
+            else:
+                if in_header:
+                    header_lines.append(line)
+                else:
+                    try:
+                        key, value = line.split(":")
+                    except ValueError:
+                        raise ValueError(  # pragma: no cover # emergency valve
+                            "Something wrong, line should be of the form 'key: value' "
+                            "with no other colons (':').\n"
+                            "Problem line: {}".format(line)
+                        )
+                    metadata[key.strip()] = value.strip()
+
+        metadata["header"] = "\r\n".join(header_lines)
+        return metadata
 
 
 class _BinData(object):
