@@ -1008,6 +1008,10 @@ class _TempOceanLayersOutReader(_Reader):
         return column_headers, metadata
 
 
+class _MAGReader(_Reader):
+    pass
+
+
 class _BinData(object):
     def __init__(self, filepath):
         # read the entire file into memory
@@ -1795,6 +1799,10 @@ class _ScenWriter(_Writer):
         return output
 
 
+class _MAGWriter(_Writer):
+    pass
+
+
 def get_special_scen_code(regions, emissions):
     """
     Get special code for MAGICC6 SCEN files.
@@ -2116,7 +2124,8 @@ def determine_tool(filepath, tool_to_get):
             "reader": _BinaryOutReader,
             "writer": None,
         },
-        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None}
+        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None},
+        "MAG": {"regexp": r"^.*\.MAG", "reader": _MAGReader, "writer": _MAGWriter},
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }
 
