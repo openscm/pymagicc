@@ -3085,7 +3085,7 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
     writing_base.metadata = {"header": "Test mag file where regionmode is picked up"}
 
     error_msg = re.escape(
-        "MAG files are not MAGICC6 compatible"
+        ".MAG files are not MAGICC6 compatible"
     )
     with pytest.raises(ValueError, match=error_msg):
     	writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
