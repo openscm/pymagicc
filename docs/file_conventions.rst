@@ -12,10 +12,8 @@ them, they will a) run MAGICC or b) be handled in the expected way.
 The files in the ``run`` directory follow a number of conventions, we
 summarise these here (please note that this is just a summary, we are
 still unsure about how strictly many of these conventions have to be
-followed as we are yet to set up tests for running MAGICC with all of
-these different files after they’ve been set using pymagicc, the key
-question we still need to answer is how important column order is in
-each of these files).
+followed as we are yet to set up tests for running MAGICC with *all* of
+these different files after they’ve been set using pymagicc).
 
 1. Files ending in ``.SCEN`` are emissions scenario files. They are used
    to drive MAGICC6 and can also be used to drive MAGICC7, although it
@@ -40,6 +38,10 @@ each of these files).
    deprecated for MAGICC7 in favour of ``*EMIS.IN`` and ``*.SCEN7``
    files.
 
+In future, the MAGICC developers are aiming to move all of MAGICC's input and output
+to the ``.MAG`` format. A marked up sample file can be found in ``tests/test_data``.
+Pymagicc supports reading and writing these files but they are currently not used to
+actually run MAGICC anywhere.
 
 Column meaning
 ++++++++++++++
