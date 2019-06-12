@@ -3,7 +3,7 @@ from os.path import join, isfile, basename
 from copy import deepcopy
 import warnings
 from unittest.mock import patch, MagicMock
-import datetime
+import datetime as dt
 
 
 import numpy as np
@@ -2488,6 +2488,7 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         (6, MAGICC6_DIR, "SRESA1B.SCEN", True, True),  # metadata all over the place
         (7, TEST_DATA_DIR, "TESTSCEN7.SCEN7", False, False),
         (7, TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG", False, False),
+        (7, TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG", False, False),
     ],
 )
 def test_in_file_read_write_functionally_identical(
@@ -2750,7 +2751,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
 
     expected = pd.concat([tdf_init, tdf_append])
     expected.columns = pd.Index(
-        [datetime.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object"
+        [dt.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object"
     )
 
     pd.testing.assert_frame_equal(
@@ -3053,6 +3054,64 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
     writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
     run_writing_comparison(res, base, update=update_expected_file)
+
+
+def test_write_mag(temp_dir):
+
+    tregions = ["World"] + [
+        "World|{}".format(r)
+        for r in ["Northern Hemisphere", "Southern Hemisphere"]
+    ]
+    writing_base = MAGICCData(
+        data=np.arange(45).reshape(15, 3),
+        index=[
+            dt.datetime(2099, 1, 16, 12, 0),
+            dt.datetime(2099, 2, 15, 0, 0),
+            dt.datetime(2099, 3, 16, 12, 0),
+            dt.datetime(2099, 4, 16, 0, 0),
+            dt.datetime(2099, 5, 16, 12, 0),
+            dt.datetime(2099, 6, 16, 0, 0),
+            dt.datetime(2099, 7, 16, 12, 0),
+            dt.datetime(2099, 8, 16, 12, 0),
+            dt.datetime(2099, 9, 16, 0, 0),
+            dt.datetime(2099, 10, 16, 12, 0),
+            dt.datetime(2099, 11, 16, 0, 0),
+            dt.datetime(2099, 12, 16, 12, 0),
+            dt.datetime(2101, 1, 16, 12, 0),
+            dt.datetime(2101, 2, 15, 0, 0),
+            dt.datetime(2101, 3, 16, 12, 0),
+        ],
+        columns={
+            "region": tregions,
+            "variable": "NPP",
+            "model": "unspecified",
+            "scenario": "mag test",
+            "unit": "gC/yr",
+            "todo": "SET",
+        }
+    )
+
+    writing_base.metadata = {
+        "header": "Test mag file",
+        "timeseriestype": "MONTHLY",
+        "other info": "checking time point handling",
+    }
+    file_to_write = join(temp_dir, "TEST_NAME.MAG")
+
+    writing_base.write(file_to_write, magicc_version=7)
+
+    with open(file_to_write) as f:
+        content = f.read()
+
+    assert "THISFILE_REGIONMODE = 'NONE'" in content
+    assert "THISFILE_ANNUALSTEPS = 0" in content
+    assert "other info: checking time point handling" in content
+    assert "Test mag file" in content
+
+    res = MAGICCData(file_to_write)
+    assert res.filter(region="World|Northern Hemisphere", year=2099, month=2).values.squeeze() == 4
+    assert res.filter(region="World|Southern Hemisphere", year=2099, month=11).values.squeeze() == 32
+    assert res.filter(region="World", year=2101, month=3).values.squeeze() == 42
 
 
 def test_write_mag_valid_region_mode(temp_dir, writing_base):
