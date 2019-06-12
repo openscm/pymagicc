@@ -44,8 +44,8 @@ TEST_OUT_FILES = listdir(TEST_OUT_DIR)
 
 INVALID_OUT_FILES = [
     r"CARBONCYCLE.*OUT",
-    r".*SUBANN.*OUT",
-    r"DAT_VOLCANIC_RF\..*OUT",
+    r".*SUBANN.*\.BINOUT",
+    r"DAT_VOLCANIC_RF\.BINOUT",
     r"PF.*OUT",
     r"DATBASKET_.*",
     r"PRECIPINPUT.*OUT",
@@ -492,11 +492,10 @@ def test_load_solar_rf():
     )
 
 
-@pytest.mark.xfail(
-    reason="Not currently supporting subannual files because scmdataframe cannot handle merging annual and subannual timeseries"
-)
 def test_load_volcanic_rf():
-    mdata = MAGICCData(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
+    # test that starting with an annual file doesn't make things blow up
+    mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2_CONC.IN"))
+    mdata = mdata.append(join(MAGICC6_DIR, "HIST_VOLCANIC_RF.MON"))
 
     generic_mdata_tests(mdata)
 
@@ -513,9 +512,9 @@ def test_load_volcanic_rf():
     )
     assert mdata.metadata["date"] == "15-Jun-2006 00:20:54"
 
-    assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata.filter(variable="*Forcing*")["unit"] == "W / m^2").all()
     assert (mdata["todo"] == "SET").all()
-    assert (mdata["variable"] == "Radiative Forcing|Volcanic").all()
+    assert (mdata.filter(variable="*Forcing*")["variable"] == "Radiative Forcing|Volcanic").all()
 
     assert_mdata_value(
         mdata,
@@ -524,7 +523,7 @@ def test_load_volcanic_rf():
         region="World|Northern Hemisphere|Land",
         year=1000,
         month=1,
-        # unit="W / m^2",
+        # unit="W / m^2",  # TODO: fix pyam filtering with / and ^
         todo="SET",
     )
 
