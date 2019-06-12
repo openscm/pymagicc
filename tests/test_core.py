@@ -1160,6 +1160,11 @@ def test_out_forcing():
     with MAGICC6() as magicc:
         res = magicc.run(out_forcing=True)
 
-    # The results should only include annual timeseries
+    # The results should include sub-annual timeseries by default
     idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index
-    assert (idx[1] - idx[0]).days == 365
+    assert (idx[1] - idx[0]).days == 30
+    # make sure annual series also read sensibly
+    assert (
+        res.filter(variable="*Conc*CO2", year=1876, region="World").values.squeeze()
+        == 289.2
+    )
