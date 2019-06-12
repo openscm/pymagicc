@@ -1459,8 +1459,16 @@ class _Writer(object):
 
         self._check_data_filename_variable_consistency(data_block)
 
+        region_order = self._get_region_order(data_block)
+        data_block = data_block.reindex(region_order, axis=1, level="region")
+
+        data_block = self._convert_data_block_to_magicc_time(data_block)
+
+        return data_block
+
+    def _get_region_order(self, data_block):
         regions = data_block.columns.get_level_values("region").tolist()
-        region_order_magicc = self._get_region_order(regions)
+        region_order_magicc = get_region_order(regions, self._scen_7)
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         unrecognised_regions = set(regions) - set(region_order)
@@ -1471,14 +1479,7 @@ class _Writer(object):
             )
             raise ValueError(error_msg)
 
-        data_block = data_block.reindex(region_order, axis=1, level="region")
-
-        data_block = self._convert_data_block_to_magicc_time(data_block)
-
-        return data_block
-
-    def _get_region_order(self, regions):
-        return get_region_order(regions, self._scen_7)
+        return region_order
 
     def _check_data_filename_variable_consistency(self, data_block):
         data_var = data_block.columns.get_level_values("variable").unique()
@@ -1930,9 +1931,12 @@ class _MAGWriter(_Writer):
     def _check_data_filename_variable_consistency(self, data_block):
         pass  # not relevant for .MAG files
 
-    def _get_region_order(self, regions):
+    def _get_region_order(self, data_block):
         try:
-            return get_region_order(regions, self._scen_7)
+            regions = data_block.columns.get_level_values("region").tolist()
+            region_order_magicc = get_region_order(regions, self._scen_7)
+            region_order = convert_magicc_to_openscm_regions(region_order_magicc)
+            return region_order
         except ValueError:
             abbreviations = [
                 convert_magicc_to_openscm_regions(r, inverse=True) for r in set(regions)
@@ -1948,9 +1952,7 @@ class _MAGWriter(_Writer):
                         unrecognised_regions
                     )
                 )
-                return regions
-            else:
-                return abbreviations
+            return regions
 
     def _get_dattype_regionmode(self, regions):
         try:
