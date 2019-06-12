@@ -31,6 +31,13 @@ from .definitions import (
 )
 
 
+
+DATTYPE_FLAG = "THISFILE_DATTYPE"
+"""str: Flag used to indicate the file's data type in MAGICCC"""
+
+REGIONMODE_FLAG = "THISFILE_REGIONMODE"
+"""str: Flag used to indicate the file's region mode in MAGICCC"""
+
 UNSUPPORTED_OUT_FILES = [
     r"CARBONCYCLE.*OUT",
     r"PF\_.*OUT",
@@ -1197,18 +1204,16 @@ def get_dattype_regionmode(regions, scen7=False):
         Dictionary where the flags are the keys and the values are the value they
         should be set to for the given inputs.
     """
-    dattype_flag = "THISFILE_DATTYPE"
-    regionmode_flag = "THISFILE_REGIONMODE"
     region_dattype_row = _get_dattype_regionmode_regions_row(regions, scen7=scen7)
 
-    dattype = DATTYPE_REGIONMODE_REGIONS[dattype_flag.lower()][region_dattype_row].iloc[
+    dattype = DATTYPE_REGIONMODE_REGIONS[DATTYPE_FLAG.lower()][region_dattype_row].iloc[
         0
     ]
-    regionmode = DATTYPE_REGIONMODE_REGIONS[regionmode_flag.lower()][
+    regionmode = DATTYPE_REGIONMODE_REGIONS[REGIONMODE_FLAG.lower()][
         region_dattype_row
     ].iloc[0]
 
-    return {dattype_flag: dattype, regionmode_flag: regionmode}
+    return {DATTYPE_FLAG: dattype, REGIONMODE_FLAG: regionmode}
 
 
 def get_region_order(regions, scen7=False):
@@ -1424,10 +1429,19 @@ class _Writer(object):
             - nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTYEAR"]
             + 1
         )
-        annual_steps = int(len(data_block) / number_years)
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = (
-            annual_steps if annual_steps % 1 == 0 else 0
-        )
+
+        step_length = data_block.iloc[1:, 0].values - data_block.iloc[:-1, 0].values
+        try:
+            np.testing.assert_allclose(step_length, step_length[0], rtol=0.02)
+            step_length = step_length[0]
+            annual_steps = np.round(1 / step_length, 1)
+            if annual_steps < 1:
+                annual_steps = 0
+            else:
+                annual_steps = int(annual_steps)
+        except AssertionError:
+            annual_steps = 0  # irregular timesteps
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] = annual_steps
 
         units_unique = list(set(self._get_df_header_row("unit")))
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = (
@@ -1437,10 +1451,13 @@ class _Writer(object):
         )
 
         nml["THISFILE_SPECIFICATIONS"].update(
-            get_dattype_regionmode(regions, scen7=self._scen_7)
+            self._get_dattype_regionmode(regions)
         )
 
         return nml, data_block
+
+    def _get_dattype_regionmode(self, regions):
+        return get_dattype_regionmode(regions, scen7=self._scen_7)
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
@@ -1452,7 +1469,7 @@ class _Writer(object):
         self._check_data_filename_variable_consistency(data_block)
 
         regions = data_block.columns.get_level_values("region").tolist()
-        region_order_magicc = get_region_order(regions, self._scen_7)
+        region_order_magicc = self._get_region_order(regions)
 
         region_order = convert_magicc_to_openscm_regions(region_order_magicc)
         unrecognised_regions = set(regions) - set(region_order)
@@ -1468,6 +1485,9 @@ class _Writer(object):
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
         return data_block
+
+    def _get_region_order(self, regions):
+        return get_region_order(regions, self._scen_7)
 
     def _check_data_filename_variable_consistency(self, data_block):
         data_var = data_block.columns.get_level_values("variable").unique()
@@ -1489,17 +1509,24 @@ class _Writer(object):
         else:
 
             def _convert_to_decimal_year(itime):
-                # MAGICC dates are to nearest month at most precise
+                # MAGICC dates are either middle of start of month
                 year = itime.year
                 month = itime.month
-                _, month_days = monthrange(year, month)
-                day = itime.day
-                hr = itime.hour
-                month_fraction = (day + hr / 24) / month_days
-                # decide if midyear or start of year
-                if np.round(month_fraction, 1) == 0.5:
+                # _, month_days = monthrange(year, month)
+                # day = itime.day
+                # hr = itime.hour
+
+                year_fraction = (
+                    (itime-datetime(year, 1, 1)).total_seconds()
+                    / (datetime(year+1,1,1)-datetime(year, 1, 1)).total_seconds()
+                )
+
+                startmonths = np.arange(0, 1, 1/12)
+                midmonths = startmonths + 1/24
+
+                if (np.abs(year_fraction - midmonths) < 10**-3).any():
                     decimal_bit = ((month - 1) * 2 + 1) / 24
-                elif np.round(month_fraction, 1) == 0:
+                elif (np.abs(year_fraction - startmonths) < 10**-3).any():
                     decimal_bit = (month - 1) / 12
                 else:
                     error_msg = (
@@ -1844,6 +1871,69 @@ class _MAGWriter(_Writer):
         super().__init__(magicc_version=magicc_version)
         if self._magicc_version == 6:
             raise ValueError(".MAG files are not MAGICC6 compatible")
+
+    def _get_header(self):
+        try:
+            header = self.minput.metadata.pop("header")
+        except KeyError:
+            import pdb
+            pdb.set_trace()
+            raise KeyError(
+                'Please provide a file header in ``self.metadata["header"]``'
+            )
+
+        mdata = self.minput.metadata
+        sorted_keys = sorted(mdata.keys())
+        metadata = "\n".join([
+            "{}: {}".format(k, mdata[k])
+            for k in sorted_keys
+            if k not in ["timeseriestype"]  # timeseriestype goes in namelist
+        ])
+
+        return (
+            "---- HEADER ----\n"
+            "\n"
+            "{}\n"
+            "\n"
+            "---- METADATA ----\n"
+            "\n"
+            "{}\n"
+            "\n".format(header, metadata)
+        )
+
+    def _get_initial_nml_and_data_block(self):
+        nml, data_block = super()._get_initial_nml_and_data_block()
+        try:
+            nml["thisfile_specifications"]["thisfile_timeseriestype"] = self.minput.metadata["timeseriestype"]
+        except KeyError:
+            raise KeyError(
+                "Please specify your 'timeseriestype' in "
+                "`self.metadata['timeseriestype'] before writing '.MAG' files"
+            )
+
+        # don't bother writing this as it's in the header
+        nml["thisfile_specifications"].pop("thisfile_units")
+
+        return nml, data_block
+
+    def _check_data_filename_variable_consistency(self, data_block):
+        pass  # not relevant for .MAG files
+
+    def _get_region_order(self, regions):
+        try:
+            get_region_order(regions, self._scen_7)
+        except ValueError:
+            # unrecognised region order, return same as input
+            return regions
+
+    def _get_dattype_regionmode(self, regions):
+        try:
+            rm = get_dattype_regionmode(regions, scen7=self._scen_7)[REGIONMODE_FLAG]
+        except ValueError:
+            # unrecognised regionmode so write NONE
+            rm = "NONE"
+
+        return {DATTYPE_FLAG: "MAG", REGIONMODE_FLAG: rm}
 
 
 def get_special_scen_code(regions, emissions):
