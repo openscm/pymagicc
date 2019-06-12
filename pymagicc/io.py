@@ -1800,7 +1800,10 @@ class _ScenWriter(_Writer):
 
 
 class _MAGWriter(_Writer):
-    pass
+    def __init__(self, magicc_version=7):
+        super().__init__(magicc_version=magicc_version)
+        if self._magicc_version == 6:
+            raise ValueError(".MAG files are not MAGICC6 compatible")
 
 
 def get_special_scen_code(regions, emissions):
