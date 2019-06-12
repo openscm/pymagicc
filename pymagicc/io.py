@@ -1369,10 +1369,11 @@ class _Writer(object):
         # for most data files, as long as the data is space separated, the
         # format doesn't matter
         time_col_length = 11
-        if nml_initial["THISFILE_SPECIFICATIONS"]["THISFILE_ANNUALSTEPS"] > 1:
-            time_col_format = "f"
-        else:
+        time_col = data_block.iloc[:, 0]
+        if (time_col == time_col.astype(int)).all():
             time_col_format = "d"
+        else:
+            time_col_format = "f"
 
         first_col_format_str = (
             "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
@@ -1510,9 +1511,9 @@ class _Writer(object):
                 startmonths = np.arange(0, 1, 1 / 12)
                 midmonths = startmonths + 1 / 24
 
-                if (np.abs(year_fraction - midmonths) < 10 ** -3).any():
+                if (np.abs(year_fraction - midmonths) < 5 * 10 ** -3).any():
                     decimal_bit = ((month - 1) * 2 + 1) / 24
-                elif (np.abs(year_fraction - startmonths) < 10 ** -3).any():
+                elif (np.abs(year_fraction - startmonths) < 5 * 10 ** -3).any():
                     decimal_bit = (month - 1) / 12
                 else:
                     error_msg = (
@@ -1905,8 +1906,8 @@ class _MAGWriter(_Writer):
             )
 
         if (
-            ttype == "MONTHLY"
-            and nml["thisfile_specifications"]["thisfile_annualsteps"] != 12
+            ttype != "MONTHLY"
+            and nml["thisfile_specifications"]["thisfile_annualsteps"] == 12
         ):
             warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
             ttype = "MONTHLY"
