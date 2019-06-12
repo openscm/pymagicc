@@ -2447,50 +2447,51 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
 
 
 @pytest.mark.parametrize(
-    "starting_fpath, starting_fname, confusing_metadata",
+    "magicc_version, starting_fpath, starting_fname, confusing_metadata, old_namelist",
     [
-        (MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN", False),
-        (MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN", False),
-        (MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN", True),  # weird units handling
-        (MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False),
-        (MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN", True),  # weird units handling
-        (MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN", True),  # weird units handling
-        (TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN", False),
-        (MAGICC6_DIR, "MIXED_NOXI_OT.IN", True),  # weird units handling
-        (MAGICC6_DIR, "GISS_BCB_RF.IN", True),  # weird units handling
-        (MAGICC6_DIR, "HISTRCP_SOLAR_RF.IN", True),  # weird units handling
+        (6, MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN", False, False),
+        (6, MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN", False, False),
+        (6, MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN", True, True),  # weird units handling
+        (6, MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False, False),
+        (6, MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN", True, True),  # weird units handling
+        (6, MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN", True, True),  # weird units handling
+        (7, TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN", False, False),
+        (6, MAGICC6_DIR, "MIXED_NOXI_OT.IN", True, True),  # weird units handling
+        (6, MAGICC6_DIR, "GISS_BCB_RF.IN", True, True),  # weird units handling
+        (6, MAGICC6_DIR, "HISTRCP_SOLAR_RF.IN", True, True),  # weird units handling
         (
+            6,
             MAGICC6_DIR,
             "RCPODS_WMO2006_Emissions_A1.prn",
             True,
+            True,
         ),  # weird units/gas handling
         (
+            6,
             MAGICC6_DIR,
             "RCPODS_WMO2006_MixingRatios_A1.prn",
             True,
+            True,
         ),  # weird units and notes handling
-        (MAGICC6_DIR, "RCP26.SCEN", True),  # metadata all over the place
-        (MAGICC6_DIR, "SRESA1B.SCEN", True),  # metadata all over the place
-        (TEST_DATA_DIR, "TESTSCEN7.SCEN7", False),
-        (TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG", False),
+        (6, MAGICC6_DIR, "RCP26.SCEN", True, True),  # metadata all over the place
+        (6, MAGICC6_DIR, "SRESA1B.SCEN", True, True),  # metadata all over the place
+        (7, TEST_DATA_DIR, "TESTSCEN7.SCEN7", False, False),
+        (7, TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG", False, False),
     ],
 )
 def test_in_file_read_write_functionally_identical(
-    starting_fpath, starting_fname, confusing_metadata, temp_dir
+    magicc_version, starting_fpath, starting_fname, confusing_metadata, old_namelist, temp_dir
 ):
     mi_writer = MAGICCData(join(starting_fpath, starting_fname))
-    magicc_version = 7 if starting_fname.endswith((".MAG", ".SCEN7")) else 6
     mi_writer.write(join(temp_dir, starting_fname), magicc_version=magicc_version)
 
     mi_written = MAGICCData(join(temp_dir, starting_fname))
     mi_initial = MAGICCData(join(starting_fpath, starting_fname))
 
-    if not starting_fname.endswith((".SCEN", ".prn")):
+    if not old_namelist:
         nml_written = f90nml.read(join(temp_dir, starting_fname))
         nml_initial = f90nml.read(join(starting_fpath, starting_fname))
-        assert sorted(nml_written["thisfile_specifications"]) == sorted(
-            nml_initial["thisfile_specifications"]
-        )
+        assert sorted(nml_written["thisfile_specifications"]) == sorted(nml_initial["thisfile_specifications"])
 
     # TODO: work out how to test files with confusing metadata, the Writers
     #       should fix the metadata but how to test that this has been fixed
@@ -2502,8 +2503,10 @@ def test_in_file_read_write_functionally_identical(
             except:
                 assert value_written == mi_initial.metadata[key_written]
 
-    # drop index as we don't care about it
-    pd.testing.assert_frame_equal(mi_written.timeseries(), mi_initial.timeseries())
+    pd.testing.assert_frame_equal(
+        mi_written.timeseries().sort_index(),
+        mi_initial.timeseries().sort_index()
+    )
 
 
 emissions_valid = [
