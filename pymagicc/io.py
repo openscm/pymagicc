@@ -201,11 +201,6 @@ class _Reader(object):
             except TypeError:
                 metadata[metadata_key] = nml["THISFILE_SPECIFICATIONS"][k]
 
-        # if "annualsteps" in metadata and metadata["annualsteps"] > 1:
-        #     raise InvalidTemporalResError(
-        #         "{}: Only annual files can currently be processed".format(self.filepath)
-        #     )
-
         return metadata
 
     def process_data(self, stream, metadata):
@@ -1507,9 +1502,6 @@ class _Writer(object):
                 # MAGICC dates are either middle of start of month
                 year = itime.year
                 month = itime.month
-                # _, month_days = monthrange(year, month)
-                # day = itime.day
-                # hr = itime.hour
 
                 year_fraction = (itime - datetime(year, 1, 1)).total_seconds() / (
                     datetime(year + 1, 1, 1) - datetime(year, 1, 1)
