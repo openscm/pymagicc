@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#250 <https://github.com/openclimatedata/pymagicc/pull/250>`_) Add support for ``.MAG`` files
 - (`#249 <https://github.com/openclimatedata/pymagicc/pull/249>`_) Update to keep pace with MAGICC7 development
 - (`#247 <https://github.com/openclimatedata/pymagicc/pull/247>`_) Upgrade pyam dependency to use nominated release
 - (`#244 <https://github.com/openclimatedata/pymagicc/pull/244>`_) Use openscm from pip, hence drop Python3.6 support, and drop pyam dependency (moved into notebooks dependencies)
