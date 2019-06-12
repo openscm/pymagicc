@@ -64,11 +64,8 @@ def generic_mdata_tests(mdata, include_todo=True):
     assert isinstance(mdata, ScmDataFrameBase)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
     if include_todo:
-    	index += ["todo"]
-    pd.testing.assert_index_equal(
-        mdata.meta.columns,
-        pd.Index(index),
-    )
+        index += ["todo"]
+    pd.testing.assert_index_equal(mdata.meta.columns, pd.Index(index))
 
     assert mdata["variable"].dtype == "object"
     assert mdata["todo"].dtype == "object"
@@ -514,7 +511,9 @@ def test_load_volcanic_rf():
 
     assert (mdata.filter(variable="*Forcing*")["unit"] == "W / m^2").all()
     assert (mdata["todo"] == "SET").all()
-    assert (mdata.filter(variable="*Forcing*")["variable"] == "Radiative Forcing|Volcanic").all()
+    assert (
+        mdata.filter(variable="*Forcing*")["variable"] == "Radiative Forcing|Volcanic"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -2453,8 +2452,20 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         (6, MAGICC6_DIR, "HISTRCP_N2OI_EMIS.IN", False, False),
         (6, MAGICC6_DIR, "MARLAND_CO2I_EMIS.IN", True, True),  # weird units handling
         (6, MAGICC6_DIR, "HISTRCP_CO2_CONC.IN", False, False),
-        (6, MAGICC6_DIR, "HISTRCP_HFC245fa_CONC.IN", True, True),  # weird units handling
-        (6, MAGICC6_DIR, "HISTRCP_HFC43-10_CONC.IN", True, True),  # weird units handling
+        (
+            6,
+            MAGICC6_DIR,
+            "HISTRCP_HFC245fa_CONC.IN",
+            True,
+            True,
+        ),  # weird units handling
+        (
+            6,
+            MAGICC6_DIR,
+            "HISTRCP_HFC43-10_CONC.IN",
+            True,
+            True,
+        ),  # weird units handling
         (7, TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN", False, False),
         (6, MAGICC6_DIR, "MIXED_NOXI_OT.IN", True, True),  # weird units handling
         (6, MAGICC6_DIR, "GISS_BCB_RF.IN", True, True),  # weird units handling
@@ -2480,7 +2491,12 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
     ],
 )
 def test_in_file_read_write_functionally_identical(
-    magicc_version, starting_fpath, starting_fname, confusing_metadata, old_namelist, temp_dir
+    magicc_version,
+    starting_fpath,
+    starting_fname,
+    confusing_metadata,
+    old_namelist,
+    temp_dir,
 ):
     mi_writer = MAGICCData(join(starting_fpath, starting_fname))
     mi_writer.write(join(temp_dir, starting_fname), magicc_version=magicc_version)
@@ -2491,7 +2507,9 @@ def test_in_file_read_write_functionally_identical(
     if not old_namelist:
         nml_written = f90nml.read(join(temp_dir, starting_fname))
         nml_initial = f90nml.read(join(starting_fpath, starting_fname))
-        assert sorted(nml_written["thisfile_specifications"]) == sorted(nml_initial["thisfile_specifications"])
+        assert sorted(nml_written["thisfile_specifications"]) == sorted(
+            nml_initial["thisfile_specifications"]
+        )
 
     # TODO: work out how to test files with confusing metadata, the Writers
     #       should fix the metadata but how to test that this has been fixed
@@ -2504,8 +2522,7 @@ def test_in_file_read_write_functionally_identical(
                 assert value_written == mi_initial.metadata[key_written]
 
     pd.testing.assert_frame_equal(
-        mi_written.timeseries().sort_index(),
-        mi_initial.timeseries().sort_index()
+        mi_written.timeseries().sort_index(), mi_initial.timeseries().sort_index()
     )
 
 
@@ -3055,7 +3072,7 @@ def test_write_mag_valid_region_mode(temp_dir, writing_base):
     writing_base.write(file_to_write, magicc_version=7)
 
     with open(file_to_write) as f:
-    	content = f.read()
+        content = f.read()
 
     assert "THISFILE_REGIONMODE = 'FOURBOX'" in content
 
@@ -3095,11 +3112,9 @@ def test_write_mag_error_if_magicc6(temp_dir, writing_base):
     writing_base.set_meta("Ocean Temperature", name="variable")
     writing_base.metadata = {"header": "MAGICC6 error test"}
 
-    error_msg = re.escape(
-        ".MAG files are not MAGICC6 compatible"
-    )
+    error_msg = re.escape(".MAG files are not MAGICC6 compatible")
     with pytest.raises(ValueError, match=error_msg):
-    	writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
+        writing_base.write(join(temp_dir, "TEST_NAME.MAG"), magicc_version=6)
 
 
 def test_mag_reader():
@@ -3108,20 +3123,33 @@ def test_mag_reader():
     generic_mdata_tests(mdata)
 
     assert "Date crunched: DATESTRING" in mdata.metadata["header"]
-    assert "Affiliation: Climate & Energy College, The University of Melbourne" in mdata.metadata["header"]
+    assert (
+        "Affiliation: Climate & Energy College, The University of Melbourne"
+        in mdata.metadata["header"]
+    )
 
     assert mdata.metadata["key"] == "value"
-    assert mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
+    assert (
+        mdata.metadata["original source"] == "somewhere over the rainbow of 125 moons"
+    )
     assert mdata.metadata["length"] == "53 furlongs"
     assert "region abbreviations" in mdata.metadata
 
     assert (mdata["unit"] == "K").all()
     assert (mdata["variable"] == "Surface Temperature").all()
 
-    assert_mdata_value(mdata, 0, region="World|Northern Hemisphere|Land", year=1910, month=1)
-    assert_mdata_value(mdata, 3, region="World|Southern Hemisphere|Land", year=1910, month=8)
-    assert_mdata_value(mdata, 5, region="World|Southern Hemisphere|Ocean", year=1911, month=2)
-    assert_mdata_value(mdata, 12, region="World|Northen Atlantic Ocean", year=1911, month=6)
+    assert_mdata_value(
+        mdata, 0, region="World|Northern Hemisphere|Land", year=1910, month=1
+    )
+    assert_mdata_value(
+        mdata, 3, region="World|Southern Hemisphere|Land", year=1910, month=8
+    )
+    assert_mdata_value(
+        mdata, 5, region="World|Southern Hemisphere|Ocean", year=1911, month=2
+    )
+    assert_mdata_value(
+        mdata, 12, region="World|Northen Atlantic Ocean", year=1911, month=6
+    )
     assert_mdata_value(mdata, 9, region="World|El Nino 34", year=1911, month=7)
 
 
@@ -3136,10 +3164,7 @@ def test_mag_writer_default_header(temp_dir, writing_base):
     writing_base.metadata = {"timeseriestype": "AVERAGE_YEAR_MID_YEAR"}
 
     write_file = join(temp_dir, "TEST_NAME.MAG")
-    default_header_lines = [
-        re.compile("Date: .*"),
-        re.compile("Writer: pymagicc v.*"),
-    ]
+    default_header_lines = [re.compile("Date: .*"), re.compile("Writer: pymagicc v.*")]
 
     warn_msg = (
         "No header detected, it will be automatically added. We recommend setting "
