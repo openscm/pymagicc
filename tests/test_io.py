@@ -3054,13 +3054,16 @@ def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_f
     run_writing_comparison(res, base, update=update_expected_file)
 
 
-def test_write_mag(temp_dir):
+def test_mag_writer(temp_dir):
 
-    tregions = ["World"] + [
-        "World|{}".format(r) for r in ["Northern Hemisphere", "Southern Hemisphere"]
-    ]
+    tregions = (
+        ["World"]
+        + ["World|{}".format(r) for r in ["Northern Hemisphere", "Southern Hemisphere"]]
+        + ["World|{}".format(r) for r in ["Land", "Ocean"]]
+    )
+
     writing_base = MAGICCData(
-        data=np.arange(45).reshape(15, 3),
+        data=np.arange(15*len(tregions)).reshape(15, len(tregions)),
         index=[
             dt.datetime(2099, 1, 16, 12, 0),
             dt.datetime(2099, 2, 15, 0, 0),
@@ -3104,24 +3107,38 @@ def test_write_mag(temp_dir):
     assert "THISFILE_ANNUALSTEPS = 0" in content
     assert "other info: checking time point handling" in content
     assert "Test mag file" in content
+    assert "LA" in content
+    assert "OC" in content
 
     res = MAGICCData(file_to_write)
     assert (
         res.filter(
-            region="World|Northern Hemisphere", year=2099, month=2
+            region="World|Northern Hemisphere", year=2099, month=1
         ).values.squeeze()
-        == 4
+        == 1
     )
     assert (
         res.filter(
             region="World|Southern Hemisphere", year=2099, month=11
+        ).values.squeeze()
+        == 52
+    )
+    assert (
+        res.filter(
+            region="World|Land", year=2099, month=5
+        ).values.squeeze()
+        == 32
+    )
+    assert (
+        res.filter(
+            region="World|Ocean", year=2099, month=12
         ).values.squeeze()
         == 32
     )
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 42
 
 
-def test_write_mag_valid_region_mode(temp_dir, writing_base):
+def test_mag_writer_valid_region_mode(temp_dir, writing_base):
     tregions = [
         "World|{}|{}".format(r, sr)
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
@@ -3143,7 +3160,7 @@ def test_write_mag_valid_region_mode(temp_dir, writing_base):
     assert "THISFILE_REGIONMODE = 'FOURBOX'" in content
 
 
-def test_write_mag_unrecognised_region_warning(temp_dir, writing_base):
+def test_mag_writer_unrecognised_region_warning(temp_dir, writing_base):
     tregions = [
         "World|{}|{}".format(r, sr)
         for r in ["Northern Hemisphere", "Southern Hemisphare"]
@@ -3168,7 +3185,7 @@ def test_write_mag_unrecognised_region_warning(temp_dir, writing_base):
     assert warn_msg.match(str(warn_unrecognised_region[0].message))
 
 
-def test_write_mag_error_if_magicc6(temp_dir, writing_base):
+def test_mag_writer_error_if_magicc6(temp_dir, writing_base):
     tregions = [
         "World|{}|{}".format(r, sr)
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
