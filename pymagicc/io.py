@@ -1876,10 +1876,18 @@ class _MAGWriter(_Writer):
         try:
             header = self.minput.metadata.pop("header")
         except KeyError:
-            import pdb
-            pdb.set_trace()
-            raise KeyError(
-                'Please provide a file header in ``self.metadata["header"]``'
+            warnings.warn(
+                "No header detected, it will be automatically added. We recommend "
+                "setting `self.metadata['header']` to ensure your files have the "
+                "desired metadata."
+            )
+            from . import __version__
+            header = (
+                "Date: {}\n"
+                "Writer: pymagicc v{}".format(
+                    datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    __version__
+                )
             )
 
         mdata = self.minput.metadata
