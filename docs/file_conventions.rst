@@ -38,11 +38,6 @@ these different files after they’ve been set using pymagicc).
    deprecated for MAGICC7 in favour of ``*EMIS.IN`` and ``*.SCEN7``
    files.
 
-In future, the MAGICC developers are aiming to move all of MAGICC's input and output
-to the ``.MAG`` format. A marked up sample file can be found in ``tests/test_data``.
-Pymagicc supports reading and writing these files but they are currently not used to
-actually run MAGICC anywhere.
-
 Column meaning
 ++++++++++++++
 
@@ -131,3 +126,38 @@ write a ``SCEN7`` file and we are given the RCP regional set, will simply assume
 it is ok to map to the MAGICC7 regions,
 ``["WORLD", "R6ASIA", "R6LAM", "R6REF", "R6MAF", "R6OECD90", "BUNKERS"]`` which are
 supported.
+
+
+The Future
+----------
+
+In future, the MAGICC developers are aiming to move all of MAGICC's input and output
+to the ``.MAG`` format. A marked up sample file can be found in ``tests/test_data``.
+Pymagicc supports reading and writing these files but they are currently not used to
+actually run MAGICC anywhere.
+
+To supplement the sample file, we also provide the following overview of the format.
+
+The first section of the file is a header, for storing whatever text the user wants.
+This section must always start with ``---- HEADER ----``. The section is ignored by
+MAGICC but can be used by other readers and writers.
+
+The next section is other metadata, in ``"key: value"`` pairs. As a result, each key
+and value can only be stored and read as strings. This section must always start with
+```---- METADATA ----```. The second section allows for storage of metadata, like the
+global attributes section in a netcdf file. This section is also ignored by MAGICC.
+
+The third section is a FORTRAN namelist, which stores the flags required for MAGICC to
+be able to read the file. The flags must match the flags used by MAGICC internally (
+see `Namelists`_). In Pymagicc, these flags are written automatically, the user cannot
+write them.
+
+The fourth section is the data. This is always a data block with four header rows:
+variable, todo, units, region (see `Column meaning`_). In the data block, the first
+column is the time axis and the subsequent columns are the timeseries.
+
+This format is highly custom and specialised for use with MAGICC, with the secondary
+characteristic of being somewhat human readable. Having said this, if you want to work
+with the data, we strongly recommend using Pymagicc's io module (:ref:`pymagicc.io`) to
+allow easy conversion to more familiar python types such as dictionaries, lists,
+strings and most importantly pandas data frames.
