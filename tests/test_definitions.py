@@ -78,6 +78,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
+        ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -96,6 +97,7 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
+        ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
