@@ -287,6 +287,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         case_adjustments = {
             "SOX": "SOx",
             "NOX": "NOx",
+            "CC4F8": "cC4F8",
             "HFC134A": "HFC134a",
             "HFC143A": "HFC143a",
             "HFC152A": "HFC152a",
