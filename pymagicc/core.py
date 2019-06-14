@@ -448,7 +448,11 @@ class MAGICCBase(object):
             self.root_dir = None
 
     def set_config(
-        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", conflict="warn", **kwargs
+        self,
+        filename="MAGTUNE_PYMAGICC.CFG",
+        top_level_key="nml_allcfgs",
+        conflict="warn",
+        **kwargs,
     ):
         """
         Create a configuration file for MAGICC.
@@ -497,7 +501,11 @@ class MAGICCBase(object):
         return conf
 
     def update_config(
-        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", conflict="warn", **kwargs
+        self,
+        filename="MAGTUNE_PYMAGICC.CFG",
+        top_level_key="nml_allcfgs",
+        conflict="warn",
+        **kwargs,
     ):
         """Updates a configuration file for MAGICC
 
@@ -593,7 +601,9 @@ class MAGICCBase(object):
             if wrong_key in new_conf[cfg_key]:
                 new_conf[cfg_key][right_key] = new_conf[cfg_key].pop(wrong_key)
                 if conflict == "warn":
-                    warnings.warn("Altering config flag {} to {}".format(wrong_key, right_key))
+                    warnings.warn(
+                        "Altering config flag {} to {}".format(wrong_key, right_key)
+                    )
 
         return new_conf
 
@@ -686,7 +696,9 @@ class MAGICCBase(object):
         fgas_files_conc_flag = list(
             self._fix_legacy_keys(tmp_nml, conflict="ignore")["nml_allcfgs"].keys()
         )[0]
-        fgas_conc_files = [fgas_conc_filename] * len(def_config["nml_allcfgs"][fgas_files_conc_flag])
+        fgas_conc_files = [fgas_conc_filename] * len(
+            def_config["nml_allcfgs"][fgas_files_conc_flag]
+        )
 
         self.set_config(
             conflict="ignore",
