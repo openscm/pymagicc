@@ -5,6 +5,7 @@ Test mag file
 ---- METADATA ----
 
 other info: checking time point handling
+special feature: different units in the same file, new test of pymagicc
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 3
