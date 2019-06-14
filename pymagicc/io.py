@@ -1457,15 +1457,15 @@ class _Writer(object):
 
         self._check_data_filename_variable_consistency(data_block)
 
-        # TODO: make this faster...
         region_col = "region"
         other_names = [n for n in data_block.columns.names if n != region_col]
-        reordered = []
-        for _, tdf in data_block.groupby(level=other_names, axis="columns"):
-            region_order = self._get_region_order(tdf)
-            reordered.append(tdf.reindex(region_order, axis=1, level="region"))
+        data_block_grouper = data_block.groupby(level=other_names, axis="columns")
 
-        data_block = pd.concat(reordered, axis=1)
+        def order_regions(df):
+            region_order = self._get_region_order(df)
+            return df.reindex(region_order, axis=1, level=region_col)
+
+        data_block = data_block_grouper.apply(order_regions)
 
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
