@@ -825,7 +825,7 @@ def test_pymagicc_writing_has_an_effect(
             relevant_config["mhalo_prnfile_conc"] = relevant_config.pop(key)
             relevant_config["mhalo_take_prnfile"] = 1
 
-    package.set_config(**relevant_config)
+    package.set_config(conflict="ignore", **relevant_config)
 
     if (package.version == 6) and test_filename.endswith("SCEN7"):
         error_msg = re.compile("MAGICC6 cannot run SCEN7 files")
@@ -886,7 +886,7 @@ def test_pymagicc_writing_has_an_effect(
         (
             "RCP26.SCEN",
             {
-                "file_emissionscenario": "test_filename",
+                "file_emisscen": "test_filename",
                 "out_emissions": 1,
                 "scen_histadjust_0no1scale2shift": 0,
             },
@@ -906,7 +906,7 @@ def test_pymagicc_writing_compatibility_203(
         if value == "test_filename":
             relevant_config[key] = test_filename
 
-    package.set_config(**relevant_config)
+    package.set_config(conflict="ignore", **relevant_config)
     results = package.run(out_emissions=1, out_ascii_binary="ASCII")
 
     for output_to_check in outputs_to_check:
@@ -995,6 +995,7 @@ def test_co2_emissions_only(package):
     ] = emms_fossil_co2
 
     scen = MAGICCData(df)
+    scen.metadata["header"] = "Test CO2 emissions only file"
     results = package.run(
         scen,
         endyear=max(scen["time"]).year,
@@ -1040,6 +1041,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
     ] = emms_fossil_co2
 
     scen = MAGICCData(df)
+    scen.metadata["header"] = "Test CO2 emissions with other RF file"
 
     forcing_external = 2.0 * np.arange(0, len(time)) / len(time)
     forcing_ext = MAGICCData(
