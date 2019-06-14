@@ -1,5 +1,6 @@
 import shutil
 import subprocess
+import warnings
 from os import listdir, makedirs
 from os.path import basename, dirname, exists, join, isfile, abspath
 from tempfile import mkdtemp
@@ -12,8 +13,8 @@ import f90nml
 import pandas as pd
 
 
-from .scenarios import zero_emissions
 from .config import config
+from .scenarios import zero_emissions
 from .utils import get_date_time_string
 from .io import (
     MAGICCData,
@@ -76,7 +77,7 @@ class MAGICCBase(object):
     """
 
     version = None
-    _scen_file_name = "SCENARIO.SCEN"
+    _scen_file_name = "SCENARIO.SCEN7"
 
     def __init__(self, root_dir=None):
         """
@@ -234,30 +235,6 @@ class MAGICCBase(object):
         _deep_update(self._default_config, user)
 
         return self._default_config
-
-    @property
-    def fgas_files_conc(self):
-        """
-        Flag used to set the F-gas concentration input files.
-
-        Returns
-        -------
-        str
-            Name of the flag
-        """
-        return "fgas_files_conc"
-
-    @property
-    def mhalo_switchfromconc2emis_year(self):
-        """
-        Flag used to set the year in which Montreal protocol halogens should switch from concentration-driven to emissions-driven mode
-
-        Returns
-        -------
-        str
-            Name of the flag
-        """
-        return "mhalo_switchfromconc2emis_year"
 
     def run(self, scenario=None, only=None, **kwargs):
         """
@@ -471,7 +448,7 @@ class MAGICCBase(object):
             self.root_dir = None
 
     def set_config(
-        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
+        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", conflict="warn", **kwargs
     ):
         """
         Create a configuration file for MAGICC.
@@ -487,6 +464,11 @@ class MAGICCBase(object):
             Name of namelist to be written in the
             configuration file
 
+        conflict : {'warn', 'ignore'}
+            If 'warn', when a flag needs to be replaced by a different name (because,
+            for example, the flag name changed between MAGICC versions), a warning is
+            raised. If 'ignore', no warning is raised when a replacement is required.
+
         kwargs
             Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
@@ -495,17 +477,27 @@ class MAGICCBase(object):
         -------
         dict
             The contents of the namelist which was written to file
+
+        Warning
+        -------
+            If a key is renamed, a warning is raised
+
+        Raises
+        ------
+        ValueError
+            An invalid value for ``conflict`` is supplied
         """
         kwargs = self._format_config(kwargs)
 
         fname = join(self.run_dir, filename)
         conf = {top_level_key: kwargs}
+        conf = self._fix_legacy_keys(conf, conflict=conflict)
         f90nml.write(conf, fname, force=True)
 
         return conf
 
     def update_config(
-        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", **kwargs
+        self, filename="MAGTUNE_PYMAGICC.CFG", top_level_key="nml_allcfgs", conflict="warn", **kwargs
     ):
         """Updates a configuration file for MAGICC
 
@@ -521,6 +513,11 @@ class MAGICCBase(object):
             Name of namelist to be written in the
             configuration file
 
+        conflict : {'warn', 'ignore'}
+            If 'warn', when a flag needs to be replaced by a different name (because,
+            for example, the flag name changed between MAGICC versions), a warning is
+            raised. If 'ignore', no warning is raised when a replacement is required.
+
         kwargs
             Other parameters to pass to the configuration file. No
             validation on the parameters is performed.
@@ -529,6 +526,15 @@ class MAGICCBase(object):
         -------
         dict
             The contents of the namelist which was written to file
+
+        Warning
+        -------
+            If a key is renamed, a warning is raised
+
+        Raises
+        ------
+        ValueError
+            An invalid value for ``conflict`` is supplied
         """
         kwargs = self._format_config(kwargs)
         fname = join(self.run_dir, filename)
@@ -539,9 +545,57 @@ class MAGICCBase(object):
             conf = {top_level_key: {}}
 
         conf[top_level_key].update(kwargs)
+        conf = self._fix_legacy_keys(conf, conflict=conflict)
         f90nml.write(conf, fname, force=True)
 
         return conf
+
+    def _fix_legacy_keys(self, conf, conflict="warn"):
+        """
+        Go through config and fix any keys which are misnamed.
+
+        For example, fix any keys which have been renamed between MAGICC versions to
+        match the new names.
+
+        Parameters
+        ----------
+        conf :obj:`f90nml.Namelist`
+            Configuration to check
+
+        conflict : {'warn', 'ignore'}
+            If 'warn', when a conflict is found, a warning is raised. If 'ignore', no
+            warning is raised when a conflict is found.
+
+        Returns
+        -------
+        :obj:`f90nml.Namelist`
+            Configuration with updated keys
+
+        Warning
+        -------
+            If a key is renamed, a warning is raised
+
+        Raises
+        ------
+        ValueError
+            An invalid value for ``conflict`` is supplied
+        """
+        valid_conflicts = ["warn", "ignore"]
+        if conflict not in valid_conflicts:
+            raise ValueError("`conflict` must be one of: {}".format(valid_conflicts))
+
+        cfg_key = "nml_allcfgs"
+        if cfg_key not in conf:
+            return conf
+
+        new_conf = deepcopy(conf)
+        for wrong_key, right_key in self._config_renamings.items():
+            if wrong_key in new_conf[cfg_key]:
+                new_conf[cfg_key][right_key] = new_conf[cfg_key].pop(wrong_key)
+                if conflict == "warn":
+                    warnings.warn("Altering config flag {} to {}".format(wrong_key, right_key))
+
+        return new_conf
 
     def set_zero_config(self):
         """Set config such that radiative forcing and temperature output will be zero
@@ -551,6 +605,8 @@ class MAGICCBase(object):
         may behave unepexctedly.
         """
         # zero_emissions is imported from scenarios module
+        # TODO: setup MAGICC6 so it puts extra variables in right place and hence
+        # warning about ignoring some data disappears
         zero_emissions.write(join(self.run_dir, self._scen_file_name), self.version)
 
         time = zero_emissions.filter(variable="Emissions|CH4", region="World")[
@@ -605,8 +661,7 @@ class MAGICCBase(object):
 
         fgas_conc_pi = 0
         fgas_conc = fgas_conc_pi * np.ones(no_timesteps)
-        # MAGICC6 doesn't read this so not a problem, for MAGICC7 we might have to
-        # write each file separately
+
         varname = "FGAS_CONC"
         fgas_conc_df = pd.DataFrame(
             {
@@ -626,14 +681,16 @@ class MAGICCBase(object):
         fgas_conc_writer.metadata = {"header": "Zero concentrations"}
         fgas_conc_writer.write(join(self.run_dir, fgas_conc_filename), self.version)
 
-        emis_config = self._fix_any_backwards_emissions_scen_key_in_config(
-            {"file_emissionscenario": self._scen_file_name}
-        )
-
         def_config = self.default_config
+        tmp_nml = f90nml.Namelist({"nml_allcfgs": {"fgas_files_conc": 1}})
+        fgas_files_conc_flag = list(
+            self._fix_legacy_keys(tmp_nml, conflict="ignore")["nml_allcfgs"].keys()
+        )[0]
+        fgas_conc_files = [fgas_conc_filename] * len(def_config["nml_allcfgs"][fgas_files_conc_flag])
 
         self.set_config(
-            **emis_config,
+            conflict="ignore",
+            file_emisscen=self._scen_file_name,
             rf_initialization_method="ZEROSTARTSHIFT",
             rf_total_constantafteryr=10000,
             file_co2i_emis="",
@@ -689,15 +746,12 @@ class MAGICCBase(object):
             stratoz_o3scale=0,
             rf_volcanic_scale=0,
             rf_solar_scale=0,
-            **{
-                self.fgas_files_conc: [fgas_conc_filename]
-                * len(def_config["nml_allcfgs"][self.fgas_files_conc]),
-                self.mhalo_switchfromconc2emis_year: 1750,
-            },
+            mhalo_switchfromconc2emis_year=1750,
+            fgas_files_conc=fgas_conc_files,
         )
 
     def _format_config(self, config_dict):
-        config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
+        # config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
         config_dict = self._convert_out_config_flags_to_integers(config_dict)
 
         return config_dict
@@ -706,23 +760,6 @@ class MAGICCBase(object):
         for key, value in config_dict.items():
             if key.startswith("out") and key != "out_ascii_binary":
                 config_dict[key] = 1 if value else 0
-
-        return config_dict
-
-    def _fix_any_backwards_emissions_scen_key_in_config(self, config_dict):
-        magicc6_emissions_scen_key = "file_emissionscenario"
-        magicc7_emissions_scen_key = "file_emisscen"
-
-        if (self.version == 6) and (magicc7_emissions_scen_key in config_dict):
-            config_dict[magicc6_emissions_scen_key] = config_dict[
-                magicc7_emissions_scen_key
-            ]
-            config_dict.pop(magicc7_emissions_scen_key)
-        if (self.version == 7) and (magicc6_emissions_scen_key in config_dict):
-            config_dict[magicc7_emissions_scen_key] = config_dict[
-                magicc6_emissions_scen_key
-            ]
-            config_dict.pop(magicc6_emissions_scen_key)
 
         return config_dict
 
@@ -1042,9 +1079,7 @@ class MAGICCBase(object):
             Updated configuration
         """
         self.write(scenario, self._scen_file_name)
-        # can be lazy in this line as fix backwards key handles errors for us
         config_dict["file_emissionscenario"] = self._scen_file_name
-        config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
 
         return config_dict
 
@@ -1057,14 +1092,13 @@ class MAGICCBase(object):
 
 class MAGICC6(MAGICCBase):
     version = 6
+    _scen_file_name = "SCENARIO.SCEN"
 
-    @property
-    def fgas_files_conc(self):
-        return "file_fgas_conc"
-
-    @property
-    def mhalo_switchfromconc2emis_year(self):
-        return "mhalo_switch_conc2emis_yr"
+    _config_renamings = {
+        "file_emisscen": "file_emissionscenario",
+        "fgas_files_conc": "file_fgas_conc",
+        "mhalo_switchfromconc2emis_year": "mhalo_switch_conc2emis_yr",
+    }
 
     @property
     def default_config(self):
@@ -1110,6 +1144,12 @@ class MAGICC6(MAGICCBase):
 
 class MAGICC7(MAGICCBase):
     version = 7
+
+    _config_renamings = {
+        "file_emissionscenario": "file_emisscen",
+        "file_fgas_conc": "fgas_files_conc",
+        "mhalo_switch_conc2emis_yr": "mhalo_switchfromconc2emis_year",
+    }
 
     def create_copy(self):
         super(MAGICC7, self).create_copy()
