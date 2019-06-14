@@ -1152,7 +1152,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         11.9769,
         variable="Emissions|SOx",
-        region="World|R6OECD90",
+        region="World|R5OECD",
         year=2005,
         unit="Mt S / yr",
         todo="SET",
@@ -1162,7 +1162,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         18.2123,
         variable="Emissions|NMVOC",
-        region="World|R6OECD90",
+        region="World|R5OECD",
         year=2050,
         unit="Mt NMVOC / yr",
         todo="SET",
@@ -1172,7 +1172,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         0,
         variable="Emissions|HFC23",
-        region="World|R6REF",
+        region="World|R5REF",
         year=2100,
         unit="kt HFC23 / yr",
         todo="SET",
@@ -1180,19 +1180,9 @@ def test_load_rewritten_scen7(temp_dir):
 
     assert_mdata_value(
         mdata,
-        5.2133,
-        variable="Emissions|CH2Cl2",
-        region="World|R6REF",
-        year=2125,
-        unit="kt CH2Cl2 / yr",
-        todo="SET",
-    )
-
-    assert_mdata_value(
-        mdata,
         33.3635,
         variable="Emissions|HFC143a",
-        region="World|R6ASIA",
+        region="World|R5ASIA",
         year=2040,
         unit="kt HFC143a / yr",
         todo="SET",
@@ -1200,19 +1190,9 @@ def test_load_rewritten_scen7(temp_dir):
 
     assert_mdata_value(
         mdata,
-        0.8246,
-        variable="Emissions|SO2F2",
-        region="World|R6ASIA",
-        year=2040,
-        unit="kt SO2F2 / yr",
-        todo="SET",
-    )
-
-    assert_mdata_value(
-        mdata,
         -0.0125,
         variable="Emissions|CO2|MAGICC AFOLU",
-        region="World|R6MAF",
+        region="World|R5MAF",
         year=2050,
         unit="Gt C / yr",
         todo="SET",
@@ -1222,7 +1202,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         37.6218,
         variable="Emissions|CH4",
-        region="World|R6MAF",
+        region="World|R5MAF",
         year=2070,
         unit="Mt CH4 / yr",
         todo="SET",
@@ -1232,7 +1212,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         1.8693,
         variable="Emissions|NOx",
-        region="World|R6LAM",
+        region="World|R5LAM",
         year=2080,
         unit="Mt N / yr",
         todo="SET",
@@ -1242,7 +1222,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         0.4254,
         variable="Emissions|BC",
-        region="World|R6LAM",
+        region="World|R5LAM",
         year=2090,
         unit="Mt BC / yr",
         todo="SET",
@@ -1255,16 +1235,6 @@ def test_load_rewritten_scen7(temp_dir):
         region="World|Bunkers",
         year=2000,
         unit="Mt N / yr",
-        todo="SET",
-    )
-
-    assert_mdata_value(
-        mdata,
-        0,
-        variable="Emissions|SO2F2",
-        region="World|Bunkers",
-        year=2002,
-        unit="kt SO2F2 / yr",
         todo="SET",
     )
 

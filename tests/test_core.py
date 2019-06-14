@@ -234,7 +234,6 @@ def test_run_rewritten_scen_file(package, temp_dir):
     mdata_initial.write(written_scen, magicc_version=7)
 
     mdata_written = MAGICCData(written_scen, columns=cols)
-
     results = package.run(mdata_written, only=["Surface Temperature"])
 
     assert len(results["variable"].unique()) == 1

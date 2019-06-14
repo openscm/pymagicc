@@ -2090,7 +2090,7 @@ class MAGICCData(ScmDataFrameBase):
             filepath = data  # assume filepath
             self.filepath = filepath
             self.metadata, data, read_columns = _read_and_return_metadata_df(filepath)
-            columns = columns if columns is not None else {}
+            columns = deepcopy(columns) if columns is not None else {}
             for k, v in read_columns.items():
                 columns.setdefault(k, v)
 
