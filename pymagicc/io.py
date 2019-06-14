@@ -1459,13 +1459,21 @@ class _Writer(object):
 
         region_col = "region"
         other_names = [n for n in data_block.columns.names if n != region_col]
-        data_block_grouper = data_block.groupby(level=other_names, axis="columns")
+
+        # do transpose to guarantee row ordering (see
+        # https://stackoverflow.com/a/40950331), not the case for column ordering
+        # annoyingly...
+        data_block_grouper = data_block.T.groupby(level=other_names, sort=False)
 
         def order_regions(df):
-            region_order = self._get_region_order(df)
-            return df.reindex(region_order, axis=1, level=region_col)
+            region_order_df = df.T
+            region_order = self._get_region_order(region_order_df)
+            reordered = df.reindex(region_order, level=region_col)
+            reordered.index = reordered.index.get_level_values(region_col)
 
-        data_block = data_block_grouper.apply(order_regions)
+            return reordered
+
+        data_block = data_block_grouper.apply(order_regions).T
 
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
