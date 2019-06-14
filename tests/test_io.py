@@ -948,6 +948,16 @@ def test_load_scen7():
 
     assert_mdata_value(
         mdata,
+        1.1488,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
         7.5487,
         variable="Emissions|N2O|MAGICC Fossil and Industrial",
         region="World",
@@ -1060,6 +1070,178 @@ def test_load_scen7():
         mdata,
         0.4254,
         variable="Emissions|BC|MAGICC AFOLU",
+        region="World|R6LAM",
+        year=2090,
+        unit="Mt BC / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|NH3",
+        region="World|Bunkers",
+        year=2000,
+        unit="Mt N / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|SO2F2",
+        region="World|Bunkers",
+        year=2002,
+        unit="kt SO2F2 / yr",
+        todo="SET",
+    )
+
+
+def test_load_rewritten_scen7(temp_dir):
+    write_file = join(temp_dir, "REWRITTEN.SCEN7")
+
+    cols = {"model": ["IMAGE"], "scenario": ["RCP26"], "climate_model": ["MAGICC6"]}
+    writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
+    writer.write(write_file, magicc_version=7)
+
+    mdata = MAGICCData(write_file, columns=cols)
+
+    generic_mdata_tests(mdata)
+
+    assert_mdata_value(
+        mdata,
+        6.7350,
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        1.1488,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World",
+        year=2000,
+        unit="Gt C / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        7.5487,
+        variable="Emissions|N2O",
+        region="World",
+        year=2002,
+        unit="Mt N2ON / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        10.4328,
+        variable="Emissions|HFC23",
+        region="World",
+        year=2001,
+        unit="kt HFC23 / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        11.9769,
+        variable="Emissions|SOx",
+        region="World|R6OECD90",
+        year=2005,
+        unit="Mt S / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        18.2123,
+        variable="Emissions|NMVOC",
+        region="World|R6OECD90",
+        year=2050,
+        unit="Mt NMVOC / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0,
+        variable="Emissions|HFC23",
+        region="World|R6REF",
+        year=2100,
+        unit="kt HFC23 / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        5.2133,
+        variable="Emissions|CH2Cl2",
+        region="World|R6REF",
+        year=2125,
+        unit="kt CH2Cl2 / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        33.3635,
+        variable="Emissions|HFC143a",
+        region="World|R6ASIA",
+        year=2040,
+        unit="kt HFC143a / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0.8246,
+        variable="Emissions|SO2F2",
+        region="World|R6ASIA",
+        year=2040,
+        unit="kt SO2F2 / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        -0.0125,
+        variable="Emissions|CO2|MAGICC AFOLU",
+        region="World|R6MAF",
+        year=2050,
+        unit="Gt C / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        37.6218,
+        variable="Emissions|CH4",
+        region="World|R6MAF",
+        year=2070,
+        unit="Mt CH4 / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        1.8693,
+        variable="Emissions|NOx",
+        region="World|R6LAM",
+        year=2080,
+        unit="Mt N / yr",
+        todo="SET",
+    )
+
+    assert_mdata_value(
+        mdata,
+        0.4254,
+        variable="Emissions|BC",
         region="World|R6LAM",
         year=2090,
         unit="Mt BC / yr",
