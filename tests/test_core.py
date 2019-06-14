@@ -907,7 +907,7 @@ def test_pymagicc_writing_compatibility_203(
             relevant_config[key] = test_filename
 
     package.set_config(**relevant_config)
-    results = package.run(out_emissions=1)
+    results = package.run(out_emissions=1, out_ascii_binary="ASCII")
 
     for output_to_check in outputs_to_check:
         expected = output_to_check[-1]
@@ -1069,6 +1069,7 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
         rf_initialization_method="ZEROSTARTSHIFT",
         rf_total_constantafteryr=5000,
         co2_switchfromconc2emis_year=min(scen["time"]).year,
+        out_emissions=1,
         only=["Radiative Forcing", "Emissions|CO2|MAGICC Fossil and Industrial"],
     )
 
