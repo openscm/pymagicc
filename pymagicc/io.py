@@ -1451,16 +1451,21 @@ class _Writer(object):
         return get_dattype_regionmode(regions, scen7=self._scen_7)
 
     def _get_data_block(self):
-        data_block = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"]
-        ).T
+        data_block = self.minput.timeseries(meta=["variable", "todo", "unit", "region"]).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
         self._check_data_filename_variable_consistency(data_block)
 
-        region_order = self._get_region_order(data_block)
-        data_block = data_block.reindex(region_order, axis=1, level="region")
+        # TODO: make this faster...
+        region_col = "region"
+        other_names = [n for n in data_block.columns.names if n != region_col]
+        reordered = []
+        for _, tdf in data_block.groupby(level=other_names, axis="columns"):
+            region_order = self._get_region_order(tdf)
+            reordered.append(tdf.reindex(region_order, axis=1, level="region"))
+
+        data_block = pd.concat(reordered, axis=1)
 
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
