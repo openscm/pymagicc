@@ -6,6 +6,7 @@ from subprocess import CalledProcessError
 from unittest.mock import patch
 import re
 import copy
+import warnings
 
 
 import numpy as np
@@ -1168,7 +1169,11 @@ def test_default_config(package):
 
 def test_out_forcing():
     with MAGICC6() as magicc:
-        res = magicc.run(out_forcing=True)
+        # we get a warning about duplicate timeseries as we're reading both the annual
+        # and subannual volcanic forcing, we can safely ignore it here
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", ".*duplicate.*")
+            res = magicc.run(out_forcing=True)
 
     # The results should include sub-annual timeseries by default
     idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index

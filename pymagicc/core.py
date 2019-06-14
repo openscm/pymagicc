@@ -11,6 +11,7 @@ from copy import deepcopy
 import numpy as np
 import f90nml
 import pandas as pd
+from openscm.scmdataframe import df_append
 
 
 from .config import config
@@ -316,7 +317,7 @@ class MAGICCBase(object):
             read_cols.setdefault("model", ["unspecified"])
             read_cols.setdefault("scenario", ["unspecified"])
 
-        mdata = None
+        mdata = []
         for filepath in outfiles:
             try:
                 openscm_var = _get_openscm_var_from_filepath(filepath)
@@ -324,10 +325,16 @@ class MAGICCBase(object):
                     tempdata = MAGICCData(
                         join(self.out_dir, filepath), columns=deepcopy(read_cols)
                     )
-                    mdata = mdata.append(tempdata) if mdata is not None else tempdata
+                    mdata.append(tempdata)
 
             except (NoReaderWriterError, InvalidTemporalResError):
+                # TODO: something like warnings.warn("Could not read {}".format(filepath))
                 continue
+
+        if not mdata:
+            raise ValueError("No output found for only={}".format(only))
+        mdata = df_append(mdata)
+
 
         if mdata is None:
             error_msg = "No output found for only={}".format(only)
@@ -1091,7 +1098,8 @@ class MAGICCBase(object):
             Updated configuration
         """
         self.write(scenario, self._scen_file_name)
-        config_dict["file_emissionscenario"] = self._scen_file_name
+        emis_flag = list(self._fix_legacy_keys(f90nml.Namelist({"nml_allcfgs": {"file_emisscen": "junk"}}), conflict="ignore")["nml_allcfgs"].keys())[0]
+        config_dict[emis_flag] = self._scen_file_name
 
         return config_dict
 
