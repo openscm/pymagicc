@@ -819,16 +819,17 @@ def test_pymagicc_writing_has_an_effect(
         relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
         relevant_config["mhalo_adjstfutremis2past_0no1scale"] = 0
 
-    # iter_dict = copy.deepcopy(relevant_config)
-    # for key, value in iter_dict.items():
-    #     if value == "test_filename":
-    #         relevant_config[key] = test_filename
-    #     if key == "file_mhalo_emis" and package.version == 7:
-    #         relevant_config["mhalo_prnfile_emis"] = relevant_config.pop(key)
-    #         relevant_config["mhalo_take_prnfile"] = 1
-    #     if key == "file_mhalo_conc" and package.version == 7:
-    #         relevant_config["mhalo_prnfile_conc"] = relevant_config.pop(key)
-    #         relevant_config["mhalo_take_prnfile"] = 1
+    iter_dict = copy.deepcopy(relevant_config)
+    for key, value in iter_dict.items():
+        if value == "test_filename":
+            relevant_config[key] = test_filename
+        # Handle adjustment to `.prn` handling in MAGICC
+        if key == "file_mhalo_emis" and package.version == 7:
+            relevant_config["mhalo_prnfile_emis"] = relevant_config.pop(key)
+            relevant_config["mhalo_take_prnfile"] = 1
+        if key == "file_mhalo_conc" and package.version == 7:
+            relevant_config["mhalo_prnfile_conc"] = relevant_config.pop(key)
+            relevant_config["mhalo_take_prnfile"] = 1
 
     package.set_config(conflict="ignore", **relevant_config)
 
