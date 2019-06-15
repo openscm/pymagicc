@@ -675,12 +675,17 @@ def test_persistant_state(package):
     )
 
 
-def test_persistant_state_integration(package):
+# TODO: move to integration tests folder
+@pytest.mark.parametrize("rf_method", ["OLBL", "IPCCTAR"])
+def test_persistant_state_integration(package, rf_method):
     test_ecs = 1.75
     package.update_config(CORE_CLIMATESENSITIVITY=test_ecs)
     if package.version == 7:
-        # ecs only follows its definition with IPCCTAR forcing (MAGICC7 bug...)
-        package.update_config(CORE_CO2CH4N2O_RFMETHOD="IPCCTAR")
+        # MAGICC6 doesn't have this flag so we don't need to adjust anything (yes, we
+        # run the test twice, small price to pay for clarity and scalability)
+        package.update_config(CORE_CO2CH4N2O_RFMETHOD=rf_method)
+        if rf_method == "OLBL":
+            pytest.xfail("MAGICC7's ECS only follows its definition with IPCCTAR forcing")
 
     actual_results = package.diagnose_tcr_ecs()
     np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
@@ -814,16 +819,16 @@ def test_pymagicc_writing_has_an_effect(
         relevant_config["fgas_adjstfutremis2past_0no1scale"] = 0
         relevant_config["mhalo_adjstfutremis2past_0no1scale"] = 0
 
-    iter_dict = copy.deepcopy(relevant_config)
-    for key, value in iter_dict.items():
-        if value == "test_filename":
-            relevant_config[key] = test_filename
-        if key == "file_mhalo_emis" and package.version == 7:
-            relevant_config["mhalo_prnfile_emis"] = relevant_config.pop(key)
-            relevant_config["mhalo_take_prnfile"] = 1
-        if key == "file_mhalo_conc" and package.version == 7:
-            relevant_config["mhalo_prnfile_conc"] = relevant_config.pop(key)
-            relevant_config["mhalo_take_prnfile"] = 1
+    # iter_dict = copy.deepcopy(relevant_config)
+    # for key, value in iter_dict.items():
+    #     if value == "test_filename":
+    #         relevant_config[key] = test_filename
+    #     if key == "file_mhalo_emis" and package.version == 7:
+    #         relevant_config["mhalo_prnfile_emis"] = relevant_config.pop(key)
+    #         relevant_config["mhalo_take_prnfile"] = 1
+    #     if key == "file_mhalo_conc" and package.version == 7:
+    #         relevant_config["mhalo_prnfile_conc"] = relevant_config.pop(key)
+    #         relevant_config["mhalo_take_prnfile"] = 1
 
     package.set_config(conflict="ignore", **relevant_config)
 
