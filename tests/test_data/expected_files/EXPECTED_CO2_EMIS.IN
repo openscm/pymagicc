@@ -1,4 +1,10 @@
+---- HEADER ----
+
 Test CO2 Emissions file
+
+---- METADATA ----
+
+
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 5
@@ -7,7 +13,7 @@ Test CO2 Emissions file
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'GtCperyr'
     THISFILE_DATTYPE = 'REGIONDATA'
-    THISFILE_FIRSTDATAROW = 17
+    THISFILE_FIRSTDATAROW = 23
 /
 
         GAS                 CO2                 CO2                 CO2                 CO2                 CO2
