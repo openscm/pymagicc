@@ -264,6 +264,8 @@ def test_load_magicc7_emis_umlaut_metadata():
         == "Zebedee Nicholls, Australian-German Climate and Energy College, University of Melbourne, zebedee.nicholls@climate-energy-college.org"
     )
     assert mdata.metadata["description"] == "Test line by näme with ümlauts ëh ça"
+    assert mdata.metadata["key"] == "value"
+    assert mdata.metadata["length"] == "27 hands"
     assert (mdata["unit"] == "Gt C / yr").all()
 
     assert_mdata_value(
@@ -3185,9 +3187,10 @@ def test_prn_wrong_unit_error():
         "EXPECTED_HISTRCP_HFC43-10_CONC.IN",
         "EXPECTED_HISTRCP85_SOLAR_RF.IN",
         "EXPECTED_GISS_BCI_OT.IN",
+        "EXPECTED_HISTSSP_CO2I_EMIS.IN",
     ],
 )
-def test_writing_spacing_column_order(temp_dir, update_expected_file, starting_file):
+def test_writing_identical(temp_dir, update_expected_file, starting_file):
     """
     Test io writes files with correct order and spacing.
 
