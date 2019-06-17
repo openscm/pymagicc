@@ -1524,12 +1524,41 @@ class _Writer(object):
                     datetime(year + 1, 1, 1) - datetime(year, 1, 1)
                 ).total_seconds()
 
-                startmonths = np.arange(0, 1, 1 / 12)
-                midmonths = startmonths + 1 / 24
+                startmonths_magicc = np.arange(0, 1, 1 / 12)
+                midmonths_magicc = startmonths_magicc + 1 / 24
+
+                def calc_mid_month_year_frac(yr, mth):
+                    next_yr = yr if mth != 12 else yr + 1
+                    next_mth = mth + 1 if mth != 12 else 1
+                    yrstart = datetime(yr, 1, 1)
+                    total_s = (datetime(yr + 1, 1, 1) - yrstart).total_seconds()
+                    mid_month = (
+                        (datetime(yr, mth, 1) - yrstart).total_seconds()
+                        + (datetime(next_yr, next_mth, 1) - yrstart).total_seconds()
+                    ) / (2 * total_s)
+
+                    return mid_month
+                # TODO: cache this
+                midmonths = np.array([calc_mid_month_year_frac(year, m) for m in range(1, 13)])
+
+                def calc_start_month_year_frac(yr, mth):
+                    yrstart = datetime(yr, 1, 1)
+                    total_s = (datetime(yr + 1, 1, 1) - yrstart).total_seconds()
+                    start_month = (
+                        (datetime(yr, mth, 1) - yrstart).total_seconds()
+                    ) / total_s
+
+                    return start_month
+                # TODO: cache this
+                startmonths = np.array([calc_start_month_year_frac(year, m) for m in range(1, 13)])
 
                 if (np.abs(year_fraction - midmonths) < 5 * 10 ** -3).any():
                     decimal_bit = ((month - 1) * 2 + 1) / 24
+                elif (np.abs(year_fraction - midmonths_magicc) < 5 * 10 ** -3).any():
+                    decimal_bit = ((month - 1) * 2 + 1) / 24
                 elif (np.abs(year_fraction - startmonths) < 5 * 10 ** -3).any():
+                    decimal_bit = (month - 1) / 12
+                elif (np.abs(year_fraction - startmonths_magicc) < 5 * 10 ** -3).any():
                     decimal_bit = (month - 1) / 12
                 else:
                     error_msg = (
