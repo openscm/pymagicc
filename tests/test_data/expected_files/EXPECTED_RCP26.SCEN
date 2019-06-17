@@ -1,8 +1,8 @@
 20
 41
-NAME - need better solution for how to control this
-DESCRIPTION - need better solution for how to control this
-NOTES - need better solution for how to control this
+name: test scenario
+description: file to use to test handling of special keys in SCEN file metadata
+notes: this metadata handling is particular to SCEN files as all other metadata is at the end of the file
 
 WORLD
       YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
@@ -179,7 +179,6 @@ BUNKERS
        2500     0.0000     0.0000     0.0000     0.0000     0.1887     0.4541     0.7761     0.6441     0.0237     0.0271     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
 
 
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
+key: value
+length: 12 minutes
+other notes: some writing
