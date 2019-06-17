@@ -137,8 +137,7 @@ class _Reader(object):
             for key, value in nml_values.items()
             if key in ["units", "timeseriestype"]
         }
-        metadata["header"] = "".join(self.lines[:nml_start])
-        header_metadata = self.process_header(metadata["header"])
+        header_metadata = self.process_header("".join(self.lines[:nml_start]))
         metadata.update(header_metadata)
 
         # Create a stream from the remaining lines, ignoring any blank lines
@@ -401,12 +400,38 @@ class _Reader(object):
             The metadata in the header.
         """
         metadata = {}
+        # assume we start in header in case we are looking at legacy file which
+        # doesn't have the '---- HEADER ----' line
+        in_header = True
+        header_lines = []
         for line in header.split("\n"):
             line = line.strip()
-            for tag in self.header_tags:
-                tag_text = "{}:".format(tag)
-                if line.lower().startswith(tag_text):
-                    metadata[tag] = line[len(tag_text) + 1 :].strip()
+            if not line:
+                continue
+            if line == "---- HEADER ----":
+                in_header = True
+            elif line == "---- METADATA ----":
+                in_header = False
+            else:
+                if in_header:
+                    for tag in self.header_tags:
+                        tag_text = "{}:".format(tag)
+                        if line.lower().startswith(tag_text):
+                            metadata[tag] = line[len(tag_text) + 1 :].strip()
+                            break
+                    else:
+                        header_lines.append(line)
+                else:
+                    if ":" not in line:
+                        header_lines.append(line)
+                    else:
+                        bits = line.split(":")
+                        key = bits[0]
+                        value = ":".join(bits[1:])
+                        metadata[key.strip()] = value.strip()
+
+        if header_lines:
+            metadata["header"] = "\r\n".join(header_lines)
 
         return metadata
 
@@ -1014,47 +1039,7 @@ class _TempOceanLayersOutReader(_Reader):
 
 
 class _MAGReader(_Reader):
-    def process_header(self, header):
-        """
-        Parse the header for additional metadata.
-
-        Parameters
-        ----------
-        header : str
-            All the lines in the header.
-
-        Returns
-        -------
-        dict
-            The metadata in the header.
-        """
-        metadata = {}
-        in_header = False
-        header_lines = []
-        for line in header.split("\n"):
-            line = line.strip()
-            if not line:
-                continue
-            if line == "---- HEADER ----":
-                in_header = True
-            elif line == "---- METADATA ----":
-                in_header = False
-            else:
-                if in_header:
-                    header_lines.append(line)
-                else:
-                    try:
-                        key, value = line.split(":")
-                    except ValueError:
-                        raise ValueError(  # pragma: no cover # emergency valve
-                            "Something wrong, line should be of the form 'key: value' "
-                            "with no other colons (':').\n"
-                            "Problem line: {}".format(line)
-                        )
-                    metadata[key.strip()] = value.strip()
-
-        metadata["header"] = "\r\n".join(header_lines)
-        return metadata
+    pass
 
 
 class _BinData(object):
@@ -1321,15 +1306,32 @@ class _Writer(object):
 
     def _get_header(self):
         try:
-            header = self.minput.metadata["header"]
-            if not header.endswith("\n"):  # add spacing if needed
-                header = "{}\n\n".format(header)
-
-            return header
+            header = self.minput.metadata.pop("header")
         except KeyError:
             raise KeyError(
                 'Please provide a file header in ``self.metadata["header"]``'
             )
+
+        md = self.minput.metadata
+        sorted_keys = sorted(md.keys())
+        metadata = "\n".join(
+            [
+                "{}: {}".format(k, md[k])
+                for k in sorted_keys
+                if k not in ["timeseriestype"]  # timeseriestype goes in namelist
+            ]
+        )
+
+        return (
+            "---- HEADER ----\n"
+            "\n"
+            "{}\n"
+            "\n"
+            "---- METADATA ----\n"
+            "\n"
+            "{}\n"
+            "\n".format(header, metadata)
+        )
 
     def _write_namelist(self, output):
         nml_initial, data_block = self._get_initial_nml_and_data_block()
@@ -1575,6 +1577,11 @@ class _Scen7Writer(_HistEmisInWriter):
 
 class _PrnWriter(_Writer):
     def _write_header(self, output):
+        # TODO: make method to make this safer, split from _write_datablock
+        unit = self.minput["unit"].unique()[0].split(" ")[0]
+        if unit == "t":
+            unit = "metric tons"
+        self.minput.metadata["unit"] = unit
         output.write(self._get_header())
         return output
 
@@ -1588,9 +1595,6 @@ class _PrnWriter(_Writer):
             meta=["variable", "todo", "unit", "region"]
         ).T
         units = data_block_full.columns.get_level_values("unit").unique().tolist()
-        # if len(units) != 1:
-        #     error_msg = "All variables should have the same unit in .prn files"
-        #     raise AssertionError(error_msg)
 
         unit = units[0].split(" ")[0]
         if unit == "t":

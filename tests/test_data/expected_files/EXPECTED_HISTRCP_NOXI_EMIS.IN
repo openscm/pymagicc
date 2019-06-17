@@ -1,17 +1,14 @@
+---- HEADER ----
+
 MAGICC 6.X DATA FILE  PRIMAP xls file written on 04 Sep 2009, 14:17:23
 
+---- METADATA ----
 
-
-DATA:  Historical fossil&industrial NOX (NOXI) Emissions (HISTRCP_NOXI_EMIS)
-
-DESCRIPTION:  RCP2009-HISTORY; MAGICC 6.X data file build for RCP2009- HISTORY - derived from PRIMAPDB with retrieval setting set histemisfile for source RCP2009 and scenario HISTORY - Historical fossil&industrial NOX (NOXI) Emissions
-COMPILED BY:  Malte Meinshausen, malte.meinshausen@pik-potsdam.de, www.primap.org
-SOURCE:   RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, August 2009
-CONTACT:   RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov)
-
-
-Description: RCP2009-HISTORY; MAGICC 6.X data file build for RCP2009- HISTORY - derived from PRIMAPDB with retrieval setting set histemisfile for source RCP2009 and scenario HISTORY - Historical fossil&industrial NOX (NOXI) Emissions
-
+compiled by: Malte Meinshausen, malte.meinshausen@pik-potsdam.de, www.primap.org
+contact: RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov)
+data: Historical fossil&industrial NOX (NOXI) Emissions (HISTRCP_NOXI_EMIS)
+description: RCP2009-HISTORY; MAGICC 6.X data file build for RCP2009- HISTORY - derived from PRIMAPDB with retrieval setting set histemisfile for source RCP2009 and scenario HISTORY - Historical fossil&industrial NOX (NOXI) Emissions
+source: RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, August 2009
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 6
@@ -20,7 +17,7 @@ Description: RCP2009-HISTORY; MAGICC 6.X data file build for RCP2009- HISTORY - 
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'MtNperyr'
     THISFILE_DATTYPE = 'REGIONDATA'
-    THISFILE_FIRSTDATAROW = 30
+    THISFILE_FIRSTDATAROW = 27
 /
 
         GAS                NOXI                NOXI                NOXI                NOXI                NOXI                NOXI

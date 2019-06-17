@@ -1,13 +1,16 @@
+---- HEADER ----
 
 __MAGICC 5.X DATA FILE__
 
-Data: Optical Thickness
-Gas: Black Carbon Industrial
-Unit:  Normalized to 1 in year 2000
-Description: GISS optical depth; scaled over time with emissions;
-Source: http://data.giss.nasa.gov/
-Compiled by: Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com
-Date: 18-Jul-2006 11:02:43
+---- METADATA ----
+
+compiled by: Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com
+data: Optical Thickness
+date: 18-Jul-2006 11:02:43
+description: GISS optical depth; scaled over time with emissions;
+gas: Black Carbon Industrial
+source: http://data.giss.nasa.gov/
+unit: Normalized to 1 in year 2000
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 4
@@ -16,7 +19,7 @@ Date: 18-Jul-2006 11:02:43
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'dimensionless'
     THISFILE_DATTYPE = 'NOTUSED'
-    THISFILE_FIRSTDATAROW = 26
+    THISFILE_FIRSTDATAROW = 29
 /
 
    VARIABLE              BCI_OT              BCI_OT              BCI_OT              BCI_OT
