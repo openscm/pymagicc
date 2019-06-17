@@ -3410,3 +3410,52 @@ def test_mag_writer_default_header(temp_dir, writing_base):
                 break
         if not found_line:
             assert False, "Missing header line: {}".format(d)
+
+
+@pytest.mark.parametrize("valid,time_axis", [
+    (True, [dt.datetime(y, m, 1) for y in range(2000, 2031) for m in range(1, 13)]),
+    (True, [dt.datetime(y, m, 2) for y in range(2000, 2031) for m in range(1, 13)]),
+    (False, [dt.datetime(y, m, 3) for y in range(2000, 2031) for m in range(1, 13)]),
+    (False, [dt.datetime(y, m, 13) for y in range(2000, 2031) for m in range(1, 13)]),
+    (False, [dt.datetime(y, m, 14) for y in range(2000, 2031) for m in range(1, 13)]),
+    (True, [dt.datetime(y, m, 15) for y in range(2000, 2031) for m in range(1, 13)]),
+    (True, [dt.datetime(y, m, 16) for y in range(2000, 2031) for m in range(1, 13)]),
+    (True, [dt.datetime(y, m, 17) for y in range(2000, 2031) for m in range(1, 13)]),
+    (False, [dt.datetime(y, m, 18) for y in range(2000, 2031) for m in range(1, 13)]),
+    (False, [dt.datetime(y, m, 28) for y in range(2000, 2031) for m in range(1, 13)]),
+])
+def test_timestamp_handling(valid, time_axis, temp_dir):
+    writing_base = MAGICCData(
+        np.arange(0, 40).reshape(10, 4),
+        index=[dt.datetime(y, 1, 16) for y in range(1000, 3000, 200)],
+        columns={
+            "variable": "Atmospheric Concentrations|CH4",
+            "region": [
+                "World|Northern Hemisphere|Land",
+                "World|Northern Hemisphere|Ocean",
+                "World|Southern Hemisphere|Land",
+                "World|Southern Hemisphere|Ocean",
+            ],
+            "unit": "ppb",
+            "model": "None",
+            "scenario": "test",
+            "todo": "SET",
+            "parameter_type": "point",
+        }
+    )
+    writing_base = writing_base.interpolate(time_axis)
+    writing_base.metadata["header"] = "Test timestamp handling file"
+    if valid:
+        out_file = join(temp_dir, "TEST_CH4_CONC.IN")
+        writing_base.write(out_file, magicc_version=7)
+        with open(out_file) as f:
+            content = f.read()
+        assert "THISFILE_FIRSTYEAR = {}".format(time_axis[0].year) in content
+        assert "THISFILE_LASTYEAR = {}".format(time_axis[-1].year) in content
+
+    else:
+        error_msg = re.escape(
+            "Your timestamps don't appear to be middle or start of month"
+        )
+        with pytest.raises(ValueError, match=error_msg):
+            writing_base.write(join(temp_dir, "TEST_CH4_CONC.IN"), magicc_version=7)
