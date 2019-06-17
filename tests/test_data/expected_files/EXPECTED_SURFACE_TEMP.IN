@@ -1,4 +1,10 @@
+---- HEADER ----
+
 Test Surface temperature input file
+
+---- METADATA ----
+
+
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 4
@@ -7,7 +13,7 @@ Test Surface temperature input file
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'K'
     THISFILE_DATTYPE = 'NOTUSED'
-    THISFILE_FIRSTDATAROW = 17
+    THISFILE_FIRSTDATAROW = 23
 /
 
    VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP

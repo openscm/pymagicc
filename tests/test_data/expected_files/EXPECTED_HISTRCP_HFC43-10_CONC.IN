@@ -1,13 +1,16 @@
+---- HEADER ----
 
 __RCP Historical Concentration File: HFC43-10__
 
-Data: Global average mixing ratio
-Gas: HFC43-10
-Unit: Parts per trillion (ppt)
-Description: Historical mixing ratio before 2000 assumed zero.
-Source: See as well http://data.giss.nasa.gov/modelforce/ghgases/TG_A.1992-2008.txt
-Compiled by: Malte Meinshausen, malte.meinshausen@pik-potsdam.de, Steve Smith
-Date: 18-Jul-2006 10:44:17
+---- METADATA ----
+
+compiled by: Malte Meinshausen, malte.meinshausen@pik-potsdam.de, Steve Smith
+data: Global average mixing ratio
+date: 18-Jul-2006 10:44:17
+description: Historical mixing ratio before 2000 assumed zero.
+gas: HFC43-10
+source: See as well http://data.giss.nasa.gov/modelforce/ghgases/TG_A.1992-2008.txt
+unit: Parts per trillion (ppt)
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 1
@@ -16,7 +19,7 @@ Date: 18-Jul-2006 10:44:17
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'ppt'
     THISFILE_DATTYPE = 'NOTUSED'
-    THISFILE_FIRSTDATAROW = 26
+    THISFILE_FIRSTDATAROW = 29
 /
 
    VARIABLE        HFC4310_CONC

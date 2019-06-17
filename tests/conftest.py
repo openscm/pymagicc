@@ -65,7 +65,7 @@ def run_writing_comparison(res, expected, update=False):
     """
     if update:
         shutil.copy(res, expected)
-        print("Updated {}".format(expected))
+        pytest.skip("Updated {}".format(expected))
     else:
         assert filecmp.cmp(res, expected, shallow=False)
 

@@ -78,7 +78,7 @@ def generic_mdata_tests(mdata, include_todo=True):
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
             mdata.metadata[key]
-    assert isinstance(mdata.metadata["header"], str)
+    assert "header" not in mdata.metadata or isinstance(mdata.metadata["header"], str)
 
 
 def assert_mdata_value(mdata, value, **kwargs):
@@ -2503,7 +2503,9 @@ def test_invalid_name():
 
 def test_header_metadata():
     m = _Reader("test")
-    assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
+    assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {
+        "header": "lkhdsljdkjflkjndlkjlkndjgf"
+    }
     assert m.process_header("") == {}
     assert m.process_header("Data: Average emissions per year") == {
         "data": "Average emissions per year"
@@ -2516,20 +2518,9 @@ def test_header_metadata():
     ) == {
         "contact": "RCP 3-PD (IMAGE): Detlef van Vuuren (detlef.vanvuuren@pbl.nl); RCP 4.5 (MiniCAM): Allison Thomson (Allison.Thomson@pnl.gov); RCP 6.0 (AIM): Toshihiko Masui (masui@nies.go.jp); RCP 8.5 (MESSAGE): Keywan Riahi (riahi@iiasa.ac.at); Base year emissions inventories: Steve Smith (ssmith@pnl.gov) and Jean-Francois Lamarque (Jean-Francois.Lamarque@noaa.gov)"
     }
-
     assert m.process_header(
         "DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
     ) == {"date": "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"}
-
-    m = _Reader("test")
-    assert m.process_header("lkhdsljdkjflkjndlkjlkndjgf") == {}
-    assert m.process_header("") == {}
-    assert m.process_header("Data: Average emissions per year\nother text") == {
-        "data": "Average emissions per year"
-    }
-    assert m.process_header("           Data: Average emissions per year    ") == {
-        "data": "Average emissions per year"
-    }
     assert m.process_header(
         "Compiled by: Zebedee Nicholls, Australian-German Climate & Energy College"
     ) == {"compiled by": "Zebedee Nicholls, Australian-German Climate & Energy College"}
@@ -2538,7 +2529,7 @@ def test_header_metadata():
 def test_magicc_input_init():
     # must init with data
     with pytest.raises(TypeError):
-        mdata = MAGICCData()
+        MAGICCData()
 
 
 def test_magicc_input_init_preserves_columns():
@@ -2671,6 +2662,10 @@ def test_in_file_read_write_functionally_identical(
     #       as intended is the next step
     if not confusing_metadata:
         for key_written, value_written in mi_written.metadata.items():
+            if key_written == "header":
+                # we don't care about headers matching exactly as they're never used
+                # by MAGICC
+                continue
             try:
                 assert value_written.strip() == mi_initial.metadata[key_written].strip()
             except:

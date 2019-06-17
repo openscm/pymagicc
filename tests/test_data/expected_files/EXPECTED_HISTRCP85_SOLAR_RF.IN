@@ -1,13 +1,16 @@
+---- HEADER ----
+
 __RCP Forcing File RCP85: Solar Irradience__
 
-Data: Radiative Forcing, kept constant after 2250
-Gas: Solar Forcing
-Unit:  Watt per square meter (W/m2)
-Description: Solar irradiance by Lean et al. as recommended for CMIP5, as documented here: http://www.geo.fu-berlin.de/en/met/ag/strat/forschung/SOLARIS/Input_data/CMIP5_solar_irradiance.html - converted into radiative forcing by dividing by 4 (geometrical) and multiplying by 0.7 (albedo) effect. Furthermore, the data is normalized to have an average zero around 1750 (22 years around 1750).
-Source: Lean et al., as provided here: http://www.geo.fu-berlin.de/en/met/ag/strat/forschung/SOLARIS/Input_data/CMIP5_solar_irradiance.html
-Compiled by: Malte Meinshausen, Steve Smith et al.
-Date: 24-Jul-2009 17:05:30
+---- METADATA ----
 
+compiled by: Malte Meinshausen, Steve Smith et al.
+data: Radiative Forcing, kept constant after 2250
+date: 24-Jul-2009 17:05:30
+description: Solar irradiance by Lean et al. as recommended for CMIP5, as documented here: http://www.geo.fu-berlin.de/en/met/ag/strat/forschung/SOLARIS/Input_data/CMIP5_solar_irradiance.html - converted into radiative forcing by dividing by 4 (geometrical) and multiplying by 0.7 (albedo) effect. Furthermore, the data is normalized to have an average zero around 1750 (22 years around 1750).
+gas: Solar Forcing
+source: Lean et al., as provided here: http://www.geo.fu-berlin.de/en/met/ag/strat/forschung/SOLARIS/Input_data/CMIP5_solar_irradiance.html
+unit: Watt per square meter (W/m2)
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 1
@@ -16,7 +19,7 @@ Date: 24-Jul-2009 17:05:30
     THISFILE_ANNUALSTEPS = 1
     THISFILE_UNITS = 'Wpermsuper2'
     THISFILE_DATTYPE = 'NOTUSED'
-    THISFILE_FIRSTDATAROW = 26
+    THISFILE_FIRSTDATAROW = 29
 /
 
    VARIABLE            SOLAR_RF
