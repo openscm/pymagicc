@@ -1,17 +1,16 @@
+import re
+import warnings
 from os.path import basename, exists
 from shutil import copyfileobj
 from copy import deepcopy
 from numbers import Number
 from datetime import datetime
-from calendar import monthrange
-import warnings
 
 
 import numpy as np
 import f90nml
 from f90nml.namelist import Namelist
 import pandas as pd
-import re
 from six import StringIO
 from openscm.scmdataframe.base import ScmDataFrameBase
 from openscm.scmdataframe.timeindex import to_int
@@ -1486,7 +1485,9 @@ class _Writer(object):
         return get_dattype_regionmode(regions, scen7=self._scen_7)
 
     def _get_data_block(self):
-        data_block = self.minput.timeseries(meta=["variable", "todo", "unit", "region"]).T
+        data_block = self.minput.timeseries(
+            meta=["variable", "todo", "unit", "region"]
+        ).T
         # probably not necessary but a sensible check
         assert data_block.columns.names == ["variable", "todo", "unit", "region"]
 
@@ -1547,7 +1548,9 @@ class _Writer(object):
         if number_months == 1:  # yearly data
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
-            data_block.index = data_block.index.map(MAGICC_TIME_CONVERTER.convert_to_decimal_year)
+            data_block.index = data_block.index.map(
+                MAGICC_TIME_CONVERTER.convert_to_decimal_year
+            )
 
         return data_block
 
@@ -1684,7 +1687,6 @@ class _PrnWriter(_Writer):
 
         return unit
 
-
     def _get_data_block(self):
         data_block = self.minput.timeseries(
             meta=["variable", "todo", "unit", "region"]
@@ -1763,15 +1765,17 @@ class _ScenWriter(_Writer):
         # - line 6 is empty
         header_lines.append("name: {}".format(self.minput["scenario"].unique()[0]))
         header_lines.append(
-            "description: {}".format(self.minput.metadata.pop(
-                "description",
-                "metadata['description'] is written here"
-            ))
+            "description: {}".format(
+                self.minput.metadata.pop(
+                    "description", "metadata['description'] is written here"
+                )
+            )
         )
-        header_lines.append("notes: {}".format(self.minput.metadata.pop(
-            "notes",
-            "metadata['notes'] is written here"
-        )))
+        header_lines.append(
+            "notes: {}".format(
+                self.minput.metadata.pop("notes", "metadata['notes'] is written here")
+            )
+        )
         header_lines.append("")
 
         header_lines.append(self.minput.metadata.pop("header"))
@@ -2121,8 +2125,9 @@ class MAGICCData(ScmDataFrameBase):
         elif isinstance(time_srs.iloc[0], int):
             time_srs = [datetime(y, 1, 1) for y in to_int(time_srs)]
         else:
-            time_srs = time_srs.apply(lambda x: MAGICC_TIME_CONVERTER.convert_to_datetime(x))
-
+            time_srs = time_srs.apply(
+                lambda x: MAGICC_TIME_CONVERTER.convert_to_datetime(x)
+            )
 
         self["time"] = time_srs
 
