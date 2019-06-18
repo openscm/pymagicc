@@ -335,7 +335,6 @@ class MAGICCBase(object):
             raise ValueError("No output found for only={}".format(only))
         mdata = df_append(mdata)
 
-
         if mdata is None:
             error_msg = "No output found for only={}".format(only)
             raise ValueError(error_msg)
@@ -1100,7 +1099,12 @@ class MAGICCBase(object):
             Updated configuration
         """
         self.write(scenario, self._scen_file_name)
-        emis_flag = list(self._fix_legacy_keys(f90nml.Namelist({"nml_allcfgs": {"file_emisscen": "junk"}}), conflict="ignore")["nml_allcfgs"].keys())[0]
+        emis_flag = list(
+            self._fix_legacy_keys(
+                f90nml.Namelist({"nml_allcfgs": {"file_emisscen": "junk"}}),
+                conflict="ignore",
+            )["nml_allcfgs"].keys()
+        )[0]
         config_dict[emis_flag] = self._scen_file_name
 
         return config_dict

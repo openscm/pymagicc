@@ -581,7 +581,10 @@ def test_load_scen():
     assert (mdata["model"] == "unspecified").all()
     assert (mdata["scenario"] == "RCP3PD").all()
     assert (mdata["climate_model"] == "unspecified").all()
-    assert mdata.metadata["description"] == "HARMONISED, EXTENDED FINAL RCP3-PD (Peak&Decline) NOV26; RCP3PD-Contact: IMAGE group, Detlef van Vuuren (Detlef.vanVuuren@pbl.nl)"
+    assert (
+        mdata.metadata["description"]
+        == "HARMONISED, EXTENDED FINAL RCP3-PD (Peak&Decline) NOV26; RCP3PD-Contact: IMAGE group, Detlef van Vuuren (Detlef.vanVuuren@pbl.nl)"
+    )
     assert (
         mdata.metadata["notes"]
         == "DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
@@ -768,7 +771,10 @@ def test_load_scen__metadata_and_year_first_column():
     assert mdata.metadata["description"] == "Generic text: something here"
     assert mdata.metadata["notes"] == "Other text"
     assert "20" not in mdata.metadata["header"]
-    assert "Final RCP3PD with constant emissions after 2100 using the default RCPtool MAGICC6.3 settings. Compiled by: malte.meinshausen@pik-potsdam.de" in mdata.metadata["header"]
+    assert (
+        "Final RCP3PD with constant emissions after 2100 using the default RCPtool MAGICC6.3 settings. Compiled by: malte.meinshausen@pik-potsdam.de"
+        in mdata.metadata["header"]
+    )
 
     assert all(mdata["scenario"] == "JUNK")
     assert_mdata_value(
@@ -3417,18 +3423,45 @@ def test_mag_writer_default_header(temp_dir, writing_base):
             assert False, "Missing header line: {}".format(d)
 
 
-@pytest.mark.parametrize("valid,time_axis", [
-    (True, [dt.datetime(y, m, 1) for y in range(2000, 2031) for m in range(1, 13)]),
-    (True, [dt.datetime(y, m, 2) for y in range(2000, 2031) for m in range(1, 13)]),
-    (False, [dt.datetime(y, m, 3) for y in range(2000, 2031) for m in range(1, 13)]),
-    (False, [dt.datetime(y, m, 13) for y in range(2000, 2031) for m in range(1, 13)]),
-    (False, [dt.datetime(y, m, 14) for y in range(2000, 2031) for m in range(1, 13)]),
-    (True, [dt.datetime(y, m, 15) for y in range(2000, 2031) for m in range(1, 13)]),
-    (True, [dt.datetime(y, m, 16) for y in range(2000, 2031) for m in range(1, 13)]),
-    (True, [dt.datetime(y, m, 17) for y in range(2000, 2031) for m in range(1, 13)]),
-    (False, [dt.datetime(y, m, 18) for y in range(2000, 2031) for m in range(1, 13)]),
-    (False, [dt.datetime(y, m, 28) for y in range(2000, 2031) for m in range(1, 13)]),
-])
+@pytest.mark.parametrize(
+    "valid,time_axis",
+    [
+        (True, [dt.datetime(y, m, 1) for y in range(2000, 2031) for m in range(1, 13)]),
+        (True, [dt.datetime(y, m, 2) for y in range(2000, 2031) for m in range(1, 13)]),
+        (
+            False,
+            [dt.datetime(y, m, 3) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            False,
+            [dt.datetime(y, m, 13) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            False,
+            [dt.datetime(y, m, 14) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            True,
+            [dt.datetime(y, m, 15) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            True,
+            [dt.datetime(y, m, 16) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            True,
+            [dt.datetime(y, m, 17) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            False,
+            [dt.datetime(y, m, 18) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+        (
+            False,
+            [dt.datetime(y, m, 28) for y in range(2000, 2031) for m in range(1, 13)],
+        ),
+    ],
+)
 def test_timestamp_handling(valid, time_axis, temp_dir):
     writing_base = MAGICCData(
         np.arange(0, 40).reshape(10, 4),
@@ -3446,7 +3479,7 @@ def test_timestamp_handling(valid, time_axis, temp_dir):
             "scenario": "test",
             "todo": "SET",
             "parameter_type": "point",
-        }
+        },
     )
     writing_base = writing_base.interpolate(time_axis)
     writing_base.metadata["header"] = "Test timestamp handling file"
