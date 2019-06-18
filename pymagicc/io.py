@@ -431,7 +431,7 @@ class _Reader(object):
                         metadata[key.strip()] = value.strip()
 
         if header_lines:
-            metadata["header"] = "\r\n".join(header_lines)
+            metadata["header"] = "\n".join(header_lines)
 
         return metadata
 
@@ -1350,7 +1350,6 @@ class _Writer(object):
             [
                 "{}: {}".format(k, md[k])
                 for k in sorted_keys
-                if k not in ["timeseriestype"]  # timeseriestype goes in namelist
             ]
         )
 
