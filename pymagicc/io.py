@@ -1585,8 +1585,8 @@ class _Scen7Writer(_HistEmisInWriter):
 
 class _PrnWriter(_Writer):
     def _write_header(self, output):
-        # TODO: make method to make this safer, split from _write_datablock
-        unit = self.minput["unit"].unique()[0].split(" ")[0]
+        unit = self._get_unit()
+
         if unit == "t":
             unit = "metric tons"
         self.minput.metadata["unit"] = unit
@@ -1599,28 +1599,11 @@ class _PrnWriter(_Writer):
     def _write_datablock(self, output):
         lines = output.getvalue().split(self._newline_char)
 
-        data_block_full = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"]
-        ).T
-        units = data_block_full.columns.get_level_values("unit").unique().tolist()
-
-        unit = units[0].split(" ")[0]
+        unit = self._get_unit()
         if unit == "t":
-            assert all(
-                [u.startswith("t ") and u.endswith(" / yr") for u in units]
-            ), "Prn emissions file with units other than tonne per year won't work"
             other_col_format_str = "{:9.0f}".format
         elif unit == "ppt":
-            assert all(
-                [u == "ppt" for u in units]
-            ), "Prn concentrations file with units other than ppt won't work"
             other_col_format_str = "{:9.3e}".format
-        else:
-            error_msg = (
-                "prn file units should either all be 'ppt' or all be 't [gas] / yr', "
-                "units of {} do not meet this requirement".format(units)
-            )
-            raise ValueError(error_msg)
 
         data_block = self._get_data_block()
 
@@ -1679,6 +1662,28 @@ class _PrnWriter(_Writer):
         output.write(self._newline_char.join(lines))
 
         return output
+
+    def _get_unit(self):
+        units = self.minput["unit"].unique().tolist()
+
+        unit = units[0].split(" ")[0]
+        if unit == "t":
+            assert all(
+                [u.startswith("t ") and u.endswith(" / yr") for u in units]
+            ), "Prn emissions file with units other than tonne per year won't work"
+        elif unit == "ppt":
+            assert all(
+                [u == "ppt" for u in units]
+            ), "Prn concentrations file with units other than ppt won't work"
+        else:
+            error_msg = (
+                "prn file units should either all be 'ppt' or all be 't [gas] / yr', "
+                "units of {} do not meet this requirement".format(units)
+            )
+            raise ValueError(error_msg)
+
+        return unit
+
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
