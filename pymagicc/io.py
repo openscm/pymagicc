@@ -2060,11 +2060,8 @@ class MAGICCData(ScmDataFrameBase):
 
     MAGICCData can read input files from both MAGICC6 and MAGICC7. It returns
     files in a common format with a common vocabulary to simplify the process
-    of reading, writing and handling MAGICC data.
-
-    MAGICCData, once the target input file has been loaded, can be
-    treated as a Pandas DataFrame. All the methods available to a DataFrame
-    can be called on MAGICCData.
+    of reading, writing and handling MAGICC data. For more information on file
+    conventions, see :ref:`magicc_file_conventions`.
 
     See ``notebooks/Input-Examples.ipynb`` for usage examples.
 
