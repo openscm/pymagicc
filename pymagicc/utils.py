@@ -1,4 +1,5 @@
-"""Module for useful functions that aren't available elsewhere and don't fit with Pymagicc.
+"""
+Module for useful functions that aren't available elsewhere and don't fit with Pymagicc.
 
 When we say "available elsewhere and don't fit with Pymagicc" we mean that they are
 not available to be included as a dependency of Pymagicc nor are they really/solely

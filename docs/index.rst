@@ -32,6 +32,7 @@ Pymagicc
     pymagicc.io
     pymagicc.definitions
     pymagicc.config
+    pymagicc.magicc_time
     pymagicc.utils
 
 .. toctree::
