@@ -1,8 +1,8 @@
 49
 41
-NAME - need better solution for how to control this
-DESCRIPTION - need better solution for how to control this
-NOTES - need better solution for how to control this
+name: RCP45
+description: HARMONISED, EXTENDED FINAL RCP4.5 NOV26; RCP45-Contact: MiniCAM group, Allison Thomson (Allison.Thomson@pnl.gov)
+notes: DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009
 
 WORLD
       YEARS  FossilCO2   OtherCO2        CH4        N2O        SOx         CO      NMVOC        NOx         BC         OC        NH3        CF4       C2F6      C6F14      HFC23      HFC32    HFC4310     HFC125    HFC134a    HFC143a   HFC227ea   HFC245fa        SF6
@@ -382,7 +382,4 @@ BUNKERS
        2500     0.0000     0.0000     0.9189     0.0000     1.4571     0.7810     3.5757     5.7422     0.2144     0.2131     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000     0.0000
 
 
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
-OTHER NOTES - need better solution for how to control this
+Final RCP45 with stabilisation after 2150 using the default RCPtool MAGICC6.3 settings. Compiled by: malte.meinshausen@pik-potsdam.de
