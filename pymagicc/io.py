@@ -662,6 +662,12 @@ class _NonStandardEmisInReader(_EmisInReader):
 
 
 class _ScenReader(_NonStandardEmisInReader):
+    def read(self):
+        metadata, df, columns = super().read()
+        columns["scenario"] = metadata.pop("scenario")
+
+        return metadata, df, columns
+
     def _read_header(self):
         # I don't know how to do this without these nasty while True statements
         header_notes_lines = []
@@ -682,6 +688,38 @@ class _ScenReader(_NonStandardEmisInReader):
             header_notes_lines.append(line)
 
         return header_notes_lines
+
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata.
+
+        Parameters
+        ----------
+        header : str
+            All the lines in the header.
+
+        Returns
+        -------
+        dict
+            The metadata in the header.
+        """
+        metadata = {"header": []}
+        for i, line in enumerate(header.split("\n")):
+            line = line.strip()
+            if i < 2:
+                continue  # top level keys, ignore
+            if i == 2:
+                metadata["scenario"] = line.replace("name: ", "")
+            elif i == 3:
+                metadata["description"] = line.replace("description: ", "")
+            elif i == 4:
+                metadata["notes"] = line.replace("notes: ", "")
+            else:
+                if line:
+                    metadata["header"].append(line)
+
+        metadata["header"] = "\n".join(metadata["header"])
+        return metadata
 
     def read_data_block(self):
         number_years = int(self.lines[0].strip())
@@ -1777,25 +1815,16 @@ class _ScenWriter(_Writer):
         # - line 4 is description
         # - line 5 is notes (other notes lines go at the end)
         # - line 6 is empty
-        header_lines.append("NAME - need better solution for how to control this")
+        header_lines.append("name: {}".format(self.minput["scenario"].unique()[0]))
         header_lines.append(
-            "DESCRIPTION - need better solution for how to control this"
+            "description: {}".format(self.minput.metadata.pop("description"))
         )
-        header_lines.append("NOTES - need better solution for how to control this")
+        header_lines.append("notes: {}".format(self.minput.metadata.pop("notes")))
         header_lines.append("")
 
-        header_lines.append(
-            "OTHER NOTES - need better solution for how to control this"
-        )
-        header_lines.append(
-            "OTHER NOTES - need better solution for how to control this"
-        )
-        header_lines.append(
-            "OTHER NOTES - need better solution for how to control this"
-        )
-        header_lines.append(
-            "OTHER NOTES - need better solution for how to control this"
-        )
+        header_lines.append(self.minput.metadata.pop("header"))
+        for k, v in self.minput.metadata.items():
+            header_lines.append("{}: {}".format(k, v))
 
         output.write(self._newline_char.join(header_lines))
         output.write(self._newline_char)
