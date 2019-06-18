@@ -1778,7 +1778,10 @@ class _ScenWriter(_Writer):
         )
         header_lines.append("")
 
-        header_lines.append(self.minput.metadata.pop("header"))
+        try:
+            header_lines.append(self.minput.metadata.pop("header"))
+        except KeyError:
+            pass
         for k, v in self.minput.metadata.items():
             header_lines.append("{}: {}".format(k, v))
 
