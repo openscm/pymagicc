@@ -17,6 +17,7 @@ from openscm.scmdataframe.base import ScmDataFrameBase
 from openscm.scmdataframe.timeindex import to_int
 
 
+from .magicc_time import MAGICC_TIME_CONVERTER
 from .utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
@@ -537,12 +538,6 @@ class _RadiativeForcingInReader(_FourBoxReader):
     def _read_data_header_line(self, stream, expected_header):
         tokens = super()._read_data_header_line(stream, expected_header)
         return [t.replace("FORC-", "") for t in tokens]
-
-    # TODO: delete this in another PR
-    def _read_magicc6_style_header(self, stream, metadata):
-        column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
-
-        return column_headers, metadata
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         column_headers, metadata = super()._get_column_headers_and_update_metadata(
@@ -1552,61 +1547,7 @@ class _Writer(object):
         if number_months == 1:  # yearly data
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
-
-            def _convert_to_decimal_year(itime):
-                # convert to either either middle of start of month
-                year = itime.year
-                month = itime.month
-
-                year_fraction = (itime - datetime(year, 1, 1)).total_seconds() / (
-                    datetime(year + 1, 1, 1) - datetime(year, 1, 1)
-                ).total_seconds()
-
-                startmonths_magicc = np.arange(0, 1, 1 / 12)
-                midmonths_magicc = startmonths_magicc + 1 / 24
-
-                def calc_mid_month_year_frac(yr, mth):
-                    next_yr = yr if mth != 12 else yr + 1
-                    next_mth = mth + 1 if mth != 12 else 1
-                    yrstart = datetime(yr, 1, 1)
-                    total_s = (datetime(yr + 1, 1, 1) - yrstart).total_seconds()
-                    mid_month = (
-                        (datetime(yr, mth, 1) - yrstart).total_seconds()
-                        + (datetime(next_yr, next_mth, 1) - yrstart).total_seconds()
-                    ) / (2 * total_s)
-
-                    return mid_month
-                # TODO: cache this
-                midmonths = np.array([calc_mid_month_year_frac(year, m) for m in range(1, 13)])
-
-                def calc_start_month_year_frac(yr, mth):
-                    yrstart = datetime(yr, 1, 1)
-                    total_s = (datetime(yr + 1, 1, 1) - yrstart).total_seconds()
-                    start_month = (
-                        (datetime(yr, mth, 1) - yrstart).total_seconds()
-                    ) / total_s
-
-                    return start_month
-                # TODO: cache this
-                startmonths = np.array([calc_start_month_year_frac(year, m) for m in range(1, 13)])
-
-                if (np.abs(year_fraction - midmonths) < 5 * 10 ** -3).any():
-                    decimal_bit = ((month - 1) * 2 + 1) / 24
-                elif (np.abs(year_fraction - midmonths_magicc) < 5 * 10 ** -3).any():
-                    decimal_bit = ((month - 1) * 2 + 1) / 24
-                elif (np.abs(year_fraction - startmonths) < 5 * 10 ** -3).any():
-                    decimal_bit = (month - 1) / 12
-                elif (np.abs(year_fraction - startmonths_magicc) < 5 * 10 ** -3).any():
-                    decimal_bit = (month - 1) / 12
-                else:
-                    error_msg = (
-                        "Your timestamps don't appear to be middle or start of month"
-                    )
-                    raise ValueError(error_msg)
-
-                return np.round(year + decimal_bit, 3)  # match MAGICC precision
-
-            data_block.index = data_block.index.map(_convert_to_decimal_year)
+            data_block.index = data_block.index.map(MAGICC_TIME_CONVERTER.convert_to_decimal_year)
 
         return data_block
 
@@ -2175,42 +2116,8 @@ class MAGICCData(ScmDataFrameBase):
         elif isinstance(time_srs.iloc[0], int):
             time_srs = [datetime(y, 1, 1) for y in to_int(time_srs)]
         else:
-            # decimal years
-            def _convert_to_datetime(decimal_year):
-                # MAGICC dates are to nearest month at most precise
-                year = int(decimal_year)
-                month_decimal = decimal_year % 1 * 12
-                month_fraction = month_decimal % 1
-                # decide if start, middle or end of month
-                if np.round(month_fraction, 1) == 1:
-                    # MAGICC is never actually end of month, this case is just due to
-                    # rounding errors. E.g. in MAGICC, 1000.083 is year 1000, start of
-                    # February, but 0.083 * 12 = 0.96. Hence to get the right month,
-                    # i.e. February, after rounding down we need the + 2 below.
-                    month = int(month_decimal) + 2
-                    day = 1
-                    hour = 1
-                    month += 1
-                elif np.round(month_fraction, 1) == 0.5:
-                    month = int(np.ceil(month_decimal))
-                    _, month_days = monthrange(year, month)
-                    day_decimal = month_days * 0.5
-                    day = int(day_decimal)
-                    hour = int(day_decimal % 1 * 24)
-                elif np.round(month_fraction, 1) == 0:
-                    month = int(month_decimal) + 1
-                    day = 1
-                    hour = 1
-                else:
-                    error_msg = (
-                        "Your timestamps don't appear to be middle or start of month"
-                    )
-                    raise ValueError(error_msg)
+            time_srs = time_srs.apply(lambda x: MAGICC_TIME_CONVERTER.convert_to_datetime(x))
 
-                res = datetime(year, month, day, hour)
-                return res
-
-            time_srs = time_srs.apply(lambda x: _convert_to_datetime(x))
 
         self["time"] = time_srs
 
