@@ -579,11 +579,12 @@ def test_load_scen():
     generic_mdata_tests(mdata)
 
     assert (mdata["model"] == "unspecified").all()
-    assert (mdata["scenario"] == "unspecified").all()
+    assert (mdata["scenario"] == "RCP3PD").all()
     assert (mdata["climate_model"] == "unspecified").all()
+    assert mdata.metadata["description"] == "HARMONISED, EXTENDED FINAL RCP3-PD (Peak&Decline) NOV26; RCP3PD-Contact: IMAGE group, Detlef van Vuuren (Detlef.vanVuuren@pbl.nl)"
     assert (
-        mdata.metadata["date"]
-        == "26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
+        mdata.metadata["notes"]
+        == "DATE: 26/11/2009 11:29:06; MAGICC-VERSION: 6.3.09, 25 November 2009"
     )
     assert "Final RCP3PD with constant emissions" in mdata.metadata["header"]
 
@@ -759,13 +760,17 @@ def test_load_scen_specify_metadata():
     assert (mdata["climate_model"] == tclimate_model).all()
 
 
-def test_load_scen_year_first_column():
+def test_load_scen__metadata_and_year_first_column():
     mdata = MAGICCData(join(TEST_DATA_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
 
     generic_mdata_tests(mdata)
 
-    assert "Generic text" in mdata.metadata["header"]
+    assert mdata.metadata["description"] == "Generic text: something here"
+    assert mdata.metadata["notes"] == "Other text"
+    assert "20" not in mdata.metadata["header"]
+    assert "Final RCP3PD with constant emissions after 2100 using the default RCPtool MAGICC6.3 settings. Compiled by: malte.meinshausen@pik-potsdam.de" in mdata.metadata["header"]
 
+    assert all(mdata["scenario"] == "JUNK")
     assert_mdata_value(
         mdata,
         6.7350,
