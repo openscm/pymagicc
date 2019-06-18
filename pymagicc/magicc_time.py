@@ -15,7 +15,7 @@ from calendar import monthrange
 import numpy as np
 
 
-class _MAGICCTimeConverter():
+class _MAGICCTimeConverter:
     def __init__(self):
         self._midmonths = None
         self._midmonths_magicc = None
@@ -27,10 +27,9 @@ class _MAGICCTimeConverter():
     @property
     def midmonths(self):
         if self._midmonths is None:
-            self._midmonths = np.array([
-                self._calc_mid_month_year_frac(m)
-                for m in range(1, 13)
-            ])
+            self._midmonths = np.array(
+                [self._calc_mid_month_year_frac(m) for m in range(1, 13)]
+            )
 
         return self._midmonths
 
@@ -43,10 +42,9 @@ class _MAGICCTimeConverter():
     @property
     def startmonths(self):
         if self._startmonths is None:
-            self._startmonths = np.array([
-                self._calc_start_month_year_frac(m)
-                for m in range(1, 13)
-            ])
+            self._startmonths = np.array(
+                [self._calc_start_month_year_frac(m) for m in range(1, 13)]
+            )
         return self._startmonths
 
     @property
@@ -56,23 +54,31 @@ class _MAGICCTimeConverter():
         return self._startmonths_magicc
 
     def _calc_start_month_year_frac(self, mth):
-        total_s = self._calc_seconds_from_dummy_year_start(dt.datetime(self._dummy_year_start.year + 1, 1, 1))
+        total_s = self._calc_seconds_from_dummy_year_start(
+            dt.datetime(self._dummy_year_start.year + 1, 1, 1)
+        )
 
-        start_month = self._calc_seconds_from_dummy_year_start(dt.datetime(self._dummy_year_start.year, mth, 1)
-        ) / total_s
+        start_month = (
+            self._calc_seconds_from_dummy_year_start(
+                dt.datetime(self._dummy_year_start.year, mth, 1)
+            )
+            / total_s
+        )
 
         return start_month
 
     def _calc_mid_month_year_frac(self, mth):
-        next_yr = self._dummy_year_start.year if mth != 12 else self._dummy_year_start.year + 1
-        next_mth = mth + 1 if mth != 12 else 1
-        total_s = self._calc_seconds_from_dummy_year_start(dt.datetime(self._dummy_year_start.year + 1, 1, 1))
+        total_s = self._calc_seconds_from_dummy_year_start(
+            dt.datetime(self._dummy_year_start.year + 1, 1, 1)
+        )
         _, month_days = monthrange(self._dummy_year_start.year, mth)
         day_decimal = month_days * 0.5
         day = int(day_decimal)
         hour = int(day_decimal % 1 * 24)
         mid_month = (
-            self._calc_seconds_from_dummy_year_start(dt.datetime(self._dummy_year_start.year, mth, day, hour))
+            self._calc_seconds_from_dummy_year_start(
+                dt.datetime(self._dummy_year_start.year, mth, day, hour)
+            )
         ) / total_s
 
         return mid_month
@@ -127,9 +133,7 @@ class _MAGICCTimeConverter():
             day = 1
             hour = 1
         else:
-            error_msg = (
-                "Your timestamps don't appear to be middle or start of month"
-            )
+            error_msg = "Your timestamps don't appear to be middle or start of month"
             raise ValueError(error_msg)
 
         res = dt.datetime(year, month, day, hour)
@@ -159,10 +163,7 @@ class _MAGICCTimeConverter():
         """
         year = idtime.year
         month = idtime.month
-        year_fraction = (
-            idtime
-            - dt.datetime(year, 1, 1)
-        ).total_seconds() / (
+        year_fraction = (idtime - dt.datetime(year, 1, 1)).total_seconds() / (
             dt.datetime(year + 1, 1, 1) - dt.datetime(year, 1, 1)
         ).total_seconds()
 
@@ -172,20 +173,24 @@ class _MAGICCTimeConverter():
             decimal_bit = midmonth_decimal_bit
         elif self._yr_frac_close_to(year_fraction, self.midmonths):
             decimal_bit = midmonth_decimal_bit
-        elif self._yr_frac_close_to(year_fraction, self.startmonths_magicc, must_be_greater=True):
+        elif self._yr_frac_close_to(
+            year_fraction, self.startmonths_magicc, must_be_greater=True
+        ):
             decimal_bit = startmonth_decimal_bit
-        elif self._yr_frac_close_to(year_fraction, self.startmonths, must_be_greater=True):
+        elif self._yr_frac_close_to(
+            year_fraction, self.startmonths, must_be_greater=True
+        ):
             decimal_bit = startmonth_decimal_bit
         else:
-            error_msg = (
-                "Your timestamps don't appear to be middle or start of month"
-            )
+            error_msg = "Your timestamps don't appear to be middle or start of month"
             raise ValueError(error_msg)
 
         return np.round(year + decimal_bit, 3)  # match MAGICC precision
 
     def _yr_frac_close_to(self, yfrac, other, must_be_greater=False):
-        match_idx = np.where(np.abs(yfrac - other) < self._convert_to_decimal_required_precision)[0]
+        match_idx = np.where(
+            np.abs(yfrac - other) < self._convert_to_decimal_required_precision
+        )[0]
         if match_idx.size == 0:
             return False
         if must_be_greater and yfrac < other[match_idx]:

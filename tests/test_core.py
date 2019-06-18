@@ -685,7 +685,9 @@ def test_persistant_state_integration(package, rf_method):
         # run the test twice, small price to pay for clarity and scalability)
         package.update_config(CORE_CO2CH4N2O_RFMETHOD=rf_method)
         if rf_method == "OLBL":
-            pytest.xfail("MAGICC7's ECS only follows its definition with IPCCTAR forcing")
+            pytest.xfail(
+                "MAGICC7's ECS only follows its definition with IPCCTAR forcing"
+            )
 
     actual_results = package.diagnose_tcr_ecs()
     np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
