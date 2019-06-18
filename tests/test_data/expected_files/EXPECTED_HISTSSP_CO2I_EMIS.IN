@@ -81,6 +81,7 @@ gas: CO2I
 key: value
 length: 27 hands
 source: CEDS data from data publicly available for download in the supplementary material of Hoesly et al. GMD 2017 https://www.geosci-model-dev-discuss.net/gmd-2017-43/ These have been scaled to the 5 region level by Steve Smith before being passed to Zeb somehow.
+timeseriestype: AVERAGE_YEAR_MID_YEAR
 
 &THISFILE_SPECIFICATIONS
     THISFILE_DATACOLUMNS = 7
