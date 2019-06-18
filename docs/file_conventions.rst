@@ -1,3 +1,5 @@
+.. _magicc_file_conventions:
+
 MAGICC file conventions
 =======================
 
@@ -15,22 +17,29 @@ still unsure about how strictly many of these conventions have to be
 followed as we are yet to set up tests for running MAGICC with *all* of
 these different files after they’ve been set using pymagicc).
 
-1. Files ending in ``.SCEN`` are emissions scenario files. They are used
-   to drive MAGICC6 and can also be used to drive MAGICC7, although it
-   is much less predictable with MAGICC7.
-2. Files ending in ``.SCEN7`` and ``.IN`` are other input files. They
-   are both the same format, some notes, then the data in space
+#. Files ending in ``.SCEN7`` and ``.IN`` are input files. They
+   are both the same format: some notes, then the data in space
    separated columns.
 
-   1. Files ending in ``.SCEN7`` are scenario input files.
-   2. Files ending in ``.IN`` are input files, typically related to the
+   #. Files ending in ``.SCEN7`` are scenario input files.
+   #. Files ending in ``.IN`` are input files, typically related to the
       historical period. The filename indicates what data is in the file
       e.g. ``CONC.IN`` indicates that this file contains concentrations.
 
-3. Files ending in ``.CFG`` are config files. They are used to set
+#. Files ending in ``.CFG`` are config files. They are used to set
    MAGICC’s configuration and are always in the format of a FORTRAN90
    namelist.
-4. Files ending in ``.prn`` are emissions input files for ozone
+#. Files ending in ``.SCEN`` are emissions scenario files. These files are a legacy
+   format. They are used to drive MAGICC6 and can also be used to drive MAGICC7, although the results are much less predictable with MAGICC7.
+
+   - ``.SCEN`` files have to be written very carefully, in particular their metadata.
+     Specifically, when a ``.SCEN`` file is written, ``writer.metadata["description"]``
+     is written in the fourth line of the file, ``writer.metadata["notes"]`` is
+     written in the fifth line of the file and all other metadata is written at the
+     end of the file. If ``description``/``notes`` is not available in
+     ``writer.metadata`` then these lines are automatically filled by Pymagicc.
+
+#. Files ending in ``.prn`` are emissions input files for ozone
    depleting substances. This file format is comprised of a header row
    which contains (unlabelled) information about the first data row,
    start year and end year, then some notes rows, then the data in fixed

@@ -1817,9 +1817,15 @@ class _ScenWriter(_Writer):
         # - line 6 is empty
         header_lines.append("name: {}".format(self.minput["scenario"].unique()[0]))
         header_lines.append(
-            "description: {}".format(self.minput.metadata.pop("description"))
+            "description: {}".format(self.minput.metadata.pop(
+                "description",
+                "metadata['description'] is written here"
+            ))
         )
-        header_lines.append("notes: {}".format(self.minput.metadata.pop("notes")))
+        header_lines.append("notes: {}".format(self.minput.metadata.pop(
+            "notes",
+            "metadata['notes'] is written here"
+        )))
         header_lines.append("")
 
         header_lines.append(self.minput.metadata.pop("header"))
@@ -2254,6 +2260,8 @@ class MAGICCData(ScmDataFrameBase):
     def write(self, filepath, magicc_version):
         """
         Write an input file to disk.
+
+        For more information on file conventions, see :ref:`magicc_file_conventions`.
 
         Parameters
         ----------
