@@ -38,6 +38,9 @@ these different files after they’ve been set using Pymagicc).
      written in the fifth line of the file and all other metadata is written at the
      end of the file. If ``description``/``notes`` is not available in
      ``writer.metadata`` then these lines are automatically filled by Pymagicc.
+   - When ``.SCEN`` files are read, their ``scenario`` metadata is automatically
+     filled from the third line of the input file (similarly, ``scenario`` is also
+     written to the third line of the file when writing ``.SCEN`` files).
 
 #. Files ending in ``.prn`` are emissions input files for ozone
    depleting substances. This file format is comprised of a header row
