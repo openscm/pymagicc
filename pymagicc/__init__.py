@@ -6,7 +6,6 @@
 # Sarah Raper, and Malte Meinshausen included in this package is licensed under
 # a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
 # License (https://creativecommons.org/licenses/by-nc-sa/3.0/)
-import logging
 import subprocess
 
 
@@ -19,19 +18,6 @@ from .scenarios import rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions  # noqa
 
 __version__ = get_versions()["version"]
 del get_versions
-
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
-
-if not _config["is_windows"]:
-    wine_installed = (
-        subprocess.call(
-            "type wine", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        == 0
-    )
-    if not wine_installed:
-        logger.warning("Wine is not installed")
 
 
 def run(scenario, magicc_version=6, **kwargs):

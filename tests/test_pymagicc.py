@@ -105,7 +105,7 @@ def test_run_rcp85(package):
 
 
 @pytest.mark.slow
-def test_parameters():
+def test_parameters(package):
     results = run(rcp26, out_parameters=True, core_climatesensitivity=1.5)
     assert results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == 1.5
     # Test removal of newlines in PARAMETERS.out
@@ -113,14 +113,14 @@ def test_parameters():
 
 
 @pytest.mark.slow
-def test_default_config():
+def test_default_config(package):
     results = run(rcp26, out_parameters=True)
     assert results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == 3
     assert results.metadata["parameters"]["years"]["startyear"] == 1765
 
 
 @pytest.mark.slow
-def test_set_years():
+def test_set_years(package):
     results = run(rcp26, out_parameters=True, startyear=1900, endyear=2000)
     assert results.metadata["parameters"]["years"]["startyear"] == 1900
     assert results.metadata["parameters"]["years"]["endyear"] == 2000

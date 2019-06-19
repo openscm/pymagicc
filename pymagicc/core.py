@@ -14,7 +14,7 @@ import pandas as pd
 from openscm.scmdataframe import df_append
 
 
-from .config import config
+from .config import config, _wine_installed
 from .scenarios import zero_emissions
 from .utils import get_date_time_string
 from .io import (
@@ -28,6 +28,8 @@ from .io import (
 
 IS_WINDOWS = config["is_windows"]
 
+class WineNotInstalledError(Exception):
+    """Exception raised if wine is not installed but is required"""
 
 def _copy_files(source, target):
     """
@@ -302,6 +304,8 @@ class MAGICCBase(object):
         command = [join(self.root_dir, exec_dir, self.binary_name)]
 
         if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
+            if not _wine_installed:
+                raise WineNotInstalledError("Wine is not installed but is required to run `.exe` binaries")
             command.insert(0, "wine")
 
         # On Windows shell=True is required.
