@@ -21,6 +21,7 @@ __version__ = get_versions()["version"]
 del get_versions
 
 logger = logging.getLogger(__name__)
+logger.addHandler(logging.NullHandler())
 
 if not _config["is_windows"]:
     wine_installed = (
