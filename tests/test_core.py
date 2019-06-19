@@ -586,7 +586,7 @@ def test_diagnose_tcr_ecs(
     assert isinstance(full_results, dict)
 
 
-def test_read_parameters():
+def test_read_parameters(package):
     with MAGICC6() as magicc:
         # parameters don't exist
         with pytest.raises(FileNotFoundError):
@@ -1169,13 +1169,12 @@ def test_default_config(package):
         assert cfg["nml_allcfgs"][key] == expected
 
 
-def test_out_forcing():
-    with MAGICC6() as magicc:
-        # we get a warning about duplicate timeseries as we're reading both the annual
-        # and subannual volcanic forcing, we can safely ignore it here
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", ".*duplicate.*")
-            res = magicc.run(out_forcing=True)
+def test_out_forcing(package):
+    # we get a warning about duplicate timeseries as we're reading both the annual
+    # and subannual volcanic forcing, we can safely ignore it here
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", ".*duplicate.*")
+        res = package.run(out_forcing=True)
 
     # The results should include sub-annual timeseries by default
     idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index

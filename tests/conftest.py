@@ -3,6 +3,7 @@ from os.path import exists, join, dirname
 import pkg_resources
 from tempfile import mkstemp, mkdtemp
 import shutil
+import subprocess
 import filecmp
 
 
@@ -11,6 +12,7 @@ import numpy as np
 
 
 from pymagicc import MAGICC6, MAGICC7
+from pymagicc.config import _is_windows, _wine_installed
 from pymagicc.io import MAGICCData
 
 
@@ -19,7 +21,6 @@ TEST_DATA_DIR = join(dirname(__file__), "test_data")
 TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
 EXPECTED_FILES_DIR = join(TEST_DATA_DIR, "expected_files")
-
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -93,6 +94,10 @@ def package(request):
         )
         env_help = "If you set MAGICC_EXECUTABLE_X=/path/to/MAGICCX/binary then you will be able to run the tests with that binary for MAGICC_X."
         pytest.skip("\n".join([magicc_x_unavailable, env_text, env_help]))
+
+    if p.version == 6 and (not _wine_installed) and (not _is_windows):
+        pytest.xfail("Wine is not installed")
+
     p.create_copy()
     root_dir = p.root_dir
     yield p
@@ -106,7 +111,7 @@ def temp_file():
     temp_file = mkstemp()[1]
     yield temp_file
     print("deleting {}".format(temp_file))
-    remove(temp_file)
+    os.remove(temp_file)
 
 
 @pytest.fixture

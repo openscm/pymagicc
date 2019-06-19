@@ -8,6 +8,7 @@ Overrides can be set using the ConfigStore
 """
 
 import platform
+import subprocess
 from os import environ
 from os.path import abspath, dirname, join
 
@@ -19,7 +20,12 @@ default_config = {
     "EXECUTABLE_6": join(dirname(abspath(__file__)), "MAGICC6/run/magicc6.exe"),
     "IS_WINDOWS": _is_windows,
 }
-
+_wine_installed = (
+    subprocess.call(
+        "type wine", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    == 0
+)
 
 def lookup_defaults(item):
     return default_config.get(item.upper())
