@@ -20,6 +20,8 @@ from .scenarios import rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions  # noqa
 __version__ = get_versions()["version"]
 del get_versions
 
+logger = logging.getLogger(__name__)
+
 if not _config["is_windows"]:
     wine_installed = (
         subprocess.call(
@@ -28,7 +30,7 @@ if not _config["is_windows"]:
         == 0
     )
     if not wine_installed:
-        logging.warning("Wine is not installed")
+        logger.warning("Wine is not installed")
 
 
 def run(scenario, magicc_version=6, **kwargs):
