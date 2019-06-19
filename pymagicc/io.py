@@ -1514,7 +1514,7 @@ class _Writer(object):
         else:
 
             def _convert_to_decimal_year(itime):
-                # MAGICC dates are either middle of start of month
+                # convert to either either middle of start of month
                 year = itime.year
                 month = itime.month
 
