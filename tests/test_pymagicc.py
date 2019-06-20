@@ -106,14 +106,14 @@ def test_run_rcp85(package):
 
 @pytest.mark.slow
 def test_parameters(package):
-    results = run(rcp26, out_parameters=True, core_climatesensitivity=1.5)
+    results = run(rcp26, magicc_version=package.version, out_parameters=True, core_climatesensitivity=1.5)
     assert results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == 1.5
     # Test removal of newlines in PARAMETERS.out
     assert "H\nFC134a" not in results.metadata["parameters"]["allcfgs"]["fgas_names"]
 
 
 @pytest.mark.slow
-def test_default_config(package):
+def test_default_config():
     results = run(rcp26, out_parameters=True)
     assert results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == 3
     assert results.metadata["parameters"]["years"]["startyear"] == 1765
@@ -121,7 +121,7 @@ def test_default_config(package):
 
 @pytest.mark.slow
 def test_set_years(package):
-    results = run(rcp26, out_parameters=True, startyear=1900, endyear=2000)
+    results = run(rcp26, magicc_version=package.version, out_parameters=True, startyear=1900, endyear=2000)
     assert results.metadata["parameters"]["years"]["startyear"] == 1900
     assert results.metadata["parameters"]["years"]["endyear"] == 2000
     assert results["time"].min().year == 1900
