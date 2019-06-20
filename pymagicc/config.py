@@ -27,6 +27,7 @@ _wine_installed = (
     == 0
 )
 
+
 def lookup_defaults(item):
     return default_config.get(item.upper())
 
