@@ -13,7 +13,7 @@ The files in the ``run`` directory follow a number of conventions, we
 summarise these here (please note that this is just a summary, we are
 still unsure about how strictly many of these conventions have to be
 followed as we are yet to set up tests for running MAGICC with *all* of
-these different files after they’ve been set using pymagicc).
+these different files after they’ve been set using Pymagicc).
 
 1. Files ending in ``.SCEN`` are emissions scenario files. They are used
    to drive MAGICC6 and can also be used to drive MAGICC7, although it
