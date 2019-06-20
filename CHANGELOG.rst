@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#252 <https://github.com/openclimatedata/pymagicc/pull/252>`_) Improve header writing and upgrade MAGICC time conversions
+- (`#252 <https://github.com/openclimatedata/pymagicc/pull/252>`_) Improve header writing, upgrade MAGICC time conversions and fix wine not installed error handling
 - (`#253 <https://github.com/openclimatedata/pymagicc/pull/253>`_) Add support for ``out_dynamic_vars`` parameter
 - (`#250 <https://github.com/openclimatedata/pymagicc/pull/250>`_) Add support for ``.MAG`` files
 - (`#249 <https://github.com/openclimatedata/pymagicc/pull/249>`_) Update to keep pace with MAGICC7 development

@@ -28,8 +28,10 @@ from .io import (
 
 IS_WINDOWS = config["is_windows"]
 
+
 class WineNotInstalledError(Exception):
     """Exception raised if wine is not installed but is required"""
+
 
 def _copy_files(source, target):
     """
@@ -305,7 +307,9 @@ class MAGICCBase(object):
 
         if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
             if not _wine_installed:
-                raise WineNotInstalledError("Wine is not installed but is required to run `.exe` binaries")
+                raise WineNotInstalledError(
+                    "Wine is not installed but is required to run `.exe` binaries"
+                )
             command.insert(0, "wine")
 
         # On Windows shell=True is required.

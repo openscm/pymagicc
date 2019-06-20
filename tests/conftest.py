@@ -22,6 +22,7 @@ TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
 EXPECTED_FILES_DIR = join(TEST_DATA_DIR, "expected_files")
 
+
 def pytest_addoption(parser):
     parser.addoption(
         "--skip-slow", action="store_true", default=False, help="skip any slow tests"
