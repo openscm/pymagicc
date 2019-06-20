@@ -1346,12 +1346,7 @@ class _Writer(object):
 
         md = self.minput.metadata
         sorted_keys = sorted(md.keys())
-        metadata = "\n".join(
-            [
-                "{}: {}".format(k, md[k])
-                for k in sorted_keys
-            ]
-        )
+        metadata = "\n".join(["{}: {}".format(k, md[k]) for k in sorted_keys])
 
         return (
             "---- HEADER ----\n"
