@@ -159,5 +159,5 @@ column is the time axis and the subsequent columns are the timeseries.
 This format is highly custom and specialised for use with MAGICC, with the secondary
 characteristic of being somewhat human readable. Having said this, if you want to work
 with the data, we strongly recommend using Pymagicc's io module (:ref:`pymagicc.io`) to
-allow easy conversion to more familiar python types such as dictionaries, lists,
+allow easy conversion to more familiar Python types such as dictionaries, lists,
 strings and most importantly pandas data frames.
