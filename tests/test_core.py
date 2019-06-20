@@ -587,7 +587,7 @@ def test_diagnose_tcr_ecs(
 
 
 def test_read_parameters(package):
-    with MAGICC6() as magicc:
+    with type(package)() as magicc:
         # parameters don't exist
         with pytest.raises(FileNotFoundError):
             magicc.read_parameters()
@@ -598,7 +598,7 @@ def test_read_parameters(package):
 
         assert magicc.config is None
 
-    with MAGICC6() as magicc:
+    with type(package)() as magicc:
         magicc.run()
         assert isinstance(magicc.config, dict)
         assert "allcfgs" in magicc.config
@@ -1174,15 +1174,20 @@ def test_out_forcing(package):
     # and subannual volcanic forcing, we can safely ignore it here
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", ".*duplicate.*")
-        res = package.run(out_forcing=True)
+        run_kwargs = {"out_forcing": True, "out_ascii_binary": "ASCII"}
+        if package.version == 7:
+            run_kwargs["out_forcing_subannual"] = True
+
+        res = package.run(**run_kwargs)
 
     # The results should include sub-annual timeseries by default
     idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index
     assert (idx[1] - idx[0]).days == 30
     # make sure annual series also read sensibly
+    exp = 289.2 if package.version == 6 else 288.636
     assert (
         res.filter(variable="*Conc*CO2", year=1876, region="World").values.squeeze()
-        == 289.2
+        == exp
     )
 
 
