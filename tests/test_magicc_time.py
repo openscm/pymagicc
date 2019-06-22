@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pytest
 
-from pymagicc.magicc_time import MAGICC_TIME_CONVERTER
+from pymagicc.magicc_time import convert_to_decimal_year, convert_to_datetime
 
 
 @pytest.mark.parametrize(
@@ -16,7 +16,7 @@ from pymagicc.magicc_time import MAGICC_TIME_CONVERTER
     ),
 )
 def test_convert_to_datetime(spoint, output):
-    res = MAGICC_TIME_CONVERTER.convert_to_datetime(spoint)
+    res = convert_to_datetime(spoint)
     assert res == output
 
 
@@ -26,7 +26,7 @@ def test_convert_to_datetime(spoint, output):
 def test_convert_to_datetime_error(spoint):
     error_msg = "Your timestamps don't appear to be middle or start of month"
     with pytest.raises(ValueError, match=error_msg):
-        MAGICC_TIME_CONVERTER.convert_to_datetime(spoint)
+        convert_to_datetime(spoint)
 
 
 @pytest.mark.parametrize(
@@ -40,7 +40,7 @@ def test_convert_to_datetime_error(spoint):
     ),
 )
 def test_convert_to_decimal_year(spoint, output):
-    res = MAGICC_TIME_CONVERTER.convert_to_decimal_year(spoint)
+    res = convert_to_decimal_year(spoint)
     assert np.round(res, 3) == np.round(output, 3)
 
 
@@ -56,4 +56,4 @@ def test_convert_to_decimal_year(spoint, output):
 def test_convert_to_decimal_year_error(spoint):
     error_msg = "Your timestamps don't appear to be middle or start of month"
     with pytest.raises(ValueError, match=error_msg):
-        MAGICC_TIME_CONVERTER.convert_to_decimal_year(spoint)
+        convert_to_decimal_year(spoint)
