@@ -16,7 +16,7 @@ from openscm.scmdataframe.base import ScmDataFrameBase
 from openscm.scmdataframe.timeindex import to_int
 
 
-from .magicc_time import MAGICC_TIME_CONVERTER
+from .magicc_time import convert_to_decimal_year, convert_to_datetime
 from .utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
@@ -1543,7 +1543,7 @@ class _Writer(object):
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
             data_block.index = data_block.index.map(
-                MAGICC_TIME_CONVERTER.convert_to_decimal_year
+                convert_to_decimal_year
             )
 
         return data_block
@@ -2120,7 +2120,7 @@ class MAGICCData(ScmDataFrameBase):
             time_srs = [datetime(y, 1, 1) for y in to_int(time_srs)]
         else:
             time_srs = time_srs.apply(
-                lambda x: MAGICC_TIME_CONVERTER.convert_to_datetime(x)
+                lambda x: convert_to_datetime(x)
             )
 
         self["time"] = time_srs
