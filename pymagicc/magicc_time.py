@@ -25,11 +25,11 @@ _midmonths_magicc = _startmonths_magicc + 1 / 24
 _dummy_year_start = dt.datetime(2001, 1, 1)
 
 
-def _calc_seconds_from_dummy_year_start(self, dt_in):
+def _calc_seconds_from_dummy_year_start(dt_in):
     return (dt_in - _dummy_year_start).total_seconds()
     
 
-def _calc_start_month_year_frac(self, mth):
+def _calc_start_month_year_frac(mth):
     total_s = _calc_seconds_from_dummy_year_start(
         dt.datetime(_dummy_year_start.year + 1, 1, 1)
     )
@@ -43,7 +43,7 @@ def _calc_start_month_year_frac(self, mth):
 
     return start_month
 
-def _calc_mid_month_year_frac(self, mth):
+def _calc_mid_month_year_frac(mth):
     total_s = _calc_seconds_from_dummy_year_start(
         dt.datetime(_dummy_year_start.year + 1, 1, 1)
     )
@@ -61,10 +61,10 @@ def _calc_mid_month_year_frac(self, mth):
     
     
 _startmonths = np.array(
-    [self._calc_start_month_year_frac(m) for m in range(1, 13)]
+    [_calc_start_month_year_frac(m) for m in range(1, 13)]
 )
 _midmonths = np.array(
-    [self._calc_mid_month_year_frac(m) for m in range(1, 13)]
+    [_calc_mid_month_year_frac(m) for m in range(1, 13)]
 )
 
 
