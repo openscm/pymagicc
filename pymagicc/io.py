@@ -1542,9 +1542,7 @@ class _Writer(object):
         if number_months == 1:  # yearly data
             data_block.index = data_block.index.map(lambda x: x.year)
         else:
-            data_block.index = data_block.index.map(
-                convert_to_decimal_year
-            )
+            data_block.index = data_block.index.map(convert_to_decimal_year)
 
         return data_block
 
@@ -2119,9 +2117,7 @@ class MAGICCData(ScmDataFrameBase):
         elif isinstance(time_srs.iloc[0], int):
             time_srs = [datetime(y, 1, 1) for y in to_int(time_srs)]
         else:
-            time_srs = time_srs.apply(
-                lambda x: convert_to_datetime(x)
-            )
+            time_srs = time_srs.apply(lambda x: convert_to_datetime(x))
 
         self["time"] = time_srs
 
