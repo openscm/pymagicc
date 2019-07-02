@@ -1,4 +1,4 @@
-from os import remove, environ
+from os import remove, listdir
 from os.path import exists, join
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -1183,3 +1183,33 @@ def test_out_forcing():
         res.filter(variable="*Conc*CO2", year=1876, region="World").values.squeeze()
         == 289.2
     )
+
+
+def test_format_config():
+    inp = {
+        "out_temperature": True,
+        "out_allowdynamicvars": False,
+        "out_keydata1_vars": ["DAT_SURF_TEMP"],
+        "out_dynamic_vars": ["DAT_SURF_TEMP"]
+    }
+    exp = {
+        "out_temperature": 1,
+        "out_allowdynamicvars": 0,
+        "out_keydata1_vars": ["DAT_SURF_TEMP"],
+        "out_dynamic_vars": ["DAT_SURF_TEMP"]
+    }
+    m = MAGICC7()
+
+    res = m._convert_out_config_flags_to_integers(inp)
+    assert exp == res
+
+
+@pytest.mark.slow
+def test_limit_output():
+    # Check that we can run the model an only output a single variable
+    with MAGICC7() as m:
+        m.set_output_variables(write_binary=True, write_ascii=False)
+        res = m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+
+        assert listdir(m.out_dir) == ['DAT_SURFACE_TEMP.BINOUT']
+        assert res['variable'].unique() == ['Surface Temperature']
