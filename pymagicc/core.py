@@ -777,7 +777,9 @@ class MAGICCBase(object):
 
     def _convert_out_config_flags_to_integers(self, config_dict):
         for key, value in config_dict.items():
-            if key.startswith("out") and key != "out_ascii_binary":
+            # Ignore all out_x_vars variables as that should be a list of strings
+            # Note that there is a variable OUT_ALLOWANYDYNAMICVARS which should be in integer
+            if key.startswith("out") and key != "out_ascii_binary" and not key.endswith('_vars'):
                 config_dict[key] = 1 if value else 0
 
         return config_dict
