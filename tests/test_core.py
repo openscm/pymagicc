@@ -1207,9 +1207,12 @@ def test_format_config():
 @pytest.mark.slow
 def test_limit_output():
     # Check that we can run the model an only output a single variable
-    with MAGICC7() as m:
-        m.set_output_variables(write_binary=True, write_ascii=False)
-        res = m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+    try:
+        with MAGICC7() as m:
+            m.set_output_variables(write_binary=True, write_ascii=False)
+            res = m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
 
-        assert listdir(m.out_dir) == ['DAT_SURFACE_TEMP.BINOUT']
-        assert res['variable'].unique() == ['Surface Temperature']
+            assert listdir(m.out_dir) == ['DAT_SURFACE_TEMP.BINOUT']
+            assert res['variable'].unique() == ['Surface Temperature']
+    except FileNotFoundError:
+        pytest.skip('MAGICC7 not installed')
