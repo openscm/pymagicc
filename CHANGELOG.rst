@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#250 <https://github.com/openclimatedata/pymagicc/pull/253>`_) Add support for ``out_dynamic_vars`` parameter
 - (`#250 <https://github.com/openclimatedata/pymagicc/pull/250>`_) Add support for ``.MAG`` files
 - (`#249 <https://github.com/openclimatedata/pymagicc/pull/249>`_) Update to keep pace with MAGICC7 development
 - (`#247 <https://github.com/openclimatedata/pymagicc/pull/247>`_) Upgrade pyam dependency to use nominated release
