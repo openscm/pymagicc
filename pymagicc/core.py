@@ -241,13 +241,16 @@ class MAGICCBase(object):
 
         return self._default_config
 
-    def run(self, scenario=None, only=None, **kwargs):
+    def run(self, scenario=None, only=None, debug=False, verbose=False, **kwargs):
         """
         Run MAGICC and parse the output.
 
         As a reminder, putting ``out_parameters=1`` will cause MAGICC to write out its
         parameters into ``out/PARAMETERS.OUT`` and they will then be read into
         ``output.metadata["parameters"]`` where ``output`` is the returned object.
+
+        Any logged output from running magicc will be in``output.metadata["stderr"]``. The amount of logs can be controlled with
+        the ``debug`` and ``verbose`` parameters.
 
         Parameters
         ----------
@@ -257,6 +260,12 @@ class MAGICCBase(object):
 
         only : list of str
             If not None, only extract variables in this list.
+
+        debug: bool
+            If true, then magicc will run in debug mode with the maximum amount of logging.
+
+        verbose: bool
+            If True, magicc will run be verbose mode.
 
         kwargs
             Other config values to pass to MAGICC for the run
@@ -272,6 +281,8 @@ class MAGICCBase(object):
         ------
         ValueError
             If no output is found which matches the list specified in ``only``.
+        subprocess.CalledProcessError
+            If magicc fails to run. Check the stderr property on the exception to inspect the results output from magicc
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -304,6 +315,11 @@ class MAGICCBase(object):
 
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
+        if self.version >= 7:
+            if debug:
+                command.append('--debug')
+            elif verbose:
+                command.append('--verbose')
 
         if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
             if not _wine_installed:
@@ -313,7 +329,7 @@ class MAGICCBase(object):
             command.insert(0, "wine")
 
         # On Windows shell=True is required.
-        subprocess.check_call(command, cwd=self.run_dir, shell=IS_WINDOWS)
+        res = subprocess.run(command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS)
 
         outfiles = self._get_output_filenames()
 
@@ -353,6 +369,8 @@ class MAGICCBase(object):
             mdata.metadata["parameters"] = run_paras
         except FileNotFoundError:
             pass
+
+        mdata.metadata['stderr'] = res.stderr.decode('ascii')
 
         return mdata
 
