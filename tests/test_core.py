@@ -1196,13 +1196,13 @@ def test_format_config():
         "out_temperature": True,
         "out_allowdynamicvars": False,
         "out_keydata1_vars": ["DAT_SURF_TEMP"],
-        "out_dynamic_vars": ["DAT_SURF_TEMP"]
+        "out_dynamic_vars": ["DAT_SURF_TEMP"],
     }
     exp = {
         "out_temperature": 1,
         "out_allowdynamicvars": 0,
         "out_keydata1_vars": ["DAT_SURF_TEMP"],
-        "out_dynamic_vars": ["DAT_SURF_TEMP"]
+        "out_dynamic_vars": ["DAT_SURF_TEMP"],
     }
     m = MAGICC7()
 
@@ -1216,38 +1216,38 @@ def test_limit_output():
     try:
         with MAGICC7() as m:
             m.set_output_variables(write_binary=True, write_ascii=False)
-            res = m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+            res = m.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
 
-            assert listdir(m.out_dir) == ['DAT_SURFACE_TEMP.BINOUT']
-            assert res['variable'].unique() == ['Surface Temperature']
+            assert listdir(m.out_dir) == ["DAT_SURFACE_TEMP.BINOUT"]
+            assert res["variable"].unique() == ["Surface Temperature"]
     except FileNotFoundError:
-        pytest.skip('MAGICC7 not installed')
+        pytest.skip("MAGICC7 not installed")
 
 
 @pytest.mark.slow
 def test_stderr_debug(package):
-    res = package.run(debug=True, only=['Surface Temperature'])
+    res = package.run(debug=True, only=["Surface Temperature"])
 
-    assert 'stderr' in res.metadata
+    assert "stderr" in res.metadata
 
     if package.version >= 7:
-        assert '<DEBUG>' in res.metadata['stderr']
+        assert "<DEBUG>" in res.metadata["stderr"]
 
     # Also check that the debug flag takes preference
-    res = package.run(debug=True, verbose=True, only=['Surface Temperature'])
+    res = package.run(debug=True, verbose=True, only=["Surface Temperature"])
     if package.version >= 7:
-        assert '<DEBUG>' in res.metadata['stderr']
+        assert "<DEBUG>" in res.metadata["stderr"]
 
 
 @pytest.mark.slow
 def test_stderr_verbose(package):
-    res = package.run(verbose=True, only=['Surface Temperature'])
+    res = package.run(verbose=True, only=["Surface Temperature"])
 
-    assert 'stderr' in res.metadata
+    assert "stderr" in res.metadata
 
     if package.version >= 7:
-        assert '<DEBUG>' not in res.metadata['stderr']
-        assert '<INFO>' in res.metadata['stderr']
+        assert "<DEBUG>" not in res.metadata["stderr"]
+        assert "<INFO>" in res.metadata["stderr"]
 
 
 @pytest.mark.slow
@@ -1256,7 +1256,7 @@ def test_stderr_accessible_on_failure(package):
     try:
         package.run(invalid_parameter=True, verbose=True)
     except CalledProcessError as e:
-        stderr = e.stderr.decode('ascii')
+        stderr = e.stderr.decode("ascii")
         assert stderr
         raised = True
     finally:
@@ -1264,27 +1264,33 @@ def test_stderr_accessible_on_failure(package):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize('level,raises', [('WARNING', True), ('ERROR', True), ('FATAL', True), ('INFO', False)])
+@pytest.mark.parametrize(
+    "level,raises",
+    [("WARNING", True), ("ERROR", True), ("FATAL", True), ("INFO", False)],
+)
 def test_stderr_warning_raises_warning(mocker, level, raises):
 
     # Run magicc, but replaces the error message
     def run(*args, **kwargs):
         import subprocess
+
         r = subprocess.run(*args, **kwargs)
-        r.stderr = level.encode('ascii')
+        r.stderr = level.encode("ascii")
         return r
 
-    mock_run = mocker.patch('pymagicc.core.subprocess').run
+    mock_run = mocker.patch("pymagicc.core.subprocess").run
     mock_run.side_effect = run
 
     try:
         with MAGICC7() as m:
             if raises:
-                with pytest.warns(UserWarning, match=r'magicc logged an {} message*'.format(level)):
-                    m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+                with pytest.warns(
+                    UserWarning, match=r"magicc logged an {} message*".format(level)
+                ):
+                    m.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
             else:
                 with pytest.warns(None) as record:
-                    m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+                    m.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
                 assert len(record) == 0
     except FileNotFoundError:
-        pytest.skip('MAGICC7 not installed')
+        pytest.skip("MAGICC7 not installed")

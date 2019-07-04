@@ -317,9 +317,9 @@ class MAGICCBase(object):
         command = [join(self.root_dir, exec_dir, self.binary_name)]
         if self.version >= 7:
             if debug:
-                command.append('--debug')
+                command.append("--debug")
             elif verbose:
-                command.append('--verbose')
+                command.append("--verbose")
 
         if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
             if not _wine_installed:
@@ -329,7 +329,9 @@ class MAGICCBase(object):
             command.insert(0, "wine")
 
         # On Windows shell=True is required.
-        res = subprocess.run(command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS)
+        res = subprocess.run(
+            command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS
+        )
 
         outfiles = self._get_output_filenames()
 
@@ -370,11 +372,15 @@ class MAGICCBase(object):
         except FileNotFoundError:
             pass
 
-        mdata.metadata['stderr'] = res.stderr.decode('ascii')
-        levels_to_warn = ['WARNING', 'ERROR', 'FATAL']
+        mdata.metadata["stderr"] = res.stderr.decode("ascii")
+        levels_to_warn = ["WARNING", "ERROR", "FATAL"]
         for l in levels_to_warn:
-            if l in mdata.metadata['stderr']:
-                warnings.warn('magicc logged an {} message. Check the metadata["stderr"] attribute'.format(l))
+            if l in mdata.metadata["stderr"]:
+                warnings.warn(
+                    'magicc logged an {} message. Check the metadata["stderr"] attribute'.format(
+                        l
+                    )
+                )
 
         return mdata
 
@@ -808,7 +814,11 @@ class MAGICCBase(object):
         for key, value in config_dict.items():
             # Ignore all out_x_vars variables as that should be a list of strings
             # Note that there is a variable OUT_ALLOWANYDYNAMICVARS which should be in integer
-            if key.startswith("out") and key != "out_ascii_binary" and not key.endswith('_vars'):
+            if (
+                key.startswith("out")
+                and key != "out_ascii_binary"
+                and not key.endswith("_vars")
+            ):
                 config_dict[key] = 1 if value else 0
 
         return config_dict
