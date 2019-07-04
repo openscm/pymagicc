@@ -1222,3 +1222,42 @@ def test_limit_output():
             assert res['variable'].unique() == ['Surface Temperature']
     except FileNotFoundError:
         pytest.skip('MAGICC7 not installed')
+
+
+@pytest.mark.slow
+def test_stderr_debug(package):
+    res = package.run(debug=True, only=['Surface Temperature'])
+
+    assert 'stderr' in res.metadata
+
+    if package.version >= 7:
+        assert '<DEBUG>' in res.metadata['stderr']
+
+    # Also check that the debug flag takes preference
+    res = package.run(debug=True, verbose=True, only=['Surface Temperature'])
+    if package.version >= 7:
+        assert '<DEBUG>' in res.metadata['stderr']
+
+
+@pytest.mark.slow
+def test_stderr_verbose(package):
+    res = package.run(verbose=True, only=['Surface Temperature'])
+
+    assert 'stderr' in res.metadata
+
+    if package.version >= 7:
+        assert '<DEBUG>' not in res.metadata['stderr']
+        assert '<INFO>' in res.metadata['stderr']
+
+
+@pytest.mark.slow
+def test_stderr_accessible_on_failure(package):
+    raised = False
+    try:
+        package.run(invalid_parameter=True, verbose=True)
+    except CalledProcessError as e:
+        stderr = e.stderr.decode('ascii')
+        assert stderr
+        raised = True
+    finally:
+        assert raised
