@@ -1261,3 +1261,30 @@ def test_stderr_accessible_on_failure(package):
         raised = True
     finally:
         assert raised
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize('level,raises', [('WARNING', True), ('ERROR', True), ('FATAL', True), ('INFO', False)])
+def test_stderr_warning_raises_warning(mocker, level, raises):
+
+    # Run magicc, but replaces the error message
+    def run(*args, **kwargs):
+        import subprocess
+        r = subprocess.run(*args, **kwargs)
+        r.stderr = level.encode('ascii')
+        return r
+
+    mock_run = mocker.patch('pymagicc.core.subprocess').run
+    mock_run.side_effect = run
+
+    try:
+        with MAGICC7() as m:
+            if raises:
+                with pytest.warns(UserWarning, match=r'magicc logged an {} message*'.format(level)):
+                    m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+            else:
+                with pytest.warns(None) as record:
+                    m.run(out_dynamic_vars=['DAT_SURFACE_TEMP'])
+                assert len(record) == 0
+    except FileNotFoundError:
+        pytest.skip('MAGICC7 not installed')
