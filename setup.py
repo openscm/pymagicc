@@ -62,6 +62,7 @@ REQUIREMENTS_NOTEBOOKS = [
 REQUIREMENTS_TESTS = [
     "pytest>=4.0",
     "pytest-cov",
+    "pytest-mock",
     "codecov",
     "goodtables",
     "goodtables",
