@@ -1191,7 +1191,7 @@ def test_out_forcing(package):
     )
 
 
-def test_format_config():
+def test_format_config(package):
     inp = {
         "out_temperature": True,
         "out_allowdynamicvars": False,
@@ -1204,50 +1204,54 @@ def test_format_config():
         "out_keydata1_vars": ["DAT_SURF_TEMP"],
         "out_dynamic_vars": ["DAT_SURF_TEMP"],
     }
-    m = MAGICC7()
 
-    res = m._convert_out_config_flags_to_integers(inp)
+    res = package._convert_out_config_flags_to_integers(inp)
     assert exp == res
 
 
 @pytest.mark.slow
-def test_limit_output():
-    # Check that we can run the model an only output a single variable
-    try:
-        with MAGICC7() as m:
-            m.set_output_variables(write_binary=True, write_ascii=False)
-            res = m.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
+def test_limit_output(package):
+    # Check that we can run the model and only output a single variable
+    package.set_output_variables(write_binary=True, write_ascii=False)
+    if package.version == 6:
+        # MAGICC6 doesn't have this capability
+        with pytest.raises(CalledProcessError):
+            package.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
+        return
 
-            assert listdir(m.out_dir) == ["DAT_SURFACE_TEMP.BINOUT"]
-            assert res["variable"].unique() == ["Surface Temperature"]
-    except FileNotFoundError:
-        pytest.skip("MAGICC7 not installed")
+    res = package.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
+    assert listdir(package.out_dir) == ["DAT_SURFACE_TEMP.BINOUT"]
+    assert res["variable"].unique() == ["Surface Temperature"]
 
 
 @pytest.mark.slow
 def test_stderr_debug(package):
+    if package.version == 6:
+        # MAGICC6 doesn't have this capability
+        with pytest.raises(ValueError):
+            res = package.run(debug=True, only=["Surface Temperature"])
+        return
+
     res = package.run(debug=True, only=["Surface Temperature"])
 
     assert "stderr" in res.metadata
-
-    if package.version >= 7:
-        assert "<DEBUG>" in res.metadata["stderr"]
-
-    # Also check that the debug flag takes preference
-    res = package.run(debug=True, verbose=True, only=["Surface Temperature"])
-    if package.version >= 7:
-        assert "<DEBUG>" in res.metadata["stderr"]
+    assert "<DEBUG>" in res.metadata["stderr"]
 
 
 @pytest.mark.slow
 def test_stderr_verbose(package):
-    res = package.run(verbose=True, only=["Surface Temperature"])
+    if package.version == 6:
+        # MAGICC6 doesn't have this capability
+        with pytest.raises(ValueError):
+            res = package.run(debug=True, only=["Surface Temperature"])
+        return
+
+    res = package.run(debug="verbose", only=["Surface Temperature"])
 
     assert "stderr" in res.metadata
 
-    if package.version >= 7:
-        assert "<DEBUG>" not in res.metadata["stderr"]
-        assert "<INFO>" in res.metadata["stderr"]
+    assert "<DEBUG>" not in res.metadata["stderr"]
+    assert "<INFO>" in res.metadata["stderr"]
 
 
 @pytest.mark.slow
@@ -1285,7 +1289,7 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
         with MAGICC7() as m:
             if raises:
                 with pytest.warns(
-                    UserWarning, match=r"magicc logged an {} message*".format(level)
+                    UserWarning, match=r"magicc logged a {} message*".format(level)
                 ):
                     m.run(out_dynamic_vars=["DAT_SURFACE_TEMP"])
             else:

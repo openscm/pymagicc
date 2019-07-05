@@ -241,7 +241,7 @@ class MAGICCBase(object):
 
         return self._default_config
 
-    def run(self, scenario=None, only=None, debug=False, verbose=False, **kwargs):
+    def run(self, scenario=None, only=None, debug=False, **kwargs):
         """
         Run MAGICC and parse the output.
 
@@ -249,8 +249,8 @@ class MAGICCBase(object):
         parameters into ``out/PARAMETERS.OUT`` and they will then be read into
         ``output.metadata["parameters"]`` where ``output`` is the returned object.
 
-        Any logged output from running magicc will be in``output.metadata["stderr"]``. The amount of logs can be controlled with
-        the ``debug`` and ``verbose`` parameters.
+        Any logged output from running magicc will be in``output.metadata["stderr"]``.
+        The level of logging can be controlled with the ``debug`` argument.
 
         Parameters
         ----------
@@ -261,11 +261,9 @@ class MAGICCBase(object):
         only : list of str
             If not None, only extract variables in this list.
 
-        debug: bool
-            If true, then magicc will run in debug mode with the maximum amount of logging.
-
-        verbose: bool
-            If True, magicc will run be verbose mode.
+        debug: {True, False, "verbose"}
+            If true, MAGICC will run in debug mode with the maximum amount of logging.
+            If "verbose", MAGICC will be run in verbose mode.
 
         kwargs
             Other config values to pass to MAGICC for the run
@@ -281,8 +279,10 @@ class MAGICCBase(object):
         ------
         ValueError
             If no output is found which matches the list specified in ``only``.
+
         subprocess.CalledProcessError
-            If magicc fails to run. Check the stderr property on the exception to inspect the results output from magicc
+            If MAGICC fails to run. Check the 'stderr' key of the result's `metadata`
+            attribute to inspect the results output from MAGICC.
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -316,10 +316,12 @@ class MAGICCBase(object):
         exec_dir = basename(self.original_dir)
         command = [join(self.root_dir, exec_dir, self.binary_name)]
         if self.version >= 7:
-            if debug:
-                command.append("--debug")
-            elif verbose:
+            if debug == "verbose":
                 command.append("--verbose")
+            elif debug:
+                command.append("--debug")
+        elif debug:
+            raise ValueError("MAGICC6 has no debug capability")
 
         if not IS_WINDOWS and self.binary_name.endswith(".exe"):  # pragma: no cover
             if not _wine_installed:
@@ -377,7 +379,7 @@ class MAGICCBase(object):
         for l in levels_to_warn:
             if l in mdata.metadata["stderr"]:
                 warnings.warn(
-                    'magicc logged an {} message. Check the metadata["stderr"] attribute'.format(
+                    "magicc logged a {} message. Check the 'stderr' key of the result's `metadata` attribute".format(
                         l
                     )
                 )
