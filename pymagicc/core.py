@@ -250,7 +250,8 @@ class MAGICCBase(object):
         ``output.metadata["parameters"]`` where ``output`` is the returned object.
 
         Any logged output from running magicc will be in``output.metadata["stderr"]``.
-        The level of logging can be controlled with the ``debug`` argument.
+        For MAGICC7 and above, The level of logging can be controlled with the
+        ``debug`` argument.
 
         Parameters
         ----------
@@ -283,6 +284,9 @@ class MAGICCBase(object):
         subprocess.CalledProcessError
             If MAGICC fails to run. Check the 'stderr' key of the result's `metadata`
             attribute to inspect the results output from MAGICC.
+
+        ValueError
+            The user attempts to use ``debug`` with MAGICC6
         """
         if not exists(self.root_dir):
             raise FileNotFoundError(self.root_dir)
@@ -379,7 +383,8 @@ class MAGICCBase(object):
         for l in levels_to_warn:
             if l in mdata.metadata["stderr"]:
                 warnings.warn(
-                    "magicc logged a {} message. Check the 'stderr' key of the result's `metadata` attribute".format(
+                    "magicc logged a {} message. Check the 'stderr' key of the "
+                    "result's `metadata` attribute.".format(
                         l
                     )
                 )
