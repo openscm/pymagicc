@@ -77,10 +77,8 @@ def update_expected_file(request):
     return request.config.getoption("--update-expected-file")
 
 
-@pytest.fixture(scope="function", params=[MAGICC6, MAGICC7])
-def package(request):
-    MAGICC_cls = request.param
-    p = MAGICC_cls()
+def create_package(MAGICC_cls, **kwargs):
+    p = MAGICC_cls(**kwargs)
 
     if p.executable is None or not exists(p.original_dir):
         magicc_x_unavailable = "MAGICC {} is not available.".format(p.version)
@@ -100,9 +98,29 @@ def package(request):
         pytest.xfail("Wine is not installed")
 
     p.create_copy()
-    root_dir = p.root_dir
+    return p
+
+
+@pytest.fixture(scope="function", params=[MAGICC6, MAGICC7])
+def package(request):
+    MAGICC_cls = request.param
+    p = create_package(MAGICC_cls)
     yield p
+
     # Perform cleanup after tests are complete
+    root_dir = p.root_dir
+    p.remove_temp_copy()
+    assert not exists(root_dir)
+
+
+@pytest.fixture(scope="function", params=[MAGICC6, MAGICC7])
+def package_non_strict(request):
+    MAGICC_cls = request.param
+    p = create_package(MAGICC_cls, strict=False)
+    yield p
+
+    # Perform cleanup after tests are complete
+    root_dir = p.root_dir
     p.remove_temp_copy()
     assert not exists(root_dir)
 

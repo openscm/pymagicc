@@ -84,7 +84,7 @@ class MAGICCBase(object):
     version = None
     _scen_file_name = "SCENARIO.SCEN7"
 
-    def __init__(self, root_dir=None):
+    def __init__(self, root_dir=None, strict=True):
         """
         Initialise
 
@@ -94,10 +94,15 @@ class MAGICCBase(object):
             Root directory of the MAGICC package. If ``None``, a temporary
             copy of MAGICC is made based on the result of `
             `self.get_exectuable()``.
+        strict: bool
+            If True, enforce the configuration checks, otherwise a warning
+            is raised if any invalid configuration is found and the run is
+            continued.
         """
         self.root_dir = root_dir
         self.config = None
         self.executable = self.get_executable()
+        self.strict = strict
 
         if root_dir is not None:
             self.is_temp = False
@@ -408,6 +413,12 @@ class MAGICCBase(object):
 
         return [f + ".BINOUT" for f in bin_out] + extras
 
+    def _check_failed(self, msg):
+        if self.strict:
+            raise ValueError(msg)
+        else:
+            warnings.warn(msg)
+
     def check_config(self):
         """Check that our MAGICC ``.CFG`` files are set to safely work with PYMAGICC
 
@@ -440,13 +451,13 @@ class MAGICCBase(object):
                 first_tuningmodel = k in ["file_tuningmodel", "file_tuningmodel_1"]
                 if first_tuningmodel:
                     if usr_cfg[nml_to_check][k] != "PYMAGICC":
-                        raise ValueError(cfg_error_msg)
+                        self._check_failed(cfg_error_msg)
                 elif usr_cfg[nml_to_check][k] not in ["USER", ""]:
-                    raise ValueError(cfg_error_msg)
+                    self._check_failed(cfg_error_msg)
 
             elif k.startswith("file_emisscen_"):
                 if usr_cfg[nml_to_check][k] not in ["NONE", ""]:
-                    raise ValueError(emisscen_error_msg)
+                    self._check_failed(emisscen_error_msg)
 
         self._check_config()
 
@@ -1212,7 +1223,7 @@ class MAGICC6(MAGICCBase):
         cfg = self.update_config()
         if "file_emissionscenario" in cfg["nml_allcfgs"]:
             if cfg["nml_allcfgs"]["file_emissionscenario"].endswith("SCEN7"):
-                raise ValueError("MAGICC6 cannot run SCEN7 files")
+                self._check_failed("MAGICC6 cannot run SCEN7 files")
 
 
 class MAGICC7(MAGICCBase):
