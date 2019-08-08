@@ -158,6 +158,75 @@ def test_run_failure_confusing_emissions_scenarios(package, invalid_config):
     assert package.config is None
 
 
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        {"nml_allcfgs": {"file_emisscen": "SSP1", "file_emisscen_2": "SSP2"}},
+        {
+            "nml_allcfgs": {
+                "file_emisscen": "SSP1",
+                "file_emisscen_2": "",
+                "file_emisscen_3": "SSP2",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_emisscen": "",
+                "file_emisscen_2": "SSP1",
+                "file_emisscen_3": "SSP2",
+            }
+        },
+    ],
+)
+def test_check_config_non_strict(package_non_strict, invalid_config):
+    f90nml.write(invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True)
+
+    error_msg = re.escape(
+        "You have more than one `FILE_EMISSCEN_X` flag set. Using more than one "
+        "emissions scenario is hard to debug and unnecessary with Pymagicc's "
+        "dataframe scenario input. Please combine all your scenarios into one "
+        "dataframe with Pymagicc and pandas, then feed this single Dataframe into "
+        "Pymagicc's run API."
+    )
+    with pytest.warns(UserWarning, match=error_msg):
+        package_non_strict.check_config()
+
+
+@pytest.mark.parametrize(
+    "invalid_config",
+    [
+        {"nml_allcfgs": {"file_tuningmodel_1": "junk"}},
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "pymagicc",
+                "file_tuningmodel_2": "pymagicc",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "pymagicc",
+                "file_tuningmodel_2": "c4mip_default",
+            }
+        },
+        {
+            "nml_allcfgs": {
+                "file_tuningmodel_1": "c4mip_default",
+                "file_tuningmodel_2": "pymagicc",
+            }
+        },
+    ],
+)
+def test_check_config_non_strict_no_pymagicc(package_non_strict, invalid_config):
+    f90nml.write(invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True)
+
+    error_msg = re.escape(
+        "PYMAGICC is not the only tuning model that will be used by "
+        "`MAGCFG_USER.CFG`: your run is likely to fail/do odd things"
+    )
+    with pytest.warns(UserWarning, match=error_msg):
+        package_non_strict.check_config()
+
+
 def test_run_success(package):
     write_config(package)
     results = package.run(out_parameters=1)
