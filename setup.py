@@ -42,7 +42,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
 ]
 REQUIREMENTS_INSTALL = [
-    "pandas>=0.24.0",
+    "pandas==0.24.2",  # Pinning a specific version of pandas for compatibility with pyam
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
