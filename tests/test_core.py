@@ -148,8 +148,8 @@ def test_run_failure_confusing_emissions_scenarios(package, invalid_config):
     error_msg = re.escape(
         "You have more than one `FILE_EMISSCEN_X` flag set. Using more than one "
         "emissions scenario is hard to debug and unnecessary with Pymagicc's "
-        "dataframe scenario input. Please combine all your scenarios into one "
-        "dataframe with Pymagicc and pandas, then feed this single Dataframe into "
+        "Dataframe scenario input. Please combine all your scenarios into one "
+        "Dataframe with Pymagicc and Pandas, then feed this single Dataframe into "
         "Pymagicc's run API."
     )
     with pytest.raises(ValueError, match=error_msg):
@@ -184,8 +184,8 @@ def test_check_config_non_strict(package_non_strict, invalid_config):
     error_msg = re.escape(
         "You have more than one `FILE_EMISSCEN_X` flag set. Using more than one "
         "emissions scenario is hard to debug and unnecessary with Pymagicc's "
-        "dataframe scenario input. Please combine all your scenarios into one "
-        "dataframe with Pymagicc and pandas, then feed this single Dataframe into "
+        "Dataframe scenario input. Please combine all your scenarios into one "
+        "Dataframe with Pymagicc and Pandas, then feed this single Dataframe into "
         "Pymagicc's run API."
     )
     with pytest.warns(UserWarning, match=error_msg):
