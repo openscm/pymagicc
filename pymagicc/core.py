@@ -97,7 +97,8 @@ class MAGICCBase(object):
         strict: bool
             If True, enforce the configuration checks, otherwise a warning
             is raised if any invalid configuration is found and the run is
-            continued.
+            continued. Setting ``strict=False`` is only recommended for
+            experienced users of MAGICC.
         """
         self.root_dir = root_dir
         self.config = None
@@ -439,8 +440,8 @@ class MAGICCBase(object):
         emisscen_error_msg = (
             "You have more than one `FILE_EMISSCEN_X` flag set. Using more than "
             "one emissions scenario is hard to debug and unnecessary with "
-            "Pymagicc's dataframe scenario input. Please combine all your "
-            "scenarios into one dataframe with Pymagicc and pandas, then feed "
+            "Pymagicc's Dataframe scenario input. Please combine all your "
+            "scenarios into one Dataframe with Pymagicc and Pandas, then feed "
             "this single Dataframe into Pymagicc's run API."
         )
 
