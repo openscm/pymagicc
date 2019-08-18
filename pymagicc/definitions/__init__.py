@@ -285,6 +285,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             )
         elif variable.endswith("B") and not edge_case_B:
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
+        elif variable.endswith("T") and not edge_case_B:
+            variable = variable[:-1]
 
         case_adjustments = {
             "SOX": "SOx",
@@ -362,6 +364,9 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "AIR_CIRRUS_RF": "Radiative Forcing|Aviation|Cirrus",
             "AIR_CONTRAIL_RF": "Radiative Forcing|Aviation|Contrail",
             "AIR_H2O_RF": "Radiative Forcing|Aviation|H2O",
+            "CO2T_EMIS": "Emissions|CO2",
+            "CH4T_EMIS": "Emissions|CH4",
+            "N2OT_EMIS": "Emissions|N2O",
         }
     )
 
