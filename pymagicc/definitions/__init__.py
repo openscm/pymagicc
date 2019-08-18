@@ -242,6 +242,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             prefix = "Emissions"
         elif in_var.endswith("_CONC"):
             prefix = "Atmospheric Concentrations"
+        elif in_var.endswith("_EFFRF"):
+            prefix = "Effective Radiative Forcing"
         elif in_var.endswith("_RF"):
             prefix = "Radiative Forcing"
         elif in_var.endswith("_OT"):
@@ -315,7 +317,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
-    magicc7_suffixes = ["_EMIS", "_CONC", "_RF", "_OT", "_INVERSE_EMIS"]
+    magicc7_suffixes = ["_EMIS", "_CONC", "_EFFRF", "_RF", "_OT", "_INVERSE_EMIS"]
     magicc7_base_vars = MAGICC7_EMISSIONS_UNITS.magicc_variable.tolist() + [
         "SOLAR",
         "VOLCANIC",
@@ -343,6 +345,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         {
             "SURFACE_TEMP": "Surface Temperature",
             "TOTAL_INCLVOLCANIC_RF": "Radiative Forcing",
+            "TOTAL_INCLVOLCANIC_EFFRF": "Effective Radiative Forcing",
             "VOLCANIC_ANNUAL_RF": "Radiative Forcing|Volcanic",
             "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
             "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
@@ -354,7 +357,11 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "LANDUSE_RF": "Radiative Forcing|Land-use Change",
             "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
             "CO2PF_EMIS": "Land to Air Flux|CO2|MAGICC Permafrost",
-            # "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",  # TODO: test and then add when needed
+            "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",
+            "SLR_TOT": "Sea Level Rise",
+            "AIR_CIRRUS_RF": "Radiative Forcing|Aviation|Cirrus",
+            "AIR_CONTRAIL_RF": "Radiative Forcing|Aviation|Contrail",
+            "AIR_H2O_RF": "Radiative Forcing|Aviation|H2O",
         }
     )
 
