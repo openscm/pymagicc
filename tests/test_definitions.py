@@ -77,8 +77,20 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("EXTRA_RF", "Radiative Forcing|Extra"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
+        ("CH4PF_EMIS", "Land to Air Flux|CH4|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
+        ("AIR_CIRRUS_RF", "Radiative Forcing|Aviation|Cirrus"),
+        ("AIR_CONTRAIL_RF", "Radiative Forcing|Aviation|Contrail"),
+        ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
+        # ("CH4CLATHRATE_EMIS", "Emissions|CH4|???")
+        ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
+        ("CH4_EFFRF", "Effective Radiative Forcing|CH4"),
+        ("GHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases"),
+        ("KYOTOGHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases|Kyoto Gases"),
+        ("TOTAL_INCLVOLCANIC_EFFRF", "Effective Radiative Forcing"),
+        ("SLR_TOT", "Sea Level Rise"),
+
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -98,6 +110,15 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
+        ("AIR_CIRRUS_RF", "Radiative Forcing|Aviation|Cirrus"),
+        ("AIR_CONTRAIL_RF", "Radiative Forcing|Aviation|Contrail"),
+        ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
+        ("CH4_EFFRF", "Effective Radiative Forcing|CH4"),
+        ("GHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases"),
+        ("KYOTOGHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases|Kyoto Gases"),
+        ("TOTAL_INCLVOLCANIC_EFFRF", "Effective Radiative Forcing"),
+        ("SLR_TOT", "Sea Level Rise"),
+
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
