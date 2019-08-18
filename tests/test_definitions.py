@@ -84,7 +84,6 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("AIR_CONTRAIL_RF", "Radiative Forcing|Aviation|Contrail"),
         ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
         # ("CH4CLATHRATE_EMIS", "Emissions|CH4|???")
-        ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
         ("CH4_EFFRF", "Effective Radiative Forcing|CH4"),
         ("GHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases"),
         ("KYOTOGHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases|Kyoto Gases"),
