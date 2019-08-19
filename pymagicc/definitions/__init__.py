@@ -285,7 +285,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             )
         elif variable.endswith("B") and not edge_case_B:
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
-        elif variable.endswith("T") and not edge_case_B:
+        elif variable.endswith("T"):
             variable = variable[:-1]
 
         case_adjustments = {
