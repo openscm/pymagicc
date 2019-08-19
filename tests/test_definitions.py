@@ -81,6 +81,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
         ("CH4PF_EMIS", "Land to Air Flux|CH4|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
+        ("SURFACE_TEMP_SUBANNUAL", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
         ("AIR_CIRRUS_RF", "Radiative Forcing|Aviation|Cirrus"),
         ("AIR_CONTRAIL_RF", "Radiative Forcing|Aviation|Contrail"),

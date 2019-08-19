@@ -393,6 +393,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "CO2T_EMIS": "Emissions|CO2",
             "CH4T_EMIS": "Emissions|CH4",
             "N2OT_EMIS": "Emissions|N2O",
+            "SURFACE_TEMP_SUBANNUAL": "Surface Temperature",
         }
         replacements.update(one_way_replacements)
         return replacements
