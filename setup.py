@@ -46,7 +46,7 @@ REQUIREMENTS_INSTALL = [
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    "openscm>=0.1.0a",
+    "openscm @ git+https://github.com/openclimatedata/openscm.git@run-function",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
