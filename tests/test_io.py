@@ -29,6 +29,7 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out,
     get_generic_rcp_name,
     determine_tool,
+    to_int,
 )
 from .conftest import (
     MAGICC6_DIR,
@@ -3497,3 +3498,19 @@ def test_timestamp_handling(valid, time_axis, temp_dir):
         )
         with pytest.raises(ValueError, match=error_msg):
             writing_base.write(join(temp_dir, "TEST_CH4_CONC.IN"), magicc_version=7)
+
+
+def test_to_int_value_error():
+    error_msg = re.escape("invalid values `{}`".format([4.5, 6.5]))
+    with pytest.raises(ValueError, match=error_msg):
+        to_int(np.array([1, 3, 4.5, 6.5, 7.0, 8]))
+
+
+def test_to_int_type_error():
+    inp = [1, 3, 4.5, 6.5, 7.0, 8]
+    error_msg = re.escape(
+        "For our own sanity, this method only works with np.ndarray input. x is "
+        "type: {}".format(type(inp))
+    )
+    with pytest.raises(TypeError, match=error_msg):
+        to_int(inp)

@@ -13,7 +13,6 @@ from f90nml.namelist import Namelist
 import pandas as pd
 from six import StringIO
 from openscm.scmdataframe.base import ScmDataFrameBase
-from openscm.scmdataframe.timeindex import to_int
 
 
 from .magicc_time import convert_to_decimal_year, convert_to_datetime
@@ -2539,3 +2538,39 @@ def _get_openscm_var_from_filepath(filepath):
     )
 
     return openscm_var
+
+
+def to_int(x: np.ndarray) -> np.ndarray:
+    """
+    Convert inputs to int and check conversion is sensible
+
+    Parameters
+    ----------
+    x
+        Values to convert
+
+    Returns
+    -------
+    :obj:`np.array` of :obj:`int`
+        Input, converted to int
+
+    Raises
+    ------
+    ValueError
+        If the int representation of any of the values is not equal to its original
+        representation (where equality is checked using the ``!=`` operator).
+
+    TypeError
+        x is not a ``np.ndarray``
+    """
+    if not isinstance(x, np.ndarray):
+        raise TypeError(
+            "For our own sanity, this method only works with np.ndarray input. "
+            "x is type: {}".format(type(x))
+        )
+    cols = np.array([int(v) for v in x])
+    invalid_vals = x[cols != x]
+    if invalid_vals.size:
+        raise ValueError("invalid values `{}`".format(list(invalid_vals)))
+
+    return cols
