@@ -1374,7 +1374,7 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
 
 
 @pytest.mark.slow
-def test_magicc7_empty(package):
+def test_empty_output(package):
     package.set_output_variables()
     res = package.run(out_dynamic_vars=[])
 
