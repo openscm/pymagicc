@@ -121,7 +121,6 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("KYOTOGHG_EFFRF", "Effective Radiative Forcing|Greenhouse Gases|Kyoto Gases"),
         ("TOTAL_INCLVOLCANIC_EFFRF", "Effective Radiative Forcing"),
         ("SLR_TOT", "Sea Level Rise"),
-
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
