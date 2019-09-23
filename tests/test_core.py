@@ -1367,3 +1367,19 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
                 assert len(record) == 0
     except FileNotFoundError:
         pytest.skip("MAGICC7 not installed")
+
+
+@pytest.mark.slow
+def test_magicc7_empty():
+    with MAGICC7() as m:
+        m.set_output_variables()
+        res = m.run(out_dynamic_vars=[])
+
+        assert len(res) == 0
+
+    with MAGICC7() as m:
+        m.set_output_variables(parameters=True)
+        res = m.run(out_dynamic_vars=[])
+
+        assert len(res) == 0
+        assert len(res.metadata['parameters'])
