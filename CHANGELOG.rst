@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#264 <https://github.com/openclimatedata/pymagicc/pull/264>`_) Allowed an empty dataframe to be returned from ``MAGICCBase.run`` if no output is produced
 - (`#267 <https://github.com/openclimatedata/pymagicc/pull/267>`_) Hotfix appveyor failures
 - (`#261 <https://github.com/openclimatedata/pymagicc/pull/261>`_) Improve mapping of MAGICC7 to OpenSCM variables
 - (`#259 <https://github.com/openclimatedata/pymagicc/pull/259>`_) Added ``strict`` option for downgrading configuration exceptions to warnings
