@@ -376,7 +376,13 @@ class MAGICCBase(object):
             # No data was loaded return an empty MAGICCData object
             mdata = MAGICCData(
                 data={},
-                columns={'model': [], 'unit': [], 'variable': [], 'region': [], 'scenario': []}
+                columns={
+                    "model": [],
+                    "unit": [],
+                    "variable": [],
+                    "region": [],
+                    "scenario": [],
+                },
             )
         else:
             mdata = df_append(mdata)
@@ -394,9 +400,7 @@ class MAGICCBase(object):
             if l in mdata.metadata["stderr"]:
                 warnings.warn(
                     "magicc logged a {} message. Check the 'stderr' key of the "
-                    "result's `metadata` attribute.".format(
-                        l
-                    )
+                    "result's `metadata` attribute.".format(l)
                 )
 
         return mdata

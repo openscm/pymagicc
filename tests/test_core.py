@@ -179,7 +179,9 @@ def test_run_failure_confusing_emissions_scenarios(package, invalid_config):
     ],
 )
 def test_check_config_non_strict(package_non_strict, invalid_config):
-    f90nml.write(invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True)
+    f90nml.write(
+        invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True
+    )
 
     error_msg = re.escape(
         "You have more than one `FILE_EMISSCEN_X` flag set. Using more than one "
@@ -217,7 +219,9 @@ def test_check_config_non_strict(package_non_strict, invalid_config):
     ],
 )
 def test_check_config_non_strict_no_pymagicc(package_non_strict, invalid_config):
-    f90nml.write(invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True)
+    f90nml.write(
+        invalid_config, join(package_non_strict.run_dir, "MAGCFG_USER.CFG"), force=True
+    )
 
     error_msg = re.escape(
         "PYMAGICC is not the only tuning model that will be used by "
@@ -1382,4 +1386,4 @@ def test_magicc7_empty():
         res = m.run(out_dynamic_vars=[])
 
         assert len(res) == 0
-        assert len(res.metadata['parameters'])
+        assert len(res.metadata["parameters"])
