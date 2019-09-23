@@ -369,13 +369,17 @@ class MAGICCBase(object):
                 # TODO: something like warnings.warn("Could not read {}".format(filepath))
                 continue
 
-        if not mdata:
+        if not mdata and only is not None:
             raise ValueError("No output found for only={}".format(only))
-        mdata = df_append(mdata)
 
-        if mdata is None:
-            error_msg = "No output found for only={}".format(only)
-            raise ValueError(error_msg)
+        if not mdata:
+            # No data was loaded return an empty MAGICCData object
+            mdata = MAGICCData(
+                data={},
+                columns={'model': [], 'unit': [], 'variable': [], 'region': [], 'scenario': []}
+            )
+        else:
+            mdata = df_append(mdata)
 
         try:
             run_paras = self.read_parameters()
