@@ -1382,7 +1382,7 @@ def test_magicc7_empty(package):
 
 
 @pytest.mark.slow
-def test_magicc7_empty_with_params(package):
+def test_empty_output_with_params(package):
     package.set_output_variables(parameters=True)
     res = package.run(out_dynamic_vars=[])
 
