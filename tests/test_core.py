@@ -1374,16 +1374,17 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
 
 
 @pytest.mark.slow
-def test_magicc7_empty():
-    with MAGICC7() as m:
-        m.set_output_variables()
-        res = m.run(out_dynamic_vars=[])
+def test_magicc7_empty(package):
+    package.set_output_variables()
+    res = package.run(out_dynamic_vars=[])
 
-        assert len(res) == 0
+    assert len(res) == 0
 
-    with MAGICC7() as m:
-        m.set_output_variables(parameters=True)
-        res = m.run(out_dynamic_vars=[])
 
-        assert len(res) == 0
-        assert len(res.metadata["parameters"])
+@pytest.mark.slow
+def test_magicc7_empty_with_params(package):
+    package.set_output_variables(parameters=True)
+    res = package.run(out_dynamic_vars=[])
+
+    assert len(res) == 0
+    assert len(res.metadata["parameters"])
