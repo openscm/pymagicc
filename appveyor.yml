@@ -11,8 +11,9 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "%PYTHON%/Scripts/pip.exe install --upgrade pip --user"
-  - "%PYTHON%/Scripts/pip.exe install .[tests]"
+  - set PATH=C:\Python37;C:\Python37\Scripts;%PATH%
+  - python -m pip install --upgrade pip
+  - pip install .[tests]
 
 test_script:
-  - "%PYTHON%/Scripts/pytest -rfsxEX tests"
+  - pytest -r a tests
