@@ -1375,6 +1375,7 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
 
 @pytest.mark.slow
 def test_empty_output(package):
+    package.strict = False
     package.set_output_variables()
     res = package.run(out_dynamic_vars=[])
 
@@ -1382,7 +1383,16 @@ def test_empty_output(package):
 
 
 @pytest.mark.slow
+def test_empty_output_strict(package):
+    package.strict = True
+    package.set_output_variables()
+    with pytest.raises(ValueError, match="No output found. Check configuration"):
+        package.run(out_dynamic_vars=[])
+
+
+@pytest.mark.slow
 def test_empty_output_with_params(package):
+    package.strict = False
     package.set_output_variables(parameters=True)
     res = package.run(out_dynamic_vars=[])
 
