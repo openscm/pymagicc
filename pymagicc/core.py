@@ -373,17 +373,20 @@ class MAGICCBase(object):
             raise ValueError("No output found for only={}".format(only))
 
         if not mdata:
-            # No data was loaded return an empty MAGICCData object
-            mdata = MAGICCData(
-                data={},
-                columns={
-                    "model": [],
-                    "unit": [],
-                    "variable": [],
-                    "region": [],
-                    "scenario": [],
-                },
-            )
+            if self.strict:
+                raise ValueError("No output found. Check configuration")
+            else:
+                # No data was loaded return an empty MAGICCData object
+                mdata = MAGICCData(
+                    data={},
+                    columns={
+                        "model": [],
+                        "unit": [],
+                        "variable": [],
+                        "region": [],
+                        "scenario": [],
+                    },
+                )
         else:
             mdata = df_append(mdata)
 
