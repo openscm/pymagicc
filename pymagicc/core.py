@@ -841,15 +841,42 @@ class MAGICCBase(object):
         return config_dict
 
     def _convert_out_config_flags_to_integers(self, config_dict):
-        for key, value in config_dict.items():
-            # Ignore all out_x_vars variables as that should be a list of strings
-            # Note that there is a variable OUT_ALLOWANYDYNAMICVARS which should be in integer
-            if (
-                key.startswith("out")
-                and key != "out_ascii_binary"
-                and not key.endswith("_vars")
-            ):
-                config_dict[key] = 1 if value else 0
+        valid_out_flags = [
+            "out_emissions",
+            "out_gwpemissions",
+            "out_sum_gwpemissions",
+            "out_concentrations",
+            "out_carboncycle",
+            "out_forcing",
+            "out_forcing_subannual",
+            "out_temperature",
+            "out_temperature_subannual",
+            "out_sealevel",
+            "out_parameters",
+            "out_misc",
+            "out_lifetimes",
+            "out_timeseriesmix",
+            "out_rcpdata",
+            "out_summaryidx",
+            "out_tempoceanlayers",
+            "out_oceanarea",
+            "out_heatuptake",
+            "out_warnings",
+            "out_precipinput",
+            "out_aogcmtuning",
+            "out_ccycletuning",
+            "out_observationaltuning",
+            "out_keydata_1",
+            "out_keydata_2",
+            "out_inverseemis",
+            "out_surfaceforcing",
+            "out_permafrost",
+            "out_allowanydynamicvars"
+        ]
+        for key in valid_out_flags:
+            if key in config_dict:
+                # MAGICC expects 1 and 0 instead of True/False
+                config_dict[key] = 1 if config_dict[key] else 0
 
         return config_dict
 

@@ -1270,12 +1270,14 @@ def test_format_config(package):
         "out_allowdynamicvars": False,
         "out_keydata1_vars": ["DAT_SURF_TEMP"],
         "out_dynamic_vars": ["DAT_SURF_TEMP"],
+        "out_zero_temp_period": [1990, 2000],
     }
     exp = {
         "out_temperature": 1,
         "out_allowdynamicvars": 0,
         "out_keydata1_vars": ["DAT_SURF_TEMP"],
         "out_dynamic_vars": ["DAT_SURF_TEMP"],
+        "out_zero_temp_period": [1990, 2000],
     }
 
     res = package._convert_out_config_flags_to_integers(inp)
