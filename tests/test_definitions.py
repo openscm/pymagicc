@@ -8,6 +8,7 @@ import re
 from pymagicc.definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
+    convert_magicc_to_openscm_regions,
 )
 
 
@@ -133,3 +134,44 @@ def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
 
     assert len(warn_result) == 1
     assert str(warn_result[0].message) == msg
+
+
+@pytest.mark.parametrize(
+    "magicc7, openscm",
+    [
+        ("WORLD", "World"),
+        ("GLOBAL", "World"),
+        ("OECD90", "World|OECD90"),
+        ("ALM", "World|ALM"),
+        ("REF", "World|REF"),
+        ("ASIA", "World|ASIA"),
+        ("R5ASIA", "World|R5ASIA"),
+        ("R5OECD", "World|R5OECD"),
+        ("R5REF", "World|R5REF"),
+        ("R5MAF", "World|R5MAF"),
+        ("R5LAM", "World|R5LAM"),
+        ("R6OECD90", "World|R5.2OECD90"),
+        ("R6REF", "World|R5.2REF"),
+        ("R6LAM", "World|R5.2LAM"),
+        ("R6MAF", "World|R5.2MAF"),
+        ("R6ASIA", "World|R5.2ASIA"),
+        ("NHOCEAN", "World|Northern Hemisphere|Ocean"),
+        ("SHOCEAN", "World|Southern Hemisphere|Ocean"),
+        ("NHLAND", "World|Northern Hemisphere|Land"),
+        ("SHLAND", "World|Southern Hemisphere|Land"),
+        ("NH-OCEAN", "World|Northern Hemisphere|Ocean"),
+        ("SH-OCEAN", "World|Southern Hemisphere|Ocean"),
+        ("NH-LAND", "World|Northern Hemisphere|Land"),
+        ("SH-LAND", "World|Southern Hemisphere|Land"),
+        ("NH", "World|Northern Hemisphere"),
+        ("SH", "World|Southern Hemisphere"),
+        ("BUNKERS", "World|Bunkers"),
+        ("N34", "World|El Nino N3.4"),
+        ("AMV", "World|North Atlantic Ocean"),
+        ("OCEAN", "World|Ocean"),
+        ("LAND", "World|Land"),
+    ],
+)
+def test_convert_openscm_to_magicc_regions(magicc7, openscm):
+    assert convert_magicc_to_openscm_regions(magicc7, inverse=False) == openscm
+    assert convert_magicc_to_openscm_regions(openscm, inverse=True) == magicc7
