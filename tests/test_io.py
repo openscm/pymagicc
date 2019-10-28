@@ -272,7 +272,7 @@ def test_load_magicc7_emis_umlaut_metadata():
         mdata,
         0.6638,
         variable="Emissions|CO2|MAGICC Fossil and Industrial",
-        region="World|R6REF",
+        region="World|R5.2REF",
         year=2013,
         unit="Gt C / yr",
         todo="SET",
@@ -282,7 +282,7 @@ def test_load_magicc7_emis_umlaut_metadata():
         mdata,
         1.6911,
         variable="Emissions|CO2|MAGICC Fossil and Industrial",
-        region="World|R6ASIA",
+        region="World|R5.2ASIA",
         year=2000,
         unit="Gt C / yr",
         todo="SET",
@@ -993,7 +993,7 @@ def test_load_scen7():
         mdata,
         11.9769,
         variable="Emissions|SOx",
-        region="World|R6OECD90",
+        region="World|R5.2OECD",
         year=2005,
         unit="Mt S / yr",
         todo="SET",
@@ -1003,7 +1003,7 @@ def test_load_scen7():
         mdata,
         18.2123,
         variable="Emissions|NMVOC",
-        region="World|R6OECD90",
+        region="World|R5.2OECD",
         year=2050,
         unit="Mt NMVOC / yr",
         todo="SET",
@@ -1013,7 +1013,7 @@ def test_load_scen7():
         mdata,
         0,
         variable="Emissions|HFC23",
-        region="World|R6REF",
+        region="World|R5.2REF",
         year=2100,
         unit="kt HFC23 / yr",
         todo="SET",
@@ -1023,7 +1023,7 @@ def test_load_scen7():
         mdata,
         5.2133,
         variable="Emissions|CH2Cl2",
-        region="World|R6REF",
+        region="World|R5.2REF",
         year=2125,
         unit="kt CH2Cl2 / yr",
         todo="SET",
@@ -1033,7 +1033,7 @@ def test_load_scen7():
         mdata,
         33.3635,
         variable="Emissions|HFC143a",
-        region="World|R6ASIA",
+        region="World|R5.2ASIA",
         year=2040,
         unit="kt HFC143a / yr",
         todo="SET",
@@ -1043,7 +1043,7 @@ def test_load_scen7():
         mdata,
         0.8246,
         variable="Emissions|SO2F2",
-        region="World|R6ASIA",
+        region="World|R5.2ASIA",
         year=2040,
         unit="kt SO2F2 / yr",
         todo="SET",
@@ -1053,7 +1053,7 @@ def test_load_scen7():
         mdata,
         -0.0125,
         variable="Emissions|CO2|MAGICC AFOLU",
-        region="World|R6MAF",
+        region="World|R5.2MAF",
         year=2050,
         unit="Gt C / yr",
         todo="SET",
@@ -1063,7 +1063,7 @@ def test_load_scen7():
         mdata,
         37.6218,
         variable="Emissions|CH4",
-        region="World|R6MAF",
+        region="World|R5.2MAF",
         year=2070,
         unit="Mt CH4 / yr",
         todo="SET",
@@ -1073,7 +1073,7 @@ def test_load_scen7():
         mdata,
         1.8693,
         variable="Emissions|NOx",
-        region="World|R6LAM",
+        region="World|R5.2LAM",
         year=2080,
         unit="Mt N / yr",
         todo="SET",
@@ -1083,7 +1083,7 @@ def test_load_scen7():
         mdata,
         0.4254,
         variable="Emissions|BC|MAGICC AFOLU",
-        region="World|R6LAM",
+        region="World|R5.2LAM",
         year=2090,
         unit="Mt BC / yr",
         todo="SET",
@@ -3382,9 +3382,9 @@ def test_mag_reader():
         mdata, 5, region="World|Southern Hemisphere|Ocean", year=1911, month=2
     )
     assert_mdata_value(
-        mdata, 12, region="World|Northern Atlantic Ocean", year=1911, month=6
+        mdata, 12, region="World|North Atlantic Ocean", year=1911, month=6
     )
-    assert_mdata_value(mdata, 9, region="World|El Nino 34", year=1911, month=7)
+    assert_mdata_value(mdata, 9, region="World|El Nino N3.4", year=1911, month=7)
 
 
 def test_mag_writer_default_header(temp_dir, writing_base):
