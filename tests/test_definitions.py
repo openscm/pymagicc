@@ -140,7 +140,6 @@ def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
     "magicc7, openscm",
     [
         ("WORLD", "World"),
-        ("GLOBAL", "World"),
         ("OECD90", "World|OECD90"),
         ("ALM", "World|ALM"),
         ("REF", "World|REF"),
@@ -150,19 +149,15 @@ def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
         ("R5REF", "World|R5REF"),
         ("R5MAF", "World|R5MAF"),
         ("R5LAM", "World|R5LAM"),
-        ("R6OECD90", "World|R5.2OECD90"),
-        ("R6REF", "World|R5.2REF"),
-        ("R6LAM", "World|R5.2LAM"),
-        ("R6MAF", "World|R5.2MAF"),
-        ("R6ASIA", "World|R5.2ASIA"),
+        ("R5.2OECD", "World|R5.2OECD"),
+        ("R5.2REF", "World|R5.2REF"),
+        ("R5.2LAM", "World|R5.2LAM"),
+        ("R5.2MAF", "World|R5.2MAF"),
+        ("R5.2ASIA", "World|R5.2ASIA"),
         ("NHOCEAN", "World|Northern Hemisphere|Ocean"),
         ("SHOCEAN", "World|Southern Hemisphere|Ocean"),
         ("NHLAND", "World|Northern Hemisphere|Land"),
         ("SHLAND", "World|Southern Hemisphere|Land"),
-        ("NH-OCEAN", "World|Northern Hemisphere|Ocean"),
-        ("SH-OCEAN", "World|Southern Hemisphere|Ocean"),
-        ("NH-LAND", "World|Northern Hemisphere|Land"),
-        ("SH-LAND", "World|Southern Hemisphere|Land"),
         ("NH", "World|Northern Hemisphere"),
         ("SH", "World|Southern Hemisphere"),
         ("BUNKERS", "World|Bunkers"),
@@ -175,3 +170,22 @@ def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
 def test_convert_openscm_to_magicc_regions(magicc7, openscm):
     assert convert_magicc_to_openscm_regions(magicc7, inverse=False) == openscm
     assert convert_magicc_to_openscm_regions(openscm, inverse=True) == magicc7
+
+
+@pytest.mark.parametrize(
+    "magicc7, openscm",
+    [
+        ("GLOBAL", "World"),
+        ("NH-OCEAN", "World|Northern Hemisphere|Ocean"),
+        ("SH-OCEAN", "World|Southern Hemisphere|Ocean"),
+        ("NH-LAND", "World|Northern Hemisphere|Land"),
+        ("SH-LAND", "World|Southern Hemisphere|Land"),
+        ("R6OECD90", "World|R5.2OECD"),
+        ("R6REF", "World|R5.2REF"),
+        ("R6LAM", "World|R5.2LAM"),
+        ("R6MAF", "World|R5.2MAF"),
+        ("R6ASIA", "World|R5.2ASIA"),
+    ],
+)
+def test_convert_openscm_to_magicc_regions_one_way(magicc7, openscm):
+    assert convert_magicc_to_openscm_regions(magicc7, inverse=False) == openscm

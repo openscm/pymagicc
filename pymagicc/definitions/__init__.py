@@ -94,21 +94,21 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
+    world = "World"
 
     def get_openscm_replacement(in_region):
-        world = "World"
         if in_region in ("WORLD", "GLOBAL"):
             return world
-        if in_region in ("BUNKERS"):
+        if in_region in ("BUNKERS",):
             return DATA_HIERARCHY_SEPARATOR.join([world, "Bunkers"])
-        if in_region in ("OCEAN"):
+        if in_region in ("OCEAN",):
             return DATA_HIERARCHY_SEPARATOR.join([world, "Ocean"])
-        if in_region in ("LAND"):
+        if in_region in ("LAND",):
             return DATA_HIERARCHY_SEPARATOR.join([world, "Land"])
-        if in_region in ("N34"):
+        if in_region in ("N34",):
             return DATA_HIERARCHY_SEPARATOR.join([world, "El Nino N3.4"])
-        if in_region in ("AMV"):
-            return DATA_HIERARCHY_SEPARATOR.join([world, "Northern Atlantic Ocean"])
+        if in_region in ("AMV",):
+            return DATA_HIERARCHY_SEPARATOR.join([world, "North Atlantic Ocean"])
         elif in_region.startswith(("NH", "SH")):
             in_region = in_region.replace("-", "")
             hem = "Northern Hemisphere" if "NH" in in_region else "Southern Hemisphere"
@@ -134,11 +134,11 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         "R5REF",
         "R5MAF",
         "R5LAM",
-        "R6OECD90",
-        "R6REF",
-        "R6LAM",
-        "R6MAF",
-        "R6ASIA",
+        "R5.2ASIA",
+        "R5.2OECD",
+        "R5.2REF",
+        "R5.2MAF",
+        "R5.2LAM",
         "NHOCEAN",
         "SHOCEAN",
         "NHLAND",
@@ -151,7 +151,7 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         "NH",
         "BUNKERS",
         "N34",
-        "NATLOCEAN",
+        "AMV",
         "OCEAN",
         "LAND",
     ]
@@ -164,9 +164,20 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
             continue
         replacements[magicc_region] = openscm_region
 
+
     if inverse:
         return {v: k for k, v in replacements.items()}
     else:
+        # R6 doesn't really exist, they're supposed to be the SSP database's R5.2
+        # regions. The R6 regions appeared in a few SSP scenario files (but will
+        # hopefully never be released) to this is just in case.
+        for r6 in [
+            "R6OECD90",
+            "R6REF",
+            "R6LAM",
+            "R6MAF",
+            "R6ASIA"]:
+            replacements[r6] = "{}|{}".format(world, r6.replace("R6", "R5.2").replace("90", ""))
         return replacements
 
 
