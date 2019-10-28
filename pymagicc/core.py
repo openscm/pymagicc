@@ -871,7 +871,7 @@ class MAGICCBase(object):
             "out_inverseemis",
             "out_surfaceforcing",
             "out_permafrost",
-            "out_allowanydynamicvars"
+            "out_allowanydynamicvars",
         ]
         for key in valid_out_flags:
             if key in config_dict:

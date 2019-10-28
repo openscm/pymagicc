@@ -27,7 +27,7 @@ region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global
       VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP
           TODO                 SET                 SET                 SET                 SET                 SET                 SET
          UNITS                   K                   K                   K                   K                   K                   K
-         YEARS              NHLAND              SHLAND             NHOCEAN             SHOCEAN                 N34           NATLOCEAN
+         YEARS              NHLAND              SHLAND             NHOCEAN             SHOCEAN                 N34                 AMV
    1910.042000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
    1910.125000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
    1910.208000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00

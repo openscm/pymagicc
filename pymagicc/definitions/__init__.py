@@ -164,20 +164,16 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
             continue
         replacements[magicc_region] = openscm_region
 
-
     if inverse:
         return {v: k for k, v in replacements.items()}
     else:
         # R6 doesn't really exist, they're supposed to be the SSP database's R5.2
         # regions. The R6 regions appeared in a few SSP scenario files (but will
         # hopefully never be released) to this is just in case.
-        for r6 in [
-            "R6OECD90",
-            "R6REF",
-            "R6LAM",
-            "R6MAF",
-            "R6ASIA"]:
-            replacements[r6] = "{}|{}".format(world, r6.replace("R6", "R5.2").replace("90", ""))
+        for r6 in ["R6OECD90", "R6REF", "R6LAM", "R6MAF", "R6ASIA"]:
+            replacements[r6] = "{}|{}".format(
+                world, r6.replace("R6", "R5.2").replace("90", "")
+            )
         return replacements
 
 
