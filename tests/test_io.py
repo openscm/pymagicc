@@ -11,7 +11,7 @@ import pandas as pd
 import re
 import pytest
 import f90nml
-from openscm.scmdataframe.base import ScmDataFrameBase
+from scmdata import ScmDataFrame
 
 
 import pymagicc.definitions
@@ -29,6 +29,7 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out,
     get_generic_rcp_name,
     determine_tool,
+    to_int,
 )
 from .conftest import (
     MAGICC6_DIR,
@@ -61,7 +62,7 @@ def generic_mdata_tests(mdata, include_todo=True):
     """Resusable tests to ensure data format"""
     assert mdata.is_loaded == True
 
-    assert isinstance(mdata, ScmDataFrameBase)
+    assert isinstance(mdata, ScmDataFrame)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
     if include_todo:
         index += ["todo"]
@@ -2859,7 +2860,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
         "unit": ["J/y"],
     }
     # TODO: refactor MAGICCData so it can be instantiated with timeseries
-    # like ScmDataFrameBase
+    # like ScmDataFrame
     tdf_init = tdf_init_df.T
     tdf_init.index = pd.MultiIndex.from_product(
         tdf_init_columns.values(), names=tdf_init_columns.keys()
@@ -3497,3 +3498,19 @@ def test_timestamp_handling(valid, time_axis, temp_dir):
         )
         with pytest.raises(ValueError, match=error_msg):
             writing_base.write(join(temp_dir, "TEST_CH4_CONC.IN"), magicc_version=7)
+
+
+def test_to_int_value_error():
+    error_msg = re.escape("invalid values `{}`".format([4.5, 6.5]))
+    with pytest.raises(ValueError, match=error_msg):
+        to_int(np.array([1, 3, 4.5, 6.5, 7.0, 8]))
+
+
+def test_to_int_type_error():
+    inp = [1, 3, 4.5, 6.5, 7.0, 8]
+    error_msg = re.escape(
+        "For our own sanity, this method only works with np.ndarray input. x is "
+        "type: {}".format(type(inp))
+    )
+    with pytest.raises(TypeError, match=error_msg):
+        to_int(inp)

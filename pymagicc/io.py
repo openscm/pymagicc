@@ -12,8 +12,7 @@ import f90nml
 from f90nml.namelist import Namelist
 import pandas as pd
 from six import StringIO
-from openscm.scmdataframe.base import ScmDataFrameBase
-from openscm.scmdataframe.timeindex import to_int
+from scmdata import ScmDataFrame
 
 
 from .magicc_time import convert_to_decimal_year, convert_to_datetime
@@ -2049,7 +2048,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(ScmDataFrameBase):
+class MAGICCData(ScmDataFrame):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -2075,7 +2074,7 @@ class MAGICCData(ScmDataFrameBase):
         Initialise a MAGICCData instance
 
         Here we provide a brief over of inputs, for more details
-        see ``openscm.ScmDataFrameBase``.
+        see ``scmdataBase``.
 
         Parameters
         ----------
@@ -2087,7 +2086,7 @@ class MAGICCData(ScmDataFrameBase):
             Dictionary to use to write the metadata for each timeseries in data. MAGICCData will
             also attempt to infer values from data. Any values in columns will be used in
             preference to any values found in data. The default value for "model", "scenario"
-            and "climate_model" is "unspecified". See ``openscm.ScmDataFrameBase`` for details.
+            and "climate_model" is "unspecified". See ``scmdataBase`` for details.
 
         kwargs:
             Additional parameters passed to `pyam.core.read_files` to read non-standard files.
@@ -2539,3 +2538,35 @@ def _get_openscm_var_from_filepath(filepath):
     )
 
     return openscm_var
+
+
+def to_int(x: np.ndarray) -> np.ndarray:
+    """
+    Convert inputs to int and check conversion is sensible
+    Parameters
+    ----------
+    x
+        Values to convert
+    Returns
+    -------
+    :obj:`np.array` of :obj:`int`
+        Input, converted to int
+    Raises
+    ------
+    ValueError
+        If the int representation of any of the values is not equal to its original
+        representation (where equality is checked using the ``!=`` operator).
+    TypeError
+        x is not a ``np.ndarray``
+    """
+    if not isinstance(x, np.ndarray):
+        raise TypeError(
+            "For our own sanity, this method only works with np.ndarray input. "
+            "x is type: {}".format(type(x))
+        )
+    cols = np.array([int(v) for v in x])
+    invalid_vals = x[cols != x]
+    if invalid_vals.size:
+        raise ValueError("invalid values `{}`".format(list(invalid_vals)))
+
+    return cols
