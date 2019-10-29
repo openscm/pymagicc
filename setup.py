@@ -56,7 +56,6 @@ REQUIREMENTS_NOTEBOOKS = [
     "ipywidgets",
     "appmode",
     "seaborn",
-    # TODO use pypi version
     "pyam-iamc>=0.2.0",
 ]
 REQUIREMENTS_TESTS = [
