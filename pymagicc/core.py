@@ -11,7 +11,7 @@ from copy import deepcopy
 import numpy as np
 import f90nml
 import pandas as pd
-from openscm.scmdataframe import df_append
+from scmdata import df_append
 
 
 from .config import config, _wine_installed

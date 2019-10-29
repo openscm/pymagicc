@@ -46,7 +46,7 @@ REQUIREMENTS_INSTALL = [
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    "openscm>=0.1.0a",
+    "scmdata>=0.1.2"
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
