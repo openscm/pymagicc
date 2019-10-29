@@ -2859,8 +2859,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
         "variable": ["GE", "GE|Coal", "GE|Gas"],
         "unit": ["J/y"],
     }
-    # TODO: refactor MAGICCData so it can be instantiated with timeseries
-    # like ScmDataFrame
+
     tdf_init = tdf_init_df.T
     tdf_init.index = pd.MultiIndex.from_product(
         tdf_init_columns.values(), names=tdf_init_columns.keys()
