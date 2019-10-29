@@ -2074,7 +2074,7 @@ class MAGICCData(ScmDataFrame):
         Initialise a MAGICCData instance
 
         Here we provide a brief over of inputs, for more details
-        see ``scmdataBase``.
+        see ``scmdata.ScmDataFrame``.
 
         Parameters
         ----------
@@ -2086,7 +2086,7 @@ class MAGICCData(ScmDataFrame):
             Dictionary to use to write the metadata for each timeseries in data. MAGICCData will
             also attempt to infer values from data. Any values in columns will be used in
             preference to any values found in data. The default value for "model", "scenario"
-            and "climate_model" is "unspecified". See ``scmdataBase`` for details.
+            and "climate_model" is "unspecified". See ``scmdata.ScmDataFrame`` for details.
 
         kwargs:
             Additional parameters passed to `pyam.core.read_files` to read non-standard files.
