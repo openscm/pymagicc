@@ -5,7 +5,7 @@
 MAGICC flags
 ============
 
-Appropriately named, this section describes some of the magical flags contained in
+This section describes some of the (magical) flags contained in
 MAGICC and the gotchas which we have discovered so far. If you have an issue, please
 raise it in the `issue tracker <https://github.com/openclimatedata/pymagicc/issues>`_
 and we will do our best to assist you before documenting the solution here.
