@@ -3218,7 +3218,9 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
 def test_mag_writer(temp_dir, writing_base_mag):
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
 
-    writing_base_mag.write(file_to_write, magicc_version=7)
+    writing_base_mag.filter(year=2100, keep=False).write(
+        file_to_write, magicc_version=7
+    )
 
     with open(file_to_write) as f:
         content = f.read()
@@ -3246,6 +3248,104 @@ def test_mag_writer(temp_dir, writing_base_mag):
     assert res.filter(region="World|Land", year=2099, month=5).values.squeeze() == 23
     assert res.filter(region="World|Ocean", year=2099, month=12).values.squeeze() == 59
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 70
+
+
+def _alter_to_timeseriestype(inscmdf, timeseriestype):
+    if timeseriestype == "POINT_START_OF_YEAR":
+        return inscmdf.interpolate(
+            target_times=[
+                dt.datetime(y, 1, 1)
+                for y in set(inscmdf["time"].apply(lambda x: x.year))
+            ],
+        )
+
+    if timeseriestype == "POINT_MID_OF_YEAR":
+        return inscmdf.interpolate(
+            target_times=[
+                dt.datetime(y, 7, 1)
+                for y in set(inscmdf["time"].apply(lambda x: x.year))
+            ],
+        )
+
+    if timeseriestype == "POINT_END_OF_YEAR":
+        return inscmdf.interpolate(
+            target_times=[
+                dt.datetime(y, 12, 31)
+                for y in set(inscmdf["time"].apply(lambda x: x.year))
+            ],
+        )
+
+    if timeseriestype == "AVERAGE_YEAR_START_OF_YEAR":
+        return inscmdf.time_mean("year_start_of_year")
+
+    if timeseriestype == "AVERAGE_YEAR_MID_OF_YEAR":
+        return inscmdf.time_mean("year")
+
+    if timeseriestype == "AVERAGE_YEAR_END_OF_YEAR":
+        return inscmdf.time_mean("year_end_of_year")
+
+
+_TIMESERIESTYPES = (
+    "POINT_START_OF_YEAR",
+    "POINT_MID_OF_YEAR",
+    "POINT_END_OF_YEAR",
+    "AVERAGE_YEAR_START_OF_YEAR",
+    "AVERAGE_YEAR_MID_OF_YEAR",
+    "AVERAGE_YEAR_END_OF_YEAR",
+)
+
+
+@pytest.mark.parametrize("timeseriestype", _TIMESERIESTYPES)
+def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
+    file_to_write = join(temp_dir, "TEST_NAME.MAG")
+
+    writing_base_mag = _alter_to_timeseriestype(writing_base_mag, timeseriestype)
+    writing_base_mag.metadata["timeseriestype"] = timeseriestype
+    writing_base_mag.write(file_to_write, magicc_version=7)
+
+    with open(file_to_write) as f:
+        content = f.read()
+
+    assert "THISFILE_ANNUALSTEPS = 1" in content
+    assert 'THISFILE_TIMESERIESTYPE = "{}"'.format(timeseriestype) in content
+
+    res = MAGICCData(file_to_write)
+    pd.testing.assert_frame_equal(
+        res.timeseries(), writing_base_mag.timeseries(), check_like=True
+    )
+
+
+@pytest.mark.parametrize("timeseriestype", _TIMESERIESTYPES)
+def test_mag_writer_timeseriestypes_data_mismatch_error(
+    temp_dir, writing_base_mag, timeseriestype
+):
+    file_to_write = join(temp_dir, "TEST_NAME.MAG")
+    writing_base_mag = _alter_to_timeseriestype(
+        writing_base_mag,
+        "POINT_MID_OF_YEAR"
+        if timeseriestype != "POINT_MID_OF_YEAR"
+        else "AVERAGE_YEAR_START_OF_YEAR",
+    )
+    writing_base_mag.metadata["timeseriestype"] = timeseriestype
+
+    error_msg = re.escape(
+        "timeseriestype ({}) doesn't match data".format(timeseriestype)
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base_mag.write(file_to_write, magicc_version=7)
+
+
+@pytest.mark.parametrize("timeseriestype", ("junk",))
+def test_mag_writer_timeseriestypes_unrecognised_timeseriestype_error(
+    temp_dir, writing_base_mag, timeseriestype
+):
+    file_to_write = join(temp_dir, "TEST_NAME.MAG")
+
+    writing_base_mag.metadata["timeseriestype"] = timeseriestype
+
+    error_msg = re.escape("Unrecognised timeseriestype: {}".format(timeseriestype))
+    with pytest.raises(ValueError, match=error_msg):
+        writing_base_mag.write(file_to_write, magicc_version=7)
 
 
 def test_mag_writer_valid_region_mode(temp_dir, writing_base):

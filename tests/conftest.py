@@ -185,7 +185,7 @@ def writing_base_mag():
     )
 
     writing_base_mag = MAGICCData(
-        data=np.arange(15 * len(tregions)).reshape(15, len(tregions)),
+        data=np.arange(27 * len(tregions)).reshape(27, len(tregions)),
         index=[
             dt.datetime(2099, 1, 16, 12, 0),
             dt.datetime(2099, 2, 15, 0, 0),
@@ -199,6 +199,18 @@ def writing_base_mag():
             dt.datetime(2099, 10, 16, 12, 0),
             dt.datetime(2099, 11, 16, 0, 0),
             dt.datetime(2099, 12, 16, 12, 0),
+            dt.datetime(2100, 1, 16, 12, 0),
+            dt.datetime(2100, 2, 15, 0, 0),
+            dt.datetime(2100, 3, 16, 12, 0),
+            dt.datetime(2100, 4, 16, 0, 0),
+            dt.datetime(2100, 5, 16, 12, 0),
+            dt.datetime(2100, 6, 16, 0, 0),
+            dt.datetime(2100, 7, 16, 12, 0),
+            dt.datetime(2100, 8, 16, 12, 0),
+            dt.datetime(2100, 9, 16, 0, 0),
+            dt.datetime(2100, 10, 16, 12, 0),
+            dt.datetime(2100, 11, 16, 0, 0),
+            dt.datetime(2100, 12, 16, 12, 0),
             dt.datetime(2101, 1, 16, 12, 0),
             dt.datetime(2101, 2, 15, 0, 0),
             dt.datetime(2101, 3, 16, 12, 0),
