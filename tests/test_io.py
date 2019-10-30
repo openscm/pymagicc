@@ -3215,51 +3215,10 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
     run_writing_comparison(res, base, update=update_expected_file)
 
 
-def test_mag_writer(temp_dir):
-
-    tregions = (
-        ["World"]
-        + ["World|{}".format(r) for r in ["Northern Hemisphere", "Southern Hemisphere"]]
-        + ["World|{}".format(r) for r in ["Land", "Ocean"]]
-    )
-
-    writing_base = MAGICCData(
-        data=np.arange(15 * len(tregions)).reshape(15, len(tregions)),
-        index=[
-            dt.datetime(2099, 1, 16, 12, 0),
-            dt.datetime(2099, 2, 15, 0, 0),
-            dt.datetime(2099, 3, 16, 12, 0),
-            dt.datetime(2099, 4, 16, 0, 0),
-            dt.datetime(2099, 5, 16, 12, 0),
-            dt.datetime(2099, 6, 16, 0, 0),
-            dt.datetime(2099, 7, 16, 12, 0),
-            dt.datetime(2099, 8, 16, 12, 0),
-            dt.datetime(2099, 9, 16, 0, 0),
-            dt.datetime(2099, 10, 16, 12, 0),
-            dt.datetime(2099, 11, 16, 0, 0),
-            dt.datetime(2099, 12, 16, 12, 0),
-            dt.datetime(2101, 1, 16, 12, 0),
-            dt.datetime(2101, 2, 15, 0, 0),
-            dt.datetime(2101, 3, 16, 12, 0),
-        ],
-        columns={
-            "region": tregions,
-            "variable": "NPP",
-            "model": "unspecified",
-            "scenario": "mag test",
-            "unit": "gC/yr",
-            "todo": "SET",
-        },
-    )
-
-    writing_base.metadata = {
-        "header": "Test mag file",
-        "timeseriestype": "MONTHLY",
-        "other info": "checking time point handling",
-    }
+def test_mag_writer(temp_dir, writing_base_mag):
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
 
-    writing_base.write(file_to_write, magicc_version=7)
+    writing_base_mag.write(file_to_write, magicc_version=7)
 
     with open(file_to_write) as f:
         content = f.read()
