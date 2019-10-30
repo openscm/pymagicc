@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 from os.path import exists, join, dirname
 import pkg_resources
@@ -173,3 +174,49 @@ def writing_base_emissions():
             "todo": ["SET"],
         },
     )
+
+
+@pytest.fixture
+def writing_base_mag():
+    tregions = (
+        ["World"]
+        + ["World|{}".format(r) for r in ["Northern Hemisphere", "Southern Hemisphere"]]
+        + ["World|{}".format(r) for r in ["Land", "Ocean"]]
+    )
+
+    writing_base_mag = MAGICCData(
+        data=np.arange(15 * len(tregions)).reshape(15, len(tregions)),
+        index=[
+            dt.datetime(2099, 1, 16, 12, 0),
+            dt.datetime(2099, 2, 15, 0, 0),
+            dt.datetime(2099, 3, 16, 12, 0),
+            dt.datetime(2099, 4, 16, 0, 0),
+            dt.datetime(2099, 5, 16, 12, 0),
+            dt.datetime(2099, 6, 16, 0, 0),
+            dt.datetime(2099, 7, 16, 12, 0),
+            dt.datetime(2099, 8, 16, 12, 0),
+            dt.datetime(2099, 9, 16, 0, 0),
+            dt.datetime(2099, 10, 16, 12, 0),
+            dt.datetime(2099, 11, 16, 0, 0),
+            dt.datetime(2099, 12, 16, 12, 0),
+            dt.datetime(2101, 1, 16, 12, 0),
+            dt.datetime(2101, 2, 15, 0, 0),
+            dt.datetime(2101, 3, 16, 12, 0),
+        ],
+        columns={
+            "region": tregions,
+            "variable": "NPP",
+            "model": "unspecified",
+            "scenario": "mag test",
+            "unit": "gC/yr",
+            "todo": "SET",
+        },
+    )
+
+    writing_base_mag.metadata = {
+        "header": "Test mag file",
+        "timeseriestype": "MONTHLY",
+        "other info": "checking time point handling",
+    }
+
+    yield writing_base_mag
