@@ -3276,13 +3276,13 @@ def _alter_to_timeseriestype(inscmdf, timeseriestype):
         )
 
     if timeseriestype == "AVERAGE_YEAR_START_OF_YEAR":
-        return inscmdf.time_mean("year_start_of_year")
+        return inscmdf.time_mean("AS")
 
     if timeseriestype == "AVERAGE_YEAR_MID_OF_YEAR":
-        return inscmdf.time_mean("year")
+        return inscmdf.time_mean("AC")
 
     if timeseriestype == "AVERAGE_YEAR_END_OF_YEAR":
-        return inscmdf.time_mean("year_end_of_year")
+        return inscmdf.time_mean("AE")
 
 
 _TIMESERIESTYPES = (
