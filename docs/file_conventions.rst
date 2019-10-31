@@ -160,8 +160,8 @@ and value can only be stored and read as strings. This section must always start
 global attributes section in a netcdf file. This section is also ignored by MAGICC.
 
 The third section is a Fortran namelist, which stores the flags required for MAGICC to
-be able to read the file. The flags must match the flags used by MAGICC internally (
-see `Namelists`_). In Pymagicc, these flags are written automatically, the user cannot
+be able to read the file. The flags must match the flags used by MAGICC internally
+(see `Namelists`_). In Pymagicc, these flags are written automatically, the user cannot
 write them.
 
 The fourth section is the data. This is always a data block with four header rows:
