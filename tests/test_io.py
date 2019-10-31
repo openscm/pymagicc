@@ -3349,8 +3349,8 @@ def test_mag_writer_timeseriestypes_data_mismatch_error(
     writing_base_mag = MAGICCData(_alter_to_timeseriestype(
         writing_base_mag,
         "POINT_MID_OF_YEAR"
-        if timeseriestype != "POINT_MID_OF_YEAR"
-        else "AVERAGE_YEAR_START_OF_YEAR",
+        if timeseriestype != "POINT_MID_YEAR"
+        else "AVERAGE_YEAR_START_YEAR",
     ))
     writing_base_mag.metadata = {"timeseriestype": timeseriestype}
 

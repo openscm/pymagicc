@@ -173,3 +173,40 @@ def _yr_frac_close_to(yfrac, other, must_be_greater=False):
     if must_be_greater and yfrac < other[match_idx]:
         return False
     return True
+
+
+def _adjust_df_index_to_match_timeseries_type(df, ttype):
+    """
+    Adjust a df's index to reflect the underlying timeseries type
+
+    Parameters
+    ----------
+    df : :obj:`pd.DataFrame`
+        Dataframe to adjust
+
+    ttype : str
+        String indicating the kind of data in the file (look at the sample .MAG
+        file for explanation of the types in detail)
+
+    Returns
+    -------
+    :obj:`pd.DataFrame`
+        Dataframe with times adjusted to match with ``ttype``
+    """
+    if ttype in ("POINT_START_YEAR", "AVERAGE_YEAR_START_YEAR"):
+        df.index = df.index.map(lambda x: dt.datetime(x, 1, 1))
+        return df
+
+    if ttype in ("POINT_MID_YEAR", "AVERAGE_YEAR_MID_YEAR"):
+        df.index = df.index.map(lambda x: dt.datetime(x, 7, 1))
+        return df
+
+    if ttype in ("POINT_END_YEAR", "AVERAGE_YEAR_END_YEAR"):
+        df.index = df.index.map(lambda x: dt.datetime(x, 12, 31))
+        return df
+
+    if ttype in ("MONTHLY",):
+        df.index = df.index.map(convert_to_datetime)
+        return df
+
+    raise AssertionError("Unrecognised `ttype`: {}".format(ttype))  # pragma: no cover
