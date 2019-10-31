@@ -3289,6 +3289,7 @@ def _alter_to_timeseriestype(inscmdf, timeseriestype):
 
     raise AssertionError("shouldn't get here")
 
+
 _TIMESERIESTYPES = (
     "POINT_START_YEAR",
     "POINT_MID_YEAR",
@@ -3308,7 +3309,9 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
     writing_base_mag = writing_base_mag.timeseries().reset_index()
     writing_base_mag["climate_model"] = "unspecified"
     writing_base_mag["scenario"] = "unspecified"
-    writing_base_mag["unit"] = writing_base_mag["unit"].apply(lambda x: x.replace("/", "per"))
+    writing_base_mag["unit"] = writing_base_mag["unit"].apply(
+        lambda x: x.replace("/", "per")
+    )
     writing_base_mag = MAGICCData(writing_base_mag)
     writing_base_mag.metadata = {"timeseriestype": timeseriestype}
     writing_base_mag.write(file_to_write, magicc_version=7)
@@ -3336,9 +3339,7 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
             lambda x: dt.datetime(x.year, x.month, x.day, 1, 1, 1)
         )
 
-    pd.testing.assert_frame_equal(
-        res_ts, exp_ts, check_like=True
-    )
+    pd.testing.assert_frame_equal(res_ts, exp_ts, check_like=True)
 
 
 @pytest.mark.parametrize("timeseriestype", _TIMESERIESTYPES)
@@ -3346,12 +3347,14 @@ def test_mag_writer_timeseriestypes_data_mismatch_error(
     temp_dir, writing_base_mag, timeseriestype
 ):
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
-    writing_base_mag = MAGICCData(_alter_to_timeseriestype(
-        writing_base_mag,
-        "POINT_MID_YEAR"
-        if timeseriestype not in ("POINT_MID_YEAR", "AVERAGE_YEAR_MID_YEAR")
-        else "AVERAGE_YEAR_START_YEAR",
-    ))
+    writing_base_mag = MAGICCData(
+        _alter_to_timeseriestype(
+            writing_base_mag,
+            "POINT_MID_YEAR"
+            if timeseriestype not in ("POINT_MID_YEAR", "AVERAGE_YEAR_MID_YEAR")
+            else "AVERAGE_YEAR_START_YEAR",
+        )
+    )
     writing_base_mag.metadata = {"timeseriestype": timeseriestype}
 
     error_msg = re.escape(
