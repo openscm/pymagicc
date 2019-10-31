@@ -1953,12 +1953,25 @@ class _MAGWriter(_Writer):
         ]:
             raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
 
-        if (
-            ttype != "MONTHLY"
-            and nml["thisfile_specifications"]["thisfile_annualsteps"] == 12
-        ):
-            warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
-            ttype = "MONTHLY"
+        data_timeseriestype_mismatch_error = ValueError("timeseriestype ({}) doesn't match data".format(nml["thisfile_specifications"]["thisfile_timeseriestype"]))
+        its = self.minput.timeseries()
+
+        if ttype in ("POINT_START_YEAR", "AVERAGE_YEAR_START_YEAR"):
+            if not all([v.month == 1 and v.day == 1 for v in its.columns]):
+                raise data_timeseriestype_mismatch_error
+
+        elif ttype in ("POINT_MID_YEAR", "AVERAGE_YEAR_MID_YEAR"):
+            if not all([v.month == 7 and v.day == 1 for v in its.columns]):
+                raise data_timeseriestype_mismatch_error
+
+        elif ttype in ("POINT_END_YEAR", "AVERAGE_YEAR_END_YEAR"):
+            if not all([v.month == 12 and v.day == 31 for v in its.columns]):
+                raise data_timeseriestype_mismatch_error
+
+        elif ttype == "MONTHLY":
+            # should either be weird timesteps or 12 months per year
+            if nml["thisfile_specifications"]["thisfile_annualsteps"] not in (0, 12):
+                raise data_timeseriestype_mismatch_error
 
         # don't bother writing this as it's in the header
         nml["thisfile_specifications"].pop("thisfile_units")
