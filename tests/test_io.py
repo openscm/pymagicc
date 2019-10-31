@@ -3247,7 +3247,7 @@ def test_mag_writer(temp_dir, writing_base_mag):
     )
     assert res.filter(region="World|Land", year=2099, month=5).values.squeeze() == 23
     assert res.filter(region="World|Ocean", year=2099, month=12).values.squeeze() == 59
-    assert res.filter(region="World", year=2101, month=3).values.squeeze() == 70
+    assert res.filter(region="World", year=2101, month=3).values.squeeze() == 130
 
 
 def _alter_to_timeseriestype(inscmdf, timeseriestype):
@@ -3348,8 +3348,8 @@ def test_mag_writer_timeseriestypes_data_mismatch_error(
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
     writing_base_mag = MAGICCData(_alter_to_timeseriestype(
         writing_base_mag,
-        "POINT_MID_OF_YEAR"
-        if timeseriestype != "POINT_MID_YEAR"
+        "POINT_MID_YEAR"
+        if timeseriestype not in ("POINT_MID_YEAR", "AVERAGE_YEAR_MID_YEAR")
         else "AVERAGE_YEAR_START_YEAR",
     ))
     writing_base_mag.metadata = {"timeseriestype": timeseriestype}
@@ -3384,7 +3384,7 @@ def test_mag_writer_valid_region_mode(temp_dir, writing_base):
     writing_base.set_meta("Ocean Temperature", name="variable")
     writing_base.metadata = {
         "header": "Test mag file where regionmode is picked up",
-        "timeseriestype": "AVERAGE_YEAR_MID_YEAR",
+        "timeseriestype": "AVERAGE_YEAR_START_YEAR",
     }
 
     file_to_write = join(temp_dir, "TEST_NAME.MAG")
@@ -3406,7 +3406,7 @@ def test_mag_writer_unrecognised_region_warning(temp_dir, writing_base):
     writing_base.set_meta("Ocean Temperature", name="variable")
     writing_base.metadata = {
         "header": "Test mag file where regions are misnamed",
-        "timeseriestype": "AVERAGE_YEAR_MID_YEAR",
+        "timeseriestype": "AVERAGE_YEAR_START_YEAR",
     }
 
     warn_msg = re.compile(
@@ -3480,7 +3480,7 @@ def test_mag_writer_default_header(temp_dir, writing_base):
     ]
     writing_base.set_meta(tregions, name="region")
     writing_base.set_meta("Ocean Temperature", name="variable")
-    writing_base.metadata = {"timeseriestype": "AVERAGE_YEAR_MID_YEAR"}
+    writing_base.metadata = {"timeseriestype": "AVERAGE_YEAR_START_YEAR"}
 
     write_file = join(temp_dir, "TEST_NAME.MAG")
     default_header_lines = [re.compile("Date: .*"), re.compile("Writer: pymagicc v.*")]
