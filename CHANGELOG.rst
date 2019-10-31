@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#272 <https://github.com/openclimatedata/pymagicc/pull/272>`_) Add support for new ``THISFILE_TIMESERIESTYPE`` in ``.MAG`` files
 - (`#269 <https://github.com/openclimatedata/pymagicc/pull/269>`_) Break circular dependency on OpenSCM by switching to using scmdata
 - (`#268 <https://github.com/openclimatedata/pymagicc/pull/268>`_) Update region mapping to match SSP database
 - (`#266 <https://github.com/openclimatedata/pymagicc/pull/266>`_) Use a whitelist of `OUT_` parameters which are converted to 1/0's
