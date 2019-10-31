@@ -1943,6 +1943,13 @@ class _MAGWriter(_Writer):
         ]:
             raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
 
+        if (
+            ttype != "MONTHLY"
+            and nml["thisfile_specifications"]["thisfile_annualsteps"] == 12
+        ):
+            warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
+            ttype = "MONTHLY"
+
         # don't bother writing this as it's in the header
         nml["thisfile_specifications"].pop("thisfile_units")
 

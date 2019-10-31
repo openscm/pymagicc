@@ -3284,6 +3284,9 @@ def _alter_to_timeseriestype(inscmdf, timeseriestype):
     if timeseriestype == "AVERAGE_YEAR_END_YEAR":
         return inscmdf.time_mean("A")
 
+    if timeseriestype == "MONTHLY":
+        return inscmdf
+
     raise AssertionError("shouldn't get here")
 
 _TIMESERIESTYPES = (
@@ -3293,6 +3296,7 @@ _TIMESERIESTYPES = (
     "AVERAGE_YEAR_START_YEAR",
     "AVERAGE_YEAR_MID_YEAR",
     "AVERAGE_YEAR_END_YEAR",
+    "MONTHLY",
 )
 
 
@@ -3315,9 +3319,25 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
     assert "THISFILE_ANNUALSTEPS = 1" in content
     assert "THISFILE_TIMESERIESTYPE = '{}'".format(timeseriestype) in content
 
-    res = MAGICCData(file_to_write)
+    res_ts = MAGICCData(file_to_write).timeseries()
+    exp_ts = writing_base_mag.timeseries()
+    if timeseriestype == "MONTHLY":
+        # month test is overly sensitive so do column by column
+        for res_col, exp_col in zip(res_ts.columns, exp_ts.columns):
+            assert res_col.year == exp_col.year
+            assert res_col.month == exp_col.month
+            assert np.abs(res_col.day - exp_col.day) <= 1
+
+        res_ts.columns = exp_ts.columns
+        res_ts.columns = res_ts.columns.map(
+            lambda x: dt.datetime(x.year, x.month, x.day, 1, 1, 1)
+        )
+        exp_ts.columns = exp_ts.columns.map(
+            lambda x: dt.datetime(x.year, x.month, x.day, 1, 1, 1)
+        )
+
     pd.testing.assert_frame_equal(
-        res.timeseries(), writing_base_mag.timeseries(), check_like=True
+        res_ts, exp_ts, check_like=True
     )
 
 
