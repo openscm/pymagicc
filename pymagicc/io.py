@@ -15,7 +15,11 @@ from six import StringIO
 from scmdata import ScmDataFrame
 
 
-from .magicc_time import convert_to_decimal_year, convert_to_datetime
+from .magicc_time import (
+    _adjust_df_index_to_match_timeseries_type,
+    convert_to_decimal_year,
+    convert_to_datetime,
+)
 from .utils import apply_string_substitutions
 from .definitions import (
     DATTYPE_REGIONMODE_REGIONS,
@@ -221,11 +225,17 @@ class _Reader(object):
             The second element is th updated metadata based on the processing performed.
         """
         ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
-        df = self._convert_data_block_and_headers_to_df(stream)
+        df = self._convert_data_block_to_df(stream)
+
+        # should this logic go in the base class or only in the _MAGReader class?
+        if "timeseriestype" in metadata:
+            df = _adjust_df_index_to_match_timeseries_type(
+                df, metadata["timeseriestype"]
+            )
 
         return df, metadata, ch
 
-    def _convert_data_block_and_headers_to_df(self, stream):
+    def _convert_data_block_to_df(self, stream):
         """
         stream : Streamlike object
             A Streamlike object (nominally StringIO) containing the data to be
@@ -746,7 +756,7 @@ class _ScenReader(_NonStandardEmisInReader):
                 region_block.write(self._stream.readline())
             region_block.seek(0)
 
-            region_df = self._convert_data_block_and_headers_to_df(region_block)
+            region_df = self._convert_data_block_to_df(region_block)
 
             try:
                 df = pd.concat([region_df, df], axis="columns")
@@ -832,7 +842,7 @@ class _RCPDatReader(_Reader):
 
             column_headers = converter._read_units(column_headers)
 
-        df = self._convert_data_block_and_headers_to_df(stream)
+        df = self._convert_data_block_to_df(stream)
 
         return df, metadata, column_headers
 
