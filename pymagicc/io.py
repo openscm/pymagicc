@@ -1928,23 +1928,18 @@ class _MAGWriter(_Writer):
         except KeyError:
             raise KeyError(
                 "Please specify your 'timeseriestype' in "
-                "`self.metadata['timeseriestype'] before writing '.MAG' files"
+                "`self.metadata['timeseriestype'] before writing `.MAG` files"
             )
-
-        if (
-            ttype != "MONTHLY"
-            and nml["thisfile_specifications"]["thisfile_annualsteps"] == 12
-        ):
-            warnings.warn("Detected monthy data, changing timeseriestype to 'MONTHLY'")
-            ttype = "MONTHLY"
 
         nml["thisfile_specifications"]["thisfile_timeseriestype"] = ttype
         if ttype not in [
             "MONTHLY",
-            "POINT_END_OF_YEAR",
+            "POINT_START_YEAR",
+            "POINT_END_YEAR",
             "POINT_MID_YEAR",
-            "AVERAGE_YEAR_END_OF_YEAR",
+            "AVERAGE_YEAR_START_YEAR",
             "AVERAGE_YEAR_MID_YEAR",
+            "AVERAGE_YEAR_END_YEAR",
         ]:
             raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
 
