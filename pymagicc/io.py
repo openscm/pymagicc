@@ -227,7 +227,6 @@ class _Reader(object):
         ch, metadata = self._get_column_headers_and_update_metadata(stream, metadata)
         df = self._convert_data_block_to_df(stream)
 
-        # should this logic go in the base class or only in the _MAGReader class?
         if "timeseriestype" in metadata:
             df = _adjust_df_index_to_match_timeseries_type(
                 df, metadata["timeseriestype"]
@@ -1953,7 +1952,11 @@ class _MAGWriter(_Writer):
         ]:
             raise ValueError("Unrecognised timeseriestype: {}".format(ttype))
 
-        data_timeseriestype_mismatch_error = ValueError("timeseriestype ({}) doesn't match data".format(nml["thisfile_specifications"]["thisfile_timeseriestype"]))
+        data_timeseriestype_mismatch_error = ValueError(
+            "timeseriestype ({}) doesn't match data".format(
+                nml["thisfile_specifications"]["thisfile_timeseriestype"]
+            )
+        )
         its = self.minput.timeseries()
 
         if ttype in ("POINT_START_YEAR", "AVERAGE_YEAR_START_YEAR"):
