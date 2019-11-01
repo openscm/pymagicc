@@ -1118,7 +1118,7 @@ def test_load_rewritten_scen7(temp_dir):
     writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
 
     warn_msg = (
-        "MAGICC6 RCP region naming (R5*) is is not compatible with MAGICC7, "
+        "MAGICC6 RCP region naming (R5*) is not compatible with MAGICC7, "
         "automatically renaming to MAGICC7 compatible regions (R5.2*)"
     )
     with warnings.catch_warnings(record=True) as warn_autorename_region:
@@ -1283,14 +1283,14 @@ def test_load_rewrite_scen7_scen_loop(temp_dir):
     cols = {"model": ["IMAGE"], "scenario": ["RCP26"], "climate_model": ["MAGICC6"]}
     writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
 
-    with warnings.catch_warnings():  # warning tested elsewhere
+    with warnings.catch_warnings(record=True):  # warning tested elsewhere
         writer.write(write_file_rewritten, magicc_version=7)
 
     rewritten = MAGICCData(write_file_rewritten, columns=cols)
 
     write_file_loop = join(temp_dir, "LOOP.SCEN")
     warn_msg = (
-        "MAGICC7 RCP region naming (R5.2*) is is not compatible with MAGICC6, "
+        "MAGICC7 RCP region naming (R5.2*) is not compatible with MAGICC6, "
         "automatically renaming to MAGICC6 compatible regions (R5*)"
     )
     with warnings.catch_warnings(record=True) as warn_autorename_region:
@@ -1305,14 +1305,7 @@ def test_load_rewrite_scen7_scen_loop(temp_dir):
         ["World"]
         + [
             "World|{}".format(v)
-            for v in [
-                "R5ASIA",
-                "R5MAF",
-                "R5REF",
-                "R5LAM",
-                "R5OECD",
-                "Bunkers",
-            ]
+            for v in ["R5ASIA", "R5MAF", "R5REF", "R5LAM", "R5OECD", "Bunkers",]
         ]
     )
 
@@ -3377,7 +3370,7 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
         lambda x: x.replace("/", "per")
     )
     writing_base_mag = MAGICCData(writing_base_mag)
-    writing_base_mag.metadata = {"timeseriestype": timeseriestype}
+    writing_base_mag.metadata = {"timeseriestype": timeseriestype, "header": "shh"}
     writing_base_mag.write(file_to_write, magicc_version=7)
 
     with open(file_to_write) as f:
@@ -3419,7 +3412,7 @@ def test_mag_writer_timeseriestypes_data_mismatch_error(
             else "AVERAGE_YEAR_START_YEAR",
         )
     )
-    writing_base_mag.metadata = {"timeseriestype": timeseriestype}
+    writing_base_mag.metadata = {"timeseriestype": timeseriestype, "header": "shh"}
 
     error_msg = re.escape(
         "timeseriestype ({}) doesn't match data".format(timeseriestype)
