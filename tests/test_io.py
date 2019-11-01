@@ -764,7 +764,7 @@ def test_load_scen_specify_metadata():
     assert (mdata["climate_model"] == tclimate_model).all()
 
 
-def test_load_scen__metadata_and_year_first_column():
+def test_load_scen_metadata_and_year_first_column():
     mdata = MAGICCData(join(TEST_DATA_DIR, "RCP26_WORLD_ONLY_YEAR_FIRST_COLUMN.SCEN"))
 
     generic_mdata_tests(mdata)
@@ -3601,3 +3601,28 @@ def test_to_int_type_error():
     )
     with pytest.raises(TypeError, match=error_msg):
         to_int(inp)
+
+
+def test_write_scen_as_scen7(tmpdir):
+    orig = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"))
+
+    out_file = join(tmpdir, "RCP26.SCEN7")
+
+    warn_msg = re.compile(
+        r"^MAGICC6 RCP regions are not compatible with MAGICC7, automatically "
+        "renaming to MAGICC7 compatible regions$"
+    )
+    with warnings.catch_warnings(record=True) as warn_autorename_region:
+        orig.write(out_file, magicc_version=7)
+
+    assert len(warn_autorename_region) == 1
+    assert warn_msg.match(str(warn_autorename_region[0].message))
+
+
+    res = MAGICCData(out_file)
+
+    assert sorted(res["region"].unique().tolist()) == sorted(["World"] + [
+        "World|{}".format(v) for v in ["R5.2ASIA", "R5.2MAF", "R5.2REF", "R5.2LAM", "R5.2OECD", "Bunkers"]
+    ])
+
+    assert False, "test that regions are mapped properly and warning is thrown"
