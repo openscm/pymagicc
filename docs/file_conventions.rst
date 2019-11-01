@@ -105,15 +105,16 @@ At the top of each input file there is a namelist called ``thisfile_specificatio
 .. code:: Fortran
 
    &THISFILE_SPECIFICATIONS
-    THISFILE_DATACOLUMNS    =    7  ,
-    THISFILE_DATAROWS       =  266  ,
-    THISFILE_FIRSTYEAR      = 1750  ,
-    THISFILE_LASTYEAR       = 2015  ,
-    THISFILE_ANNUALSTEPS    =    1  ,
-    THISFILE_FIRSTDATAROW   =   99  ,
-    THISFILE_UNITS          = "kt"  ,
-    THISFILE_DATTYPE        = "REGIONDATA"  ,
-    THISFILE_REGIONMODE     = "RCPPLUSBUNKERS"  ,
+    THISFILE_DATACOLUMNS     =    7  ,
+    THISFILE_DATAROWS        =  266  ,
+    THISFILE_FIRSTYEAR       = 1750  ,
+    THISFILE_LASTYEAR        = 2015  ,
+    THISFILE_ANNUALSTEPS     =    1  ,
+    THISFILE_FIRSTDATAROW    =   99  ,
+    THISFILE_UNITS           = "kt"  ,
+    THISFILE_DATTYPE         = "REGIONDATA"  ,
+    THISFILE_REGIONMODE      = "RCPPLUSBUNKERS"  ,
+    THISFILE_TIMESERIESTYPE  = "MONTHLY"  ,
    /
 
 We summarise the meaning of these flags below:
@@ -122,11 +123,12 @@ We summarise the meaning of these flags below:
 - ``THISFILE_DATAROWS`` (MAGICC7 only): the number of data rows in the data file (excluding the time axis), this is required to help MAGICC pre-allocate arrays before reading
 - ``THISFILE_FIRSTYEAR``: the first year to which the data applies
 - ``THISFILE_LASTYEAR``: the last year to which the data applies
-- ``THISFILE_ANNUALSTEPS``: how many slices each year is divided into, i.e. ``THISFILE_ANNUALSTEPS=1`` means the data is annual, ``THISFILE_ANNUALSTEPS=12`` means that data is monthly and ``THISFILE_ANNUALSTEPS=0`` is a special convention to say that the data is given in larger than annual steps and hence must be interpolated by MAGICC internally
+- ``THISFILE_ANNUALSTEPS``: how many slices each year is divided into, i.e. ``THISFILE_ANNUALSTEPS=1`` means the data is annual, ``THISFILE_ANNUALSTEPS=12`` means that data is monthly and ``THISFILE_ANNUALSTEPS=0`` is a special convention to say that the data is given in irregular or larger than annual steps and hence must be interpolated by MAGICC internally
 - ``THISFILE_FIRSTDATAROW``: the first row in which data is given, this lets MAGICC skip all the header rows in the data files
 - ``THISFILE_UNITS``: the units of the data in the file, not used by MAGICC internally but provided as confirmation for the user
 - ``THISFILE_DATTYPE``: indicates the type of data provided in the file, see ``pymagicc/definitions/magicc_dattype_regionmode_regions.csv``
-- ``THISFILE_REGIONMODE``: indicates the regions provided in the file, see ``pymagicc/definitions/magicc_dattype_regionmode_regions.csv``
+- ``THISFILE_REGIONMODE``: indicates the regions provided in the file, see ``pymagicc/definitions/magicc_dattype_regionmode_regions.csv``. ``NONE`` is written if the supplied regions are not compatible with any of MAGICC's internal REGIONMODE flags.
+- ``THISFILE_TIMESERIESTYPE``: indicates the type of the timeseries provided in the file. Note that this flag is only used by ``.MAG`` files at the moment (we hope to add it to MAGICC7 input and output in future). Available options: ``MONTHLY`` (monthly mean values), ``POINT_START_YEAR`` (start of year values), ``POINT_MID_YEAR`` (middle of year values), ``POINT_END_YEAR`` (end of year values), ``AVERAGE_YEAR_START_YEAR`` (average over a year, centred on Jan 1 of the stated year i.e. uses data from July of the previous year until June of the year), ``AVERAGE_YEAR_MID_YEAR`` (average over a year only using the monthly averages of the months in the specified year), ``AVERAGE_YEAR_END_YEAR`` (average over a year, centred on December 31 of the stated year i.e. uses data from July of year until June of next year).
 
 **Note**
 
@@ -136,8 +138,7 @@ standard for RCP data, is not supported by MAGICC7. Hence we provided an 'assume
 mapping' in ``pymagicc/io._InputWriter._get_data_block`` which, if we are trying to
 write a ``SCEN7`` file and we are given the RCP regional set, will simply assume that
 it is ok to map to the MAGICC7 regions,
-``["WORLD", "R6ASIA", "R6LAM", "R6REF", "R6MAF", "R6OECD90", "BUNKERS"]`` which are
-supported.
+``["WORLD", "R5.2ASIA", "R5.2LAM", "R5.2REF", "R5.2MAF", "R5.2OECD", "BUNKERS"]``, which are supported.
 
 
 The Future

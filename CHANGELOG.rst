@@ -12,7 +12,7 @@ master
 - (`#267 <https://github.com/openclimatedata/pymagicc/pull/267>`_) Hotfix appveyor failures
 - (`#261 <https://github.com/openclimatedata/pymagicc/pull/261>`_) Improve mapping of MAGICC7 to OpenSCM variables
 - (`#259 <https://github.com/openclimatedata/pymagicc/pull/259>`_) Added ``strict`` option for downgrading configuration exceptions to warnings
-- (`#252 <https://github.com/openclimatedata/pymagicc/pull/256>`_) Capture stderr output from MAGICC7 and above (not available in MAGICC6)
+- (`#256 <https://github.com/openclimatedata/pymagicc/pull/256>`_) Capture stderr output from MAGICC7 and above (not available in MAGICC6)
 - (`#252 <https://github.com/openclimatedata/pymagicc/pull/252>`_) Improve header writing, upgrade MAGICC time conversions and fix wine not installed error handling
 - (`#253 <https://github.com/openclimatedata/pymagicc/pull/253>`_) Add support for ``out_dynamic_vars`` parameter
 - (`#250 <https://github.com/openclimatedata/pymagicc/pull/250>`_) Add support for ``.MAG`` files

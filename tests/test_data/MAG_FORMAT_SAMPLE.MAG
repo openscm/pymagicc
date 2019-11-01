@@ -10,18 +10,18 @@ Affiliation: Climate & Energy College, The University of Melbourne
 key: value
 length: 53 furlongs
 original source: somewhere over the rainbow of 125 moons
-region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NHOCEAN (northern hemisphere ocean average), SHOCEAN (southern hemisphere ocean average), NHLAND (northern hemisphere land average), SHLAND (southern hemisphere land average), OCEAN (ocean average), LAND (land average), N34 (El Nino 3.4 region average), NATLOCEAN (northern Atlantic Ocean average)
+region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NHOCEAN (northern hemisphere ocean average), SHOCEAN (southern hemisphere ocean average), NHLAND (northern hemisphere land average), SHLAND (southern hemisphere land average), OCEAN (ocean average), LAND (land average), N34 (El Nino 3.4 region average), AMV (northern Atlantic Ocean average i.e. average for the atlantic meridional variability region)
 
 &THISFILE_SPECIFICATIONS
  THISFILE_DATACOLUMNS    =    6  ,
  THISFILE_DATAROWS       =   19  ,
- THISFILE_FIRSTYEAR      = 1910  ,   ! always an integer
- THISFILE_LASTYEAR       = 1911  ,   ! always an integer
- THISFILE_ANNUALSTEPS    =   12  ,   ! the number of steps per year in the timeseries i.e. the annual resolution so equal to 1 if annual steps, 12 if monthly steps. Special case: 0 if the file is at less than annual resolution
- THISFILE_FIRSTDATAROW   =   31  ,   ! first row of the data block
- THISFILE_DATTYPE        = "MAG"  ,  ! DATTYPE flag used in MAGICC
- THISFILE_REGIONMODE     = "NONE"  , ! REGIONMODE flag, defines the regions included in this file. Available options: SRES, RCP, RCPPLUSBUNKERS, WORLD, RCPPLUSSPLITBUNKERS, FOURBOX, HEMISPHERIC, NONE (NONE indicates the regions could be anything i.e. supplied regions are not compatible with any of MAGICC's internal REGIONMODE flags)
- THISFILE_TIMESERIESTYPE = "MONTHLY"  , ! Convention used to report this timeseries. Available options: MONTHLY (monthly mean values), POINT_START_YEAR (start of year values), POINT_MID_YEAR (middle of year values), POINT_END_YEAR (end of year values), AVERAGE_YEAR_START_YEAR (average over a year, centred on Jan 1 of the stated year i.e. uses data from July of the previous year until June of the year), AVERAGE_YEAR_MID_YEAR (average over a year only using the monthly averages of the months in the specified year), AVERAGE_YEAR_END_YEAR (average over a year, centred on December 31 of the stated year i.e. uses data from July of year until June of next year)
+ THISFILE_FIRSTYEAR      = 1910  ,
+ THISFILE_LASTYEAR       = 1911  ,
+ THISFILE_ANNUALSTEPS    =   12  ,
+ THISFILE_FIRSTDATAROW   =   31  ,
+ THISFILE_DATTYPE        = "MAG"  ,
+ THISFILE_REGIONMODE     = "NONE"  ,
+ THISFILE_TIMESERIESTYPE = "MONTHLY"  ,
 /
 
       VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP
