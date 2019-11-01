@@ -1118,7 +1118,7 @@ def test_load_rewritten_scen7(temp_dir):
     writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
 
     warn_msg = (
-        "MAGICC6 RCP region naming is (R5*) is not compatible with MAGICC7, "
+        "MAGICC6 RCP region naming (R5*) is is not compatible with MAGICC7, "
         "automatically renaming to MAGICC7 compatible regions (R5.2*)"
     )
     with warnings.catch_warnings(record=True) as warn_autorename_region:
@@ -1274,6 +1274,46 @@ def test_load_rewritten_scen7(temp_dir):
         year=2000,
         unit="Mt N / yr",
         todo="SET",
+    )
+
+
+def test_load_rewrite_scen7_scen_loop(temp_dir):
+    write_file_rewritten = join(temp_dir, "REWRITTEN.SCEN7")
+
+    cols = {"model": ["IMAGE"], "scenario": ["RCP26"], "climate_model": ["MAGICC6"]}
+    writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
+
+    with warnings.catch_warnings():  # warning tested elsewhere
+        writer.write(write_file_rewritten, magicc_version=7)
+
+    rewritten = MAGICCData(write_file_rewritten, columns=cols)
+
+    write_file_loop = join(temp_dir, "LOOP.SCEN")
+    warn_msg = (
+        "MAGICC7 RCP region naming (R5.2*) is is not compatible with MAGICC6, "
+        "automatically renaming to MAGICC6 compatible regions (R5*)"
+    )
+    with warnings.catch_warnings(record=True) as warn_autorename_region:
+        rewritten.write(write_file_loop, magicc_version=6)
+
+    assert len(warn_autorename_region) == 1
+    assert warn_msg == str(warn_autorename_region[0].message)
+
+    res = MAGICCData(write_file_loop)
+
+    assert sorted(res["region"].unique().tolist()) == sorted(
+        ["World"]
+        + [
+            "World|{}".format(v)
+            for v in [
+                "R5ASIA",
+                "R5MAF",
+                "R5REF",
+                "R5LAM",
+                "R5OECD",
+                "Bunkers",
+            ]
+        ]
     )
 
 
