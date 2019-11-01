@@ -1428,6 +1428,7 @@ class _Writer(object):
         regions = convert_magicc_to_openscm_regions(
             data_block.columns.get_level_values("region").tolist(), inverse=True
         )
+        regions = self._ensure_file_region_type_consistency(regions)
         variables = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable").tolist(), inverse=True
         )
@@ -1485,6 +1486,30 @@ class _Writer(object):
 
     def _get_dattype_regionmode(self, regions):
         return get_dattype_regionmode(regions, scen7=self._scen_7)
+
+    def _ensure_file_region_type_consistency(self, regions):
+        if not self._scen_7:
+            return regions
+
+        rcp_regions_mapping = {
+            r: r.replace("R5", "R5.2")
+            for r in ["R5ASIA", "R5LAM", "R5REF", "R5MAF", "R5OECD"]
+        }
+
+        if not any([r in regions for r in rcp_regions_mapping]):
+            return regions
+
+        new_regions = [
+            rcp_regions_mapping[r] if r in rcp_regions_mapping else r for r in regions
+        ]
+        warn_msg = (
+            "MAGICC6 RCP region naming is (R5*) is not compatible with "
+            "MAGICC7, automatically renaming to MAGICC7 compatible regions "
+            "(R5.2*)"
+        )
+        warnings.warn(warn_msg)
+
+        return new_regions
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
