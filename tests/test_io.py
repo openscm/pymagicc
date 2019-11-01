@@ -1116,11 +1116,35 @@ def test_load_rewritten_scen7(temp_dir):
 
     cols = {"model": ["IMAGE"], "scenario": ["RCP26"], "climate_model": ["MAGICC6"]}
     writer = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"), columns=cols)
-    writer.write(write_file, magicc_version=7)
+
+    warn_msg = (
+        "MAGICC6 RCP region naming is (R5*) is not compatible with MAGICC7, "
+        "automatically renaming to MAGICC7 compatible regions (R5.2*)"
+    )
+    with warnings.catch_warnings(record=True) as warn_autorename_region:
+        writer.write(write_file, magicc_version=7)
+
+    assert len(warn_autorename_region) == 1
+    assert warn_msg == str(warn_autorename_region[0].message)
 
     mdata = MAGICCData(write_file, columns=cols)
 
     generic_mdata_tests(mdata)
+
+    assert sorted(mdata["region"].unique().tolist()) == sorted(
+        ["World"]
+        + [
+            "World|{}".format(v)
+            for v in [
+                "R5.2ASIA",
+                "R5.2MAF",
+                "R5.2REF",
+                "R5.2LAM",
+                "R5.2OECD",
+                "Bunkers",
+            ]
+        ]
+    )
 
     assert_mdata_value(
         mdata,
@@ -1166,7 +1190,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         11.9769,
         variable="Emissions|SOx",
-        region="World|R5OECD",
+        region="World|R5.2OECD",
         year=2005,
         unit="Mt S / yr",
         todo="SET",
@@ -1176,7 +1200,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         18.2123,
         variable="Emissions|NMVOC",
-        region="World|R5OECD",
+        region="World|R5.2OECD",
         year=2050,
         unit="Mt NMVOC / yr",
         todo="SET",
@@ -1186,7 +1210,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         0,
         variable="Emissions|HFC23",
-        region="World|R5REF",
+        region="World|R5.2REF",
         year=2100,
         unit="kt HFC23 / yr",
         todo="SET",
@@ -1196,7 +1220,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         33.3635,
         variable="Emissions|HFC143a",
-        region="World|R5ASIA",
+        region="World|R5.2ASIA",
         year=2040,
         unit="kt HFC143a / yr",
         todo="SET",
@@ -1206,7 +1230,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         -0.0125,
         variable="Emissions|CO2|MAGICC AFOLU",
-        region="World|R5MAF",
+        region="World|R5.2MAF",
         year=2050,
         unit="Gt C / yr",
         todo="SET",
@@ -1216,7 +1240,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         37.6218,
         variable="Emissions|CH4",
-        region="World|R5MAF",
+        region="World|R5.2MAF",
         year=2070,
         unit="Mt CH4 / yr",
         todo="SET",
@@ -1226,7 +1250,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         1.8693,
         variable="Emissions|NOx",
-        region="World|R5LAM",
+        region="World|R5.2LAM",
         year=2080,
         unit="Mt N / yr",
         todo="SET",
@@ -1236,7 +1260,7 @@ def test_load_rewritten_scen7(temp_dir):
         mdata,
         0.4254,
         variable="Emissions|BC",
-        region="World|R5LAM",
+        region="World|R5.2LAM",
         year=2090,
         unit="Mt BC / yr",
         todo="SET",
@@ -3601,28 +3625,3 @@ def test_to_int_type_error():
     )
     with pytest.raises(TypeError, match=error_msg):
         to_int(inp)
-
-
-def test_write_scen_as_scen7(tmpdir):
-    orig = MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"))
-
-    out_file = join(tmpdir, "RCP26.SCEN7")
-
-    warn_msg = re.compile(
-        r"^MAGICC6 RCP regions are not compatible with MAGICC7, automatically "
-        "renaming to MAGICC7 compatible regions$"
-    )
-    with warnings.catch_warnings(record=True) as warn_autorename_region:
-        orig.write(out_file, magicc_version=7)
-
-    assert len(warn_autorename_region) == 1
-    assert warn_msg.match(str(warn_autorename_region[0].message))
-
-
-    res = MAGICCData(out_file)
-
-    assert sorted(res["region"].unique().tolist()) == sorted(["World"] + [
-        "World|{}".format(v) for v in ["R5.2ASIA", "R5.2MAF", "R5.2REF", "R5.2LAM", "R5.2OECD", "Bunkers"]
-    ])
-
-    assert False, "test that regions are mapped properly and warning is thrown"
