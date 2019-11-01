@@ -1488,28 +1488,8 @@ class _Writer(object):
         return get_dattype_regionmode(regions, scen7=self._scen_7)
 
     def _ensure_file_region_type_consistency(self, regions):
-        if not self._scen_7:
-            return regions
-
-        rcp_regions_mapping = {
-            r: r.replace("R5", "R5.2")
-            for r in ["R5ASIA", "R5LAM", "R5REF", "R5MAF", "R5OECD"]
-        }
-
-        if not any([r in regions for r in rcp_regions_mapping]):
-            return regions
-
-        new_regions = [
-            rcp_regions_mapping[r] if r in rcp_regions_mapping else r for r in regions
-        ]
-        warn_msg = (
-            "MAGICC6 RCP region naming is (R5*) is not compatible with "
-            "MAGICC7, automatically renaming to MAGICC7 compatible regions "
-            "(R5.2*)"
-        )
-        warnings.warn(warn_msg)
-
-        return new_regions
+        # no checks required except for certain cases
+        return regions
 
     def _get_data_block(self):
         data_block = self.minput.timeseries(
@@ -1609,6 +1589,27 @@ class _HistEmisInWriter(_Writer):
 
 class _Scen7Writer(_HistEmisInWriter):
     _scen_7 = True
+
+    def _ensure_file_region_type_consistency(self, regions):
+        rcp_regions_mapping = {
+            r: r.replace("R5", "R5.2")
+            for r in ["R5ASIA", "R5LAM", "R5REF", "R5MAF", "R5OECD"]
+        }
+
+        if not any([r in regions for r in rcp_regions_mapping]):
+            return regions
+
+        new_regions = [
+            rcp_regions_mapping[r] if r in rcp_regions_mapping else r for r in regions
+        ]
+        warn_msg = (
+            "MAGICC6 RCP region naming (R5*) is not compatible with "
+            "MAGICC7, automatically renaming to MAGICC7 compatible regions "
+            "(R5.2*)"
+        )
+        warnings.warn(warn_msg)
+
+        return new_regions
 
 
 class _PrnWriter(_Writer):
@@ -1777,6 +1778,7 @@ class _ScenWriter(_Writer):
 
         regions = self._get_df_header_row("region")
         regions = convert_magicc_to_openscm_regions(regions, inverse=True)
+        regions = self._ensure_file_region_type_consistency(regions)
 
         special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
 
@@ -1832,9 +1834,10 @@ class _ScenWriter(_Writer):
             """
             return len(lines) - number_notes_lines
 
-        region_order = get_region_order(
+        region_order_db = get_region_order(
             self._get_df_header_row("region"), scen7=self._scen_7
         )
+        region_order_magicc = self._ensure_file_region_type_consistency(region_order_db)
         # format is vitally important for SCEN files as far as I can tell
         time_col_length = 11
         first_col_format_str = ("{" + ":{}d".format(time_col_length) + "}").format
@@ -1847,28 +1850,26 @@ class _ScenWriter(_Writer):
         # explosion will be cryptic so should add a test for good error
         # message at some point
         formatters = [other_col_format_str] * (
-            int(len(self.data_block.columns) / len(region_order))
+            int(len(self.data_block.columns) / len(region_order_db))
             + 1  # for the years column
         )
         formatters[0] = first_col_format_str
 
-        # we need this to do the variable ordering
-        regions = convert_magicc_to_openscm_regions(
-            self._get_df_header_row("region"), inverse=True
-        )
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
         variables = [v.replace("_EMIS", "") for v in variables]
 
-        special_scen_code = get_special_scen_code(regions=regions, emissions=variables)
+        special_scen_code = get_special_scen_code(
+            regions=region_order_magicc, emissions=variables
+        )
         if special_scen_code % 10 == 0:
             variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0
         else:
             variable_order = PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1
 
-        for region in region_order:
-            region_block_region = convert_magicc_to_openscm_regions(region)
+        for region_db, region_magicc in zip(region_order_db, region_order_magicc):
+            region_block_region = convert_magicc_to_openscm_regions(region_db)
             region_block = self.data_block.xs(
                 region_block_region, axis=1, level="region", drop_level=False
             )
@@ -1900,7 +1901,7 @@ class _ScenWriter(_Writer):
             region_block = region_block.rename(columns=str).reset_index()
             region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 
-            region_block_str = region + self._newline_char
+            region_block_str = region_magicc + self._newline_char
             region_block_str += region_block.to_string(
                 index=False, formatters=formatters, sparsify=False
             )
@@ -1911,6 +1912,28 @@ class _ScenWriter(_Writer):
         output.seek(0)
         output.write(self._newline_char.join(lines))
         return output
+
+    def _ensure_file_region_type_consistency(self, regions):
+        magicc7_regions_mapping = {
+            r: r.replace("R5.2", "R5")
+            for r in ["R5.2ASIA", "R5.2LAM", "R5.2REF", "R5.2MAF", "R5.2OECD"]
+        }
+
+        if not any([r in regions for r in magicc7_regions_mapping]):
+            return regions
+
+        new_regions = [
+            magicc7_regions_mapping[r] if r in magicc7_regions_mapping else r
+            for r in regions
+        ]
+        warn_msg = (
+            "MAGICC7 RCP region naming (R5.2*) is not compatible with "
+            "MAGICC6, automatically renaming to MAGICC6 compatible regions "
+            "(R5*)"
+        )
+        warnings.warn(warn_msg)
+
+        return new_regions
 
 
 class _MAGWriter(_Writer):
