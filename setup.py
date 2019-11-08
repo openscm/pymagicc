@@ -42,7 +42,6 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
 ]
 REQUIREMENTS_INSTALL = [
-    "pandas==0.24.2",  # Pinning a specific version of pandas for compatibility with pyam
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
@@ -56,7 +55,7 @@ REQUIREMENTS_NOTEBOOKS = [
     "ipywidgets",
     "appmode",
     "seaborn",
-    "pyam-iamc>=0.2.0",
+    "pyam-iamc>=0.3.0",
 ]
 REQUIREMENTS_TESTS = [
     "pytest>=4.0",
