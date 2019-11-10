@@ -1905,90 +1905,6 @@ def test_load_rcp_projections_dat_forcings():
     )
 
 
-def test_load_sample_dat_emissions():
-    test_file = "SAMPLE_EMISSIONS.DAT"
-    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["content"] == "Global annual emissions"
-    assert mdata.metadata["database"] == "database info"
-    assert mdata.metadata["note"] == ["notes", "second line of notes"]
-
-    assert (mdata["variable"].str.startswith("Emissions|")).all()
-    assert (mdata["region"] == "World").all()
-    assert (mdata["todo"] == "SET").all()
-    assert (mdata["scenario"] == "SCEN").all()
-
-    assert_mdata_value(
-        mdata,
-        -0.9308,
-        variable="Emissions|CO2|MAGICC Fossil and Industrial",
-        region="World",
-        year=2100,
-        unit="Gt C / yr",
-    )
-
-
-def test_load_sample_dat_concentrations():
-    test_file = "SAMPLE_MIDYEAR_CONCENTRATIONS.DAT"
-    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["content"] == "mid-year concentrations"
-    assert mdata.metadata["magicc-version"] == "magicc version"
-    assert mdata.metadata["file produced by"] == "file production information"
-    assert mdata.metadata["note"] == "one line of notes"
-
-    assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
-    assert (mdata["region"] == "World").all()
-    assert (mdata["todo"] == "SET").all()
-    assert (mdata["scenario"] == "SCEN2").all()
-
-    assert_mdata_value(
-        mdata,
-        277.01,
-        variable="Atmospheric Concentrations|CO2 Equivalent",
-        region="World",
-        year=1765,
-        unit="ppm",
-    )
-
-
-def test_load_sample_dat_radiative_forcings():
-    test_file = "SAMPLE_MIDYEAR_RADFORCING.DAT"
-    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
-    generic_mdata_tests(mdata)
-
-    assert mdata.metadata["content"] == "annual average, global mean radiative forcing"
-    assert mdata.metadata["further info"] == "further info"
-    assert mdata.metadata["documentation"] == "doc info"
-    assert mdata.metadata["note"] == ["three lines", "of", "notes"]
-
-    assert (mdata["variable"].str.startswith("Radiative Forcing|")).all()
-    assert (mdata["region"] == "World").all()
-    assert (mdata["todo"] == "SET").all()
-    assert (mdata["scenario"] == "SCEN3").all()
-    assert (mdata["unit"] == "W/m2").all()
-
-    assert_mdata_value(
-        mdata,
-        0.0,
-        variable="Radiative Forcing",
-        region="World",
-        year=1765,
-        unit="W/m2",
-    )
-
-    assert_mdata_value(
-        mdata,
-        0.084416719,
-        variable="Radiative Forcing|Solar",
-        region="World",
-        year=2500,
-        unit="W/m2",
-    )
-
-
 @pytest.mark.parametrize(
     "input, expected",
     [
@@ -3335,9 +3251,6 @@ def test_prn_wrong_unit_error():
         "EXPECTED_HISTRCP85_SOLAR_RF.IN",
         "EXPECTED_GISS_BCI_OT.IN",
         "EXPECTED_HISTSSP_CO2I_EMIS.IN",
-        "EXPECTED_EMISSIONS.DAT",
-        "EXPECTED_MIDYEAR_CONCENTRATIONS.DAT",
-        "EXPECTED_MIDYEAR_RADFORCING.DAT",
     ],
 )
 def test_writing_identical(temp_dir, update_expected_file, starting_file):
