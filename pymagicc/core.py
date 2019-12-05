@@ -1286,13 +1286,6 @@ class MAGICC7(MAGICCBase):
         self.update_config(
             "MAGCFG_USER.CFG",
             **{
-                "file_emisscen_2": "NONE",
-                "file_emisscen_3": "NONE",
-                "file_emisscen_4": "NONE",
-                "file_emisscen_5": "NONE",
-                "file_emisscen_6": "NONE",
-                "file_emisscen_7": "NONE",
-                "file_emisscen_8": "NONE",
                 "file_tuningmodel_1": "PYMAGICC",
                 "file_tuningmodel_2": "USER",
                 "file_tuningmodel_3": "USER",
