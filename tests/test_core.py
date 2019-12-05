@@ -1400,3 +1400,12 @@ def test_empty_output_with_params(package):
 
     assert len(res) == 0
     assert len(res.metadata["parameters"])
+
+
+@pytest.mark.slow
+def test_failure_message(package):
+    package.strict = False
+    remove(join(package.run_dir, package.update_config(filename="MAGCFG_DEFAULTALL.CFG")["nml_allcfgs"]["file_emisscen"]))
+    error_msg = re.compile("Command .* returned non-zero exit status 2. stderr: .*")
+    with pytest.raises(CalledProcessError, match=error_msg):
+        res = package.run()
