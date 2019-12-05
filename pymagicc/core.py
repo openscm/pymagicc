@@ -341,9 +341,14 @@ class MAGICCBase(object):
             command.insert(0, "wine")
 
         # On Windows shell=True is required.
-        res = subprocess.run(
-            command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS
-        )
+        try:
+            res = subprocess.run(
+                command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS
+            )
+        except subprocess.CalledProcessError as exc:
+            print("stderr:\n{}".format(exc.stderr.decode()))
+            raise exc
+
 
         outfiles = self._get_output_filenames()
 
