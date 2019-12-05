@@ -1403,9 +1403,10 @@ def test_empty_output_with_params(package):
 
 
 @pytest.mark.slow
-def test_failure_message(package):
+def test_failure_message(package, capsys):
     package.strict = False
     remove(join(package.run_dir, package.update_config(filename="MAGCFG_DEFAULTALL.CFG")["nml_allcfgs"]["file_emisscen"]))
-    error_msg = re.compile("Command .* returned non-zero exit status 2. stderr: .*")
-    with pytest.raises(CalledProcessError, match=error_msg):
+    with pytest.raises(CalledProcessError):
         res = package.run()
+
+    assert "stderr:\n" in capsys.readouterr().out
