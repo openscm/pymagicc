@@ -1011,7 +1011,7 @@ def test_pymagicc_writing_compatibility_203(
 def test_zero_run(package):
     package.set_zero_config()
     vars_to_check = ["Surface Temperature", "Radiative Forcing"]
-    results = package.run(only=vars_to_check, endyear=2500)
+    results = package.run(only=vars_to_check, endyear=2500, debug=True)
     for var in vars_to_check:
         np.testing.assert_allclose(results.filter(variable=var).timeseries().values, 0)
 
