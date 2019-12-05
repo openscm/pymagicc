@@ -130,13 +130,13 @@ def test_set_years(package):
         rcp26,
         magicc_version=package.version,
         out_parameters=True,
-        startyear=1900,
-        endyear=2000,
+        startyear=1768,
+        endyear=2028,
     )
-    assert results.metadata["parameters"]["years"]["startyear"] == 1900
-    assert results.metadata["parameters"]["years"]["endyear"] == 2000
-    assert results["time"].min().year == 1900
-    assert results["time"].max().year == 2000
+    assert results.metadata["parameters"]["years"]["startyear"] == 1768
+    assert results.metadata["parameters"]["years"]["endyear"] == 2028
+    assert results["time"].min().year == 1768
+    assert results["time"].max().year == 2028
 
 
 @pytest.mark.xfail(
