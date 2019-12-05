@@ -16,7 +16,7 @@ __version__ = get_versions()["version"]
 del get_versions
 
 
-def run(scenario, magicc_version=6, **kwargs):
+def run(scenario, magicc_version=6, out_temperature=1, **kwargs):
     """
     Run a MAGICC scenario and return output data and (optionally) config parameters.
 
@@ -31,6 +31,9 @@ def run(scenario, magicc_version=6, **kwargs):
 
     magicc_version : int
         MAGICC version to use for the run
+
+    out_temperature : {0, 1}
+        Should temperatures be included in the outputs?
 
     **kwargs
         Parameters overwriting default parameters
@@ -54,6 +57,6 @@ def run(scenario, magicc_version=6, **kwargs):
         raise ValueError("MAGICC version {} is not available".format(magicc_version))
 
     with magicc_cls() as magicc:
-        results = magicc.run(scenario=scenario, **kwargs)
+        results = magicc.run(scenario=scenario, out_temperature=out_temperature, **kwargs)
 
     return results
