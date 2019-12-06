@@ -1284,17 +1284,31 @@ class MAGICC7(MAGICCBase):
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
 
-        If ``self.strict``, this will also overwrite the value of ``file_emisscen_x``
-        and ``file_tuningmodel_x`` to ensure that they can work with Pymagicc. This
-        behaviour can be removed once the MAGICC7 binary is publicly released as we
-        can then create a Pymagicc specific MAGCFG_USER.CFG rather than relying on
-        whatever is in the user's current copy.
+        This will also overwrite the value of all ``file_tuningmodel_x`` flags to
+        ensure that Pymagicc's configurations will be read. If ``self.strict``, this
+        will also overwrite the value of all ``file_emisscen_x`` flags to ensure that
+        only Pymagicc's scenario input is used. This overwrite behaviour can be
+        removed once the MAGICC7 binary is publicly released as we can then create a
+        Pymagicc specific MAGCFG_USER.CFG rather than relying on whatever is in the
+        user's current copy.
         """
         super(MAGICC7, self).create_copy()
+        self.update_config(
+            "MAGCFG_USER.CFG",
+            **{
+                "file_tuningmodel_1": "PYMAGICC",
+                "file_tuningmodel_2": "USER",
+                "file_tuningmodel_3": "USER",
+                "file_tuningmodel_4": "USER",
+                "file_tuningmodel_5": "USER",
+                "file_tuningmodel_6": "USER",
+                "file_tuningmodel_7": "USER",
+                "file_tuningmodel_8": "USER",
+                "file_tuningmodel_9": "USER",
+                "file_tuningmodel_10": "USER",
+            },
+        )
         if not self.strict:
-            # Override the USER configuration for MAGICC7 so that it always conforms
-            # with pymagicc's expectations. The MAGCFG_USER.CFG configuration for
-            # MAGICC7 changes frequently in the repository.
             self.update_config(
                 "MAGCFG_USER.CFG",
                 **{
@@ -1305,16 +1319,6 @@ class MAGICC7(MAGICCBase):
                     "file_emisscen_6": "NONE",
                     "file_emisscen_7": "NONE",
                     "file_emisscen_8": "NONE",
-                    "file_tuningmodel_1": "PYMAGICC",
-                    "file_tuningmodel_2": "USER",
-                    "file_tuningmodel_3": "USER",
-                    "file_tuningmodel_4": "USER",
-                    "file_tuningmodel_5": "USER",
-                    "file_tuningmodel_6": "USER",
-                    "file_tuningmodel_7": "USER",
-                    "file_tuningmodel_8": "USER",
-                    "file_tuningmodel_9": "USER",
-                    "file_tuningmodel_10": "USER",
                 },
             )
 

@@ -340,13 +340,11 @@ def test_overwrite_config(strict):
     magicc = MAGICC7(strict=strict)
     magicc.create_copy()
     cfgs = magicc.update_config(filename="MAGCFG_USER.CFG")["nml_allcfgs"]
+    assert cfgs["file_tuningmodel_1"] == "PYMAGICC"
+    assert cfgs["file_tuningmodel_2"] == "USER"
     if strict:
-        assert "file_tuningmodel_1" not in cfgs
-        assert "file_tuningmodel_2" not in cfgs
         assert "file_emisscen_2" not in cfgs
     else:
-        assert cfgs["file_tuningmodel_1"] == "PYMAGICC"
-        assert cfgs["file_tuningmodel_2"] == "USER"
         assert cfgs["file_emisscen_2"] == "NONE"
 
 
