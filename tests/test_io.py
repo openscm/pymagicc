@@ -116,6 +116,27 @@ def test_cant_find_reader_writer():
         determine_tool(join(TEST_DATA_DIR, test_name), "writer")
 
 
+def test_not_implemented_writer():
+    test_name = "DAT_SURFACE_TEMP.BINOUT"
+
+    expected_message = (
+        r"^"
+        + re.escape("Couldn't find appropriate reader for {}.".format(test_name))
+        + r"\n"
+        + re.escape(
+            "The file must be one "
+            "of the following types and the filepath must match its "
+            "corresponding regular expression:"
+        )
+        + r"(\n.*)*"  # dicts aren't ordered in Python3.5
+        + re.escape("SCEN: ^.*\\.SCEN$")
+        + r"(\n.*)*$"
+    )
+
+    with pytest.raises(NotImplementedError, match=expected_message):
+        determine_tool(join(TEST_DATA_DIR, test_name), "writer")
+
+
 def test_get_invalid_tool():
     junk_tool = "junk tool"
     expected_error_msg = (
