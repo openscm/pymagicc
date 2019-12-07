@@ -795,7 +795,6 @@ class _RCPDatReader(_Reader):
         # ignore all nml_values as they are redundant
         header = "".join(self.lines[:nml_start])
         metadata = self.process_header(header)
-        metadata["header"] = header
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
@@ -806,6 +805,51 @@ class _RCPDatReader(_Reader):
         df, metadata, columns = self.process_data(stream, metadata)
 
         return metadata, df, columns
+
+    def process_header(self, header):
+        """
+        Parse the header for additional metadata.
+
+        Parameters
+        ----------
+        header : str
+            All the lines in the header.
+
+        Returns
+        -------
+        dict
+            The metadata in the header.
+        """
+        metadata = {}
+        if "EXPECTED_MIDYEAR_RAD" not in self.filepath:
+            return super().process_header(header)
+
+        lines_iterator = (l.strip() for l in header.split("\n"))
+        for i in range(len(header.split("\n"))):
+            line = next(lines_iterator)
+            if not line:
+                continue
+
+            if line.strip().startswith("COLUMN_DESCRIPTION"):
+                break
+            if ":" not in line:
+                continue
+            split_vals = [v.strip() for v in line.split(":")]
+            key = split_vals[0]
+            if key == "RUN":
+                # same as scenario so redundant
+                continue
+            if key.endswith("CONTACT"):
+                # delete scenario from key as redundant
+                key = "CONTACT"
+
+            content = ":".join(split_vals[1:])
+            if key == "NOTE":
+                content = [content, next(lines_iterator), next(lines_iterator)]
+
+            metadata[key.lower()] = content
+
+        return metadata
 
     def process_data(self, stream, metadata):
         # check headers are as we expect
@@ -1936,6 +1980,55 @@ class _ScenWriter(_Writer):
         return new_regions
 
 
+class _RCPDatWriter(_Writer):
+    def _get_header(self):
+        # split out different get_header depending on data
+        # for first draft, go with deeply unsatisfactory (but only practical, at least
+        # until we have a proper hierarchy of variables in Pymagicc i.e. we remove all
+        # the post-processing from MAGICC) solution of using default MAGICC categories
+        # and hard-coding descriptions (which can vary by MAGICC version).
+        scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
+        meta = self.minput.metadata
+        header = (
+            "\n"
+            "{}__RADIATIVE FORCINGS____________________________\n"
+            "CONTENT:           {}\n"
+            "RUN:               {}\n"
+            "{: <19}{}\n"
+            "DATE:              {}\n"
+            "MAGICC-VERSION:    {}\n"
+            "FILE PRODUCED BY:  {}\n"
+            "DOCUMENTATION:     {}\n"
+            "CMIP INFO:         {}\n"
+            "DATABASE:          {}\n"
+            "FURTHER INFO:      {}\n"
+            "NOTE:              {}\n"
+            "                   {}\n"
+            "                   {}\n"
+            "\n"
+            "COLUMN_DESCRIPTION________________________________________\n"
+        ).format(
+            scenario,
+            meta["content"],
+            scenario,
+            "{} CONTACT:".format(scenario),
+            meta["contact"],
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            meta["magicc-version"],
+            meta["file produced by"],
+            meta["documentation"],
+            meta["cmip info"],
+            meta["database"],
+            meta["further info"],
+            meta["note"][0],
+            meta["note"][1],
+            meta["note"][2],
+        )
+        # import pdb
+        # pdb.set_trace()
+        return header
+
+
 class _MAGWriter(_Writer):
     def __init__(self, magicc_version=7):
         super().__init__(magicc_version=magicc_version)
@@ -2350,7 +2443,7 @@ def determine_tool(filepath, tool_to_get):
             "reader": _BinaryOutReader,
             "writer": None,
         },
-        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": None},
+        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": _RCPDatWriter},
         "MAG": {"regexp": r"^.*\.MAG", "reader": _MAGReader, "writer": _MAGWriter},
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }

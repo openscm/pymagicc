@@ -1,8 +1,8 @@
 
-RCP3PD__RADIATIVE FORCINGS____________________________
+SCEN3__RADIATIVE FORCINGS____________________________
 CONTENT:           annual average, global mean radiative forcing
 RUN:               SCEN3
-SCEN3 CONTACT:     contact info
+SCEN3 CONTACT:     contact info, with `:` colon
 DATE:              date
 MAGICC-VERSION:    magicc version
 FILE PRODUCED BY:  file production information
@@ -17,19 +17,19 @@ NOTE:              three lines
 COLUMN_DESCRIPTION________________________________________
 1       TOTAL_INCLVOLCANIC_RF   Total anthropogenic and natural radiative forcing
 2       VOLCANIC_ANNUAL_RF      Annual mean volcanic stratospheric aerosol forcing
-3       SOLAR_RF                Solar irradience forcing
+3       SOLAR_RF                Solar irradiance forcing
 4       TOTAL_ANTHRO_RF         Total anthropogenic forcing
 5       GHG_RF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).
 6       KYOTOGHG_RF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).
-7       CO2CH4N2O_RF            Total forcing from CO2, methan and nitrous oxide.
+7       CO2CH4N2O_RF            Total forcing from CO2, methane and nitrous oxide.
 8       CO2_RF                  CO2 Forcing
 9       CH4_RF                  Methane Forcing
 10      N2O_RF                  Nitrous Oxide Forcing
-11      FGASSUM_RF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24)
-12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40)
+11      FGASSUM_RF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24 plus [write other gases here])
+12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40 plus [write other gases here])
 13-24                           Flourinated gases controlled under the Kyoto Protocol
 25-40                           Ozone Depleting Substances controlled under the Montreal Protocol
-41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47)
+41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47 plus NH3I_RF i.e. direct ammonia forcing)
 42      OCI_RF                  Direct fossil fuel aerosol (organic carbon)
 43      BCI_RF                  Direct fossil fuel aerosol (black carbon)
 44      SOXI_RF                 Direct sulphate aerosol
