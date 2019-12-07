@@ -119,18 +119,8 @@ def test_cant_find_reader_writer():
 def test_not_implemented_writer():
     test_name = "DAT_SURFACE_TEMP.BINOUT"
 
-    expected_message = (
-        r"^"
-        + re.escape("Couldn't find appropriate reader for {}.".format(test_name))
-        + r"\n"
-        + re.escape(
-            "The file must be one "
-            "of the following types and the filepath must match its "
-            "corresponding regular expression:"
-        )
-        + r"(\n.*)*"  # dicts aren't ordered in Python3.5
-        + re.escape("SCEN: ^.*\\.SCEN$")
-        + r"(\n.*)*$"
+    expected_message = re.escape(
+        "A writer for `^DAT\\_.*\\.BINOUT$` files is not yet implemented"
     )
 
     with pytest.raises(NotImplementedError, match=expected_message):
