@@ -3349,9 +3349,11 @@ def test_prn_wrong_unit_error():
         "EXPECTED_EMISSIONS.DAT",
         "EXPECTED_MIDYEAR_CONCENTRATIONS.DAT",
         "EXPECTED_MIDYEAR_RADFORCING.DAT",
+        "EXPECTED_MIDYEAR_EFFRADFORCING.DAT",
     ],
 )
-def test_writing_identical(temp_dir, update_expected_file, starting_file):
+# def test_writing_identical(temp_dir, update_expected_file, starting_file):
+def test_writing_identical(temp_dir, starting_file):
     """
     Test io writes files with correct order and spacing.
 
