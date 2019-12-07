@@ -2366,7 +2366,15 @@ def determine_tool(filepath, tool_to_get):
     for file_type, file_tools in file_regexp_reader_writer.items():
         if re.match(file_tools["regexp"], fbase):
             try:
-                return file_tools[tool_to_get]
+                tool = file_tools[tool_to_get]
+                if tool is None:
+                    error_msg = "A {} for `{}` files is not yet implemented".format(
+                        tool_to_get, file_tools["regexp"]
+                    )
+                    raise NotImplementedError(error_msg)
+
+                return tool
+
             except KeyError:
                 valid_tools = [k for k in file_tools.keys() if k != "regexp"]
                 error_msg = (
