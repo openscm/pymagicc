@@ -1474,16 +1474,11 @@ def test_load_rcp_historical_dat_emissions():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "PRE2005__EMISSIONS" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Emissions|")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -3371,10 +3366,14 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
 @pytest.mark.parametrize(
     "starting_file,magicc_version",
     [
-        ("EXPECTED_EMISSIONS.DAT", 7),
-        ("EXPECTED_MIDYEAR_CONCENTRATIONS.DAT", 7),
-        ("EXPECTED_MIDYEAR_RADFORCING.DAT", 7),
-        ("EXPECTED_MIDYEAR_EFFRADFORCING.DAT", 7),
+        ("EXPECTED_MAGICC7_EMISSIONS.DAT", 7),
+        ("EXPECTED_MAGICC7_MIDYEAR_CONCENTRATIONS.DAT", 7),
+        ("EXPECTED_MAGICC7_MIDYEAR_RADFORCING.DAT", 7),
+        ("EXPECTED_MAGICC7_MIDYEAR_EFFRADFORCING.DAT", 7),
+        ("EXPECTED_MAGICC6_EMISSIONS.DAT", 6),
+        ("EXPECTED_MAGICC6_MIDYEAR_CONCENTRATIONS.DAT", 6),
+        ("EXPECTED_MAGICC6_MIDYEAR_RADFORCING.DAT", 6),
+        ("EXPECTED_MAGICC6_MIDYEAR_EFFRADFORCING.DAT", 6),
     ],
 )
 def test_writing_identical_rcpdat(
