@@ -836,9 +836,7 @@ class _RCPDatReader(_Reader):
                 continue
             split_vals = [v.strip() for v in line.split(":")]
             key = split_vals[0]
-            if key == "RUN":
-                # same as scenario so redundant
-                continue
+
             if key.endswith("CONTACT"):
                 # delete scenario from key as redundant
                 key = "CONTACT"
@@ -884,6 +882,9 @@ class _RCPDatReader(_Reader):
             ]
 
             column_headers = converter._read_units(column_headers)
+
+        column_headers["scenario"] = [metadata.pop("run")]
+        column_headers["climate_model"] = [metadata.pop("magicc-version")]
 
         df = self._convert_data_block_to_df(stream)
 
@@ -1444,7 +1445,7 @@ class _Writer(object):
         return output
 
     def _write_datablock(self, output):
-        nml_initial, data_block = self._get_initial_nml_and_data_block()
+        _, data_block = self._get_initial_nml_and_data_block()
 
         # for most data files, as long as the data is space separated, the
         # format doesn't matter
@@ -1982,13 +1983,30 @@ class _ScenWriter(_Writer):
 
 class _RCPDatWriter(_Writer):
     def _get_header(self):
+        if "_RADFORCING.DAT" not in self._filepath:
+            raise NotImplementedError
+
         # split out different get_header depending on data
         # for first draft, go with deeply unsatisfactory (but only practical, at least
         # until we have a proper hierarchy of variables in Pymagicc i.e. we remove all
         # the post-processing from MAGICC) solution of using default MAGICC categories
         # and hard-coding descriptions (which can vary by MAGICC version).
         scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
+        magicc_version = self.minput.get_unique_meta(
+            "climate_model", no_duplicates=True
+        )
         meta = self.minput.metadata
+        extra_fgases = (
+            ""
+            if self._magicc_version == 6
+            else " plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2"
+        )
+        extra_mahlos = "" if self._magicc_version == 6 else " plus CH2CL2, CHCL3"
+        extra_totaerdirrf = (
+            ""
+            if self._magicc_version == 6
+            else " plus NH3I i.e. direct fossil fuel ammonia radiative forcing"
+        )
         header = (
             "\n"
             "{}__RADIATIVE FORCINGS____________________________\n"
@@ -2007,6 +2025,36 @@ class _RCPDatWriter(_Writer):
             "                   {}\n"
             "\n"
             "COLUMN_DESCRIPTION________________________________________\n"
+            "1       TOTAL_INCLVOLCANIC_RF   Total anthropogenic and natural radiative forcing\n"
+            "2       VOLCANIC_ANNUAL_RF      Annual mean volcanic stratospheric aerosol forcing\n"
+            "3       SOLAR_RF                Solar irradiance forcing\n"
+            "4       TOTAL_ANTHRO_RF         Total anthropogenic forcing\n"
+            "5       GHG_RF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
+            "6       KYOTOGHG_RF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
+            "7       CO2CH4N2O_RF            Total forcing from CO2, methane and nitrous oxide.\n"
+            "8       CO2_RF                  CO2 Forcing\n"
+            "9       CH4_RF                  Methane Forcing\n"
+            "10      N2O_RF                  Nitrous Oxide Forcing\n"
+            "11      FGASSUM_RF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24{})\n"
+            "12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40{})\n"
+            "13-24                           Flourinated gases controlled under the Kyoto Protocol\n"
+            "25-40                           Ozone Depleting Substances controlled under the Montreal Protocol\n"
+            "41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47{})\n"
+            "42      OCI_RF                  Direct fossil fuel aerosol (organic carbon)\n"
+            "43      BCI_RF                  Direct fossil fuel aerosol (black carbon)\n"
+            "44      SOXI_RF                 Direct sulphate aerosol\n"
+            "45      NOXI_RF                 Direct nitrate aerosol\n"
+            "46      BIOMASSAER_RF           Direct biomass burning related aerosol\n"
+            "47      MINERALDUST_RF          Direct Forcing from mineral dust aerosol\n"
+            "48      CLOUD_TOT_RF            Cloud albedo effect\n"
+            "49      STRATOZ_RF              Stratospheric ozone forcing\n"
+            "50      TROPOZ_RF               Tropospheric ozone forcing\n"
+            "51      CH4OXSTRATH2O_RF        Stratospheric water-vapour from methane oxidisation\n"
+            "52      LANDUSE_RF              Landuse albedo\n"
+            "53      BCSNOW_RF               Black carbon on snow.\n"
+            "\n"
+            "\n"
+            "\n"
         ).format(
             scenario,
             meta["content"],
@@ -2014,7 +2062,7 @@ class _RCPDatWriter(_Writer):
             "{} CONTACT:".format(scenario),
             meta["contact"],
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            meta["magicc-version"],
+            magicc_version,
             meta["file produced by"],
             meta["documentation"],
             meta["cmip info"],
@@ -2023,10 +2071,181 @@ class _RCPDatWriter(_Writer):
             meta["note"][0],
             meta["note"][1],
             meta["note"][2],
+            extra_fgases,
+            extra_mahlos,
+            extra_totaerdirrf,
         )
-        # import pdb
-        # pdb.set_trace()
+
         return header
+
+    def _write_namelist(self, output):
+        nml_initial, data_block = self._get_initial_nml_and_data_block()
+        nml = nml_initial.copy()
+
+        # '&NML_INDICATOR' goes above, '/'' goes at end
+        number_lines_nml_header_end = 2
+        line_after_nml = self._newline_char
+
+        number_col_headers = 3
+
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
+
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+            len(output.getvalue().split(self._newline_char))
+            + len(nml["THISFILE_SPECIFICATIONS"])
+            + number_lines_nml_header_end
+            + len(line_after_nml.split(self._newline_char))
+            + number_col_headers
+        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
+
+        nml.uppercase = True
+        nml._writestream(output)
+        output.write(line_after_nml)
+
+        return output
+
+    def _write_datablock(self, output):
+        _, data_block = self._get_initial_nml_and_data_block()
+        for i in range(len(data_block.columns.levels)):
+            if data_block.columns.get_level_values(i)[0] == "VARIABLE":
+                var_col_level = i
+                break
+
+        data_block.columns = data_block.columns.get_level_values(var_col_level)
+        col_order = [
+            "VARIABLE",
+            "TOTAL_INCLVOLCANIC_RF",
+            "VOLCANIC_ANNUAL_RF",
+            "SOLAR_RF",
+            "TOTAL_ANTHRO_RF",
+            "GHG_RF",
+            "KYOTOGHG_RF",
+            "CO2CH4N2O_RF",
+            "CO2_RF",
+            "CH4_RF",
+            "N2O_RF",
+            "FGASSUM_RF",
+            "MHALOSUM_RF",
+            "CF4_RF",
+            "C2F6_RF",
+            "C6F14_RF",
+            "HFC23_RF",
+            "HFC32_RF",
+            "HFC4310_RF",
+            "HFC125_RF",
+            "HFC134A_RF",
+            "HFC143A_RF",
+            "HFC227EA_RF",
+            "HFC245FA_RF",
+            "SF6_RF",
+            "CFC11_RF",
+            "CFC12_RF",
+            "CFC113_RF",
+            "CFC114_RF",
+            "CFC115_RF",
+            "CCL4_RF",
+            "CH3CCL3_RF",
+            "HCFC22_RF",
+            "HCFC141B_RF",
+            "HCFC142B_RF",
+            "HALON1211_RF",
+            "HALON1202_RF",
+            "HALON1301_RF",
+            "HALON2402_RF",
+            "CH3BR_RF",
+            "CH3CL_RF",
+            "TOTAER_DIR_RF",
+            "OCI_RF",
+            "BCI_RF",
+            "SOXI_RF",
+            "NOXI_RF",
+            "BIOMASSAER_RF",
+            "MINERALDUST_RF",
+            "CLOUD_TOT_RF",
+            "STRATOZ_RF",
+            "TROPOZ_RF",
+            "CH4OXSTRATH2O_RF",
+            "LANDUSE_RF",
+            "BCSNOW_RF",
+        ]
+        data_block = data_block[col_order]
+
+        def rename_col(x):
+            if x == "HFC4310_RF":
+                return "HFC43_10"
+
+            if x == "CCL4_RF":
+                return "CARB_TET"
+
+            if x == "CH3CCL3_RF":
+                return "MCF"
+
+            if x in ["CF4_RF", "C2F6_RF", "C6F14_RF"]:
+                return x.replace("_RF", "")
+
+            if x in ["HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]:
+                return x.replace("_RF", "")
+
+            if x in ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]:
+                return (
+                    x.replace("FA", "fa")
+                    .replace("EA", "ea")
+                    .replace("A", "a")
+                    .replace("_RF", "")
+                )
+
+            if x.startswith("HCFC"):
+                return x.replace("HCFC", "HCFC_").replace("_RF", "")
+
+            if x.startswith("CFC"):
+                return x.replace("CFC", "CFC_").replace("_RF", "")
+
+            if x.startswith("HALON"):
+                return x.replace("_RF", "")
+
+            if x.startswith("CH3"):
+                return x.replace("_RF", "")
+
+            return x
+
+        data_block.columns = data_block.columns.map(rename_col)
+
+        col_row = "   COLUMN:" + "".join(
+            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
+        )
+        units_row = "    UNITS:" + "".join(
+            ["{: >20}".format("W/m2") for i in range(1, (data_block.shape[1]))]
+        )
+        variable_row = (
+            "     YEARS  TOTAL_INCLVOLCANIC_RF  VOLCANIC_ANNUAL_RF         SOLAR_RF"
+            + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
+        )
+        # for most data files, as long as the data is space separated, the
+        # format doesn't matter
+        time_col_length = 10
+        time_col_format = "d"
+
+        first_col_format_str = (
+            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
+        ).format
+        other_col_format_str = "{:19.5e}".format
+        formatters = [other_col_format_str] * len(data_block.columns)
+        formatters[0] = first_col_format_str
+
+        output.write(col_row)
+        output.write(self._newline_char)
+        output.write(units_row)
+        output.write(self._newline_char)
+        output.write(variable_row)
+        output.write(self._newline_char)
+        data_block.to_string(
+            output, index=False, header=False, formatters=formatters, sparsify=False
+        )
+        output.write(self._newline_char)
+        return output
 
 
 class _MAGWriter(_Writer):
@@ -2443,7 +2662,11 @@ def determine_tool(filepath, tool_to_get):
             "reader": _BinaryOutReader,
             "writer": None,
         },
-        "RCPData": {"regexp": r"^.*\.DAT", "reader": _RCPDatReader, "writer": _RCPDatWriter},
+        "RCPData": {
+            "regexp": r"^.*\.DAT",
+            "reader": _RCPDatReader,
+            "writer": _RCPDatWriter,
+        },
         "MAG": {"regexp": r"^.*\.MAG", "reader": _MAGReader, "writer": _MAGWriter},
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }

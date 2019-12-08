@@ -3346,14 +3346,9 @@ def test_prn_wrong_unit_error():
         "EXPECTED_HISTRCP85_SOLAR_RF.IN",
         "EXPECTED_GISS_BCI_OT.IN",
         "EXPECTED_HISTSSP_CO2I_EMIS.IN",
-        "EXPECTED_EMISSIONS.DAT",
-        "EXPECTED_MIDYEAR_CONCENTRATIONS.DAT",
-        "EXPECTED_MIDYEAR_RADFORCING.DAT",
-        "EXPECTED_MIDYEAR_EFFRADFORCING.DAT",
     ],
 )
-# def test_writing_identical(temp_dir, update_expected_file, starting_file):
-def test_writing_identical(temp_dir, starting_file):
+def test_writing_identical(temp_dir, update_expected_file, starting_file):
     """
     Test io writes files with correct order and spacing.
 
@@ -3370,6 +3365,57 @@ def test_writing_identical(temp_dir, starting_file):
     writer.metadata = deepcopy(writing_base.metadata)
     writer.write(res, magicc_version=6)
     run_writing_comparison(res, base, update=update_expected_file)
+
+
+# integration test
+@pytest.mark.parametrize(
+    "starting_file,magicc_version",
+    [
+        ("EXPECTED_EMISSIONS.DAT", 7),
+        ("EXPECTED_MIDYEAR_CONCENTRATIONS.DAT", 7),
+        ("EXPECTED_MIDYEAR_RADFORCING.DAT", 7),
+        ("EXPECTED_MIDYEAR_EFFRADFORCING.DAT", 7),
+    ],
+)
+def test_writing_identical_rcpdat(
+    temp_dir, update_expected_file, starting_file, magicc_version
+):
+    base = join(EXPECTED_FILES_DIR, starting_file)
+    writing_base = MAGICCData(base)
+
+    # shuffle column order, thank you https://stackoverflow.com/a/34879805
+    writer = MAGICCData(writing_base.timeseries().sample(frac=1))
+
+    res = join(temp_dir, starting_file)
+    writer.metadata = deepcopy(writing_base.metadata)
+    writer.write(res, magicc_version=magicc_version)
+
+    def strip_out_date_line(inpath, outpath):
+        with open(inpath, "r") as f:
+            base_lines = f.read().split("\n")
+
+        found_date = False
+        base_lines_no_date = []
+        for line in base_lines:
+            if line.startswith("DATE:"):
+                found_date = True
+                continue
+            base_lines_no_date.append(line)
+
+        assert found_date
+
+        with open(outpath, "w") as f:
+            f.write("\n".join(base_lines_no_date))
+
+    if not update_expected_file:
+        # strip out date line before comparing as it won't be the same
+        base_comp = join(temp_dir, "BASE_{}".format(starting_file))
+        strip_out_date_line(base, base_comp)
+        strip_out_date_line(res, res)
+
+        run_writing_comparison(res, base_comp, update=update_expected_file)
+    else:
+        run_writing_comparison(res, base, update=update_expected_file)
 
 
 def test_mag_writer(temp_dir, writing_base_mag):
