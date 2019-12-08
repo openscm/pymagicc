@@ -1993,6 +1993,10 @@ class _RCPDatWriter(_Writer):
         magicc_version = self.minput.get_unique_meta(
             "climate_model", no_duplicates=True
         )
+        if magicc_version.startswith("MAGICC"):
+            magicc_version = magicc_version.replace("MAGICC", "")
+        else:
+            raise AssertionError("climate_model should start with `MAGICC`")
         meta = self.minput.metadata
         extra_fgases = (
             ""
