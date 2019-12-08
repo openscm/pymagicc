@@ -821,8 +821,6 @@ class _RCPDatReader(_Reader):
             The metadata in the header.
         """
         metadata = {}
-        if "EXPECTED_MIDYEAR_RAD" not in self.filepath:
-            return super().process_header(header)
 
         lines_iterator = (l.strip() for l in header.split("\n"))
         for i in range(len(header.split("\n"))):
@@ -884,7 +882,7 @@ class _RCPDatReader(_Reader):
             column_headers = converter._read_units(column_headers)
 
         column_headers["scenario"] = [metadata.pop("run")]
-        column_headers["climate_model"] = [metadata.pop("magicc-version")]
+        column_headers["climate_model"] = ["MAGICC{}".format(metadata.pop("magicc-version"))]
 
         df = self._convert_data_block_to_df(stream)
 
