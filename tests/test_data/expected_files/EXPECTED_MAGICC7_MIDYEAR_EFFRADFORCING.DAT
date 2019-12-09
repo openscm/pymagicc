@@ -36,7 +36,7 @@ COLUMN_DESCRIPTION________________________________________
 45      NOXI_EFFRF                 Direct nitrate aerosol
 46      BIOMASSAER_EFFRF           Direct biomass burning related aerosol
 47      MINERALDUST_EFFRF          Direct Forcing from mineral dust aerosol
-48      CLOUD_TOT_EFFRF            Cloud albedo effect
+48      CLOUD_TOT_EFFRF            Indirect aerosol effects
 49      STRATOZ_EFFRF              Stratospheric ozone forcing
 50      TROPOZ_EFFRF               Tropospheric ozone forcing
 51      CH4OXSTRATH2O_EFFRF        Stratospheric water-vapour from methane oxidisation
