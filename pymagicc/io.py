@@ -887,7 +887,9 @@ class _RCPDatReader(_Reader):
             column_headers = converter._read_units(column_headers)
 
         column_headers["scenario"] = [metadata.pop("run")]
-        column_headers["climate_model"] = ["MAGICC{}".format(metadata.pop("magicc-version"))]
+        column_headers["climate_model"] = [
+            "MAGICC{}".format(metadata.pop("magicc-version"))
+        ]
 
         df = self._convert_data_block_to_df(stream)
 
@@ -2458,7 +2460,12 @@ class _RCPDatWriter(_Writer):
             if x in ["HFC23_EFFRF", "HFC32_EFFRF", "HFC125_EFFRF", "SF6_EFFRF"]:
                 return x.replace("_EFFRF", "")
 
-            if x in ["HFC134A_EFFRF", "HFC143A_EFFRF", "HFC227EA_EFFRF", "HFC245FA_EFFRF"]:
+            if x in [
+                "HFC134A_EFFRF",
+                "HFC143A_EFFRF",
+                "HFC227EA_EFFRF",
+                "HFC245FA_EFFRF",
+            ]:
                 return (
                     x.replace("FA", "fa")
                     .replace("EA", "ea")
