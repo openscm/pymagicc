@@ -2008,6 +2008,9 @@ class _RCPDatWriter(_Writer):
         if "_EFFRADFORCING.DAT" in self._filepath:
             return self._get_header_effradforcing()
 
+        if "_EMISSIONS.DAT" in self._filepath:
+            return self._get_header_emissions()
+
         raise NotImplementedError
 
     def _get_header_radforcing(self):
@@ -2194,6 +2197,62 @@ class _RCPDatWriter(_Writer):
 
         return header
 
+    def _get_header_emissions(self):
+        scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
+        magicc_version = self.minput.get_unique_meta(
+            "climate_model", no_duplicates=True
+        )
+        if magicc_version.startswith("MAGICC"):
+            magicc_version = magicc_version.replace("MAGICC", "")
+        else:
+            raise AssertionError("climate_model should start with `MAGICC`")
+
+        meta = self.minput.metadata
+        header = (
+            "\n"
+            "{}__EMISSIONS____________________________\n"
+            "CONTENT:           {}\n"
+            "RUN:               {}\n"
+            "{: <19}{}\n"
+            "DATE:              {}\n"
+            "MAGICC-VERSION:    {}\n"
+            "FILE PRODUCED BY:  {}\n"
+            "DOCUMENTATION:     {}\n"
+            "CMIP INFO:         {}\n"
+            "DATABASE:          {}\n"
+            "FURTHER INFO:      {}\n"
+            "NOTE:              {}\n"
+            "                   {}\n"
+            "\n"
+            "COLUMN_DESCRIPTION________________________________________\n"
+            "1. FossilCO2        - Fossil & Industrial CO2 (Fossil, Cement, Gas Flaring & Bunker Fuels)\n"
+            "2. OtherCO2         - Landuse related CO2 Emissions (CO2 emissions which change the size of the land carbon cycle pool)\n"
+            "3. CH4              - Methane\n"
+            "4. N2O              - Nitrous Oxide\n"
+            "5. - 11.            - Tropospheric ozone precursors, aerosols and reactive gas emissions\n"
+            "12. - 23.           - Flourinated gases controlled under the Kyoto Protocol, (HFCs, PFCs, SF6)\n"
+            "24. - 39.           - Ozone Depleting Substances controlled under the Montreal Protocol (CFCs, HFCFC, Halons, CCl4, MCF, CH3Br, CH3Cl)\n"
+            "\n"
+            "\n"
+        ).format(
+            scenario,
+            meta["content"],
+            scenario,
+            "{} CONTACT:".format(scenario),
+            meta["contact"],
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            magicc_version,
+            meta["file produced by"],
+            meta["documentation"],
+            meta["cmip info"],
+            meta["database"],
+            meta["further info"],
+            meta["note"][0],
+            meta["note"][1],
+        )
+
+        return header
+
     def _write_namelist(self, output):
         if "_RADFORCING.DAT" in self._filepath:
             return self._write_namelist_radforcing(output)
@@ -2201,10 +2260,13 @@ class _RCPDatWriter(_Writer):
         if "_EFFRADFORCING.DAT" in self._filepath:
             return self._write_namelist_effradforcing(output)
 
+        if "_EMISSIONS.DAT" in self._filepath:
+            return self._write_namelist_emissions(output)
+
         raise NotImplementedError
 
     def _write_namelist_radforcing(self, output):
-        nml_initial, data_block = self._get_initial_nml_and_data_block()
+        nml_initial, _ = self._get_initial_nml_and_data_block()
         nml = nml_initial.copy()
 
         # '&NML_INDICATOR' goes above, '/'' goes at end
@@ -2235,20 +2297,57 @@ class _RCPDatWriter(_Writer):
     def _write_namelist_effradforcing(self, output):
         return self._write_namelist_radforcing(output)
 
+    def _write_namelist_emissions(self, output):
+        nml_initial, _ = self._get_initial_nml_and_data_block()
+        nml = nml_initial.copy()
+
+        # '&NML_INDICATOR' goes above, '/'' goes at end
+        number_lines_nml_header_end = 2
+        line_after_nml = self._newline_char
+
+        number_col_headers = 3
+
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
+
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+            len(output.getvalue().split(self._newline_char))
+            + len(nml["THISFILE_SPECIFICATIONS"])
+            + number_lines_nml_header_end
+            + len(line_after_nml.split(self._newline_char))
+            + number_col_headers
+        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 37"
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
+
+        nml.uppercase = True
+        nml._writestream(output)
+        output.write(line_after_nml)
+
+        return output
+
     def _write_datablock(self, output):
         _, data_block = self._get_initial_nml_and_data_block()
-        for i in range(len(data_block.columns.levels)):
-            if data_block.columns.get_level_values(i)[0] == "VARIABLE":
-                var_col_level = i
-                break
 
-        data_block.columns = data_block.columns.get_level_values(var_col_level)
+        drop_levels = []
+        for i in range(len(data_block.columns.levels)):
+            if data_block.columns.get_level_values(i)[0] not in ["VARIABLE", "UNITS"]:
+                drop_levels.append(i)
+
+        data_block.columns = data_block.columns.droplevel(drop_levels)
+
+        for i in range(len(data_block.columns.levels)):
+            if data_block.columns.get_level_values(i)[0] == "UNITS":
+                units_level = i
 
         if "_RADFORCING.DAT" in self._filepath:
             return self._write_variable_datablock_radforcing(output, data_block)
 
         if "_EFFRADFORCING.DAT" in self._filepath:
             return self._write_variable_datablock_effradforcing(output, data_block)
+
+        if "_EMISSIONS.DAT" in self._filepath:
+            return self._write_variable_datablock_emissions(output, data_block, units_level)
 
         raise NotImplementedError
 
@@ -2499,6 +2598,135 @@ class _RCPDatWriter(_Writer):
             "     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
+        # for most data files, as long as the data is space separated, the
+        # format doesn't matter
+        time_col_length = 10
+        time_col_format = "d"
+
+        first_col_format_str = (
+            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
+        ).format
+        other_col_format_str = "{:19.5e}".format
+        formatters = [other_col_format_str] * len(data_block.columns)
+        formatters[0] = first_col_format_str
+
+        output.write(col_row)
+        output.write(self._newline_char)
+        output.write(units_row)
+        output.write(self._newline_char)
+        output.write(variable_row)
+        output.write(self._newline_char)
+        data_block.to_string(
+            output, index=False, header=False, formatters=formatters, sparsify=False
+        )
+        output.write(self._newline_char)
+        return output
+
+    def _write_variable_datablock_emissions(self, output, data_block, units_level):
+        col_order = [
+            "VARIABLE",
+            "CO2I",
+"CO2B",
+"CH4",
+"N2O",
+"SOX",
+"CO",
+"NMVOC",
+"NOX",
+"BC",
+"OC",
+"NH3",
+"CF4",
+"C2F6",
+"C6F14",
+"HFC23",
+"HFC32",
+"HFC4310",
+"HFC125",
+"HFC134A",
+"HFC143A",
+"HFC227EA",
+"HFC245FA",
+"SF6",
+"CFC11",
+"CFC12",
+"CFC113",
+"CFC114",
+"CFC115",
+"CCL4",
+"CH3CCL3",
+"HCFC22",
+"HCFC141B",
+"HCFC142B",
+"HALON1211",
+"HALON1202",
+"HALON1301",
+"HALON2402",
+"CH3BR",
+"CH3CL",
+
+        ]
+
+        data_block = data_block[col_order]
+
+        def rename_col(x):
+            if x == "CO2I":
+                return "FossilCO2"
+
+            if x == "CO2B":
+                return "OtherCO2"
+
+            if x == "SOX":
+                return "SOx"
+
+            if x == "NOX":
+                return "NOx"
+
+            if x == "HFC4310":
+                return "HFC43_10"
+
+            if x == "CCL4":
+                return "CARB_TET"
+
+            if x == "CH3CCL3":
+                return "MCF"
+
+            if x in [
+                "HFC134A",
+                "HFC143A",
+                "HFC227EA",
+                "HFC245FA",
+            ]:
+                return (
+                    x.replace("FA", "fa")
+                    .replace("EA", "ea")
+                    .replace("A", "a")
+                )
+
+            if x.startswith("HCFC"):
+                return x.replace("HCFC", "HCFC_")
+
+            if x.startswith("CFC"):
+                return x.replace("CFC", "CFC_")
+
+            return x
+
+        units = data_block.columns.get_level_values(units_level)
+        data_block.columns = data_block.columns.droplevel(units_level)
+
+        data_block.columns = data_block.columns.map(rename_col)
+        units = [u.replace("per", " / ") for u in units]
+
+        col_row = "   COLUMN:" + "".join(
+            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
+        )
+        units_row = "    UNITS:" + "".join(
+            ["{: >20}".format(u) for u in units[1:]]
+        )
+        variable_row = "     YEARS" + "".join(
+            ["{: >20}".format(c) for c in data_block.columns[1:]]
+        )
+
         # for most data files, as long as the data is space separated, the
         # format doesn't matter
         time_col_length = 10
