@@ -1819,7 +1819,7 @@ def test_load_rcp_projections_dat_forcings():
     assert_mdata_value(
         mdata,
         0.00025010344,
-        variable="Radiative Forcing|Aerosols|MAGICC AFOLU",
+        variable="Radiative Forcing|Aerosols|Direct Effect|MAGICC AFOLU",
         region="World",
         year=1766,
         # unit="W / m^2"
@@ -1828,7 +1828,7 @@ def test_load_rcp_projections_dat_forcings():
     assert_mdata_value(
         mdata,
         -0.00019073512,
-        variable="Radiative Forcing|Mineral Dust",
+        variable="Radiative Forcing|Aerosols|Direct Effect|Mineral Dust",
         region="World",
         year=1766,
         # unit="W / m^2"
