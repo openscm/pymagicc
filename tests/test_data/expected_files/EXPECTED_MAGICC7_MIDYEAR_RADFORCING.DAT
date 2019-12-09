@@ -29,7 +29,7 @@ COLUMN_DESCRIPTION________________________________________
 12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40 plus CH2CL2, CHCL3)
 13-24                           Flourinated gases controlled under the Kyoto Protocol
 25-40                           Ozone Depleting Substances controlled under the Montreal Protocol
-41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47 plus NH3I i.e. direct fossil fuel ammonia radiative forcing)
+41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47 plus NH3I i.e. direct fossil fuel ammonia forcing)
 42      OCI_RF                  Direct fossil fuel aerosol (organic carbon)
 43      BCI_RF                  Direct fossil fuel aerosol (black carbon)
 44      SOXI_RF                 Direct sulphate aerosol
