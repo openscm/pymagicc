@@ -1479,6 +1479,7 @@ def test_load_rcp_historical_dat_emissions():
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "20THCENTURY, FINAL RELEASE, 26 Nov. 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1515,16 +1516,12 @@ def test_load_rcp_historical_dat_concentrations():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "PRE2005__MIDYEAR__CONCENTRATIONS" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "PRE-2005 DATA, FINAL RELEASE, 26 Nov. 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1582,17 +1579,13 @@ def test_load_rcp_historical_dat_forcings():
         mdata.metadata["date"]
         == "26/11/2009 11:29:06 (updated description, 30 May 2010)."
     )
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "PRE2005 ends in year 2005" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "20THCENTURY/PRE2005 RUN, FINAL RELEASE, 26 Nov. 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1628,16 +1621,12 @@ def test_load_rcp_projections_dat_emissions():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "RCP3PD__EMISSIONS" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Emissions|")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1673,16 +1662,12 @@ def test_load_rcp_projections_dat_concentrations():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06"
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "RCP3PD__MIDYEAR__CONCENTRATIONS" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1736,17 +1721,13 @@ def test_load_rcp_projections_dat_forcings():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["date"] == "26/11/2009 11:29:06 (updated description)"
-    assert mdata.metadata["magicc-version"] == "6.3.09, 25 November 2009"
-    assert "RCP3PD__RADIATIVE FORCINGS" in mdata.metadata["header"]
-    assert (
-        "COLUMN_DESCRIPTION________________________________________"
-        in mdata.metadata["header"]
-    )
 
     assert (mdata["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["unit"] == "W / m^2").all()
+    assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
+    assert (mdata["scenario"] == "RCP3PD, FINAL RELEASE, 26. Nov 2009").all()
 
     assert_mdata_value(
         mdata,
@@ -1924,6 +1905,7 @@ def test_load_sample_dat_emissions():
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["scenario"] == "SCEN").all()
+    assert (mdata["climate_model"] == "MAGICCmagicc version").all()
 
     assert_mdata_value(
         mdata,
@@ -1941,18 +1923,18 @@ def test_load_sample_dat_concentrations():
     generic_mdata_tests(mdata)
 
     assert mdata.metadata["content"] == "mid-year concentrations"
-    assert mdata.metadata["magicc-version"] == "magicc version"
     assert mdata.metadata["file produced by"] == "file production information"
-    assert mdata.metadata["note"] == "one line of notes"
+    assert mdata.metadata["note"] == ["one line of notes"]
 
     assert (mdata["variable"].str.startswith("Atmospheric Concentrations|")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["scenario"] == "SCEN2").all()
+    assert (mdata["climate_model"] == "MAGICCmagicc version").all()
 
     assert_mdata_value(
         mdata,
-        277.01,
+        277.01467,
         variable="Atmospheric Concentrations|CO2 Equivalent",
         region="World",
         year=1765,
@@ -1970,11 +1952,11 @@ def test_load_sample_dat_radiative_forcings():
     assert mdata.metadata["documentation"] == "doc info"
     assert mdata.metadata["note"] == ["three lines", "of", "notes"]
 
-    assert (mdata["variable"].str.startswith("Radiative Forcing|")).all()
+    assert (mdata["variable"].str.startswith("Radiative Forcing")).all()
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["scenario"] == "SCEN3").all()
-    assert (mdata["unit"] == "W/m2").all()
+    assert (mdata["unit"] == "W / m^2").all()
 
     assert_mdata_value(
         mdata,
@@ -1982,7 +1964,6 @@ def test_load_sample_dat_radiative_forcings():
         variable="Radiative Forcing",
         region="World",
         year=1765,
-        unit="W/m2",
     )
 
     assert_mdata_value(
@@ -1991,7 +1972,6 @@ def test_load_sample_dat_radiative_forcings():
         variable="Radiative Forcing|Solar",
         region="World",
         year=2500,
-        unit="W/m2",
     )
 
 
