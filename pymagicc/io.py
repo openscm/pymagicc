@@ -825,6 +825,7 @@ class _RCPDatReader(_Reader):
         lines_iterator = (l.strip() for l in header.split("\n"))
         for i in range(len(header.split("\n"))):
             line = next(lines_iterator)
+
             if not line:
                 continue
 
@@ -841,7 +842,11 @@ class _RCPDatReader(_Reader):
 
             content = ":".join(split_vals[1:])
             if key == "NOTE":
-                content = [content, next(lines_iterator), next(lines_iterator)]
+                content = [content]
+                line = next(lines_iterator)
+                while line:
+                    content.append(line)
+                    line = next(lines_iterator)
 
             metadata[key.lower()] = content
 
@@ -1981,9 +1986,12 @@ class _ScenWriter(_Writer):
 
 class _RCPDatWriter(_Writer):
     def _get_header(self):
-        if "_RADFORCING.DAT" not in self._filepath:
-            raise NotImplementedError
+        if "_RADFORCING.DAT" in self._filepath:
+            return self._get_header_radforcing()
 
+        raise NotImplementedError
+
+    def _get_header_radforcing(self):
         # split out different get_header depending on data
         # for first draft, go with deeply unsatisfactory (but only practical, at least
         # until we have a proper hierarchy of variables in Pymagicc i.e. we remove all
