@@ -2000,7 +2000,6 @@ class _RCPDatWriter(_Writer):
         MAGICC categories and hard-coding descriptions (which can vary by MAGICC
         version).
         """
-        # for first draft, go with
         if "_RADFORCING.DAT" in self._filepath:
             return self._get_header_radforcing()
 
@@ -2028,7 +2027,7 @@ class _RCPDatWriter(_Writer):
         extra_totaerdirrf = (
             ""
             if self._magicc_version == 6
-            else " plus NH3I i.e. direct fossil fuel ammonia radiative forcing"
+            else " plus NH3I i.e. direct fossil fuel ammonia forcing"
         )
         header = (
             "\n"
@@ -2102,8 +2101,6 @@ class _RCPDatWriter(_Writer):
         return header
 
     def _get_header_effradforcing(self):
-        import pdb
-        pdb.set_trace()
         scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
         magicc_version = self.minput.get_unique_meta(
             "climate_model", no_duplicates=True
@@ -2122,11 +2119,11 @@ class _RCPDatWriter(_Writer):
         extra_totaerdirrf = (
             ""
             if self._magicc_version == 6
-            else " plus NH3I i.e. direct fossil fuel ammonia radiative forcing"
+            else " plus NH3I i.e. direct fossil fuel ammonia forcing"
         )
         header = (
             "\n"
-            "{}__RADIATIVE FORCINGS____________________________\n"
+            "{}__EFFECTIVE_RADIATIVE FORCINGS____________________________\n"
             "CONTENT:           {}\n"
             "RUN:               {}\n"
             "{: <19}{}\n"
@@ -2142,33 +2139,33 @@ class _RCPDatWriter(_Writer):
             "                   {}\n"
             "\n"
             "COLUMN_DESCRIPTION________________________________________\n"
-            "1       TOTAL_INCLVOLCANIC_RF   Total anthropogenic and natural radiative forcing\n"
-            "2       VOLCANIC_ANNUAL_RF      Annual mean volcanic stratospheric aerosol forcing\n"
-            "3       SOLAR_RF                Solar irradiance forcing\n"
-            "4       TOTAL_ANTHRO_RF         Total anthropogenic forcing\n"
-            "5       GHG_RF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
-            "6       KYOTOGHG_RF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
-            "7       CO2CH4N2O_RF            Total forcing from CO2, methane and nitrous oxide.\n"
-            "8       CO2_RF                  CO2 Forcing\n"
-            "9       CH4_RF                  Methane Forcing\n"
-            "10      N2O_RF                  Nitrous Oxide Forcing\n"
-            "11      FGASSUM_RF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24{})\n"
-            "12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40{})\n"
-            "13-24                           Flourinated gases controlled under the Kyoto Protocol\n"
-            "25-40                           Ozone Depleting Substances controlled under the Montreal Protocol\n"
-            "41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47{})\n"
-            "42      OCI_RF                  Direct fossil fuel aerosol (organic carbon)\n"
-            "43      BCI_RF                  Direct fossil fuel aerosol (black carbon)\n"
-            "44      SOXI_RF                 Direct sulphate aerosol\n"
-            "45      NOXI_RF                 Direct nitrate aerosol\n"
-            "46      BIOMASSAER_RF           Direct biomass burning related aerosol\n"
-            "47      MINERALDUST_RF          Direct Forcing from mineral dust aerosol\n"
-            "48      CLOUD_TOT_RF            Cloud albedo effect\n"
-            "49      STRATOZ_RF              Stratospheric ozone forcing\n"
-            "50      TROPOZ_RF               Tropospheric ozone forcing\n"
-            "51      CH4OXSTRATH2O_RF        Stratospheric water-vapour from methane oxidisation\n"
-            "52      LANDUSE_RF              Landuse albedo\n"
-            "53      BCSNOW_RF               Black carbon on snow.\n"
+            "1       TOTAL_INCLVOLCANIC_EFFRF   Total anthropogenic and natural effective radiative forcing\n"
+            "2       VOLCANIC_ANNUAL_EFFRF      Annual mean volcanic stratospheric aerosol forcing\n"
+            "3       SOLAR_EFFRF                Solar irradiance forcing\n"
+            "4       TOTAL_ANTHRO_EFFRF         Total anthropogenic forcing\n"
+            "5       GHG_EFFRF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
+            "6       KYOTOGHG_EFFRF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
+            "7       CO2CH4N2O_EFFRF            Total forcing from CO2, methane and nitrous oxide.\n"
+            "8       CO2_EFFRF                  CO2 Forcing\n"
+            "9       CH4_EFFRF                  Methane Forcing\n"
+            "10      N2O_EFFRF                  Nitrous Oxide Forcing\n"
+            "11      FGASSUM_EFFRF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24{})\n"
+            "12      MHALOSUM_EFFRF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40{})\n"
+            "13-24                              Flourinated gases controlled under the Kyoto Protocol\n"
+            "25-40                              Ozone Depleting Substances controlled under the Montreal Protocol\n"
+            "41      TOTAER_DIR_EFFRF           Total direct aerosol forcing (aggregating columns 42 to 47{})\n"
+            "42      OCI_EFFRF                  Direct fossil fuel aerosol (organic carbon)\n"
+            "43      BCI_EFFRF                  Direct fossil fuel aerosol (black carbon)\n"
+            "44      SOXI_EFFRF                 Direct sulphate aerosol\n"
+            "45      NOXI_EFFRF                 Direct nitrate aerosol\n"
+            "46      BIOMASSAER_EFFRF           Direct biomass burning related aerosol\n"
+            "47      MINERALDUST_EFFRF          Direct Forcing from mineral dust aerosol\n"
+            "48      CLOUD_TOT_EFFRF            Cloud albedo effect\n"
+            "49      STRATOZ_EFFRF              Stratospheric ozone forcing\n"
+            "50      TROPOZ_EFFRF               Tropospheric ozone forcing\n"
+            "51      CH4OXSTRATH2O_EFFRF        Stratospheric water-vapour from methane oxidisation\n"
+            "52      LANDUSE_EFFRF              Landuse albedo\n"
+            "53      BCSNOW_EFFRF               Black carbon on snow.\n"
             "\n"
             "\n"
             "\n"
@@ -2196,6 +2193,15 @@ class _RCPDatWriter(_Writer):
         return header
 
     def _write_namelist(self, output):
+        if "_RADFORCING.DAT" in self._filepath:
+            return self._write_namelist_radforcing(output)
+
+        if "_EFFRADFORCING.DAT" in self._filepath:
+            return self._write_namelist_effradforcing(output)
+
+        raise NotImplementedError
+
+    def _write_namelist_radforcing(self, output):
         nml_initial, data_block = self._get_initial_nml_and_data_block()
         nml = nml_initial.copy()
 
@@ -2224,6 +2230,9 @@ class _RCPDatWriter(_Writer):
 
         return output
 
+    def _write_namelist_effradforcing(self, output):
+        return self._write_namelist_radforcing(output)
+
     def _write_datablock(self, output):
         _, data_block = self._get_initial_nml_and_data_block()
         for i in range(len(data_block.columns.levels)):
@@ -2232,6 +2241,16 @@ class _RCPDatWriter(_Writer):
                 break
 
         data_block.columns = data_block.columns.get_level_values(var_col_level)
+
+        if "_RADFORCING.DAT" in self._filepath:
+            return self._write_variable_datablock_radforcing(output, data_block)
+
+        if "_EFFRADFORCING.DAT" in self._filepath:
+            return self._write_variable_datablock_effradforcing(output, data_block)
+
+        raise NotImplementedError
+
+    def _write_variable_datablock_radforcing(self, output, data_block):
         col_order = [
             "VARIABLE",
             "TOTAL_INCLVOLCANIC_RF",
@@ -2338,6 +2357,139 @@ class _RCPDatWriter(_Writer):
         )
         variable_row = (
             "     YEARS  TOTAL_INCLVOLCANIC_RF  VOLCANIC_ANNUAL_RF         SOLAR_RF"
+            + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
+        )
+        # for most data files, as long as the data is space separated, the
+        # format doesn't matter
+        time_col_length = 10
+        time_col_format = "d"
+
+        first_col_format_str = (
+            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
+        ).format
+        other_col_format_str = "{:19.5e}".format
+        formatters = [other_col_format_str] * len(data_block.columns)
+        formatters[0] = first_col_format_str
+
+        output.write(col_row)
+        output.write(self._newline_char)
+        output.write(units_row)
+        output.write(self._newline_char)
+        output.write(variable_row)
+        output.write(self._newline_char)
+        data_block.to_string(
+            output, index=False, header=False, formatters=formatters, sparsify=False
+        )
+        output.write(self._newline_char)
+        return output
+
+    def _write_variable_datablock_effradforcing(self, output, data_block):
+        col_order = [
+            "VARIABLE",
+            "TOTAL_INCLVOLCANIC_EFFRF",
+            "VOLCANIC_ANNUAL_EFFRF",
+            "SOLAR_EFFRF",
+            "TOTAL_ANTHRO_EFFRF",
+            "GHG_EFFRF",
+            "KYOTOGHG_EFFRF",
+            "CO2CH4N2O_EFFRF",
+            "CO2_EFFRF",
+            "CH4_EFFRF",
+            "N2O_EFFRF",
+            "FGASSUM_EFFRF",
+            "MHALOSUM_EFFRF",
+            "CF4_EFFRF",
+            "C2F6_EFFRF",
+            "C6F14_EFFRF",
+            "HFC23_EFFRF",
+            "HFC32_EFFRF",
+            "HFC4310_EFFRF",
+            "HFC125_EFFRF",
+            "HFC134A_EFFRF",
+            "HFC143A_EFFRF",
+            "HFC227EA_EFFRF",
+            "HFC245FA_EFFRF",
+            "SF6_EFFRF",
+            "CFC11_EFFRF",
+            "CFC12_EFFRF",
+            "CFC113_EFFRF",
+            "CFC114_EFFRF",
+            "CFC115_EFFRF",
+            "CCL4_EFFRF",
+            "CH3CCL3_EFFRF",
+            "HCFC22_EFFRF",
+            "HCFC141B_EFFRF",
+            "HCFC142B_EFFRF",
+            "HALON1211_EFFRF",
+            "HALON1202_EFFRF",
+            "HALON1301_EFFRF",
+            "HALON2402_EFFRF",
+            "CH3BR_EFFRF",
+            "CH3CL_EFFRF",
+            "TOTAER_DIR_EFFRF",
+            "OCI_EFFRF",
+            "BCI_EFFRF",
+            "SOXI_EFFRF",
+            "NOXI_EFFRF",
+            "BIOMASSAER_EFFRF",
+            "MINERALDUST_EFFRF",
+            "CLOUD_TOT_EFFRF",
+            "STRATOZ_EFFRF",
+            "TROPOZ_EFFRF",
+            "CH4OXSTRATH2O_EFFRF",
+            "LANDUSE_EFFRF",
+            "BCSNOW_EFFRF",
+        ]
+        data_block = data_block[col_order]
+
+        def rename_col(x):
+            if x == "HFC4310_EFFRF":
+                return "HFC43_10"
+
+            if x == "CCL4_EFFRF":
+                return "CARB_TET"
+
+            if x == "CH3CCL3_EFFRF":
+                return "MCF"
+
+            if x in ["CF4_EFFRF", "C2F6_EFFRF", "C6F14_EFFRF"]:
+                return x.replace("_EFFRF", "")
+
+            if x in ["HFC23_EFFRF", "HFC32_EFFRF", "HFC125_EFFRF", "SF6_EFFRF"]:
+                return x.replace("_EFFRF", "")
+
+            if x in ["HFC134A_EFFRF", "HFC143A_EFFRF", "HFC227EA_EFFRF", "HFC245FA_EFFRF"]:
+                return (
+                    x.replace("FA", "fa")
+                    .replace("EA", "ea")
+                    .replace("A", "a")
+                    .replace("_EFFRF", "")
+                )
+
+            if x.startswith("HCFC"):
+                return x.replace("HCFC", "HCFC_").replace("_EFFRF", "")
+
+            if x.startswith("CFC"):
+                return x.replace("CFC", "CFC_").replace("_EFFRF", "")
+
+            if x.startswith("HALON"):
+                return x.replace("_EFFRF", "")
+
+            if x.startswith("CH3"):
+                return x.replace("_EFFRF", "")
+
+            return x
+
+        data_block.columns = data_block.columns.map(rename_col)
+
+        col_row = "   COLUMN:" + "".join(
+            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
+        )
+        units_row = "    UNITS:" + "".join(
+            ["{: >20}".format("W/m2") for i in range(1, (data_block.shape[1]))]
+        )
+        variable_row = (
+            "     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
         # for most data files, as long as the data is space separated, the
