@@ -909,6 +909,12 @@ class _RCPDatReader(_Reader):
                 if not m.endswith("_RF"):
                     m = m + "_RF"
                 intermediate_vars.append(m)
+        elif first_var == "TOTAL_INCLVOLCANIC_EFFRF":
+            intermediate_vars = []
+            for m in magicc7_vars:
+                if not m.endswith("_EFFRF"):
+                    m = m + "_EFFRF"
+                intermediate_vars.append(m)
         else:
             raise ValueError(
                 "I don't know how you got this file, but the format is not recognised by pymagicc"
@@ -1986,17 +1992,118 @@ class _ScenWriter(_Writer):
 
 class _RCPDatWriter(_Writer):
     def _get_header(self):
+        """
+        Get the header for an RCPData file
+
+        This uses the deeply unsatisfactory, but only practical (at least until we
+        have a proper hierarchy of variables in Pymagicc) solution of using default
+        MAGICC categories and hard-coding descriptions (which can vary by MAGICC
+        version).
+        """
+        # for first draft, go with
         if "_RADFORCING.DAT" in self._filepath:
             return self._get_header_radforcing()
+
+        if "_EFFRADFORCING.DAT" in self._filepath:
+            return self._get_header_effradforcing()
 
         raise NotImplementedError
 
     def _get_header_radforcing(self):
-        # split out different get_header depending on data
-        # for first draft, go with deeply unsatisfactory (but only practical, at least
-        # until we have a proper hierarchy of variables in Pymagicc i.e. we remove all
-        # the post-processing from MAGICC) solution of using default MAGICC categories
-        # and hard-coding descriptions (which can vary by MAGICC version).
+        scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
+        magicc_version = self.minput.get_unique_meta(
+            "climate_model", no_duplicates=True
+        )
+        if magicc_version.startswith("MAGICC"):
+            magicc_version = magicc_version.replace("MAGICC", "")
+        else:
+            raise AssertionError("climate_model should start with `MAGICC`")
+        meta = self.minput.metadata
+        extra_fgases = (
+            ""
+            if self._magicc_version == 6
+            else " plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2"
+        )
+        extra_mahlos = "" if self._magicc_version == 6 else " plus CH2CL2, CHCL3"
+        extra_totaerdirrf = (
+            ""
+            if self._magicc_version == 6
+            else " plus NH3I i.e. direct fossil fuel ammonia radiative forcing"
+        )
+        header = (
+            "\n"
+            "{}__RADIATIVE FORCINGS____________________________\n"
+            "CONTENT:           {}\n"
+            "RUN:               {}\n"
+            "{: <19}{}\n"
+            "DATE:              {}\n"
+            "MAGICC-VERSION:    {}\n"
+            "FILE PRODUCED BY:  {}\n"
+            "DOCUMENTATION:     {}\n"
+            "CMIP INFO:         {}\n"
+            "DATABASE:          {}\n"
+            "FURTHER INFO:      {}\n"
+            "NOTE:              {}\n"
+            "                   {}\n"
+            "                   {}\n"
+            "\n"
+            "COLUMN_DESCRIPTION________________________________________\n"
+            "1       TOTAL_INCLVOLCANIC_RF   Total anthropogenic and natural radiative forcing\n"
+            "2       VOLCANIC_ANNUAL_RF      Annual mean volcanic stratospheric aerosol forcing\n"
+            "3       SOLAR_RF                Solar irradiance forcing\n"
+            "4       TOTAL_ANTHRO_RF         Total anthropogenic forcing\n"
+            "5       GHG_RF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
+            "6       KYOTOGHG_RF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
+            "7       CO2CH4N2O_RF            Total forcing from CO2, methane and nitrous oxide.\n"
+            "8       CO2_RF                  CO2 Forcing\n"
+            "9       CH4_RF                  Methane Forcing\n"
+            "10      N2O_RF                  Nitrous Oxide Forcing\n"
+            "11      FGASSUM_RF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24{})\n"
+            "12      MHALOSUM_RF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40{})\n"
+            "13-24                           Flourinated gases controlled under the Kyoto Protocol\n"
+            "25-40                           Ozone Depleting Substances controlled under the Montreal Protocol\n"
+            "41      TOTAER_DIR_RF           Total direct aerosol forcing (aggregating columns 42 to 47{})\n"
+            "42      OCI_RF                  Direct fossil fuel aerosol (organic carbon)\n"
+            "43      BCI_RF                  Direct fossil fuel aerosol (black carbon)\n"
+            "44      SOXI_RF                 Direct sulphate aerosol\n"
+            "45      NOXI_RF                 Direct nitrate aerosol\n"
+            "46      BIOMASSAER_RF           Direct biomass burning related aerosol\n"
+            "47      MINERALDUST_RF          Direct Forcing from mineral dust aerosol\n"
+            "48      CLOUD_TOT_RF            Cloud albedo effect\n"
+            "49      STRATOZ_RF              Stratospheric ozone forcing\n"
+            "50      TROPOZ_RF               Tropospheric ozone forcing\n"
+            "51      CH4OXSTRATH2O_RF        Stratospheric water-vapour from methane oxidisation\n"
+            "52      LANDUSE_RF              Landuse albedo\n"
+            "53      BCSNOW_RF               Black carbon on snow.\n"
+            "\n"
+            "\n"
+            "\n"
+        ).format(
+            scenario,
+            meta["content"],
+            scenario,
+            "{} CONTACT:".format(scenario),
+            meta["contact"],
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            magicc_version,
+            meta["file produced by"],
+            meta["documentation"],
+            meta["cmip info"],
+            meta["database"],
+            meta["further info"],
+            meta["note"][0],
+            meta["note"][1],
+            meta["note"][2],
+            extra_fgases,
+            extra_mahlos,
+            extra_totaerdirrf,
+        )
+
+        return header
+
+    def _get_header_effradforcing(self):
+        import pdb
+        pdb.set_trace()
         scenario = self.minput.get_unique_meta("scenario", no_duplicates=True)
         magicc_version = self.minput.get_unique_meta(
             "climate_model", no_duplicates=True

@@ -350,21 +350,27 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
     replacements = {m7v: get_openscm_replacement(m7v) for m7v in magicc7_vars}
 
+    rf_updates = {
+        "TOTAL_INCLVOLCANIC_RF": "Radiative Forcing",
+        "VOLCANIC_ANNUAL_RF": "Radiative Forcing|Volcanic",
+        "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
+        "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
+        "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
+        "MINERALDUST_RF": "Radiative Forcing|Mineral Dust",
+        "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
+        "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
+        "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",
+        "LANDUSE_RF": "Radiative Forcing|Land-use Change",
+        "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
+    }
+    rf_updates_with_effrf = {
+        **rf_updates,
+        **{k.replace("_RF", "_EFFRF"): v.replace("Radiative Forcing", "Effective Radiative Forcing") for k, v in rf_updates.items()}
+    }
+    replacements.update(rf_updates_with_effrf)
     replacements.update(
         {
             "SURFACE_TEMP": "Surface Temperature",
-            "TOTAL_INCLVOLCANIC_RF": "Radiative Forcing",
-            "TOTAL_INCLVOLCANIC_EFFRF": "Effective Radiative Forcing",
-            "VOLCANIC_ANNUAL_RF": "Radiative Forcing|Volcanic",
-            "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
-            "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
-            "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
-            "MINERALDUST_RF": "Radiative Forcing|Mineral Dust",
-            "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
-            "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
-            "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",  # what is this
-            "LANDUSE_RF": "Radiative Forcing|Land-use Change",
-            "BCSNOW_RF": "Radiative Forcing|Black Carbon on Snow",
             "CO2PF_EMIS": "Land to Air Flux|CO2|MAGICC Permafrost",
             "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",
             "SLR_TOT": "Sea Level Rise",
