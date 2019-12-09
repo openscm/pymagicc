@@ -1975,6 +1975,39 @@ def test_load_sample_dat_radiative_forcings():
     )
 
 
+def test_load_sample_dat_effective_radiative_forcings():
+    test_file = "SAMPLE_MIDYEAR_EFFRADFORCING.DAT"
+    mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
+    generic_mdata_tests(mdata)
+
+    assert mdata.metadata["content"] == "annual average, global mean effective radiative forcing"
+    assert mdata.metadata["further info"] == "further info"
+    assert mdata.metadata["documentation"] == "doc info"
+    assert mdata.metadata["note"] == ["three lines", "of", "notes"]
+
+    assert (mdata["variable"].str.startswith("Effective Radiative Forcing")).all()
+    assert (mdata["region"] == "World").all()
+    assert (mdata["todo"] == "SET").all()
+    assert (mdata["scenario"] == "SCN32").all()
+    assert (mdata["unit"] == "W / m^2").all()
+
+    assert_mdata_value(
+        mdata,
+        0.0,
+        variable="Effective Radiative Forcing",
+        region="World",
+        year=1765,
+    )
+
+    assert_mdata_value(
+        mdata,
+        0.084416719,
+        variable="Effective Radiative Forcing|Solar",
+        region="World",
+        year=2500,
+    )
+
+
 @pytest.mark.parametrize(
     "input, expected",
     [
