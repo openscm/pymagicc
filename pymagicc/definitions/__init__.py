@@ -267,7 +267,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             variable = variable.replace("GHG", "Greenhouse Gases")
 
         if "BIOMASSAER" in variable:
-            variable = variable.replace("BIOMASSAER", "Aerosols|MAGICC AFOLU")
+            variable = variable.replace("BIOMASSAER", "Aerosols|Direct Effect|MAGICC AFOLU")
 
         if "CO2CH4N2O" in variable:
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
@@ -356,7 +356,12 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
         "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
         "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
-        "MINERALDUST_RF": "Radiative Forcing|Mineral Dust",
+        "OCI_RF": "Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
+        "BCI_RF": "Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
+        "SOXI_RF": "Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
+        "NOXI_RF": "Radiative Forcing|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
+        "NH3I_RF": "Radiative Forcing|Aerosols|Direct Effect|NH3|MAGICC Fossil and Industrial",
+        "MINERALDUST_RF": "Radiative Forcing|Aerosols|Direct Effect|Mineral Dust",
         "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
         "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
         "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",
