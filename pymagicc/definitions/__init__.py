@@ -365,7 +365,12 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     }
     rf_updates_with_effrf = {
         **rf_updates,
-        **{k.replace("_RF", "_EFFRF"): v.replace("Radiative Forcing", "Effective Radiative Forcing") for k, v in rf_updates.items()}
+        **{
+            k.replace("_RF", "_EFFRF"): v.replace(
+                "Radiative Forcing", "Effective Radiative Forcing"
+            )
+            for k, v in rf_updates.items()
+        },
     }
     replacements.update(rf_updates_with_effrf)
     replacements.update(

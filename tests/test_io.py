@@ -1585,7 +1585,9 @@ def test_load_rcp_historical_dat_forcings():
     assert (mdata["todo"] == "SET").all()
     assert (mdata["unit"] == "W / m^2").all()
     assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
-    assert (mdata["scenario"] == "20THCENTURY/PRE2005 RUN, FINAL RELEASE, 26 Nov. 2009").all()
+    assert (
+        mdata["scenario"] == "20THCENTURY/PRE2005 RUN, FINAL RELEASE, 26 Nov. 2009"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -1626,7 +1628,9 @@ def test_load_rcp_projections_dat_emissions():
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
-    assert (mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009").all()
+    assert (
+        mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -1667,7 +1671,9 @@ def test_load_rcp_projections_dat_concentrations():
     assert (mdata["region"] == "World").all()
     assert (mdata["todo"] == "SET").all()
     assert (mdata["climate_model"] == "MAGICC6.3.09, 25 November 2009").all()
-    assert (mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009").all()
+    assert (
+        mdata["scenario"] == "RCP3PD (RCP3-Peak&Decline), FINAL RELEASE, 26 Nov. 2009"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -1959,11 +1965,7 @@ def test_load_sample_dat_radiative_forcings():
     assert (mdata["unit"] == "W / m^2").all()
 
     assert_mdata_value(
-        mdata,
-        0.0,
-        variable="Radiative Forcing",
-        region="World",
-        year=1765,
+        mdata, 0.0, variable="Radiative Forcing", region="World", year=1765,
     )
 
     assert_mdata_value(
@@ -1980,7 +1982,10 @@ def test_load_sample_dat_effective_radiative_forcings():
     mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
-    assert mdata.metadata["content"] == "annual average, global mean effective radiative forcing"
+    assert (
+        mdata.metadata["content"]
+        == "annual average, global mean effective radiative forcing"
+    )
     assert mdata.metadata["further info"] == "further info"
     assert mdata.metadata["documentation"] == "doc info"
     assert mdata.metadata["note"] == ["three lines", "of", "notes"]
@@ -1992,11 +1997,7 @@ def test_load_sample_dat_effective_radiative_forcings():
     assert (mdata["unit"] == "W / m^2").all()
 
     assert_mdata_value(
-        mdata,
-        0.0,
-        variable="Effective Radiative Forcing",
-        region="World",
-        year=1765,
+        mdata, 0.0, variable="Effective Radiative Forcing", region="World", year=1765,
     )
 
     assert_mdata_value(
