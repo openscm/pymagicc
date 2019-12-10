@@ -58,7 +58,7 @@ REQUIREMENTS_NOTEBOOKS = [
     "pyam-iamc>=0.3.0",
 ]
 REQUIREMENTS_TESTS = [
-    "pytest>=4.0",
+    "pytest>=4.0,<5",
     "pytest-cov",
     "pytest-mock",
     "codecov",
