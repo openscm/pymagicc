@@ -1418,7 +1418,8 @@ def test_empty_output_with_params(package):
 @pytest.mark.slow
 def test_failure_message(package, capsys):
     package.strict = False
-    remove(join(package.run_dir, package.update_config(filename="MAGCFG_DEFAULTALL.CFG")["nml_allcfgs"]["file_emisscen"]))
+    emisscen_key = "file_emissionscenario" if package.version == 6 else "file_emisscen"
+    remove(join(package.run_dir, package.default_config["nml_allcfgs"][emisscen_key]))
     with pytest.raises(CalledProcessError):
         res = package.run()
 
