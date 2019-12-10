@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#274 <https://github.com/openclimatedata/pymagicc/pull/274>`_) Add better readers and writers for ``.DAT`` files
 - (`#272 <https://github.com/openclimatedata/pymagicc/pull/272>`_) Add support for new ``THISFILE_TIMESERIESTYPE`` in ``.MAG`` files
 - (`#269 <https://github.com/openclimatedata/pymagicc/pull/269>`_) Break circular dependency on OpenSCM by switching to using scmdata
 - (`#268 <https://github.com/openclimatedata/pymagicc/pull/268>`_) Update region mapping to match SSP database
