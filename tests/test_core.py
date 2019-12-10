@@ -346,9 +346,9 @@ def test_overwrite_config(strict):
     assert cfgs["file_tuningmodel_1"] == "PYMAGICC"
     assert cfgs["file_tuningmodel_2"] == "USER"
     if strict:
-        assert "file_emisscen_2" not in cfgs
-    else:
         assert cfgs["file_emisscen_2"] == "NONE"
+    else:
+        assert "file_emisscen_2" not in cfgs
 
 
 def test_clean_value_simple():

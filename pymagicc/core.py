@@ -1308,7 +1308,7 @@ class MAGICC7(MAGICCBase):
                 "file_tuningmodel_10": "USER",
             },
         )
-        if not self.strict:
+        if self.strict:
             self.update_config(
                 "MAGCFG_USER.CFG",
                 **{
