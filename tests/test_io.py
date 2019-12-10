@@ -3401,7 +3401,15 @@ def test_writing_identical_rcpdat(
 
     res = join(temp_dir, starting_file)
     writer.metadata = deepcopy(writing_base.metadata)
-    writer.write(res, magicc_version=magicc_version)
+    warning_msg = re.escape(
+        "The `.DAT` format is an old, custom format. We strongly recommend using "
+        "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+        "writers are not super well tested so the error messages are likely "
+        "to be cryptic. If you need help, please raise an issue at "
+        "https://github.com/openclimatedata/pymagicc/issues"
+    )
+    with pytest.warns(Warning, match=warning_msg):
+        writer.write(res, magicc_version=magicc_version)
 
     def strip_out_date_line(inpath, outpath):
         with open(inpath, "r") as f:
