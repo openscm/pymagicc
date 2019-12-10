@@ -2002,6 +2002,13 @@ class _RCPDatWriter(_Writer):
         MAGICC categories and hard-coding descriptions (which can vary by MAGICC
         version).
         """
+        warnings.warn(
+            "The `.DAT` format is an old, custom format. We strongly recommend using "
+            "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+            "writers are not super well tested so the error messages are likely "
+            "to be cryptic. If you need help, please raise an issue at "
+            "https://github.com/openclimatedata/pymagicc/issues"
+        )
         if "_RADFORCING.DAT" in self._filepath:
             return self._get_header_radforcing()
 
