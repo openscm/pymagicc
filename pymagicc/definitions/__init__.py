@@ -267,7 +267,9 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             variable = variable.replace("GHG", "Greenhouse Gases")
 
         if "BIOMASSAER" in variable:
-            variable = variable.replace("BIOMASSAER", "Aerosols|Direct Effect|MAGICC AFOLU")
+            variable = variable.replace(
+                "BIOMASSAER", "Aerosols|Direct Effect|MAGICC AFOLU"
+            )
 
         if "CO2CH4N2O" in variable:
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")

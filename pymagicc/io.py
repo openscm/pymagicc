@@ -2273,7 +2273,6 @@ class _RCPDatWriter(_Writer):
         else:
             raise AssertionError("climate_model should start with `MAGICC`")
 
-
         extra_fgases = (
             ""
             if self._magicc_version == 6
@@ -2449,16 +2448,24 @@ class _RCPDatWriter(_Writer):
                 units_level = i
 
         if "_RADFORCING.DAT" in self._filepath:
-            return self._write_variable_datablock_radforcing(output, data_block, units_level)
+            return self._write_variable_datablock_radforcing(
+                output, data_block, units_level
+            )
 
         if "_EFFRADFORCING.DAT" in self._filepath:
-            return self._write_variable_datablock_effradforcing(output, data_block, units_level)
+            return self._write_variable_datablock_effradforcing(
+                output, data_block, units_level
+            )
 
         if "_EMISSIONS.DAT" in self._filepath:
-            return self._write_variable_datablock_emissions(output, data_block, units_level)
+            return self._write_variable_datablock_emissions(
+                output, data_block, units_level
+            )
 
         if "_CONCENTRATIONS.DAT" in self._filepath:
-            return self._write_variable_datablock_concentrations(output, data_block, units_level)
+            return self._write_variable_datablock_concentrations(
+                output, data_block, units_level
+            )
 
         raise NotImplementedError
 
@@ -2568,9 +2575,7 @@ class _RCPDatWriter(_Writer):
         col_row = "   COLUMN:" + "".join(
             ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
         )
-        units_row = "    UNITS:" + "".join(
-            ["{: >20}".format(u) for u in units[1:]]
-        )
+        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = (
             "     YEARS  TOTAL_INCLVOLCANIC_RF  VOLCANIC_ANNUAL_RF         SOLAR_RF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
@@ -2710,9 +2715,7 @@ class _RCPDatWriter(_Writer):
         col_row = "   COLUMN:" + "".join(
             ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
         )
-        units_row = "    UNITS:" + "".join(
-            ["{: >20}".format(u) for u in units[1:]]
-        )
+        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = (
             "     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
@@ -2745,45 +2748,44 @@ class _RCPDatWriter(_Writer):
         col_order = [
             "VARIABLE",
             "CO2I",
-"CO2B",
-"CH4",
-"N2O",
-"SOX",
-"CO",
-"NMVOC",
-"NOX",
-"BC",
-"OC",
-"NH3",
-"CF4",
-"C2F6",
-"C6F14",
-"HFC23",
-"HFC32",
-"HFC4310",
-"HFC125",
-"HFC134A",
-"HFC143A",
-"HFC227EA",
-"HFC245FA",
-"SF6",
-"CFC11",
-"CFC12",
-"CFC113",
-"CFC114",
-"CFC115",
-"CCL4",
-"CH3CCL3",
-"HCFC22",
-"HCFC141B",
-"HCFC142B",
-"HALON1211",
-"HALON1202",
-"HALON1301",
-"HALON2402",
-"CH3BR",
-"CH3CL",
-
+            "CO2B",
+            "CH4",
+            "N2O",
+            "SOX",
+            "CO",
+            "NMVOC",
+            "NOX",
+            "BC",
+            "OC",
+            "NH3",
+            "CF4",
+            "C2F6",
+            "C6F14",
+            "HFC23",
+            "HFC32",
+            "HFC4310",
+            "HFC125",
+            "HFC134A",
+            "HFC143A",
+            "HFC227EA",
+            "HFC245FA",
+            "SF6",
+            "CFC11",
+            "CFC12",
+            "CFC113",
+            "CFC114",
+            "CFC115",
+            "CCL4",
+            "CH3CCL3",
+            "HCFC22",
+            "HCFC141B",
+            "HCFC142B",
+            "HALON1211",
+            "HALON1202",
+            "HALON1301",
+            "HALON2402",
+            "CH3BR",
+            "CH3CL",
         ]
 
         data_block = data_block[col_order]
@@ -2816,11 +2818,7 @@ class _RCPDatWriter(_Writer):
                 "HFC227EA",
                 "HFC245FA",
             ]:
-                return (
-                    x.replace("FA", "fa")
-                    .replace("EA", "ea")
-                    .replace("A", "a")
-                )
+                return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
 
             if x.startswith("HCFC"):
                 return x.replace("HCFC", "HCFC_")
@@ -2839,9 +2837,7 @@ class _RCPDatWriter(_Writer):
         col_row = "   COLUMN:" + "".join(
             ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
         )
-        units_row = "    UNITS:" + "".join(
-            ["{: >20}".format(u) for u in units[1:]]
-        )
+        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = "     YEARS" + "".join(
             ["{: >20}".format(c) for c in data_block.columns[1:]]
         )
@@ -2873,41 +2869,41 @@ class _RCPDatWriter(_Writer):
     def _write_variable_datablock_concentrations(self, output, data_block, units_level):
         col_order = [
             "VARIABLE",
-"CO2EQ_CONC",
-"KYOTOCO2EQ_CONC",
-"CO2_CONC",
-"CH4_CONC",
-"N2O_CONC",
-"FGASSUMHFC134AEQ_CONC",
-"MHALOSUMCFC12EQ_CONC",
-"CF4_CONC",
-"C2F6_CONC",
-"C6F14_CONC",
-"HFC23_CONC",
-"HFC32_CONC",
-"HFC4310_CONC",
-"HFC125_CONC",
-"HFC134A_CONC",
-"HFC143A_CONC",
-"HFC227EA_CONC",
-"HFC245FA_CONC",
-"SF6_CONC",
-"CFC11_CONC",
-"CFC12_CONC",
-"CFC113_CONC",
-"CFC114_CONC",
-"CFC115_CONC",
-"CCL4_CONC",
-"CH3CCL3_CONC",
-"HCFC22_CONC",
-"HCFC141B_CONC",
-"HCFC142B_CONC",
-"HALON1211_CONC",
-"HALON1202_CONC",
-"HALON1301_CONC",
-"HALON2402_CONC",
-"CH3BR_CONC",
-"CH3CL_CONC",
+            "CO2EQ_CONC",
+            "KYOTOCO2EQ_CONC",
+            "CO2_CONC",
+            "CH4_CONC",
+            "N2O_CONC",
+            "FGASSUMHFC134AEQ_CONC",
+            "MHALOSUMCFC12EQ_CONC",
+            "CF4_CONC",
+            "C2F6_CONC",
+            "C6F14_CONC",
+            "HFC23_CONC",
+            "HFC32_CONC",
+            "HFC4310_CONC",
+            "HFC125_CONC",
+            "HFC134A_CONC",
+            "HFC143A_CONC",
+            "HFC227EA_CONC",
+            "HFC245FA_CONC",
+            "SF6_CONC",
+            "CFC11_CONC",
+            "CFC12_CONC",
+            "CFC113_CONC",
+            "CFC114_CONC",
+            "CFC115_CONC",
+            "CCL4_CONC",
+            "CH3CCL3_CONC",
+            "HCFC22_CONC",
+            "HCFC141B_CONC",
+            "HCFC142B_CONC",
+            "HALON1211_CONC",
+            "HALON1202_CONC",
+            "HALON1301_CONC",
+            "HALON2402_CONC",
+            "CH3BR_CONC",
+            "CH3CL_CONC",
         ]
 
         data_block = data_block[col_order]
@@ -2932,11 +2928,7 @@ class _RCPDatWriter(_Writer):
                 "HFC227EA",
                 "HFC245FA",
             ]:
-                return (
-                    x.replace("FA", "fa")
-                    .replace("EA", "ea")
-                    .replace("A", "a")
-                )
+                return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
 
             if x.startswith("HCFC"):
                 return x.replace("HCFC", "HCFC_")
@@ -2954,9 +2946,7 @@ class _RCPDatWriter(_Writer):
         col_row = "   COLUMN:" + "".join(
             ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
         )
-        units_row = "    UNITS:" + "".join(
-            ["{: >20}".format(u) for u in units[1:]]
-        )
+        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = "     YEARS" + "".join(
             ["{: >20}".format(c) for c in data_block.columns[1:]]
         )
