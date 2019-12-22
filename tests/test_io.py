@@ -78,7 +78,10 @@ def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
     assert mdata["climate_model"].dtype == "object"
     if extra_index_cols is not None:
         for n, t in extra_index_cols.items():
-            assert mdata[n].dtype == t
+            if isinstance(t, str):
+                assert mdata[n].dtype == t
+            else:
+                assert mdata[n].apply(lambda x: isinstance(x, t)).all()
 
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
