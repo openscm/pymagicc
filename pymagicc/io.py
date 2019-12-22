@@ -83,11 +83,13 @@ def _unsupported_file(filepath):
 
 class NoReaderWriterError(ValueError):
     """Exception raised when a valid Reader or Writer could not be found for the file"""
+
     pass
 
 
 class InvalidTemporalResError(ValueError):
     """Exception raised when a file has a temporal resolution which cannot be processed"""
+
     pass
 
 
@@ -1378,6 +1380,118 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
         raise ValueError(error_msg)
 
     return region_dattype_row
+
+
+class _CompactOutReader(_Reader):
+    def read(self):
+        compact_table = self._read_compact_table()
+
+        return self._convert_compact_table_to_df_metadata_column_headers(compact_table)
+
+    def _read_compact_table(self):
+        with open(self.filepath, "r") as fh:
+            headers = self._read_header(fh)
+            # can change to reading limited number of lines in future
+            lines_as_dicts = [l for l in self._read_lines(fh, headers)]
+
+        return pd.DataFrame(lines_as_dicts)
+
+    def _read_header(self, fh):
+        l = fh.readline().strip(",\n")
+        return [item.strip('"') for item in l.split(",")]
+
+    def _read_lines(self, fh, headers):
+        for line in fh:
+            toks = line.strip(",\n").split(",")
+
+            assert len(toks) == len(headers), "# headers does not match # lines"
+
+            yield {h: float(v) for h, v in zip(headers, toks)}
+
+    def _convert_compact_table_to_df_metadata_column_headers(self, compact_table):
+        ts_cols = [c for c in compact_table if "__" in c]
+        para_cols = [c for c in compact_table if "__" not in c]
+
+        ts = compact_table[ts_cols]
+        ts = ts.T
+
+        def sort_ts_ids(inid):
+            variable, region, year = inid.split("__")
+            variable = variable.replace("DAT_", "")
+
+            return {"variable": variable, "region": region, "year": year}
+
+        ts["variable"] = ts.index.map(
+            lambda x: convert_magicc7_to_openscm_variables(
+                x.split("__")[0].replace("DAT_", "")
+            )
+        )
+        ts["region"] = ts.index.map(
+            lambda x: convert_magicc_to_openscm_regions(x.split("__")[1])
+        )
+        ts["year"] = ts.index.map(lambda x: x.split("__")[2])
+        if not (ts["year"].apply(len) == 4).all():  # pragma: no cover # safety valve
+            raise NotImplementedError("Non-annual data not yet supported")
+
+        ts["year"] = ts["year"].astype(int)
+
+        ts = ts.reset_index(drop=True)
+
+        id_cols = {"variable", "region", "year"}
+        run_cols = set(ts.columns) - id_cols
+        ts = ts.melt(value_vars=run_cols, var_name="run_id", id_vars=id_cols)
+
+        ts["unit"] = "unknown"
+
+        new_index = list(set(ts.columns) - {"value"})
+        ts = ts.set_index(new_index)["value"].unstack("year")
+
+        paras = compact_table[para_cols]
+        paras.index.name = "run_id"
+
+        # Find the columns which group together as lists
+        cols_to_merge = []
+        for c in paras:
+            toks = c.split("_")
+            start = "_".join(toks[:-1])
+            try:
+                int(toks[-1])  # Check if the last token is an integer
+                if start not in cols_to_merge:
+                    cols_to_merge.append(start)
+            except:
+                continue
+
+        # Aggregate the columns
+        for col in cols_to_merge:
+            target_cols = sorted([x for x in paras.columns if x.startswith(col + "_")])
+            paras[col] = tuple(paras[target_cols].values.tolist())
+            paras = paras.drop(columns=target_cols)
+
+        years = ts.columns.tolist()
+        ts = ts.reset_index().set_index("run_id")
+        out = pd.merge(ts, paras, left_index=True, right_index=True).reset_index()
+
+        id_cols = set(out.columns) - set(years)
+        out = out.melt(value_vars=years, var_name="year", id_vars=id_cols)
+        new_index = list(set(out.columns) - {"value"})
+        out = out.set_index(new_index)["value"].unstack("year")
+        out = out.T
+
+        column_headers = {
+            name.lower(): out.columns.get_level_values(name).tolist()
+            for name in out.columns.names
+        }
+        df = out.copy()
+        metadata = {}
+
+        return metadata, df, column_headers
+
+
+class _BinaryCompactOutReader(_CompactOutReader):
+    def read(self):
+        import pdb
+
+        pdb.set_trace()
 
 
 class _Writer(object):
@@ -3247,12 +3361,12 @@ def determine_tool(filepath, tool_to_get):
         },
         "CompactOut": {
             "regexp": r"^.*COMPACT\.OUT$",
-            "reader": None,
+            "reader": _CompactOutReader,
             "writer": None,
         },
         "CompactBinOut": {
             "regexp": r"^.*COMPACT\.BINOUT$",
-            "reader": None,
+            "reader": _BinaryCompactOutReader,
             "writer": None,
         },
         "MAG": {"regexp": r"^.*\.MAG", "reader": _MAGReader, "writer": _MAGWriter},
