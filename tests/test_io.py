@@ -59,23 +59,26 @@ INVALID_OUT_FILES = [
 ]
 
 
-def generic_mdata_tests(mdata, include_todo=True):
+def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
     """Resusable tests to ensure data format"""
     assert mdata.is_loaded == True
 
     assert isinstance(mdata, ScmDataFrame)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
-    if include_todo:
-        index += ["todo"]
-    pd.testing.assert_index_equal(mdata.meta.columns, pd.Index(index))
+    if extra_index_cols is not None:
+        index += list(extra_index_cols.keys())
+
+    assert sorted(mdata.meta.columns.tolist()) == sorted(index)
 
     assert mdata["variable"].dtype == "object"
-    assert mdata["todo"].dtype == "object"
     assert mdata["unit"].dtype == "object"
     assert mdata["region"].dtype == "object"
     assert mdata["scenario"].dtype == "object"
     assert mdata["model"].dtype == "object"
     assert mdata["climate_model"].dtype == "object"
+    if extra_index_cols is not None:
+        for n, t in extra_index_cols.items():
+            assert mdata[n].dtype == t
 
     for key in ["units", "unit", "firstdatarow", "dattype"]:
         with pytest.raises(KeyError):
@@ -3347,30 +3350,45 @@ def test_prn_wrong_unit_error():
 def test_compact_out_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.OUT"))
 
-    generic_mdata_tests(mdata, include_todo=False)
+    generic_mdata_tests(
+        mdata,
+        extra_index_cols={
+            "run_id": int,
+            "core_climatesensitivity": float,
+            "rf_regions_ch4": tuple,
+        },
+    )
 
     assert (mdata["unit"] == "unknown").all()
 
-    assert mdata["rf_regions_ch4"].tolist() == [
+    assert mdata.filter(run_id=0)["rf_regions_ch4"].unique().tolist() == [
         (0.3, 0.4, 0.2, 0.1),
+    ]
+    assert mdata.filter(run_id=1)["rf_regions_ch4"].unique().tolist() == [
         (0.1, 0.8, 0.0, 0.0),
     ]
-    assert mdata["core_climatesensitivity"].tolist() == [
+    assert mdata.filter(run_id=0)["core_climatesensitivity"].unique().tolist() == [
         2.5,
+    ]
+    assert mdata.filter(run_id=1)["core_climatesensitivity"].unique().tolist() == [
         3.0,
     ]
 
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=0)
     assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=1)
-    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=2)
 
-    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1)
-    assert_mdata_value(mdata, 365.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2)
+    assert_mdata_value(
+        mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=0
+    )
+    assert_mdata_value(
+        mdata, 365.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1
+    )
 
 
 def test_compact_binout_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.BINOUT"))
 
-    generic_mdata_tests(mdata, include_todo=False)
+    generic_mdata_tests(mdata, extra_index_cols=["run_id"])
 
     assert (mdata["unit"] == "unknown").all()
 
@@ -3382,8 +3400,12 @@ def test_compact_binout_reader():
     assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=1)
     assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=2)
 
-    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1)
-    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2)
+    assert_mdata_value(
+        mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1
+    )
+    assert_mdata_value(
+        mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2
+    )
 
 
 def test_compact_out_writer():
