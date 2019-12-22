@@ -3388,24 +3388,33 @@ def test_compact_out_reader():
 def test_compact_binout_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.BINOUT"))
 
-    generic_mdata_tests(mdata, extra_index_cols=["run_id"])
+    generic_mdata_tests(
+        mdata,
+        extra_index_cols={
+            "run_id": int,
+            "core_climatesensitivity": float,
+        },
+    )
 
     assert (mdata["unit"] == "unknown").all()
 
-    assert mdata["core_climatesensitivity"].tolist() == [
+    assert mdata.filter(run_id=0)["core_climatesensitivity"].unique().tolist() == [
         2.5,
+    ]
+    assert mdata.filter(run_id=1)["core_climatesensitivity"].unique().tolist() == [
         3.0,
     ]
 
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=0)
     assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=1)
-    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=2)
 
+    assert_mdata_value(
+        mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=0
+    )
     assert_mdata_value(
         mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1
     )
-    assert_mdata_value(
-        mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2
-    )
+
 
 
 def test_compact_out_writer():

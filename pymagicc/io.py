@@ -1461,15 +1461,16 @@ class _CompactOutReader(_Reader):
             except:
                 continue
 
+        paras_clean = paras.copy()
         # Aggregate the columns
         for col in cols_to_merge:
             target_cols = sorted([x for x in paras.columns if x.startswith(col + "_")])
-            paras[col] = tuple(paras[target_cols].values.tolist())
-            paras = paras.drop(columns=target_cols)
+            paras_clean.loc[:, col] = tuple(paras[target_cols].values.tolist())
+            paras_clean = paras_clean.drop(columns=target_cols)
 
         years = ts.columns.tolist()
         ts = ts.reset_index().set_index("run_id")
-        out = pd.merge(ts, paras, left_index=True, right_index=True).reset_index()
+        out = pd.merge(ts, paras_clean, left_index=True, right_index=True).reset_index()
 
         id_cols = set(out.columns) - set(years)
         out = out.melt(value_vars=years, var_name="year", id_vars=id_cols)
@@ -1488,10 +1489,55 @@ class _CompactOutReader(_Reader):
 
 
 class _BinaryCompactOutReader(_CompactOutReader):
-    def read(self):
-        import pdb
+    def _read_compact_table(self):
+        with open(self.filepath, "rb") as fh:
+            headers = self._read_header(fh)
+            # can change to reading limited number of lines in future
+            lines_as_dicts = [l for l in self._read_lines(fh, headers)]
 
-        pdb.set_trace()
+        return pd.DataFrame(lines_as_dicts)
+
+    def _read_header(self, fh):
+        assert self._read_item(fh).tobytes() == b'COMPACT_V1'
+        assert self._read_item(fh).tobytes() == b'HEAD'
+
+        items = []
+        while True:
+            item = self._read_item(fh)
+            if item is None or item.tobytes() == b'END':
+                break
+            items.append(item.tobytes().decode())
+
+        return items
+
+    def _read_lines(self, fh, headers):
+        while True:
+
+            items = self._read_item(fh)
+            if items is None:
+                break
+
+            # Read the values as an array of floats (4 byte)
+            items = items.cast('f')
+            if len(items) != len(headers):
+                raise AssertionError('# headers does not match # lines')
+
+            # Check the line terminator
+            item = self._read_item(fh)
+            assert item.tobytes() == b'END'
+
+            yield {h: float(v) for h, v in zip(headers, items.tolist())}
+
+    def _read_item(self, fh):
+        # Fortran writes out a 4 byte integer representing the # of bytes to read for
+        # a given chunk, the data and then the size again
+        d = fh.read(4)
+        if d != b'':
+            s = memoryview(d).cast('i')[0]
+            item = memoryview(fh.read(s))
+            assert memoryview(fh.read(4)).cast('i')[0] == s
+
+            return item
 
 
 class _Writer(object):
