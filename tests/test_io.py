@@ -3344,6 +3344,70 @@ def test_prn_wrong_unit_error():
         writer.write("Unused.prn", magicc_version=6)
 
 
+def test_compact_out_reader():
+    mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.OUT"))
+
+    generic_mdata_tests(mdata, include_todo=False)
+
+    assert (mdata["unit"] == "unknown").all()
+
+    assert mdata["rf_regions_ch4"].tolist() == [
+        (0.3, 0.4, 0.2, 0.1),
+        (0.1, 0.8, 0.0, 0.0),
+    ]
+    assert mdata["core_climatesensitivity"].tolist() == [
+        2.5,
+        3.0,
+    ]
+
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=1)
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=2)
+
+    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1)
+    assert_mdata_value(mdata, 365.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2)
+
+
+def test_compact_binout_reader():
+    mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.BINOUT"))
+
+    generic_mdata_tests(mdata, include_todo=False)
+
+    assert (mdata["unit"] == "unknown").all()
+
+    assert mdata["core_climatesensitivity"].tolist() == [
+        2.5,
+        3.0,
+    ]
+
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=1)
+    assert_mdata_value(mdata, 277.9355, region="World", year=1765, run_id=2)
+
+    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1)
+    assert_mdata_value(mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=2)
+
+
+def test_compact_out_writer():
+    test_name = "TEST_COMPACT.OUT"
+
+    expected_message = re.escape(
+        "A writer for `^.*COMPACT\\.OUT$` files is not yet implemented"
+    )
+
+    with pytest.raises(NotImplementedError, match=expected_message):
+        determine_tool(join(TEST_DATA_DIR, test_name), "writer")
+
+
+def test_compact_binout_writer():
+    test_name = "TEST_COMPACT.BINOUT"
+
+    expected_message = re.escape(
+        "A writer for `^.*COMPACT\\.BINOUT$` files is not yet implemented"
+    )
+
+    with pytest.raises(NotImplementedError, match=expected_message):
+        determine_tool(join(TEST_DATA_DIR, test_name), "writer")
+
+
 # integration test
 @pytest.mark.parametrize(
     "starting_file",

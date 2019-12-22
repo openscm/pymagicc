@@ -3249,6 +3249,16 @@ def determine_tool(filepath, tool_to_get):
             "reader": _RCPDatReader,
             "writer": _RCPDatWriter,
         },
+        "CompactOut": {
+            "regexp": r"^.*COMPACT\.OUT$",
+            "reader": None,
+            "writer": None,
+        },
+        "CompactBinOut": {
+            "regexp": r"^.*COMPACT\.BINOUT$",
+            "reader": None,
+            "writer": None,
+        },
         "MAG": {"regexp": r"^.*\.MAG", "reader": _MAGReader, "writer": _MAGWriter},
         # "InverseEmisOut": {"regexp": r"^INVERSEEMIS\_.*\.OUT$", "reader": _Scen7Reader, "writer": _Scen7Writer},
     }
