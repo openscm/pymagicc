@@ -343,12 +343,15 @@ class MAGICCBase(object):
         # On Windows shell=True is required.
         try:
             res = subprocess.run(
-                command, check=True, capture_output=True, cwd=self.run_dir, shell=IS_WINDOWS
+                command,
+                check=True,
+                capture_output=True,
+                cwd=self.run_dir,
+                shell=IS_WINDOWS,
             )
         except subprocess.CalledProcessError as exc:
             print("stderr:\n{}".format(exc.stderr.decode()))
             raise exc
-
 
         outfiles = self._get_output_filenames()
 
