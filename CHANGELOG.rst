@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#280 <https://github.com/openclimatedata/pymagicc/pull/280>`_) Also include source distribution in pypi release
 - (`#271 <https://github.com/openclimatedata/pymagicc/pull/271>`_) Update requirements of pyam, make error messages include ``stderr`` and remove overwrite of ``file_emisscen`` when creating MAGICC7 copies if ``not self.strict``
 - (`#274 <https://github.com/openclimatedata/pymagicc/pull/274>`_) Add better readers and writers for ``.DAT`` files
 - (`#272 <https://github.com/openclimatedata/pymagicc/pull/272>`_) Add support for new ``THISFILE_TIMESERIESTYPE`` in ``.MAG`` files
