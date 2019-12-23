@@ -2372,103 +2372,43 @@ class _RCPDatWriter(_Writer):
         return header
 
     def _write_namelist(self, output):
+        nml_initial, _ = self._get_initial_nml_and_data_block()
+        nml = nml_initial.copy()
+
+        # '&NML_INDICATOR' goes above, '/'' goes at end
+        number_lines_nml_header_end = 2
+        line_after_nml = self._newline_char
+
+        number_col_headers = 3
+
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
+
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
+            len(output.getvalue().split(self._newline_char))
+            + len(nml["THISFILE_SPECIFICATIONS"])
+            + number_lines_nml_header_end
+            + len(line_after_nml.split(self._newline_char))
+            + number_col_headers
+        )
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
+
         if "_RADFORCING.DAT" in self._filepath:
-            return self._write_namelist_radforcing(output)
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
-            return self._write_namelist_effradforcing(output)
+        elif "_EFFRADFORCING.DAT" in self._filepath:
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
-        if "_EMISSIONS.DAT" in self._filepath:
-            return self._write_namelist_emissions(output)
+        elif "_EMISSIONS.DAT" in self._filepath:
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 37"
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
-            return self._write_namelist_concentrations(output)
+        elif "_CONCENTRATIONS.DAT" in self._filepath:
+            nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 38"
 
-        raise NotImplementedError
+        else:
+            raise NotImplementedError
 
-    def _write_namelist_radforcing(self, output):
-        nml_initial, _ = self._get_initial_nml_and_data_block()
-        nml = nml_initial.copy()
-
-        # '&NML_INDICATOR' goes above, '/'' goes at end
-        number_lines_nml_header_end = 2
-        line_after_nml = self._newline_char
-
-        number_col_headers = 3
-
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
-
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
-            len(output.getvalue().split(self._newline_char))
-            + len(nml["THISFILE_SPECIFICATIONS"])
-            + number_lines_nml_header_end
-            + len(line_after_nml.split(self._newline_char))
-            + number_col_headers
-        )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
-
-        nml.uppercase = True
-        nml._writestream(output)
-        output.write(line_after_nml)
-
-        return output
-
-    def _write_namelist_effradforcing(self, output):
-        return self._write_namelist_radforcing(output)
-
-    def _write_namelist_emissions(self, output):
-        nml_initial, _ = self._get_initial_nml_and_data_block()
-        nml = nml_initial.copy()
-
-        # '&NML_INDICATOR' goes above, '/'' goes at end
-        number_lines_nml_header_end = 2
-        line_after_nml = self._newline_char
-
-        number_col_headers = 3
-
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
-
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
-            len(output.getvalue().split(self._newline_char))
-            + len(nml["THISFILE_SPECIFICATIONS"])
-            + number_lines_nml_header_end
-            + len(line_after_nml.split(self._newline_char))
-            + number_col_headers
-        )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 37"
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
-
-        nml.uppercase = True
-        nml._writestream(output)
-        output.write(line_after_nml)
-
-        return output
-
-    def _write_namelist_concentrations(self, output):
-        nml_initial, _ = self._get_initial_nml_and_data_block()
-        nml = nml_initial.copy()
-
-        # '&NML_INDICATOR' goes above, '/'' goes at end
-        number_lines_nml_header_end = 2
-        line_after_nml = self._newline_char
-
-        number_col_headers = 3
-
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
-
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
-            len(output.getvalue().split(self._newline_char))
-            + len(nml["THISFILE_SPECIFICATIONS"])
-            + number_lines_nml_header_end
-            + len(line_after_nml.split(self._newline_char))
-            + number_col_headers
-        )
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 38"
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = len(self._get_col_order_rename_col()[0]) - 1  # exclude time column
 
         nml.uppercase = True
         nml._writestream(output)
@@ -2477,6 +2417,8 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _write_datablock(self, output):
+        # TODO: clean this out, there's massive code duplication in all the
+        # `_write_variable_...` methods
         _, data_block = self._get_initial_nml_and_data_block()
 
         drop_levels = []
