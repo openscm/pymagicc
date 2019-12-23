@@ -1427,6 +1427,9 @@ class _Writer(object):
         output = StringIO()
 
         output = self._write_header(output)
+        # TODO: fix this logic. The datablock and the namelist are tightly coupled so
+        # they should be written together too. At the moment the datablock is
+        # generated twice which is not fast (I suspect, haven't actually checked).
         output = self._write_namelist(output)
         output = self._write_datablock(output)
 
@@ -2049,16 +2052,16 @@ class _RCPDatWriter(_Writer):
             "to be cryptic. If you need help, please raise an issue at "
             "https://github.com/openscm/pymagicc/issues"
         )
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             return self._get_header_radforcing()
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_EFFRADFORCING.DAT"):
             return self._get_header_effradforcing()
 
-        if "_EMISSIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_EMISSIONS.DAT"):
             return self._get_header_emissions()
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_CONCENTRATIONS.DAT"):
             return self._get_header_concentrations()
 
         raise NotImplementedError
