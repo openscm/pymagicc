@@ -50,7 +50,7 @@ publish-on-pypi: venv
 	-rm -rf build dist
 	@status=$$(git status --porcelain); \
 	if test "x$${status}" = x; then \
-		./venv/bin/python setup.py bdist_wheel sdist --universal; \
+		./venv/bin/python setup.py sdist bdist_wheel --universal; \
 		./venv/bin/twine upload dist/*; \
 	else \
 		echo Working directory is dirty >&2; \
