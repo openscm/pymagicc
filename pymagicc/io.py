@@ -2513,101 +2513,9 @@ class _RCPDatWriter(_Writer):
         raise NotImplementedError
 
     def _write_variable_datablock_radforcing(self, output, data_block, units_level):
-        col_order = [
-            "VARIABLE",
-            "TOTAL_INCLVOLCANIC_RF",
-            "VOLCANIC_ANNUAL_RF",
-            "SOLAR_RF",
-            "TOTAL_ANTHRO_RF",
-            "GHG_RF",
-            "KYOTOGHG_RF",
-            "CO2CH4N2O_RF",
-            "CO2_RF",
-            "CH4_RF",
-            "N2O_RF",
-            "FGASSUM_RF",
-            "MHALOSUM_RF",
-            "CF4_RF",
-            "C2F6_RF",
-            "C6F14_RF",
-            "HFC23_RF",
-            "HFC32_RF",
-            "HFC4310_RF",
-            "HFC125_RF",
-            "HFC134A_RF",
-            "HFC143A_RF",
-            "HFC227EA_RF",
-            "HFC245FA_RF",
-            "SF6_RF",
-            "CFC11_RF",
-            "CFC12_RF",
-            "CFC113_RF",
-            "CFC114_RF",
-            "CFC115_RF",
-            "CCL4_RF",
-            "CH3CCL3_RF",
-            "HCFC22_RF",
-            "HCFC141B_RF",
-            "HCFC142B_RF",
-            "HALON1211_RF",
-            "HALON1202_RF",
-            "HALON1301_RF",
-            "HALON2402_RF",
-            "CH3BR_RF",
-            "CH3CL_RF",
-            "TOTAER_DIR_RF",
-            "OCI_RF",
-            "BCI_RF",
-            "SOXI_RF",
-            "NOXI_RF",
-            "BIOMASSAER_RF",
-            "MINERALDUST_RF",
-            "CLOUD_TOT_RF",
-            "STRATOZ_RF",
-            "TROPOZ_RF",
-            "CH4OXSTRATH2O_RF",
-            "LANDUSE_RF",
-            "BCSNOW_RF",
-        ]
+        col_order, rename_col = self._get_col_order_rename_col()
+
         data_block = data_block[col_order]
-
-        def rename_col(x):
-            if x == "HFC4310_RF":
-                return "HFC43_10"
-
-            if x == "CCL4_RF":
-                return "CARB_TET"
-
-            if x == "CH3CCL3_RF":
-                return "MCF"
-
-            if x in ["CF4_RF", "C2F6_RF", "C6F14_RF"]:
-                return x.replace("_RF", "")
-
-            if x in ["HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]:
-                return x.replace("_RF", "")
-
-            if x in ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]:
-                return (
-                    x.replace("FA", "fa")
-                    .replace("EA", "ea")
-                    .replace("A", "a")
-                    .replace("_RF", "")
-                )
-
-            if x.startswith("HCFC"):
-                return x.replace("HCFC", "HCFC_").replace("_RF", "")
-
-            if x.startswith("CFC"):
-                return x.replace("CFC", "CFC_").replace("_RF", "")
-
-            if x.startswith("HALON"):
-                return x.replace("_RF", "")
-
-            if x.startswith("CH3"):
-                return x.replace("_RF", "")
-
-            return x
 
         units = data_block.columns.get_level_values(units_level)
         data_block.columns = data_block.columns.droplevel(units_level)
@@ -2648,106 +2556,9 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _write_variable_datablock_effradforcing(self, output, data_block, units_level):
-        col_order = [
-            "VARIABLE",
-            "TOTAL_INCLVOLCANIC_EFFRF",
-            "VOLCANIC_ANNUAL_EFFRF",
-            "SOLAR_EFFRF",
-            "TOTAL_ANTHRO_EFFRF",
-            "GHG_EFFRF",
-            "KYOTOGHG_EFFRF",
-            "CO2CH4N2O_EFFRF",
-            "CO2_EFFRF",
-            "CH4_EFFRF",
-            "N2O_EFFRF",
-            "FGASSUM_EFFRF",
-            "MHALOSUM_EFFRF",
-            "CF4_EFFRF",
-            "C2F6_EFFRF",
-            "C6F14_EFFRF",
-            "HFC23_EFFRF",
-            "HFC32_EFFRF",
-            "HFC4310_EFFRF",
-            "HFC125_EFFRF",
-            "HFC134A_EFFRF",
-            "HFC143A_EFFRF",
-            "HFC227EA_EFFRF",
-            "HFC245FA_EFFRF",
-            "SF6_EFFRF",
-            "CFC11_EFFRF",
-            "CFC12_EFFRF",
-            "CFC113_EFFRF",
-            "CFC114_EFFRF",
-            "CFC115_EFFRF",
-            "CCL4_EFFRF",
-            "CH3CCL3_EFFRF",
-            "HCFC22_EFFRF",
-            "HCFC141B_EFFRF",
-            "HCFC142B_EFFRF",
-            "HALON1211_EFFRF",
-            "HALON1202_EFFRF",
-            "HALON1301_EFFRF",
-            "HALON2402_EFFRF",
-            "CH3BR_EFFRF",
-            "CH3CL_EFFRF",
-            "TOTAER_DIR_EFFRF",
-            "OCI_EFFRF",
-            "BCI_EFFRF",
-            "SOXI_EFFRF",
-            "NOXI_EFFRF",
-            "BIOMASSAER_EFFRF",
-            "MINERALDUST_EFFRF",
-            "CLOUD_TOT_EFFRF",
-            "STRATOZ_EFFRF",
-            "TROPOZ_EFFRF",
-            "CH4OXSTRATH2O_EFFRF",
-            "LANDUSE_EFFRF",
-            "BCSNOW_EFFRF",
-        ]
+        col_order, rename_col = self._get_col_order_rename_col()
+
         data_block = data_block[col_order]
-
-        def rename_col(x):
-            if x == "HFC4310_EFFRF":
-                return "HFC43_10"
-
-            if x == "CCL4_EFFRF":
-                return "CARB_TET"
-
-            if x == "CH3CCL3_EFFRF":
-                return "MCF"
-
-            if x in ["CF4_EFFRF", "C2F6_EFFRF", "C6F14_EFFRF"]:
-                return x.replace("_EFFRF", "")
-
-            if x in ["HFC23_EFFRF", "HFC32_EFFRF", "HFC125_EFFRF", "SF6_EFFRF"]:
-                return x.replace("_EFFRF", "")
-
-            if x in [
-                "HFC134A_EFFRF",
-                "HFC143A_EFFRF",
-                "HFC227EA_EFFRF",
-                "HFC245FA_EFFRF",
-            ]:
-                return (
-                    x.replace("FA", "fa")
-                    .replace("EA", "ea")
-                    .replace("A", "a")
-                    .replace("_EFFRF", "")
-                )
-
-            if x.startswith("HCFC"):
-                return x.replace("HCFC", "HCFC_").replace("_EFFRF", "")
-
-            if x.startswith("CFC"):
-                return x.replace("CFC", "CFC_").replace("_EFFRF", "")
-
-            if x.startswith("HALON"):
-                return x.replace("_EFFRF", "")
-
-            if x.startswith("CH3"):
-                return x.replace("_EFFRF", "")
-
-            return x
 
         units = data_block.columns.get_level_values(units_level)
         data_block.columns = data_block.columns.droplevel(units_level)
@@ -2788,88 +2599,9 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _write_variable_datablock_emissions(self, output, data_block, units_level):
-        col_order = [
-            "VARIABLE",
-            "CO2I",
-            "CO2B",
-            "CH4",
-            "N2O",
-            "SOX",
-            "CO",
-            "NMVOC",
-            "NOX",
-            "BC",
-            "OC",
-            "NH3",
-            "CF4",
-            "C2F6",
-            "C6F14",
-            "HFC23",
-            "HFC32",
-            "HFC4310",
-            "HFC125",
-            "HFC134A",
-            "HFC143A",
-            "HFC227EA",
-            "HFC245FA",
-            "SF6",
-            "CFC11",
-            "CFC12",
-            "CFC113",
-            "CFC114",
-            "CFC115",
-            "CCL4",
-            "CH3CCL3",
-            "HCFC22",
-            "HCFC141B",
-            "HCFC142B",
-            "HALON1211",
-            "HALON1202",
-            "HALON1301",
-            "HALON2402",
-            "CH3BR",
-            "CH3CL",
-        ]
+        col_order, rename_col = self._get_col_order_rename_col()
 
         data_block = data_block[col_order]
-
-        def rename_col(x):
-            if x == "CO2I":
-                return "FossilCO2"
-
-            if x == "CO2B":
-                return "OtherCO2"
-
-            if x == "SOX":
-                return "SOx"
-
-            if x == "NOX":
-                return "NOx"
-
-            if x == "HFC4310":
-                return "HFC43_10"
-
-            if x == "CCL4":
-                return "CARB_TET"
-
-            if x == "CH3CCL3":
-                return "MCF"
-
-            if x in [
-                "HFC134A",
-                "HFC143A",
-                "HFC227EA",
-                "HFC245FA",
-            ]:
-                return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
-
-            if x.startswith("HCFC"):
-                return x.replace("HCFC", "HCFC_")
-
-            if x.startswith("CFC"):
-                return x.replace("CFC", "CFC_")
-
-            return x
 
         units = data_block.columns.get_level_values(units_level)
         data_block.columns = data_block.columns.droplevel(units_level)
@@ -2910,76 +2642,9 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _write_variable_datablock_concentrations(self, output, data_block, units_level):
-        col_order = [
-            "VARIABLE",
-            "CO2EQ_CONC",
-            "KYOTOCO2EQ_CONC",
-            "CO2_CONC",
-            "CH4_CONC",
-            "N2O_CONC",
-            "FGASSUMHFC134AEQ_CONC",
-            "MHALOSUMCFC12EQ_CONC",
-            "CF4_CONC",
-            "C2F6_CONC",
-            "C6F14_CONC",
-            "HFC23_CONC",
-            "HFC32_CONC",
-            "HFC4310_CONC",
-            "HFC125_CONC",
-            "HFC134A_CONC",
-            "HFC143A_CONC",
-            "HFC227EA_CONC",
-            "HFC245FA_CONC",
-            "SF6_CONC",
-            "CFC11_CONC",
-            "CFC12_CONC",
-            "CFC113_CONC",
-            "CFC114_CONC",
-            "CFC115_CONC",
-            "CCL4_CONC",
-            "CH3CCL3_CONC",
-            "HCFC22_CONC",
-            "HCFC141B_CONC",
-            "HCFC142B_CONC",
-            "HALON1211_CONC",
-            "HALON1202_CONC",
-            "HALON1301_CONC",
-            "HALON2402_CONC",
-            "CH3BR_CONC",
-            "CH3CL_CONC",
-        ]
+        col_order, rename_col = self._get_col_order_rename_col()
 
         data_block = data_block[col_order]
-
-        def rename_col(x):
-            x = x.replace("_CONC", "")
-            if x == "KYOTOCO2EQ":
-                return "KYOTO-CO2EQ"
-
-            if x == "HFC4310":
-                return "HFC43_10"
-
-            if x == "CCL4":
-                return "CARB_TET"
-
-            if x == "CH3CCL3":
-                return "MCF"
-
-            if x in [
-                "HFC134A",
-                "HFC143A",
-                "HFC227EA",
-                "HFC245FA",
-            ]:
-                return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
-
-            if x.startswith("HCFC"):
-                return x.replace("HCFC", "HCFC_")
-
-            if x.startswith("CFC"):
-                return x.replace("CFC", "CFC_")
-
-            return x
 
         units = data_block.columns.get_level_values(units_level)
         data_block.columns = data_block.columns.droplevel(units_level)
@@ -3017,6 +2682,361 @@ class _RCPDatWriter(_Writer):
         )
         output.write(self._newline_char)
         return output
+
+    def _get_col_order_rename_col(self):
+        if self._filepath.endswith("_RADFORCING.DAT"):
+            col_order = [
+                "VARIABLE",
+                "TOTAL_INCLVOLCANIC_RF",
+                "VOLCANIC_ANNUAL_RF",
+                "SOLAR_RF",
+                "TOTAL_ANTHRO_RF",
+                "GHG_RF",
+                "KYOTOGHG_RF",
+                "CO2CH4N2O_RF",
+                "CO2_RF",
+                "CH4_RF",
+                "N2O_RF",
+                "FGASSUM_RF",
+                "MHALOSUM_RF",
+                "CF4_RF",
+                "C2F6_RF",
+                "C6F14_RF",
+                "HFC23_RF",
+                "HFC32_RF",
+                "HFC4310_RF",
+                "HFC125_RF",
+                "HFC134A_RF",
+                "HFC143A_RF",
+                "HFC227EA_RF",
+                "HFC245FA_RF",
+                "SF6_RF",
+                "CFC11_RF",
+                "CFC12_RF",
+                "CFC113_RF",
+                "CFC114_RF",
+                "CFC115_RF",
+                "CCL4_RF",
+                "CH3CCL3_RF",
+                "HCFC22_RF",
+                "HCFC141B_RF",
+                "HCFC142B_RF",
+                "HALON1211_RF",
+                "HALON1202_RF",
+                "HALON1301_RF",
+                "HALON2402_RF",
+                "CH3BR_RF",
+                "CH3CL_RF",
+                "TOTAER_DIR_RF",
+                "OCI_RF",
+                "BCI_RF",
+                "SOXI_RF",
+                "NOXI_RF",
+                "BIOMASSAER_RF",
+                "MINERALDUST_RF",
+                "CLOUD_TOT_RF",
+                "STRATOZ_RF",
+                "TROPOZ_RF",
+                "CH4OXSTRATH2O_RF",
+                "LANDUSE_RF",
+                "BCSNOW_RF",
+            ]
+
+            def rename_col(x):
+                if x == "HFC4310_RF":
+                    return "HFC43_10"
+
+                if x == "CCL4_RF":
+                    return "CARB_TET"
+
+                if x == "CH3CCL3_RF":
+                    return "MCF"
+
+                if x in ["CF4_RF", "C2F6_RF", "C6F14_RF"]:
+                    return x.replace("_RF", "")
+
+                if x in ["HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]:
+                    return x.replace("_RF", "")
+
+                if x in ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]:
+                    return (
+                        x.replace("FA", "fa")
+                        .replace("EA", "ea")
+                        .replace("A", "a")
+                        .replace("_RF", "")
+                    )
+
+                if x.startswith("HCFC"):
+                    return x.replace("HCFC", "HCFC_").replace("_RF", "")
+
+                if x.startswith("CFC"):
+                    return x.replace("CFC", "CFC_").replace("_RF", "")
+
+                if x.startswith("HALON"):
+                    return x.replace("_RF", "")
+
+                if x.startswith("CH3"):
+                    return x.replace("_RF", "")
+
+                return x
+
+        elif self._filepath.endswith("_EFFRADFORCING.DAT"):
+            col_order = [
+                "VARIABLE",
+                "TOTAL_INCLVOLCANIC_EFFRF",
+                "VOLCANIC_ANNUAL_EFFRF",
+                "SOLAR_EFFRF",
+                "TOTAL_ANTHRO_EFFRF",
+                "GHG_EFFRF",
+                "KYOTOGHG_EFFRF",
+                "CO2CH4N2O_EFFRF",
+                "CO2_EFFRF",
+                "CH4_EFFRF",
+                "N2O_EFFRF",
+                "FGASSUM_EFFRF",
+                "MHALOSUM_EFFRF",
+                "CF4_EFFRF",
+                "C2F6_EFFRF",
+                "C6F14_EFFRF",
+                "HFC23_EFFRF",
+                "HFC32_EFFRF",
+                "HFC4310_EFFRF",
+                "HFC125_EFFRF",
+                "HFC134A_EFFRF",
+                "HFC143A_EFFRF",
+                "HFC227EA_EFFRF",
+                "HFC245FA_EFFRF",
+                "SF6_EFFRF",
+                "CFC11_EFFRF",
+                "CFC12_EFFRF",
+                "CFC113_EFFRF",
+                "CFC114_EFFRF",
+                "CFC115_EFFRF",
+                "CCL4_EFFRF",
+                "CH3CCL3_EFFRF",
+                "HCFC22_EFFRF",
+                "HCFC141B_EFFRF",
+                "HCFC142B_EFFRF",
+                "HALON1211_EFFRF",
+                "HALON1202_EFFRF",
+                "HALON1301_EFFRF",
+                "HALON2402_EFFRF",
+                "CH3BR_EFFRF",
+                "CH3CL_EFFRF",
+                "TOTAER_DIR_EFFRF",
+                "OCI_EFFRF",
+                "BCI_EFFRF",
+                "SOXI_EFFRF",
+                "NOXI_EFFRF",
+                "BIOMASSAER_EFFRF",
+                "MINERALDUST_EFFRF",
+                "CLOUD_TOT_EFFRF",
+                "STRATOZ_EFFRF",
+                "TROPOZ_EFFRF",
+                "CH4OXSTRATH2O_EFFRF",
+                "LANDUSE_EFFRF",
+                "BCSNOW_EFFRF",
+            ]
+
+            def rename_col(x):
+                if x == "HFC4310_EFFRF":
+                    return "HFC43_10"
+
+                if x == "CCL4_EFFRF":
+                    return "CARB_TET"
+
+                if x == "CH3CCL3_EFFRF":
+                    return "MCF"
+
+                if x in ["CF4_EFFRF", "C2F6_EFFRF", "C6F14_EFFRF"]:
+                    return x.replace("_EFFRF", "")
+
+                if x in ["HFC23_EFFRF", "HFC32_EFFRF", "HFC125_EFFRF", "SF6_EFFRF"]:
+                    return x.replace("_EFFRF", "")
+
+                if x in [
+                    "HFC134A_EFFRF",
+                    "HFC143A_EFFRF",
+                    "HFC227EA_EFFRF",
+                    "HFC245FA_EFFRF",
+                ]:
+                    return (
+                        x.replace("FA", "fa")
+                        .replace("EA", "ea")
+                        .replace("A", "a")
+                        .replace("_EFFRF", "")
+                    )
+
+                if x.startswith("HCFC"):
+                    return x.replace("HCFC", "HCFC_").replace("_EFFRF", "")
+
+                if x.startswith("CFC"):
+                    return x.replace("CFC", "CFC_").replace("_EFFRF", "")
+
+                if x.startswith("HALON"):
+                    return x.replace("_EFFRF", "")
+
+                if x.startswith("CH3"):
+                    return x.replace("_EFFRF", "")
+
+                return x
+
+        elif self._filepath.endswith("_EMISSIONS.DAT"):
+            col_order = [
+                "VARIABLE",
+                "CO2I",
+                "CO2B",
+                "CH4",
+                "N2O",
+                "SOX",
+                "CO",
+                "NMVOC",
+                "NOX",
+                "BC",
+                "OC",
+                "NH3",
+                "CF4",
+                "C2F6",
+                "C6F14",
+                "HFC23",
+                "HFC32",
+                "HFC4310",
+                "HFC125",
+                "HFC134A",
+                "HFC143A",
+                "HFC227EA",
+                "HFC245FA",
+                "SF6",
+                "CFC11",
+                "CFC12",
+                "CFC113",
+                "CFC114",
+                "CFC115",
+                "CCL4",
+                "CH3CCL3",
+                "HCFC22",
+                "HCFC141B",
+                "HCFC142B",
+                "HALON1211",
+                "HALON1202",
+                "HALON1301",
+                "HALON2402",
+                "CH3BR",
+                "CH3CL",
+            ]
+
+            def rename_col(x):
+                if x == "CO2I":
+                    return "FossilCO2"
+
+                if x == "CO2B":
+                    return "OtherCO2"
+
+                if x == "SOX":
+                    return "SOx"
+
+                if x == "NOX":
+                    return "NOx"
+
+                if x == "HFC4310":
+                    return "HFC43_10"
+
+                if x == "CCL4":
+                    return "CARB_TET"
+
+                if x == "CH3CCL3":
+                    return "MCF"
+
+                if x in [
+                    "HFC134A",
+                    "HFC143A",
+                    "HFC227EA",
+                    "HFC245FA",
+                ]:
+                    return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
+
+                if x.startswith("HCFC"):
+                    return x.replace("HCFC", "HCFC_")
+
+                if x.startswith("CFC"):
+                    return x.replace("CFC", "CFC_")
+
+                return x
+
+        elif self._filepath.endswith("_CONCENTRATIONS.DAT"):
+            col_order = [
+                "VARIABLE",
+                "CO2EQ_CONC",
+                "KYOTOCO2EQ_CONC",
+                "CO2_CONC",
+                "CH4_CONC",
+                "N2O_CONC",
+                "FGASSUMHFC134AEQ_CONC",
+                "MHALOSUMCFC12EQ_CONC",
+                "CF4_CONC",
+                "C2F6_CONC",
+                "C6F14_CONC",
+                "HFC23_CONC",
+                "HFC32_CONC",
+                "HFC4310_CONC",
+                "HFC125_CONC",
+                "HFC134A_CONC",
+                "HFC143A_CONC",
+                "HFC227EA_CONC",
+                "HFC245FA_CONC",
+                "SF6_CONC",
+                "CFC11_CONC",
+                "CFC12_CONC",
+                "CFC113_CONC",
+                "CFC114_CONC",
+                "CFC115_CONC",
+                "CCL4_CONC",
+                "CH3CCL3_CONC",
+                "HCFC22_CONC",
+                "HCFC141B_CONC",
+                "HCFC142B_CONC",
+                "HALON1211_CONC",
+                "HALON1202_CONC",
+                "HALON1301_CONC",
+                "HALON2402_CONC",
+                "CH3BR_CONC",
+                "CH3CL_CONC",
+            ]
+
+            def rename_col(x):
+                x = x.replace("_CONC", "")
+                if x == "KYOTOCO2EQ":
+                    return "KYOTO-CO2EQ"
+
+                if x == "HFC4310":
+                    return "HFC43_10"
+
+                if x == "CCL4":
+                    return "CARB_TET"
+
+                if x == "CH3CCL3":
+                    return "MCF"
+
+                if x in [
+                    "HFC134A",
+                    "HFC143A",
+                    "HFC227EA",
+                    "HFC245FA",
+                ]:
+                    return x.replace("FA", "fa").replace("EA", "ea").replace("A", "a")
+
+                if x.startswith("HCFC"):
+                    return x.replace("HCFC", "HCFC_")
+
+                if x.startswith("CFC"):
+                    return x.replace("CFC", "CFC_")
+
+                return x
+
+        else:
+            raise NotImplementedError
+
+        return col_order, rename_col
 
 
 class _MAGWriter(_Writer):
