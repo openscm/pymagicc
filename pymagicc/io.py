@@ -1391,7 +1391,7 @@ class _CompactOutReader(_Reader):
     def _read_compact_table(self):
         with open(self.filepath, "r") as fh:
             headers = self._read_header(fh)
-            # can change to reading limited number of lines in future
+            # TODO: change to reading a limited number of lines
             lines_as_dicts = [l for l in self._read_lines(fh, headers)]
 
         return pd.DataFrame(lines_as_dicts)
@@ -1429,7 +1429,10 @@ class _CompactOutReader(_Reader):
         ts["region"] = ts.index.map(
             lambda x: convert_magicc_to_openscm_regions(x.split("__")[1])
         )
+
         ts["year"] = ts.index.map(lambda x: x.split("__")[2])
+        # Make sure all the year strings are four characters long. Not the best test,
+        # but as good as we can do for now.
         if not (ts["year"].apply(len) == 4).all():  # pragma: no cover # safety valve
             raise NotImplementedError("Non-annual data not yet supported")
 
@@ -1449,24 +1452,14 @@ class _CompactOutReader(_Reader):
         paras = compact_table[para_cols]
         paras.index.name = "run_id"
 
-        # Find the columns which group together as lists
-        cols_to_merge = []
-        for c in paras:
-            toks = c.split("_")
-            start = "_".join(toks[:-1])
-            try:
-                int(toks[-1])  # Check if the last token is an integer
-                if start not in cols_to_merge:
-                    cols_to_merge.append(start)
-            except:
-                continue
+        cols_to_merge = find_parameter_groups(paras.columns.tolist())
 
         paras_clean = paras.copy()
         # Aggregate the columns
-        for col in cols_to_merge:
-            target_cols = sorted([x for x in paras.columns if x.startswith(col + "_")])
-            paras_clean.loc[:, col] = tuple(paras[target_cols].values.tolist())
-            paras_clean = paras_clean.drop(columns=target_cols)
+        for new_col, components in cols_to_merge.items():
+            components = sorted(components)
+            paras_clean.loc[:, new_col] = tuple(paras[components].values.tolist())
+            paras_clean = paras_clean.drop(columns=components)
 
         years = ts.columns.tolist()
         ts = ts.reset_index().set_index("run_id")
@@ -3757,3 +3750,43 @@ def to_int(x):
         raise ValueError("invalid values `{}`".format(list(invalid_vals)))
 
     return cols
+
+
+def find_parameter_groups(columns):
+    """
+    Find parameter groups within a list
+
+    This finds all the parameters which should be grouped together into tuples rather
+    than being separated. For example, if you have a list like
+    ``["CORE_CLIMATESENSITIVITY", "RF_BBAER_DIR_WM2", "OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"]``,
+    this function will return
+    ``{"OUT_ZERO_TEMP_PERIOD": ["OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"]}``
+    which tells you that the parameters
+    ``["OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"]`` should be grouped
+    together into a tuple with the name ``"OUT_ZERO_TEMP_PERIOD"`` while all the other
+    columns don't belong to any group.
+
+    Parameters
+    ----------
+    list[str]
+        List of strings to sort
+
+    Returns
+    -------
+    dict[str: list[str]]
+        Dictionary where the keys are the 'group names' and the values are the list of
+        parameters which belong to that group name.
+    """
+    cols_to_merge = {}
+    for c in columns:
+        toks = c.split("_")
+        start = "_".join(toks[:-1])
+        try:
+            int(toks[-1])  # Check if the last token is an integer
+            if start not in cols_to_merge:
+                cols_to_merge[start] = []
+            cols_to_merge[start].append(c)
+        except:
+            continue
+
+    return {k: sorted(v) for k, v in cols_to_merge.items()}

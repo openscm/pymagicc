@@ -31,7 +31,7 @@ from pymagicc.io import (
     get_generic_rcp_name,
     determine_tool,
     to_int,
-    find_parameter_columns_to_merge,
+    find_parameter_groups,
 )
 from .conftest import (
     MAGICC6_DIR,
@@ -3980,5 +3980,5 @@ def test_to_int_type_error():
     # what should we do here...
     (["CORE_CLIMATESENSITIVITY", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
 ))
-def test_find_parameter_columns_to_merge(start_list, expected):
-    assert find_parameter_columns_to_merge(start_list) == expected
+def test_find_parameter_groups(start_list, expected):
+    assert find_parameter_groups(start_list) == expected
