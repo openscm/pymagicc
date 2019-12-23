@@ -3391,14 +3391,23 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
         ("EXPECTED_MAGICC6_MIDYEAR_EFFRADFORCING.DAT", 6),
     ],
 )
+@pytest.mark.parametrize("add_extra_data", [True, False])
 def test_writing_identical_rcpdat(
-    temp_dir, update_expected_file, starting_file, magicc_version
+    temp_dir, update_expected_file, starting_file, magicc_version, add_extra_data
 ):
     base = join(EXPECTED_FILES_DIR, starting_file)
     writing_base = MAGICCData(base)
 
     # shuffle column order, thank you https://stackoverflow.com/a/34879805
     writer = MAGICCData(writing_base.timeseries().sample(frac=1))
+    if add_extra_data:
+        tmp = writer.timeseries()
+        tmp = pd.concat([tmp, tmp.iloc[0, :].to_frame().T], axis=0)
+        tmp.iloc[-1, :] = np.arange(tmp.shape[1]) / tmp.shape[1]
+        tmp = tmp.reset_index()
+        tmp["variable"].iloc[-1] = "Surface Temperature"
+        tmp["unit"].iloc[-1] = "K"
+        writer = MAGICCData(tmp)
 
     res = join(temp_dir, starting_file)
     writer.metadata = deepcopy(writing_base.metadata)
