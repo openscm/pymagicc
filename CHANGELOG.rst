@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#281 <https://github.com/openscm/pymagicc/pull/281>`_) Hotfix readers and writers for ``.DAT`` files (``thisfile_datacolumns`` was wrong)
 - (`#288 <https://github.com/openscm/pymagicc/pull/288>`_) Add ``pymagicc.io.read_mag_file_metadata``, which allows fast reading of metadata from a ``.MAG`` file
 - (`#290 <https://github.com/openscm/pymagicc/pull/290>`_) Update minimum ``scmdata`` version to v0.4.3
 - (`#285 <https://github.com/openscm/pymagicc/pull/285>`_) Return ``pint.quantity.Quantity`` from all ECS, TCR and TCRE diagnostic methods
