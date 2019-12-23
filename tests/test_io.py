@@ -31,6 +31,7 @@ from pymagicc.io import (
     get_generic_rcp_name,
     determine_tool,
     to_int,
+    find_parameter_columns_to_merge,
 )
 from .conftest import (
     MAGICC6_DIR,
@@ -3960,3 +3961,24 @@ def test_to_int_type_error():
     )
     with pytest.raises(TypeError, match=error_msg):
         to_int(inp)
+
+
+@pytest.mark.parametrize("start_list,expected", (
+    (["CORE_CLIMATESENSITIVITY", "RUN_ID"], {}),
+    (["CORE_CLIMATESENSITIVITY", "RF_BBAER_DIR_WM2", "OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"], {"OUT_ZERO_TEMP_PERIOD": ["OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"]}),
+    (["RUN_ID", "RF_REGIONS_CH4OXSTRATH2O_2", "RF_REGIONS_CH4OXSTRATH2O_1", "RF_REGIONS_CH4OXSTRATH2O_3", "RF_REGIONS_CH4OXSTRATH2O_4", "RF_REGIONS_CIRRUS_1", "RF_REGIONS_CIRRUS_2", "RF_REGIONS_CIRRUS_3", "RF_REGIONS_CIRRUS_4", "SRF_FACTOR_LANDUSE"],
+        {
+            "RF_REGIONS_CH4OXSTRATH2O": ["RF_REGIONS_CH4OXSTRATH2O_1", "RF_REGIONS_CH4OXSTRATH2O_2", "RF_REGIONS_CH4OXSTRATH2O_3", "RF_REGIONS_CH4OXSTRATH2O_4"],
+            "RF_REGIONS_CIRRUS": ["RF_REGIONS_CIRRUS_1", "RF_REGIONS_CIRRUS_2", "RF_REGIONS_CIRRUS_3", "RF_REGIONS_CIRRUS_4"]
+        }),
+    (["RUN_ID", "FGAS_H_ATOMS_1", "FGAS_H_ATOMS_2", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_5", "FGAS_H_ATOMS_6", "FGAS_H_ATOMS_7", "SRF_FACTOR_LANDUSE"],
+        {
+            "FGAS_H_ATOMS": ["FGAS_H_ATOMS_1", "FGAS_H_ATOMS_2", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_5", "FGAS_H_ATOMS_6", "FGAS_H_ATOMS_7"]
+        }),
+    # what should we do here...
+    (["CORE_CLIMATESENSITIVITY", "FILE_TUNINGMODEL", "FILE_TUNINGMODEL_2"], {}),
+    # what should we do here...
+    (["CORE_CLIMATESENSITIVITY", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
+))
+def test_find_parameter_columns_to_merge(start_list, expected):
+    assert find_parameter_columns_to_merge(start_list) == expected
