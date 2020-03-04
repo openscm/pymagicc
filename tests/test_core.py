@@ -408,8 +408,8 @@ def test_no_root_dir():
 
 @patch.object(MAGICCBase, "update_config")
 @patch.object(MAGICCBase, "set_years")
-def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_update_config, magicc_base):
-    magicc_base._diagnose_tcr_ecs_config_setup()
+def test_diagnose_tcr_ecs_tcre_config_setup(mock_set_years, mock_update_config, magicc_base):
+    magicc_base._diagnose_tcr_ecs_tcre_config_setup()
     mock_set_years.assert_called_with(startyear=1750, endyear=4200)
     mock_update_config.assert_called_with(
         FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
@@ -420,7 +420,7 @@ def test_diagnose_tcr_ecs_config_setup(mock_set_years, mock_update_config, magic
 
 
 @pytest.fixture
-def valid_tcr_ecs_diagnosis_results():
+def valid_tcr_ecs_tcre_diagnosis_results():
     startyear = 1700
     endyear = 4000
     spin_up_time = 50
@@ -438,6 +438,7 @@ def valid_tcr_ecs_diagnosis_results():
             fake_PI_conc * 1.01 ** (rising_time) * np.ones(eqm_time),
         )
     )
+    fake_inverse_emms = np.linspace(0, 20, endyear - startyear + 1)
     fake_rf = 2.0 * np.log(fake_concs / fake_PI_conc)
     fake_temp = np.log(fake_rf + 1.0) + fake_time / fake_time[1400]
     fake_regions = ["World"] * len(fake_time)
@@ -448,6 +449,17 @@ def valid_tcr_ecs_diagnosis_results():
             "unit": ["ppm"] * len(fake_time),
             "variable": ["Atmospheric Concentrations|CO2"] * len(fake_time),
             "value": fake_concs,
+            "region": fake_regions,
+            "model": ["N/A"] * len(fake_time),
+            "scenario": ["1%/yr_co2"] * len(fake_time),
+        }
+    )
+    mock_inverse_emms = pd.DataFrame(
+        {
+            "time": fake_time,
+            "unit": ["GtC/yr"] * len(fake_time),
+            "variable": ["Inverse Emissions|CO2"] * len(fake_time),
+            "value": fake_inverse_emms,
             "region": fake_regions,
             "model": ["N/A"] * len(fake_time),
             "scenario": ["1%/yr_co2"] * len(fake_time),
@@ -475,7 +487,7 @@ def valid_tcr_ecs_diagnosis_results():
             "scenario": ["1%/yr_co2"] * len(fake_time),
         }
     )
-    mock_results = MAGICCData(pd.concat([mock_co2_conc, mock_rf, mock_temp]))
+    mock_results = MAGICCData(pd.concat([mock_co2_conc, mock_inverse_emms, mock_rf, mock_temp]))
 
     yield {
         "mock_results": mock_results,
@@ -484,21 +496,20 @@ def valid_tcr_ecs_diagnosis_results():
     }
 
 
-@patch.object(MAGICCBase, "_check_tcr_ecs_temp")
-@patch.object(MAGICCBase, "_check_tcr_ecs_total_RF")
-@patch.object(MAGICCBase, "_get_tcr_ecs_yr_from_CO2_concs")
-def test_get_tcr_ecs_from_diagnosis_results(
-    mock_get_tcr_ecs_yr_from_CO2_concs,
-    mock_check_tcr_ecs_total_RF,
-    mock_check_tcr_ecs_temp,
-    valid_tcr_ecs_diagnosis_results,
-    magicc_base,
+@patch.object(MAGICCBase, "_check_tcr_ecs_tcre_temp")
+@patch.object(MAGICCBase, "_check_tcr_ecs_tcre_total_RF")
+@patch.object(MAGICCBase, "_get_tcr_ecs_tcre_yr_from_CO2_concs")
+def test_get_tcr_ecs_tcre_from_diagnosis_results(
+    mock_get_tcr_ecs_tcre_yr_from_CO2_concs,
+    mock_check_tcr_ecs_tcre_total_RF,
+    mock_check_tcr_ecs_tcre_temp,
+    valid_tcr_ecs_tcre_diagnosis_results,
 ):
-    test_tcr_time = valid_tcr_ecs_diagnosis_results["tcr_time"]
-    test_ecs_time = valid_tcr_ecs_diagnosis_results["ecs_time"]
-    test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
+    test_tcr_time = valid_tcr_ecs_tcre_diagnosis_results["tcr_time"]
+    test_ecs_time = valid_tcr_ecs_tcre_diagnosis_results["ecs_time"]
+    test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
 
-    mock_get_tcr_ecs_yr_from_CO2_concs.return_value = [test_tcr_time, test_ecs_time]
+    mock_get_tcr_ecs_tcre_yr_from_CO2_concs.return_value = [test_tcr_time, test_ecs_time, test_tcr_time]
 
     expected_tcr = (
         test_results_df.filter(variable="Surface Temperature", time=test_tcr_time)
@@ -510,19 +521,29 @@ def test_get_tcr_ecs_from_diagnosis_results(
         .timeseries()
         .squeeze()
     )
+    expected_tcre_cumulative_co2 = (
+        test_results_df.filter(variable="Inverse Emissions|CO2", year=range(test_tcr_time.year))
+        .timeseries()
+        .sum()
+        .squeeze()
+    )
+    import pdb
+    pdb.set_trace()
+    expected_tcre = expected_tcr / expected_tcre_cumulative_co2
 
-    actual_tcr, actual_ecs = magicc_base.get_tcr_ecs_from_diagnosis_results(
+    actual_tcr, actual_ecs, actual_tcre = magicc_base.get_tcr_ecs_tcre_from_diagnosis_results(
         test_results_df
     )
     assert actual_tcr == expected_tcr
     assert actual_ecs == expected_ecs
+    assert actual_tcre == expected_tcre
 
-    assert mock_get_tcr_ecs_yr_from_CO2_concs.call_count == 1
-    assert mock_check_tcr_ecs_total_RF.call_count == 1
-    assert mock_check_tcr_ecs_temp.call_count == 1
+    assert mock_get_tcr_ecs_tcre_yr_from_CO2_concs.call_count == 1
+    assert mock_check_tcr_ecs_tcre_total_RF.call_count == 1
+    assert mock_check_tcr_ecs_tcre_temp.call_count == 1
 
 
-def assert_bad_tcr_ecs_diagnosis_values_caught(
+def assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
     base_data, method_to_run, regexp_to_match, *args, test_target="other"
 ):
     test_time = base_data["time"].values
@@ -548,62 +569,63 @@ def assert_bad_tcr_ecs_diagnosis_values_caught(
             method_to_run(MAGICCData(broken_data), *args)
 
 
-def test_get_tcr_ecs_yr_from_CO2_concs(valid_tcr_ecs_diagnosis_results, magicc_base):
-    test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
+def test_get_tcr_ecs_tcre_yr_from_CO2_concs(valid_tcr_ecs_tcre_diagnosis_results, magicc_base):
+    test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
     test_CO2_data = test_results_df.filter(variable="Atmospheric Concentrations|CO2")
 
-    actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_yr_from_CO2_concs(
+    actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_tcre_yr_from_CO2_concs(
         test_CO2_data
     )
-    assert actual_tcr_yr == valid_tcr_ecs_diagnosis_results["tcr_time"]
-    assert actual_ecs_yr == valid_tcr_ecs_diagnosis_results["ecs_time"]
+    assert actual_tcr_yr == valid_tcr_ecs_tcre_diagnosis_results["tcr_time"]
+    assert actual_ecs_yr == valid_tcr_ecs_tcre_diagnosis_results["ecs_time"]
 
-    assert_bad_tcr_ecs_diagnosis_values_caught(
+    assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
         test_CO2_data,
-        magicc_base._get_tcr_ecs_yr_from_CO2_concs,
-        r"The TCR/ECS CO2 concs look wrong.*",
+        magicc_base._get_tcr_ecs_tcre_yr_from_CO2_concs,
+        r"The TCR/ECS/TCRE CO2 concs look wrong.*",
     )
 
 
-def test_check_tcr_ecs_total_RF(valid_tcr_ecs_diagnosis_results, magicc_base):
-    test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
+def test_check_tcr_ecs_tcre_total_RF(valid_tcr_ecs_tcre_diagnosis_results, magicc_base):
+    test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_tcr_ecs_total_RF(
         test_RF_data,
-        valid_tcr_ecs_diagnosis_results["tcr_time"],
-        valid_tcr_ecs_diagnosis_results["ecs_time"],
+        valid_tcr_ecs_tcre_diagnosis_results["tcr_time"],
+        valid_tcr_ecs_tcre_diagnosis_results["ecs_time"],
     )
 
-    assert_bad_tcr_ecs_diagnosis_values_caught(
+    assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
         test_RF_data,
-        magicc_base._check_tcr_ecs_total_RF,
-        r"The TCR/ECS total radiative forcing looks wrong.*",
-        valid_tcr_ecs_diagnosis_results["tcr_time"],
-        valid_tcr_ecs_diagnosis_results["ecs_time"],
+        magicc_base._check_tcr_ecs_tcre_total_RF,
+        r"The TCR/ECS/TCRE total radiative forcing looks wrong.*",
+        valid_tcr_ecs_tcre_diagnosis_results["tcr_time"],
+        valid_tcr_ecs_tcre_diagnosis_results["ecs_time"],
     )
 
 
-def test_check_tcr_ecs_temp(valid_tcr_ecs_diagnosis_results, magicc_base):
-    test_results_df = valid_tcr_ecs_diagnosis_results["mock_results"]
+def test_check_tcr_ecs_tcre_temp(valid_tcr_ecs_tcre_diagnosis_results, magicc_base):
+    test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
     test_temp_data = test_results_df.filter(variable="Surface Temperature")
 
-    magicc_base._check_tcr_ecs_temp(test_temp_data)
+    magicc_base._check_tcr_ecs_tcre_temp(test_temp_data)
 
-    assert_bad_tcr_ecs_diagnosis_values_caught(
+    assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
         test_temp_data,
-        magicc_base._check_tcr_ecs_temp,
-        r"The TCR/ECS surface temperature looks wrong, it decreases",
+        magicc_base._check_tcr_ecs_tcre_temp,
+        r"The TCR/ECS/TCRE surface temperature looks wrong, it decreases",
         test_target="temperature",
     )
 
 
 # integration test (i.e. actually runs magicc) hence slow
 @pytest.mark.slow
-def test_integration_diagnose_tcr_ecs(package):
-    actual_result = package.diagnose_tcr_ecs()
+def test_integration_diagnose_tcr_ecs_tcre(package):
+    actual_result = package.diagnose_tcr_ecs_tcre()
     assert isinstance(actual_result, dict)
     assert "tcr" in actual_result
     assert "ecs" in actual_result
+    assert "tcre" in actual_result
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
         assert (
@@ -612,10 +634,14 @@ def test_integration_diagnose_tcr_ecs(package):
         assert (
             actual_result["ecs"] == 2.9968448
         )  # MAGICC6 shipped with pymagicc should be stable
+        assert (
+            actual_result["tcre"] == 2.9968448
+        )  # MAGICC6 shipped with pymagicc should be stable
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
         assert actual_result["tcr"] == 2.0875821584565704
         assert actual_result["ecs"] == 3.155772857010324
+        assert actual_result["tcre"] == 3.155772857010324
 
 
 def test_missing_config(config_override):
@@ -637,41 +663,40 @@ def test_missing_config(config_override):
             pass
 
 
-@patch.object(MAGICCBase, "_diagnose_tcr_ecs_config_setup")
+@patch.object(MAGICCBase, "_diagnose_tcr_ecs_tcre_config_setup")
 @patch.object(MAGICCBase, "run")
-@patch.object(MAGICCBase, "get_tcr_ecs_from_diagnosis_results")
-def test_diagnose_tcr_ecs(
-    mock_get_tcr_ecs_from_results,
+@patch.object(MAGICCBase, "get_tcr_ecs_tcre_from_diagnosis_results")
+def test_diagnose_tcr_ecs_tcre(
+    mock_get_tcr_ecs_tcre_from_results,
     mock_run,
-    mock_diagnose_tcr_ecs_setup,
-    magicc_base,
-    valid_tcr_ecs_diagnosis_results,
+    mock_diagnose_tcr_ecs_tcre_setup,
+    valid_tcr_ecs_tcre_diagnosis_results,
 ):
     mock_tcr_val = 1.8
     mock_ecs_val = 3.1
-    mock_run_results = valid_tcr_ecs_diagnosis_results
+    mock_run_results = valid_tcr_ecs_tcre_diagnosis_results
 
     mock_run.return_value = mock_run_results
-    mock_get_tcr_ecs_from_results.return_value = [mock_tcr_val, mock_ecs_val]
+    mock_get_tcr_ecs_tcre_from_results.return_value = [mock_tcr_val, mock_ecs_val]
 
-    assert magicc_base.diagnose_tcr_ecs()["tcr"] == mock_tcr_val
-    assert mock_diagnose_tcr_ecs_setup.call_count == 1
+    assert magicc_base.diagnose_tcr_ecs_tcre()["tcr"] == mock_tcr_val
+    assert mock_diagnose_tcr_ecs_tcre_setup.call_count == 1
     mock_run.assert_called_with(
         only=[
             "Atmospheric Concentrations|CO2",
             "Radiative Forcing",
             "Surface Temperature",
+            "Inverse Emissions|CO2",
         ],
         scenario=None,
     )
-    assert mock_get_tcr_ecs_from_results.call_count == 1
-    assert mock_get_tcr_ecs_from_results.call_count == 1
+    assert mock_get_tcr_ecs_tcre_from_results.call_count == 1
 
-    assert magicc_base.diagnose_tcr_ecs()["ecs"] == mock_ecs_val
-    assert mock_diagnose_tcr_ecs_setup.call_count == 2
-    assert mock_get_tcr_ecs_from_results.call_count == 2
+    assert magicc_base.diagnose_tcr_ecs_tcre()["ecs"] == mock_ecs_val
+    assert mock_diagnose_tcr_ecs_tcre_setup.call_count == 2
+    assert mock_get_tcr_ecs_tcre_from_results.call_count == 2
 
-    full_results = magicc_base.diagnose_tcr_ecs()
+    full_results = magicc_base.diagnose_tcr_ecs_tcre()
     assert isinstance(full_results, dict)
 
 
@@ -778,7 +803,7 @@ def test_persistant_state_integration(package, rf_method):
                 "MAGICC7's ECS only follows its definition with IPCCTAR forcing"
             )
 
-    actual_results = package.diagnose_tcr_ecs()
+    actual_results = package.diagnose_tcr_ecs_tcre()
     np.testing.assert_allclose(actual_results["ecs"], test_ecs, rtol=1e-02)
 
 
