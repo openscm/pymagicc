@@ -46,6 +46,7 @@ REQUIREMENTS_INSTALL = [
     "f90nml",
     "PyYAML",
     "scmdata>=0.2.1",
+    "scipy",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
