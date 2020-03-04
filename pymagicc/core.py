@@ -1023,7 +1023,8 @@ class MAGICCBase(object):
         return config["executable_{}".format(self.version)]
 
     def diagnose_tcr_ecs(self, **kwargs):
-        """Diagnose TCR and ECS
+        """
+        Diagnose TCR and ECS
 
         The transient climate response (TCR), is the global-mean temperature response
         at time at which atmopsheric |CO2| concentrations double in a scenario where
@@ -1062,7 +1063,7 @@ class MAGICCBase(object):
                 "Surface Temperature",
             ],
         )
-        tcr, ecs = self._get_tcr_ecs_from_diagnosis_results(timeseries)
+        tcr, ecs = self.get_tcr_ecs_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
 
     def _diagnose_tcr_ecs_config_setup(self, **kwargs):
@@ -1078,7 +1079,21 @@ class MAGICCBase(object):
             **kwargs,
         )
 
-    def _get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
+    def get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
+        """
+        Diagnose TCR and ECS from the results of the 1pctCO2 experiment
+
+        Parameters
+        ----------
+        results_tcr_ecs_run : :obj:`ScmDataFrame`
+            Results of the 1pctCO2 experiment, must contain atmospheric |CO2| concentrations, total radiative
+            forcing and global-mean surface temperature
+
+        Returns
+        -------
+        tcr, ecs : float, float
+            TCR and ECS diagnosed from ``results_tcr_ecs_run``
+        """
         global_co2_concs = results_tcr_ecs_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
