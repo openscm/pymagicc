@@ -1068,6 +1068,8 @@ class MAGICCBase(object):
                 "Surface Temperature",
             ],
         )
+        # drop all the irrelevant inverse emissions
+        timeseries = timeseries.filter(variable="Inverse Emissions*", level=1, keep=False)
         tcr, ecs, tcre = self.get_tcr_ecs_tcre_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "tcre": tcre, "timeseries": timeseries}
 
@@ -1081,9 +1083,6 @@ class MAGICCBase(object):
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
-            out_concentrations=1,
-            out_forcing=1,
-            out_temperature=1,
             out_inverseemis=1,
             **kwargs,
         )
