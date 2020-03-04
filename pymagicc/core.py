@@ -354,7 +354,6 @@ class MAGICCBase(object):
             raise exc
 
         outfiles = self._get_output_filenames()
-
         read_cols = {"climate_model": ["MAGICC{}".format(self.version)]}
         if scenario is not None:
             read_cols["model"] = scenario["model"].unique().tolist()
@@ -1022,22 +1021,26 @@ class MAGICCBase(object):
     def get_executable(self):
         return config["executable_{}".format(self.version)]
 
-    def diagnose_tcr_ecs(self, **kwargs):
+    def diagnose_tcr_ecs_tcre(self, **kwargs):
         """
-        Diagnose TCR and ECS
+        Diagnose TCR, ECS and TCRE
 
         The transient climate response (TCR), is the global-mean temperature response
-        at time at which atmopsheric |CO2| concentrations double in a scenario where
-        atmospheric |CO2| concentrations are increased at 1% per year from
-        pre-industrial levels.
+        per unit cumulative |CO2| emissions at the time at which atmospheric |CO2|
+        concentrations double in an experiment where atmospheric |CO2| concentrations
+        are increased at 1% per year from pre-industrial levels (1pctCO2 experiment).
 
         The equilibrium climate sensitivity (ECS), is the equilibrium global-mean
         temperature response to an instantaneous doubling of atmospheric |CO2|
         concentrations.
 
+        The transient climate response to emissions (TCRE), is the global-mean
+        temperature response per unit cumulative |CO2| emissions at the time at which
+        atmospheric |CO2| concentrations double in the 1pctCO2 experiment.
+
         As MAGICC has no hysteresis in its equilibrium response to radiative forcing,
-        we can diagnose TCR and ECS with one experiment. However, please note that
-        sometimes the run length won't be long enough to allow MAGICC's oceans to
+        we can diagnose TCR, ECS and TCRE with one experiment. However, please note
+        that sometimes the run length won't be long enough to allow MAGICC's oceans to
         fully equilibrate and hence the ECS value might not be what you expect (it
         should match the value of ``core_climatesensitivity``).
 
@@ -1050,23 +1053,25 @@ class MAGICCBase(object):
         -------
         dict
             Dictionary with keys: "ecs" - the diagnosed ECS; "tcr" - the diagnosed
-            TCR; "timeseries" - the relevant model input and output timeseries used in
-            the experiment i.e. atmospheric |CO2| concentrations, total radiative
-            forcing and global-mean surface temperature
+            TCR; "tcre" - the diagnosed TCRE; timeseries" - the relevant model input
+            and output timeseries used in the experiment i.e. atmospheric |CO2|
+            concentrations, inverse |CO2| emissions, total radiative forcing and
+            global-mean surface temperature
         """
-        self._diagnose_tcr_ecs_config_setup(**kwargs)
+        self._diagnose_tcr_ecs_tcre_config_setup(**kwargs)
         timeseries = self.run(
             scenario=None,
             only=[
                 "Atmospheric Concentrations|CO2",
+                "INVERSEEMIS",
                 "Radiative Forcing",
                 "Surface Temperature",
             ],
         )
-        tcr, ecs = self.get_tcr_ecs_from_diagnosis_results(timeseries)
-        return {"tcr": tcr, "ecs": ecs, "timeseries": timeseries}
+        tcr, ecs, tcre = self.get_tcr_ecs_tcre_from_diagnosis_results(timeseries)
+        return {"tcr": tcr, "ecs": ecs, "tcre": tcre, "timeseries": timeseries}
 
-    def _diagnose_tcr_ecs_config_setup(self, **kwargs):
+    def _diagnose_tcr_ecs_tcre_config_setup(self, **kwargs):
         self.set_years(
             startyear=1750, endyear=4200
         )  # 4200 seems to be the max I can push too without an error
@@ -1076,47 +1081,61 @@ class MAGICCBase(object):
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
+            out_concentrations=1,
+            out_forcing=1,
+            out_temperature=1,
+            out_inverseemis=1,
             **kwargs,
         )
 
-    def get_tcr_ecs_from_diagnosis_results(self, results_tcr_ecs_run):
+    def get_tcr_ecs_tcre_from_diagnosis_results(self, results_tcr_ecs_tcre_run):
         """
-        Diagnose TCR and ECS from the results of the 1pctCO2 experiment
+        Diagnose TCR, ECS and TCRE from the results of the 1pctCO2 experiment
 
         Parameters
         ----------
-        results_tcr_ecs_run : :obj:`ScmDataFrame`
-            Results of the 1pctCO2 experiment, must contain atmospheric |CO2| concentrations, total radiative
-            forcing and global-mean surface temperature
+        results_tcr_ecs_tcre_run : :obj:`ScmDataFrame`
+            Results of the 1pctCO2 experiment, must contain atmospheric |CO2|
+            concentrations, inverse |CO2| emissions, total radiative forcing and
+            surface temperature.
 
         Returns
         -------
-        tcr, ecs : float, float
-            TCR and ECS diagnosed from ``results_tcr_ecs_run``
+        tcr, ecs, tcre : float, float, float
+            TCR, ECS and TCRE diagnosed from ``results_tcr_ecs_tcre_run``
         """
-        global_co2_concs = results_tcr_ecs_run.filter(
+        global_co2_concs = results_tcr_ecs_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        tcr_time, ecs_time = self._get_tcr_ecs_yr_from_CO2_concs(global_co2_concs)
+        tcr_time, ecs_time, tcre_time = self._get_tcr_ecs_tcre_yr_from_CO2_concs(global_co2_concs)
 
-        global_total_rf = results_tcr_ecs_run.filter(
+        if tcr_time != tcre_time:  # pragma: no cover # emergency valve
+            raise AssertionError("Has the definition of TCR and TCRE changed?")
+
+        global_inverse_co2_emms = results_tcr_ecs_tcre_run.filter(
+            variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial", region="World"
+        )
+
+        global_total_rf = results_tcr_ecs_tcre_run.filter(
             variable="Radiative Forcing", region="World"
         )
-        self._check_tcr_ecs_total_RF(
+        self._check_tcr_ecs_tcre_total_RF(
             global_total_rf, tcr_time=tcr_time, ecs_time=ecs_time
         )
 
-        global_temp = results_tcr_ecs_run.filter(
+        global_temp = results_tcr_ecs_tcre_run.filter(
             variable="Surface Temperature", region="World"
         )
-        self._check_tcr_ecs_temp(global_temp)
+        self._check_tcr_ecs_tcre_temp(global_temp)
 
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
         ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
+        tcre_cumulative_emms = float(global_inverse_co2_emms.filter(year=range(tcr_time.year)).values.sum())
+        tcre = tcr / tcre_cumulative_emms
 
-        return tcr, ecs
+        return tcr, ecs, tcre
 
-    def _get_tcr_ecs_yr_from_CO2_concs(self, df_co2_concs):
+    def _get_tcr_ecs_tcre_yr_from_CO2_concs(self, df_co2_concs):
         co2_concs = df_co2_concs.timeseries()
         co2_conc_0 = co2_concs.iloc[0, 0]
         t_start = co2_concs.columns.min()
@@ -1134,7 +1153,7 @@ class MAGICCBase(object):
         )
         if not (spin_up_co2_concs == co2_conc_0).all():
             raise ValueError(
-                "The TCR/ECS CO2 concs look wrong, they are not constant before they start rising"
+                "The TCR/ECS/TCRE CO2 concs look wrong, they are not constant before they start rising"
             )
 
         actual_rise_co2_concs = (
@@ -1148,7 +1167,7 @@ class MAGICCBase(object):
             actual_rise_co2_concs, expected_rise_co2_concs
         ).all()
         if not rise_co2_concs_correct:
-            raise ValueError("The TCR/ECS CO2 concs look wrong during the rise period")
+            raise ValueError("The TCR/ECS/TCRE CO2 concs look wrong during the rise period")
 
         co2_conc_final = max(expected_rise_co2_concs)
         eqm_co2_concs = (
@@ -1158,14 +1177,16 @@ class MAGICCBase(object):
         )
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
             raise ValueError(
-                "The TCR/ECS CO2 concs look wrong, they are not constant after 70 years of rising"
+                "The TCR/ECS/TCRE CO2 concs look wrong, they are not constant after 70 years of rising"
             )
 
         ecs_time = df_co2_concs["time"].iloc[-1]
 
-        return tcr_time, ecs_time
+        tcre_time = tcr_time
 
-    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
+        return tcr_time, ecs_time, tcre_time
+
+    def _check_tcr_ecs_tcre_total_RF(self, df_total_rf, tcr_time, ecs_time):
         total_rf = df_total_rf.timeseries()
         total_rf_max = total_rf.values.squeeze().max()
 
@@ -1180,7 +1201,7 @@ class MAGICCBase(object):
         )
         if not (spin_up_rf == 0).all():
             raise ValueError(
-                "The TCR/ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
+                "The TCR/ECS/TCRE total radiative forcing looks wrong, it is not all zero before concentrations start rising"
             )
 
         eqm_rf = (
@@ -1190,15 +1211,15 @@ class MAGICCBase(object):
         )
         if not (eqm_rf == total_rf_max).all():
             raise ValueError(
-                "The TCR/ECS total radiative forcing looks wrong, it is not constant after concentrations are constant"
+                "The TCR/ECS/TCRE total radiative forcing looks wrong, it is not constant after concentrations are constant"
             )
 
-    def _check_tcr_ecs_temp(self, df_temp):
+    def _check_tcr_ecs_tcre_temp(self, df_temp):
         tmp_vls = df_temp.timeseries().values.squeeze()
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
             raise ValueError(
-                "The TCR/ECS surface temperature looks wrong, it decreases"
+                "The TCR/ECS/TCRE surface temperature looks wrong, it decreases"
             )
 
     def set_emission_scenario_setup(self, scenario, config_dict):
@@ -1258,8 +1279,8 @@ class MAGICC6(MAGICCBase):
 
         return self._default_config
 
-    def _check_tcr_ecs_total_RF(self, df_total_rf, tcr_time, ecs_time):
-        super()._check_tcr_ecs_total_RF(df_total_rf, tcr_time, ecs_time)
+    def _check_tcr_ecs_tcre_total_RF(self, df_total_rf, tcr_time, ecs_time):
+        super()._check_tcr_ecs_tcre_total_RF(df_total_rf, tcr_time, ecs_time)
         # can be more careful with checks MAGICC6 only has logarithmic CO2 forcing
         # i.e. linear rise in forcing
         total_rf = df_total_rf.timeseries()
@@ -1278,7 +1299,7 @@ class MAGICC6(MAGICCBase):
         rise_rf_correct = np.isclose(actual_rise_rf, expected_rise_rf).all()
         if not rise_rf_correct:
             raise ValueError(
-                "The TCR/ECS total radiative forcing looks wrong during the rise period"
+                "The TCR/ECS/TCRE total radiative forcing looks wrong during the rise period"
             )
 
     def _check_config(self):
@@ -1340,8 +1361,8 @@ class MAGICC7(MAGICCBase):
                 },
             )
 
-    def _diagnose_tcr_ecs_config_setup(self, **kwargs):
-        super()._diagnose_tcr_ecs_config_setup(**kwargs)
+    def _diagnose_tcr_ecs_tcre_config_setup(self, **kwargs):
+        super()._diagnose_tcr_ecs_tcre_config_setup(**kwargs)
         # also need to lock CH4 and N2O in case OLBL forcing mode is being used
         self.update_config(
             FILE_CH4_CONC="TCRECS_CH4_CONC.IN",
