@@ -1106,9 +1106,9 @@ class MAGICCBase(object):
         global_co2_concs = results_tcr_ecs_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        tcr_time, ecs_time, tcre_time = self._get_tcr_ecs_tcre_yr_from_CO2_concs(global_co2_concs)
+        tcr_time, ecs_time, tcre_start_time = self._get_tcr_ecs_tcre_start_yr_from_CO2_concs(global_co2_concs)
 
-        if tcr_time != tcre_time:  # pragma: no cover # emergency valve
+        if tcr_time.year != tcre_start_time.year + 70:  # pragma: no cover # emergency
             raise AssertionError("Has the definition of TCR and TCRE changed?")
 
         global_inverse_co2_emms = results_tcr_ecs_tcre_run.filter(
@@ -1129,24 +1129,24 @@ class MAGICCBase(object):
 
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
         ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
-        tcre_cumulative_emms = float(global_inverse_co2_emms.filter(year=range(tcr_time.year)).values.sum())
+        tcre_cumulative_emms = float(global_inverse_co2_emms.filter(year=range(tcre_start_time.year, tcr_time.year)).values.sum())
         tcre = tcr / tcre_cumulative_emms
 
         return tcr, ecs, tcre
 
-    def _get_tcr_ecs_tcre_yr_from_CO2_concs(self, df_co2_concs):
+    def _get_tcr_ecs_tcre_start_yr_from_CO2_concs(self, df_co2_concs):
         co2_concs = df_co2_concs.timeseries()
         co2_conc_0 = co2_concs.iloc[0, 0]
         t_start = co2_concs.columns.min()
         t_end = co2_concs.columns.max()
 
-        t_start_rise = co2_concs.iloc[
+        tcre_start_time = co2_concs.iloc[
             :, co2_concs.values.squeeze() > co2_conc_0
         ].columns[0] - relativedelta(years=1)
-        tcr_time = t_start_rise + relativedelta(years=70)
+        tcr_time = tcre_start_time + relativedelta(years=70)
 
         spin_up_co2_concs = (
-            _filter_time_range(df_co2_concs, lambda x: t_start <= x <= t_start_rise)
+            _filter_time_range(df_co2_concs, lambda x: t_start <= x <= tcre_start_time)
             .timeseries()
             .values.squeeze()
         )
@@ -1156,7 +1156,7 @@ class MAGICCBase(object):
             )
 
         actual_rise_co2_concs = (
-            _filter_time_range(df_co2_concs, lambda x: t_start_rise <= x <= tcr_time)
+            _filter_time_range(df_co2_concs, lambda x: tcre_start_time <= x <= tcr_time)
             .timeseries()
             .values.squeeze()
         )
@@ -1181,9 +1181,7 @@ class MAGICCBase(object):
 
         ecs_time = df_co2_concs["time"].iloc[-1]
 
-        tcre_time = tcr_time
-
-        return tcr_time, ecs_time, tcre_time
+        return tcr_time, ecs_time, tcre_start_time
 
     def _check_tcr_ecs_tcre_total_RF(self, df_total_rf, tcr_time, ecs_time):
         total_rf = df_total_rf.timeseries()
@@ -1191,10 +1189,10 @@ class MAGICCBase(object):
 
         t_start = total_rf.columns.min()
         t_end = total_rf.columns.max()
-        t_start_rise = tcr_time - relativedelta(years=70)
+        tcre_start_time = tcr_time - relativedelta(years=70)
 
         spin_up_rf = (
-            _filter_time_range(df_total_rf, lambda x: t_start <= x <= t_start_rise)
+            _filter_time_range(df_total_rf, lambda x: t_start <= x <= tcre_start_time)
             .timeseries()
             .values.squeeze()
         )
@@ -1285,10 +1283,10 @@ class MAGICC6(MAGICCBase):
         total_rf = df_total_rf.timeseries()
         total_rf_max = total_rf.values.squeeze().max()
 
-        t_start_rise = tcr_time - relativedelta(years=70)
+        tcre_start_time = tcr_time - relativedelta(years=70)
 
         actual_rise_rf = (
-            _filter_time_range(df_total_rf, lambda x: t_start_rise <= x <= tcr_time)
+            _filter_time_range(df_total_rf, lambda x: tcre_start_time <= x <= tcr_time)
             .timeseries()
             .values.squeeze()
         )
