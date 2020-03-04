@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#282 <https://github.com/openclimatedata/pymagicc/pull/282>`_) Expose ``MAGICCBase.get_tcr_ecs_from_diagnosis_results`` method
 - (`#280 <https://github.com/openclimatedata/pymagicc/pull/280>`_) Also include source distribution in pypi release
 - (`#271 <https://github.com/openclimatedata/pymagicc/pull/271>`_) Update requirements of pyam, make error messages include ``stderr`` and remove overwrite of ``file_emisscen`` when creating MAGICC7 copies if ``not self.strict``
 - (`#274 <https://github.com/openclimatedata/pymagicc/pull/274>`_) Add better readers and writers for ``.DAT`` files
