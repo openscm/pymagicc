@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#283 <https://github.com/openclimatedata/pymagicc/pull/283>`_) Diagnose TCRE alongisde ECS and TCR, changes ``diagnose_tcr_ecs`` to ``diagnose_tcr_ecs_tcre`` and ``get_tcr_ecs_from_diagnosis_results`` method to ``get_tcr_ecs__tcre_from_diagnosis_results``
 - (`#282 <https://github.com/openclimatedata/pymagicc/pull/282>`_) Expose ``MAGICCBase.get_tcr_ecs_from_diagnosis_results`` method
 - (`#280 <https://github.com/openclimatedata/pymagicc/pull/280>`_) Also include source distribution in pypi release
 - (`#271 <https://github.com/openclimatedata/pymagicc/pull/271>`_) Update requirements of pyam, make error messages include ``stderr`` and remove overwrite of ``file_emisscen`` when creating MAGICC7 copies if ``not self.strict``
