@@ -631,15 +631,11 @@ def test_integration_diagnose_tcr_ecs_tcre(package):
     assert "tcre" in actual_result
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
-        assert (
-            actual_result["tcr"] == 1.9733976000000002
-        )  # MAGICC6 shipped with pymagicc should be stable
-        assert (
-            actual_result["ecs"] == 2.9968448
-        )  # MAGICC6 shipped with pymagicc should be stable
-        assert (
-            actual_result["tcre"] == 2.9968448
-        )  # MAGICC6 shipped with pymagicc should be stable
+        # MAGICC6 shipped with pymagicc should be stable
+        np.testing.assert_allclose(actual_result["tcr"], 1.9734)
+        np.testing.assert_allclose(actual_result["ecs"], 2.9968)
+        np.testing.assert_allclose(actual_result["tcre"], 0.002299)
+
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
         np.testing.assert_allclose(actual_result["tcr"], 1.982697)
