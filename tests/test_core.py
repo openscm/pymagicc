@@ -8,12 +8,10 @@ import re
 import copy
 import warnings
 
-
 import numpy as np
 import pytest
 import pandas as pd
 import f90nml
-
 
 from pymagicc import MAGICC6, MAGICC7, rcp26, zero_emissions
 from pymagicc.core import MAGICCBase, config, _clean_value
@@ -416,6 +414,10 @@ def test_diagnose_tcr_ecs_tcre_config_setup(mock_set_years, mock_update_config, 
         CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
         RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
+            out_concentrations=1,
+            out_forcing=1,
+            out_temperature=1,
+            out_inverseemis=1,
     )
 
 
@@ -493,6 +495,7 @@ def valid_tcr_ecs_tcre_diagnosis_results():
         "mock_results": mock_results,
         "tcr_time": datetime(tcr_yr, 1, 1),
         "ecs_time": datetime(ecs_yr, 1, 1),
+        "tcre_time": datetime(tcr_yr, 1, 1),
     }
 
 
@@ -504,9 +507,11 @@ def test_get_tcr_ecs_tcre_from_diagnosis_results(
     mock_check_tcr_ecs_tcre_total_RF,
     mock_check_tcr_ecs_tcre_temp,
     valid_tcr_ecs_tcre_diagnosis_results,
+    magicc_base,
 ):
     test_tcr_time = valid_tcr_ecs_tcre_diagnosis_results["tcr_time"]
     test_ecs_time = valid_tcr_ecs_tcre_diagnosis_results["ecs_time"]
+    test_tcre_time = valid_tcr_ecs_tcre_diagnosis_results["tcre_time"]
     test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
 
     mock_get_tcr_ecs_tcre_yr_from_CO2_concs.return_value = [test_tcr_time, test_ecs_time, test_tcr_time]
@@ -522,13 +527,10 @@ def test_get_tcr_ecs_tcre_from_diagnosis_results(
         .squeeze()
     )
     expected_tcre_cumulative_co2 = (
-        test_results_df.filter(variable="Inverse Emissions|CO2", year=range(test_tcr_time.year))
-        .timeseries()
+        test_results_df.filter(variable="Inverse Emissions|CO2", year=range(test_tcre_time.year))
+        .values
         .sum()
-        .squeeze()
     )
-    import pdb
-    pdb.set_trace()
     expected_tcre = expected_tcr / expected_tcre_cumulative_co2
 
     actual_tcr, actual_ecs, actual_tcre = magicc_base.get_tcr_ecs_tcre_from_diagnosis_results(
@@ -573,11 +575,12 @@ def test_get_tcr_ecs_tcre_yr_from_CO2_concs(valid_tcr_ecs_tcre_diagnosis_results
     test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
     test_CO2_data = test_results_df.filter(variable="Atmospheric Concentrations|CO2")
 
-    actual_tcr_yr, actual_ecs_yr = magicc_base._get_tcr_ecs_tcre_yr_from_CO2_concs(
+    actual_tcr_yr, actual_ecs_yr, actual_tcre_yr = magicc_base._get_tcr_ecs_tcre_yr_from_CO2_concs(
         test_CO2_data
     )
     assert actual_tcr_yr == valid_tcr_ecs_tcre_diagnosis_results["tcr_time"]
     assert actual_ecs_yr == valid_tcr_ecs_tcre_diagnosis_results["ecs_time"]
+    assert actual_tcre_yr == valid_tcr_ecs_tcre_diagnosis_results["tcre_time"]
 
     assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
         test_CO2_data,
@@ -589,7 +592,7 @@ def test_get_tcr_ecs_tcre_yr_from_CO2_concs(valid_tcr_ecs_tcre_diagnosis_results
 def test_check_tcr_ecs_tcre_total_RF(valid_tcr_ecs_tcre_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
-    magicc_base._check_tcr_ecs_total_RF(
+    magicc_base._check_tcr_ecs_tcre_total_RF(
         test_RF_data,
         valid_tcr_ecs_tcre_diagnosis_results["tcr_time"],
         valid_tcr_ecs_tcre_diagnosis_results["ecs_time"],
@@ -639,9 +642,9 @@ def test_integration_diagnose_tcr_ecs_tcre(package):
         )  # MAGICC6 shipped with pymagicc should be stable
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
-        assert actual_result["tcr"] == 2.0875821584565704
-        assert actual_result["ecs"] == 3.155772857010324
-        assert actual_result["tcre"] == 3.155772857010324
+        np.testing.assert_allclose(actual_result["tcr"], 1.982697)
+        np.testing.assert_allclose(actual_result["ecs"], 2.9948422)
+        np.testing.assert_allclose(actual_result["tcre"], 0.0023401068)
 
 
 def test_missing_config(config_override):
@@ -671,22 +674,24 @@ def test_diagnose_tcr_ecs_tcre(
     mock_run,
     mock_diagnose_tcr_ecs_tcre_setup,
     valid_tcr_ecs_tcre_diagnosis_results,
+    magicc_base,
 ):
     mock_tcr_val = 1.8
     mock_ecs_val = 3.1
+    mock_tcre_val = 2.5
     mock_run_results = valid_tcr_ecs_tcre_diagnosis_results
 
     mock_run.return_value = mock_run_results
-    mock_get_tcr_ecs_tcre_from_results.return_value = [mock_tcr_val, mock_ecs_val]
+    mock_get_tcr_ecs_tcre_from_results.return_value = [mock_tcr_val, mock_ecs_val, mock_tcre_val]
 
     assert magicc_base.diagnose_tcr_ecs_tcre()["tcr"] == mock_tcr_val
     assert mock_diagnose_tcr_ecs_tcre_setup.call_count == 1
     mock_run.assert_called_with(
         only=[
             "Atmospheric Concentrations|CO2",
+            "Inverse Emissions|CO2",
             "Radiative Forcing",
             "Surface Temperature",
-            "Inverse Emissions|CO2",
         ],
         scenario=None,
     )
