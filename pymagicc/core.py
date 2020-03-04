@@ -1106,13 +1106,18 @@ class MAGICCBase(object):
         global_co2_concs = results_tcr_ecs_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        tcr_time, ecs_time, tcre_start_time = self._get_tcr_ecs_tcre_start_yr_from_CO2_concs(global_co2_concs)
+        (
+            tcr_time,
+            ecs_time,
+            tcre_start_time,
+        ) = self._get_tcr_ecs_tcre_start_yr_from_CO2_concs(global_co2_concs)
 
         if tcr_time.year != tcre_start_time.year + 70:  # pragma: no cover # emergency
             raise AssertionError("Has the definition of TCR and TCRE changed?")
 
         global_inverse_co2_emms = results_tcr_ecs_tcre_run.filter(
-            variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial", region="World"
+            variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
+            region="World",
         )
 
         global_total_rf = results_tcr_ecs_tcre_run.filter(
@@ -1129,7 +1134,11 @@ class MAGICCBase(object):
 
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
         ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
-        tcre_cumulative_emms = float(global_inverse_co2_emms.filter(year=range(tcre_start_time.year, tcr_time.year)).values.sum())
+        tcre_cumulative_emms = float(
+            global_inverse_co2_emms.filter(
+                year=range(tcre_start_time.year, tcr_time.year)
+            ).values.sum()
+        )
         tcre = tcr / tcre_cumulative_emms
 
         return tcr, ecs, tcre
@@ -1166,7 +1175,9 @@ class MAGICCBase(object):
             actual_rise_co2_concs, expected_rise_co2_concs
         ).all()
         if not rise_co2_concs_correct:
-            raise ValueError("The TCR/ECS/TCRE CO2 concs look wrong during the rise period")
+            raise ValueError(
+                "The TCR/ECS/TCRE CO2 concs look wrong during the rise period"
+            )
 
         co2_conc_final = max(expected_rise_co2_concs)
         eqm_co2_concs = (
