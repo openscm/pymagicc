@@ -416,9 +416,6 @@ def test_diagnose_tcr_ecs_tcre_config_setup(
         CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
         RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
-        out_concentrations=1,
-        out_forcing=1,
-        out_temperature=1,
         out_inverseemis=1,
     )
 
@@ -647,9 +644,9 @@ def test_integration_diagnose_tcr_ecs_tcre(package):
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
         # MAGICC6 shipped with pymagicc should be stable
-        np.testing.assert_allclose(actual_result["tcr"], 1.9734)
-        np.testing.assert_allclose(actual_result["ecs"], 2.9968)
-        np.testing.assert_allclose(actual_result["tcre"], 0.002299)
+        np.testing.assert_allclose(actual_result["tcr"], 1.9733976)
+        np.testing.assert_allclose(actual_result["ecs"], 2.9968448)
+        np.testing.assert_allclose(actual_result["tcre"], 0.00229016699)
 
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
@@ -690,7 +687,7 @@ def test_diagnose_tcr_ecs_tcre(
     mock_tcr_val = 1.8
     mock_ecs_val = 3.1
     mock_tcre_val = 2.5
-    mock_run_results = valid_tcr_ecs_tcre_diagnosis_results
+    mock_run_results = valid_tcr_ecs_tcre_diagnosis_results["mock_results"]
 
     mock_run.return_value = mock_run_results
     mock_get_tcr_ecs_tcre_from_results.return_value = [
