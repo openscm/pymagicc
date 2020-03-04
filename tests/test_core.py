@@ -511,7 +511,7 @@ def test_get_tcr_ecs_from_diagnosis_results(
         .squeeze()
     )
 
-    actual_tcr, actual_ecs = magicc_base._get_tcr_ecs_from_diagnosis_results(
+    actual_tcr, actual_ecs = magicc_base.get_tcr_ecs_from_diagnosis_results(
         test_results_df
     )
     assert actual_tcr == expected_tcr
@@ -639,7 +639,7 @@ def test_missing_config(config_override):
 
 @patch.object(MAGICCBase, "_diagnose_tcr_ecs_config_setup")
 @patch.object(MAGICCBase, "run")
-@patch.object(MAGICCBase, "_get_tcr_ecs_from_diagnosis_results")
+@patch.object(MAGICCBase, "get_tcr_ecs_from_diagnosis_results")
 def test_diagnose_tcr_ecs(
     mock_get_tcr_ecs_from_results,
     mock_run,
