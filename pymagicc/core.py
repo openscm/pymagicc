@@ -1069,7 +1069,9 @@ class MAGICCBase(object):
             ],
         )
         # drop all the irrelevant inverse emissions
-        timeseries = timeseries.filter(variable="Inverse Emissions*", level=1, keep=False)
+        timeseries = timeseries.filter(
+            variable="Inverse Emissions*", level=1, keep=False
+        )
         tcr, ecs, tcre = self.get_tcr_ecs_tcre_from_diagnosis_results(timeseries)
         return {"tcr": tcr, "ecs": ecs, "tcre": tcre, "timeseries": timeseries}
 
@@ -1080,6 +1082,33 @@ class MAGICCBase(object):
 
         self.update_config(
             FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
+            CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
+            RF_TOTAL_RUNMODUS="CO2",
+            RF_TOTAL_CONSTANTAFTERYR=2000,
+            out_inverseemis=1,
+            **kwargs,
+        )
+
+    def _diagnose_ecs_config_setup(self, **kwargs):
+        self.set_years(
+            startyear=1750, endyear=4200
+        )  # 4200 seems to be the max I can push too without an error
+
+        self.update_config(
+            FILE_CO2_CONC="ECS_CO2_CONC.IN",
+            CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
+            RF_TOTAL_RUNMODUS="CO2",
+            RF_TOTAL_CONSTANTAFTERYR=2000,
+            **kwargs,
+        )
+
+    def _diagnose_tcr_tcre_config_setup(self, **kwargs):
+        self.set_years(
+            startyear=1750, endyear=2010
+        )  # 4200 seems to be the max I can push too without an error
+
+        self.update_config(
+            FILE_CO2_CONC="TCRTCRE_CO2_CONC.IN",
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
@@ -1194,41 +1223,73 @@ class MAGICCBase(object):
 
         return tcr_time, ecs_time, tcre_start_time
 
-    def _check_tcr_ecs_tcre_total_RF(self, df_total_rf, tcr_time, ecs_time):
+    def _check_ecs_total_RF(self, df_total_rf, jump_time):
         total_rf = df_total_rf.timeseries()
         total_rf_max = total_rf.values.squeeze().max()
 
         t_start = total_rf.columns.min()
         t_end = total_rf.columns.max()
-        tcre_start_time = tcr_time - relativedelta(years=70)
 
         spin_up_rf = (
-            _filter_time_range(df_total_rf, lambda x: t_start <= x <= tcre_start_time)
+            _filter_time_range(df_total_rf, lambda x: t_start <= x < jump_time)
             .timeseries()
             .values.squeeze()
         )
         if not (spin_up_rf == 0).all():
             raise ValueError(
-                "The TCR/ECS/TCRE total radiative forcing looks wrong, it is not all zero before concentrations start rising"
+                "The ECS total radiative forcing looks wrong, it is not all zero before concentrations start rising"
             )
 
         eqm_rf = (
-            _filter_time_range(df_total_rf, lambda x: tcr_time <= x <= t_end)
+            _filter_time_range(df_total_rf, lambda x: jump_time <= x <= t_end)
             .timeseries()
             .values.squeeze()
         )
         if not (eqm_rf == total_rf_max).all():
             raise ValueError(
-                "The TCR/ECS/TCRE total radiative forcing looks wrong, it is not constant after concentrations are constant"
+                "The ECS total radiative forcing looks wrong, it is not constant after concentrations double"
             )
 
-    def _check_tcr_ecs_tcre_temp(self, df_temp):
+    def _check_tcr_tcre_total_RF(self, df_total_rf, tcr_time):
+        total_rf = df_total_rf.timeseries()
+        total_rf_max = total_rf.values.squeeze().max()
+
+        t_start = total_rf.columns.min()
+        t_end = total_rf.columns.max()
+        tcr_start_time = tcr_time - relativedelta(years=70)
+
+        spin_up_rf = (
+            _filter_time_range(df_total_rf, lambda x: t_start <= x <= tcr_start_time)
+            .timeseries()
+            .values.squeeze()
+        )
+        if not (spin_up_rf == 0).all():
+            raise ValueError(
+                "The TCR/TCRE total radiative forcing looks wrong, it is not all zero before concentrations start rising"
+            )
+
+        rf_vls = total_rf.values.squeeze()
+        rf_minus_previous_yr = rf_vls[1:] - rf_vls[:-1]
+        if not np.all(rf_minus_previous_yr >= 0):
+            raise ValueError(
+                "The TCR/TCRE total radiative forcing looks wrong, it is not rising after concentrations start rising"
+            )
+
+    def _check_ecs_temp(self, df_temp):
+        self._check_tcr_ecs_tcre_temp(
+            df_temp, "The ECS surface temperature looks wrong, it decreases"
+        )
+
+    def _check_tcr_tcre_temp(self, df_temp):
+        self._check_tcr_ecs_tcre_temp(
+            df_temp, "The TCR/TCRE surface temperature looks wrong, it decreases"
+        )
+
+    def _check_tcr_ecs_tcre_temp(self, df_temp, message):
         tmp_vls = df_temp.timeseries().values.squeeze()
         tmp_minus_previous_yr = tmp_vls[1:] - tmp_vls[:-1]
         if not np.all(tmp_minus_previous_yr >= 0):
-            raise ValueError(
-                "The TCR/ECS/TCRE surface temperature looks wrong, it decreases"
-            )
+            raise ValueError(message)
 
     def set_emission_scenario_setup(self, scenario, config_dict):
         """Set the emissions flags correctly.
