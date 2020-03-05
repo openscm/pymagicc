@@ -12,7 +12,7 @@ import numpy as np
 import f90nml
 import pandas as pd
 from scmdata import df_append
-
+from scmdata.units import unit_registry
 
 from .config import config, _wine_installed
 from .scenarios import zero_emissions
@@ -1190,7 +1190,7 @@ class MAGICCBase(object):
 
         Returns
         -------
-        ecs : float
+        ecs : :obj:`pint.quantity.Quantity`
             ECS diagnosed from ``results_ecs_run``
         """
         global_co2_concs = results_ecs_run.filter(
@@ -1211,6 +1211,8 @@ class MAGICCBase(object):
         self._check_ecs_temp(global_temp)
 
         ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
+        unit = global_temp.get_unique_meta("unit", no_duplicates=True)
+        ecs = ecs * unit_registry(unit)
 
         return ecs
 
@@ -1226,7 +1228,7 @@ class MAGICCBase(object):
             surface temperature.
         Returns
         -------
-        tcr, tcre : float, float, float
+        tcr, tcre : :obj:`pint.quantity.Quantity`, :obj:`pint.quantity.Quantity`
             TCR and TCRE diagnosed from ``results_tcr_tcre_run``
         """
         global_co2_concs = results_tcr_tcre_run.filter(
@@ -1255,11 +1257,28 @@ class MAGICCBase(object):
         self._check_tcr_tcre_temp(global_temp)
 
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
+        tcr_unit = global_temp.get_unique_meta("unit", no_duplicates=True)
+        tcr = tcr * unit_registry(tcr_unit)
+       
         tcre_cumulative_emms = float(
             global_inverse_co2_emms.filter(
                 year=range(tcr_start_time.year, tcr_time.year)
             ).values.sum()
         )
+        emms_unit = global_inverse_co2_emms.get_unique_meta("unit", no_duplicates=True)
+        years = global_inverse_co2_emms["year"].values.squeeze()
+        if not np.all((years[1:] - years[:-1]) == 1):  # pragma: no cover
+            raise AssertionError(
+                "TCR/TCRE diagnosis assumed to be on annual timestep. Please "
+                "raise an issue at "
+                "https://github.com/openclimatedata/pymagicc/issues to discuss "
+                "your use case"
+            )
+        
+        # can now safely assume that our simple sum has done the right thing
+        tcre_cumulative_emms_unit = unit_registry(emms_unit) * unit_registry("yr")
+        tcre_cumulative_emms = tcre_cumulative_emms * tcre_cumulative_emms_unit
+        
         tcre = tcr / tcre_cumulative_emms
 
         return tcr, tcre
