@@ -1060,7 +1060,9 @@ class MAGICCBase(object):
         tcr_tcre_res = self.diagnose_tcr_tcre(**kwargs)
 
         out = {**ecs_res, **tcr_tcre_res}
-        out["timeseries"] = df_append([ecs_res["timeseries"], tcr_tcre_res["timeseries"]])
+        out["timeseries"] = df_append(
+            [ecs_res["timeseries"], tcr_tcre_res["timeseries"]]
+        )
 
         return out
 
@@ -1143,11 +1145,9 @@ class MAGICCBase(object):
         timeseries = timeseries.filter(
             variable="Inverse Emissions*", level=1, keep=False
         )
-        # drop the final year as concs stay constant from some reason, 
+        # drop the final year as concs stay constant from some reason,
         # MAGICC bug...
-        timeseries = timeseries.filter(
-            time=timeseries["time"].max(), keep=False
-        )
+        timeseries = timeseries.filter(time=timeseries["time"].max(), keep=False)
         timeseries.set_meta("1pctCO2", "scenario")
         tcr, tcre = self.get_tcr_tcre_from_diagnosis_results(timeseries)
 
@@ -1167,16 +1167,14 @@ class MAGICCBase(object):
         )
 
     def _diagnose_tcr_tcre_config_setup(self, **kwargs):
-        self.set_years(
-            startyear=1750, endyear=2020
-        ) 
+        self.set_years(startyear=1750, endyear=2020)
 
         self.update_config(
             FILE_CO2_CONC="1PCTCO2_CO2_CONC.IN",
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=3000,
-            out_inverseemis=1,
+            OUT_INVERSEEMIS=1,
             **kwargs,
         )
 
@@ -1198,14 +1196,14 @@ class MAGICCBase(object):
         global_co2_concs = results_ecs_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        ecs_time, ecs_start_time = self._get_ecs_ecs_start_yr_from_CO2_concs(global_co2_concs)
+        ecs_time, ecs_start_time = self._get_ecs_ecs_start_yr_from_CO2_concs(
+            global_co2_concs
+        )
 
         global_total_rf = results_ecs_run.filter(
             variable="Radiative Forcing", region="World"
         )
-        self._check_ecs_total_RF(
-            global_total_rf, jump_time=ecs_start_time
-        )
+        self._check_ecs_total_RF(global_total_rf, jump_time=ecs_start_time)
 
         global_temp = results_ecs_run.filter(
             variable="Surface Temperature", region="World"
@@ -1234,10 +1232,9 @@ class MAGICCBase(object):
         global_co2_concs = results_tcr_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        (
-            tcr_time,
-            tcr_start_time,
-        ) = self._get_tcr_tcr_start_yr_from_CO2_concs(global_co2_concs)
+        (tcr_time, tcr_start_time,) = self._get_tcr_tcr_start_yr_from_CO2_concs(
+            global_co2_concs
+        )
 
         if tcr_time.year != tcr_start_time.year + 70:  # pragma: no cover # emergency
             raise AssertionError("Has the definition of TCR and TCRE changed?")
@@ -1250,9 +1247,7 @@ class MAGICCBase(object):
         global_total_rf = results_tcr_tcre_run.filter(
             variable="Radiative Forcing", region="World"
         )
-        self._check_tcr_tcre_total_RF(
-            global_total_rf, tcr_time=tcr_time
-        )
+        self._check_tcr_tcre_total_RF(global_total_rf, tcr_time=tcr_time)
 
         global_temp = results_tcr_tcre_run.filter(
             variable="Surface Temperature", region="World"
@@ -1331,14 +1326,14 @@ class MAGICCBase(object):
             .values.squeeze()
         )
         # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
-        expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(len(actual_rise_co2_concs))
+        expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(
+            len(actual_rise_co2_concs)
+        )
         rise_co2_concs_correct = np.isclose(
             actual_rise_co2_concs, expected_rise_co2_concs
         ).all()
         if not rise_co2_concs_correct:
-            raise ValueError(
-                "The TCR/TCRE CO2 concs look wrong during the rise period"
-            )
+            raise ValueError("The TCR/TCRE CO2 concs look wrong during the rise period")
 
         return tcr_time, tcr_start_time
 
