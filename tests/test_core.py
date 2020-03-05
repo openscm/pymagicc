@@ -769,15 +769,15 @@ def test_integration_diagnose_tcr_ecs_tcre(package):
     assert actual_result["tcr"] < actual_result["ecs"]
     if isinstance(package, MAGICC6):
         # MAGICC6 shipped with pymagicc should be stable
-        np.testing.assert_allclose(actual_result["tcr"].to("delta_degC").magnitude, 1.9733976, rtol=1e-5)
-        np.testing.assert_allclose(actual_result["ecs"].to("delta_degC").magnitude, 2.98326, rtol=1e-5)
-        np.testing.assert_allclose(actual_result["tcre"].to("delta_degC / TtC").magnitude, 2.28698, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["tcr"].to("K").magnitude, 1.9733976, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["ecs"].to("K").magnitude, 2.98326, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["tcre"].to("K / TtC").magnitude, 2.28698, rtol=1e-5)
 
     if isinstance(package, MAGICC7):
         # see how stable this is, can delete the test later if it's overly restrictive
-        np.testing.assert_allclose(actual_result["tcr"].to("delta_degC").magnitude, 1.982697, rtol=1e-5)
-        np.testing.assert_allclose(actual_result["ecs"].to("delta_degC").magnitude, 2.9948422, rtol=1e-5)
-        np.testing.assert_allclose(actual_result["tcre"].to("delta_degC / TtC").magnitude, 2.3189736, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["tcr"].to("K").magnitude, 1.982697, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["ecs"].to("K").magnitude, 2.9948422, rtol=1e-5)
+        np.testing.assert_allclose(actual_result["tcre"].to("K / TtC").magnitude, 2.3189736, rtol=1e-5)
 
 
 @patch.object(MAGICCBase, "_diagnose_ecs_config_setup")
@@ -790,7 +790,7 @@ def test_diagnose_ecs(
     valid_ecs_diagnosis_results,
     magicc_base,
 ):
-    mock_ecs_val = 3.1 * unit_registry("delta_degC")
+    mock_ecs_val = 3.1 * unit_registry("K")
     mock_run_results = valid_ecs_diagnosis_results["mock_results"]
 
     mock_run.return_value = mock_run_results
@@ -826,8 +826,8 @@ def test_diagnose_tcr_tcre(
     valid_tcr_tcre_diagnosis_results,
     magicc_base,
 ):
-    mock_tcr_val = 1.8 * unit_registry("delta_degC")
-    mock_tcre_val = 2.5 * unit_registry("delta_degC / GtC")
+    mock_tcr_val = 1.8 * unit_registry("K")
+    mock_tcre_val = 2.5 * unit_registry("K / GtC")
     mock_run_results = valid_tcr_tcre_diagnosis_results["mock_results"]
 
     mock_run.return_value = mock_run_results
