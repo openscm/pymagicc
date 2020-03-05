@@ -1019,6 +1019,14 @@ class MAGICCBase(object):
         self.update_config(**outconfig)
 
     def get_executable(self):
+        """
+        Get path to MAGICC executable being used
+
+        Returns
+        -------
+        str
+            Path to MAGICC executable being used
+        """
         return config["executable_{}".format(self.version)]
 
     def diagnose_tcr_ecs_tcre(self, **kwargs):
@@ -1259,7 +1267,7 @@ class MAGICCBase(object):
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
         tcr_unit = global_temp.get_unique_meta("unit", no_duplicates=True)
         tcr = tcr * unit_registry(tcr_unit)
-       
+
         tcre_cumulative_emms = float(
             global_inverse_co2_emms.filter(
                 year=range(tcr_start_time.year, tcr_time.year)
@@ -1274,11 +1282,11 @@ class MAGICCBase(object):
                 "https://github.com/openclimatedata/pymagicc/issues to discuss "
                 "your use case"
             )
-        
+
         # can now safely assume that our simple sum has done the right thing
         tcre_cumulative_emms_unit = unit_registry(emms_unit) * unit_registry("yr")
         tcre_cumulative_emms = tcre_cumulative_emms * tcre_cumulative_emms_unit
-        
+
         tcre = tcr / tcre_cumulative_emms
 
         return tcr, tcre
