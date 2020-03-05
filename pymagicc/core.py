@@ -1032,17 +1032,15 @@ class MAGICCBase(object):
 
         The equilibrium climate sensitivity (ECS), is the equilibrium global-mean
         temperature response to an instantaneous doubling of atmospheric |CO2|
-        concentrations.
+        concentrations (abrupt-2xCO2 experiment).
 
         The transient climate response to emissions (TCRE), is the global-mean
         temperature response per unit cumulative |CO2| emissions at the time at which
         atmospheric |CO2| concentrations double in the 1pctCO2 experiment.
 
-        As MAGICC has no hysteresis in its equilibrium response to radiative forcing,
-        we can diagnose TCR, ECS and TCRE with one experiment. However, please note
-        that sometimes the run length won't be long enough to allow MAGICC's oceans to
-        fully equilibrate and hence the ECS value might not be what you expect (it
-        should match the value of ``core_climatesensitivity``).
+        Please note that sometimes the run length won't be long enough to allow
+        MAGICC's oceans to fully equilibrate and hence the ECS value might not be what
+        you expect (it should match the value of ``core_climatesensitivity``).
 
         Parameters
         ----------
@@ -1053,12 +1051,85 @@ class MAGICCBase(object):
         -------
         dict
             Dictionary with keys: "ecs" - the diagnosed ECS; "tcr" - the diagnosed
-            TCR; "tcre" - the diagnosed TCRE; timeseries" - the relevant model input
+            TCR; "tcre" - the diagnosed TCRE; "timeseries" - the relevant model input
             and output timeseries used in the experiment i.e. atmospheric |CO2|
             concentrations, inverse |CO2| emissions, total radiative forcing and
             global-mean surface temperature
         """
-        self._diagnose_tcr_ecs_tcre_config_setup(**kwargs)
+        ecs_res = self.diagnose_ecs(**kwargs)
+        tcr_tcre_res = self.diagnose_tcr_tcre(**kwargs)
+
+        out = {**ecs_res, **tcr_tcre_res}
+        out["timeseries"] = df_append([ecs_res["timeseries"], tcr_tcre_res["timeseries"]])
+
+        return out
+
+    def diagnose_ecs(self, **kwargs):
+        """
+        Diagnose ECS
+
+        The equilibrium climate sensitivity (ECS), is the equilibrium global-mean
+        temperature response to an instantaneous doubling of atmospheric |CO2|
+        concentrations (abrupt-2xCO2 experiment).
+
+        Please note that sometimes the run length won't be long enough to allow
+        MAGICC's oceans to fully equilibrate and hence the ECS value might not be what
+        you expect (it should match the value of ``core_climatesensitivity``).
+
+        Parameters
+        ----------
+        **kwargs
+            parameter values to use in the diagnosis e.g. ``core_climatesensitivity=4``
+
+        Returns
+        -------
+        dict
+            Dictionary with keys: "ecs" - the diagnosed ECS; "timeseries" - the
+            relevant model input and output timeseries used in the experiment i.e.
+            atmospheric |CO2| concentrations, inverse |CO2| emissions, total radiative
+            forcing and global-mean surface temperature
+        """
+        self._diagnose_ecs_config_setup(**kwargs)
+        timeseries = self.run(
+            scenario=None,
+            only=[
+                "Atmospheric Concentrations|CO2",
+                "Radiative Forcing",
+                "Surface Temperature",
+            ],
+        )
+        timeseries.set_meta("abrupt-2xCO2", "scenario")
+
+        ecs = self.get_ecs_from_diagnosis_results(timeseries)
+        return {"ecs": ecs, "timeseries": timeseries}
+
+    def diagnose_tcr_tcre(self, **kwargs):
+        """
+        Diagnose TCR and TCRE
+
+        The transient climate response (TCR), is the global-mean temperature response
+        per unit cumulative |CO2| emissions at the time at which atmospheric |CO2|
+        concentrations double in an experiment where atmospheric |CO2| concentrations
+        are increased at 1% per year from pre-industrial levels (1pctCO2 experiment).
+
+        The transient climate response to emissions (TCRE), is the global-mean
+        temperature response per unit cumulative |CO2| emissions at the time at which
+        atmospheric |CO2| concentrations double in the 1pctCO2 experiment.
+
+        Parameters
+        ----------
+        **kwargs
+            parameter values to use in the diagnosis e.g. ``core_climatesensitivity=4``
+
+        Returns
+        -------
+        dict
+            Dictionary with keys: "tcr" - the diagnosed TCR; "tcre" - the diagnosed
+            TCRE; "timeseries" - the relevant model input and output timeseries used
+            in the experiment i.e. atmospheric |CO2| concentrations, inverse |CO2|
+            emissions, total radiative forcing and global-mean surface temperature
+        """
+        self._diagnose_tcr_tcre_config_setup(**kwargs)
         timeseries = self.run(
             scenario=None,
             only=[
@@ -1072,22 +1143,10 @@ class MAGICCBase(object):
         timeseries = timeseries.filter(
             variable="Inverse Emissions*", level=1, keep=False
         )
-        tcr, ecs, tcre = self.get_tcr_ecs_tcre_from_diagnosis_results(timeseries)
-        return {"tcr": tcr, "ecs": ecs, "tcre": tcre, "timeseries": timeseries}
+        timeseries.set_meta("1pctCO2", "scenario")
+        tcr, tcre = self.get_tcr_tcre_from_diagnosis_results(timeseries)
 
-    def _diagnose_tcr_ecs_tcre_config_setup(self, **kwargs):
-        self.set_years(
-            startyear=1750, endyear=4200
-        )  # 4200 seems to be the max I can push too without an error
-
-        self.update_config(
-            FILE_CO2_CONC="TCRECS_CO2_CONC.IN",
-            CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
-            RF_TOTAL_RUNMODUS="CO2",
-            RF_TOTAL_CONSTANTAFTERYR=2000,
-            out_inverseemis=1,
-            **kwargs,
-        )
+        return {"tcr": tcr, "tcre": tcre, "timeseries": timeseries}
 
     def _diagnose_ecs_config_setup(self, **kwargs):
         self.set_years(
@@ -1116,112 +1175,167 @@ class MAGICCBase(object):
             **kwargs,
         )
 
-    def get_tcr_ecs_tcre_from_diagnosis_results(self, results_tcr_ecs_tcre_run):
+    def get_ecs_from_diagnosis_results(self, results_ecs_run):
         """
-        Diagnose TCR, ECS and TCRE from the results of the 1pctCO2 experiment
+        Diagnose ECS from the results of the abrupt-2xCO2 experiment
 
         Parameters
         ----------
-        results_tcr_ecs_tcre_run : :obj:`ScmDataFrame`
-            Results of the 1pctCO2 experiment, must contain atmospheric |CO2|
-            concentrations, inverse |CO2| emissions, total radiative forcing and
-            surface temperature.
+        results_ecs_run : :obj:`ScmDataFrame`
+            Results of the abrupt-2xCO2 experiment, must contain atmospheric |CO2|
+            concentrations, total radiative forcing and surface temperature.
 
         Returns
         -------
-        tcr, ecs, tcre : float, float, float
-            TCR, ECS and TCRE diagnosed from ``results_tcr_ecs_tcre_run``
+        ecs : float
+            ECS diagnosed from ``results_ecs_run``
         """
-        global_co2_concs = results_tcr_ecs_tcre_run.filter(
+        global_co2_concs = results_ecs_run.filter(
+            variable="Atmospheric Concentrations|CO2", region="World"
+        )
+        ecs_time, ecs_start_time = self._get_ecs_ecs_start_yr_from_CO2_concs(global_co2_concs)
+
+        global_total_rf = results_ecs_run.filter(
+            variable="Radiative Forcing", region="World"
+        )
+        self._check_ecs_total_RF(
+            global_total_rf, jump_time=ecs_start_time
+        )
+
+        global_temp = results_ecs_run.filter(
+            variable="Surface Temperature", region="World"
+        )
+        self._check_ecs_temp(global_temp)
+
+        ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
+
+        return ecs
+
+    def get_tcr_tcre_from_diagnosis_results(self, results_tcr_tcre_run):
+        """
+        Diagnose TCR and TCRE from the results of the 1pctCO2 experiment
+
+        Parameters
+        ----------
+        results_tcr_tcre_run : :obj:`ScmDataFrame`
+            Results of the 1pctCO2 experiment, must contain atmospheric |CO2|
+            concentrations, inverse |CO2| emissions, total radiative forcing and
+            surface temperature.
+        Returns
+        -------
+        tcr, tcre : float, float, float
+            TCR and TCRE diagnosed from ``results_tcr_tcre_run``
+        """
+        global_co2_concs = results_tcr_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
         (
             tcr_time,
-            ecs_time,
-            tcre_start_time,
-        ) = self._get_tcr_ecs_tcre_start_yr_from_CO2_concs(global_co2_concs)
+            tcr_start_time,
+        ) = self._get_tcr_tcr_start_yr_from_CO2_concs(global_co2_concs)
 
-        if tcr_time.year != tcre_start_time.year + 70:  # pragma: no cover # emergency
+        if tcr_time.year != tcr_start_time.year + 70:  # pragma: no cover # emergency
             raise AssertionError("Has the definition of TCR and TCRE changed?")
 
-        global_inverse_co2_emms = results_tcr_ecs_tcre_run.filter(
+        global_inverse_co2_emms = results_tcr_tcre_run.filter(
             variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
             region="World",
         )
 
-        global_total_rf = results_tcr_ecs_tcre_run.filter(
+        global_total_rf = results_tcr_tcre_run.filter(
             variable="Radiative Forcing", region="World"
         )
-        self._check_tcr_ecs_tcre_total_RF(
-            global_total_rf, tcr_time=tcr_time, ecs_time=ecs_time
+        self._check_tcr_tcre_total_RF(
+            global_total_rf, tcr_time=tcr_time
         )
 
-        global_temp = results_tcr_ecs_tcre_run.filter(
+        global_temp = results_tcr_tcre_run.filter(
             variable="Surface Temperature", region="World"
         )
-        self._check_tcr_ecs_tcre_temp(global_temp)
+        self._check_tcr_tcre_temp(global_temp)
 
         tcr = float(global_temp.filter(time=tcr_time).values.squeeze())
-        ecs = float(global_temp.filter(time=ecs_time).values.squeeze())
         tcre_cumulative_emms = float(
             global_inverse_co2_emms.filter(
-                year=range(tcre_start_time.year, tcr_time.year)
+                year=range(tcr_start_time.year, tcr_time.year)
             ).values.sum()
         )
         tcre = tcr / tcre_cumulative_emms
 
-        return tcr, ecs, tcre
+        return tcr, tcre
 
-    def _get_tcr_ecs_tcre_start_yr_from_CO2_concs(self, df_co2_concs):
+    def _get_ecs_ecs_start_yr_from_CO2_concs(self, df_co2_concs):
         co2_concs = df_co2_concs.timeseries()
         co2_conc_0 = co2_concs.iloc[0, 0]
         t_start = co2_concs.columns.min()
         t_end = co2_concs.columns.max()
 
-        tcre_start_time = co2_concs.iloc[
+        ecs_start_time = co2_concs.iloc[
             :, co2_concs.values.squeeze() > co2_conc_0
-        ].columns[0] - relativedelta(years=1)
-        tcr_time = tcre_start_time + relativedelta(years=70)
+        ].columns[0]
 
         spin_up_co2_concs = (
-            _filter_time_range(df_co2_concs, lambda x: t_start <= x <= tcre_start_time)
+            _filter_time_range(df_co2_concs, lambda x: t_start <= x < ecs_start_time)
             .timeseries()
             .values.squeeze()
         )
         if not (spin_up_co2_concs == co2_conc_0).all():
             raise ValueError(
-                "The TCR/ECS/TCRE CO2 concs look wrong, they are not constant before they start rising"
+                "The ECS CO2 concs look wrong, they are not constant before they start rising"
             )
 
-        actual_rise_co2_concs = (
-            _filter_time_range(df_co2_concs, lambda x: tcre_start_time <= x <= tcr_time)
-            .timeseries()
-            .values.squeeze()
-        )
-        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
-        expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(71)
-        rise_co2_concs_correct = np.isclose(
-            actual_rise_co2_concs, expected_rise_co2_concs
-        ).all()
-        if not rise_co2_concs_correct:
-            raise ValueError(
-                "The TCR/ECS/TCRE CO2 concs look wrong during the rise period"
-            )
-
-        co2_conc_final = max(expected_rise_co2_concs)
+        co2_conc_final = 2 * co2_conc_0
         eqm_co2_concs = (
-            _filter_time_range(df_co2_concs, lambda x: tcr_time <= x <= t_end)
+            _filter_time_range(df_co2_concs, lambda x: ecs_start_time <= x <= t_end)
             .timeseries()
             .values.squeeze()
         )
         if not np.isclose(eqm_co2_concs, co2_conc_final).all():
             raise ValueError(
-                "The TCR/ECS/TCRE CO2 concs look wrong, they are not constant after 70 years of rising"
+                "The ECS CO2 concs look wrong, they are not constant after doubling"
             )
 
         ecs_time = df_co2_concs["time"].iloc[-1]
 
-        return tcr_time, ecs_time, tcre_start_time
+        return ecs_time, ecs_start_time
+
+    def _get_tcr_tcr_start_yr_from_CO2_concs(self, df_co2_concs):
+        co2_concs = df_co2_concs.timeseries()
+        co2_conc_0 = co2_concs.iloc[0, 0]
+        t_start = co2_concs.columns.min()
+        t_end = co2_concs.columns.max()
+
+        tcr_start_time = co2_concs.iloc[
+            :, co2_concs.values.squeeze() > co2_conc_0
+        ].columns[0] - relativedelta(years=1)
+        tcr_time = tcr_start_time + relativedelta(years=70)
+
+        spin_up_co2_concs = (
+            _filter_time_range(df_co2_concs, lambda x: t_start <= x <= tcr_start_time)
+            .timeseries()
+            .values.squeeze()
+        )
+        if not (spin_up_co2_concs == co2_conc_0).all():
+            raise ValueError(
+                "The TCR/TCRE CO2 concs look wrong, they are not constant before they start rising"
+            )
+
+        actual_rise_co2_concs = (
+            _filter_time_range(df_co2_concs, lambda x: tcr_start_time <= x <= t_end)
+            .timeseries()
+            .values.squeeze()
+        )
+        # this will blow up if we switch to diagnose tcr/ecs with a monthly run...
+        expected_rise_co2_concs = co2_conc_0 * 1.01 ** np.arange(len(actual_rise_co2_concs))
+        rise_co2_concs_correct = np.isclose(
+            actual_rise_co2_concs, expected_rise_co2_concs
+        ).all()
+        if not rise_co2_concs_correct:
+            raise ValueError(
+                "The TCR/TCRE CO2 concs look wrong during the rise period"
+            )
+
+        return tcr_time, tcr_start_time
 
     def _check_ecs_total_RF(self, df_total_rf, jump_time):
         total_rf = df_total_rf.timeseries()
