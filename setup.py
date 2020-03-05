@@ -45,8 +45,7 @@ REQUIREMENTS_INSTALL = [
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    # "scmdata>=0.2.1",
-    "scmdata @ git+https://github.com/lewisjared/scmdata.git@expose-unit-registry",
+    "scmdata>=0.4",
     "scipy",
 ]
 REQUIREMENTS_NOTEBOOKS = [
