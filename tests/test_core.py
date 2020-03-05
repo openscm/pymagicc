@@ -582,7 +582,7 @@ def test_get_ecs_from_diagnosis_results(
         test_results_df.filter(variable="Surface Temperature", time=test_ecs_time)
         .timeseries()
         .squeeze()
-    )
+    ) * unit_registry("K")
 
     actual_ecs = magicc_base.get_ecs_from_diagnosis_results(test_results_df)
     assert actual_ecs == expected_ecs
@@ -615,11 +615,11 @@ def test_get_tcr_tcre_from_diagnosis_results(
         test_results_df.filter(variable="Surface Temperature", time=test_tcr_time)
         .timeseries()
         .squeeze()
-    )
+    ) * unit_registry("K")
     expected_tcre_cumulative_co2 = test_results_df.filter(
         variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
         year=range(test_tcre_start_time.year, test_tcr_time.year),
-    ).values.sum()
+    ).values.sum() * unit_registry("GtC")
     expected_tcre = expected_tcr / expected_tcre_cumulative_co2
 
     (actual_tcr, actual_tcre,) = magicc_base.get_tcr_tcre_from_diagnosis_results(
