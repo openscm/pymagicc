@@ -2408,7 +2408,9 @@ class _RCPDatWriter(_Writer):
         else:
             raise NotImplementedError
 
-        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = len(self._get_col_order_rename_col()[0]) - 1  # exclude time column
+        nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATACOLUMNS"] = (
+            len(self._get_col_order_rename_col()[0]) - 1
+        )  # exclude time column
 
         nml.uppercase = True
         nml._writestream(output)
@@ -2417,8 +2419,6 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _write_datablock(self, output):
-        # TODO: clean this out, there's massive code duplication in all the
-        # `_write_variable_...` methods
         _, data_block = self._get_initial_nml_and_data_block()
 
         drop_levels = []
@@ -2455,135 +2455,64 @@ class _RCPDatWriter(_Writer):
         raise NotImplementedError
 
     def _write_variable_datablock_radforcing(self, output, data_block, units_level):
-        col_order, rename_col = self._get_col_order_rename_col()
+        data_block, units = self._reorder_data_block_and_get_units(
+            data_block, units_level
+        )
 
-        data_block = data_block[col_order]
-
-        units = data_block.columns.get_level_values(units_level)
-        data_block.columns = data_block.columns.droplevel(units_level)
-
-        data_block.columns = data_block.columns.map(rename_col)
         units = [u.replace("Wpermsuper2", "W/m2") for u in units]
 
-        col_row = "   COLUMN:" + "".join(
-            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
-        )
-        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = (
             "     YEARS  TOTAL_INCLVOLCANIC_RF  VOLCANIC_ANNUAL_RF         SOLAR_RF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
-        # for most data files, as long as the data is space separated, the
-        # format doesn't matter
-        time_col_length = 10
-        time_col_format = "d"
 
-        first_col_format_str = (
-            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
-        ).format
-        other_col_format_str = "{:19.5e}".format
-        formatters = [other_col_format_str] * len(data_block.columns)
-        formatters[0] = first_col_format_str
+        output = self._write_output(data_block, output, units, variable_row)
 
-        output.write(col_row)
-        output.write(self._newline_char)
-        output.write(units_row)
-        output.write(self._newline_char)
-        output.write(variable_row)
-        output.write(self._newline_char)
-        data_block.to_string(
-            output, index=False, header=False, formatters=formatters, sparsify=False
-        )
-        output.write(self._newline_char)
         return output
 
     def _write_variable_datablock_effradforcing(self, output, data_block, units_level):
-        col_order, rename_col = self._get_col_order_rename_col()
-
-        data_block = data_block[col_order]
-
-        units = data_block.columns.get_level_values(units_level)
-        data_block.columns = data_block.columns.droplevel(units_level)
-
-        data_block.columns = data_block.columns.map(rename_col)
+        data_block, units = self._reorder_data_block_and_get_units(
+            data_block, units_level
+        )
         units = [u.replace("Wpermsuper2", "W/m2") for u in units]
 
-        col_row = "   COLUMN:" + "".join(
-            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
-        )
-        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = (
             "     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
-        # for most data files, as long as the data is space separated, the
-        # format doesn't matter
-        time_col_length = 10
-        time_col_format = "d"
 
-        first_col_format_str = (
-            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
-        ).format
-        other_col_format_str = "{:19.5e}".format
-        formatters = [other_col_format_str] * len(data_block.columns)
-        formatters[0] = first_col_format_str
+        output = self._write_output(data_block, output, units, variable_row)
 
-        output.write(col_row)
-        output.write(self._newline_char)
-        output.write(units_row)
-        output.write(self._newline_char)
-        output.write(variable_row)
-        output.write(self._newline_char)
-        data_block.to_string(
-            output, index=False, header=False, formatters=formatters, sparsify=False
-        )
-        output.write(self._newline_char)
         return output
 
     def _write_variable_datablock_emissions(self, output, data_block, units_level):
-        col_order, rename_col = self._get_col_order_rename_col()
-
-        data_block = data_block[col_order]
-
-        units = data_block.columns.get_level_values(units_level)
-        data_block.columns = data_block.columns.droplevel(units_level)
-
-        data_block.columns = data_block.columns.map(rename_col)
+        data_block, units = self._reorder_data_block_and_get_units(
+            data_block, units_level
+        )
         units = [u.replace("per", "/") for u in units]
 
-        col_row = "   COLUMN:" + "".join(
-            ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
-        )
-        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = "     YEARS" + "".join(
             ["{: >20}".format(c) for c in data_block.columns[1:]]
         )
 
-        # for most data files, as long as the data is space separated, the
-        # format doesn't matter
-        time_col_length = 10
-        time_col_format = "d"
+        output = self._write_output(data_block, output, units, variable_row)
 
-        first_col_format_str = (
-            "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
-        ).format
-        other_col_format_str = "{:19.5e}".format
-        formatters = [other_col_format_str] * len(data_block.columns)
-        formatters[0] = first_col_format_str
-
-        output.write(col_row)
-        output.write(self._newline_char)
-        output.write(units_row)
-        output.write(self._newline_char)
-        output.write(variable_row)
-        output.write(self._newline_char)
-        data_block.to_string(
-            output, index=False, header=False, formatters=formatters, sparsify=False
-        )
-        output.write(self._newline_char)
         return output
 
     def _write_variable_datablock_concentrations(self, output, data_block, units_level):
+        data_block, units = self._reorder_data_block_and_get_units(
+            data_block, units_level
+        )
+
+        variable_row = "     YEARS" + "".join(
+            ["{: >20}".format(c) for c in data_block.columns[1:]]
+        )
+
+        output = self._write_output(data_block, output, units, variable_row)
+
+        return output
+
+    def _reorder_data_block_and_get_units(self, data_block, units_level):
         col_order, rename_col = self._get_col_order_rename_col()
 
         data_block = data_block[col_order]
@@ -2593,18 +2522,22 @@ class _RCPDatWriter(_Writer):
 
         data_block.columns = data_block.columns.map(rename_col)
 
-        col_row = "   COLUMN:" + "".join(
+        return data_block, units
+
+    def _get_col_row(self, data_block):
+        return "   COLUMN:" + "".join(
             ["{: >20}".format(i) for i in range(1, (data_block.shape[1]))]
         )
-        units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
-        variable_row = "     YEARS" + "".join(
-            ["{: >20}".format(c) for c in data_block.columns[1:]]
-        )
 
-        # for most data files, as long as the data is space separated, the
-        # format doesn't matter
+    def _get_units_row(self, units):
+        return "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
+
+    def _write_output(self, data_block, output, units, variable_row):
         time_col_length = 10
         time_col_format = "d"
+
+        col_row = self._get_col_row(data_block)
+        units_row = self._get_units_row(units)
 
         first_col_format_str = (
             "{" + ":{}{}".format(time_col_length, time_col_format) + "}"
@@ -2623,6 +2556,7 @@ class _RCPDatWriter(_Writer):
             output, index=False, header=False, formatters=formatters, sparsify=False
         )
         output.write(self._newline_char)
+
         return output
 
     def _get_col_order_rename_col(self):
