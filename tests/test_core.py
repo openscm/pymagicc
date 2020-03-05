@@ -410,10 +410,10 @@ def test_diagnose_ecs_config_setup(mock_set_years, mock_update_config, magicc_ba
     magicc_base._diagnose_ecs_config_setup()
     mock_set_years.assert_called_with(startyear=1750, endyear=4200)
     mock_update_config.assert_called_with(
-        FILE_CO2_CONC="ECS_CO2_CONC.IN",
+        FILE_CO2_CONC="ABRUPT2XCO2_CO2_CONC.IN",
         CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
-        RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
+        RF_TOTAL_CONSTANTAFTERYR=2000,
     )
 
 
@@ -423,13 +423,13 @@ def test_diagnose_tcr_tcre_config_setup(
     mock_set_years, mock_update_config, magicc_base
 ):
     magicc_base._diagnose_tcr_tcre_config_setup()
-    mock_set_years.assert_called_with(startyear=1750, endyear=2010)
+    mock_set_years.assert_called_with(startyear=1750, endyear=2020)
     mock_update_config.assert_called_with(
-        FILE_CO2_CONC="TCRTCRE_CO2_CONC.IN",
+        FILE_CO2_CONC="1PCTCO2_CO2_CONC.IN",
         CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
-        RF_TOTAL_CONSTANTAFTERYR=2000,
         RF_TOTAL_RUNMODUS="CO2",
-        out_inverseemis=1,
+        RF_TOTAL_CONSTANTAFTERYR=3000,
+        OUT_INVERSEEMIS=1,
     )
 
 
@@ -572,7 +572,10 @@ def test_get_ecs_from_diagnosis_results(
     test_ecs_start_time = valid_ecs_diagnosis_results["ecs_start_time"]
     test_results_df = valid_ecs_diagnosis_results["mock_results"]
 
-    mock_get_ecs_ecs_start_yr_from_CO2_concs.return_value = (test_ecs_time, test_ecs_start_time)
+    mock_get_ecs_ecs_start_yr_from_CO2_concs.return_value = (
+        test_ecs_time,
+        test_ecs_start_time,
+    )
 
     expected_ecs = (
         test_results_df.filter(variable="Surface Temperature", time=test_ecs_time)
@@ -661,7 +664,10 @@ def test_get_ecs_ecs_start_yr_from_CO2_concs(valid_ecs_diagnosis_results, magicc
     test_results_df = valid_ecs_diagnosis_results["mock_results"]
     test_CO2_data = test_results_df.filter(variable="Atmospheric Concentrations|CO2")
 
-    actual_ecs_yr, actual_ecs_start_yr = magicc_base._get_ecs_ecs_start_yr_from_CO2_concs(test_CO2_data)
+    (
+        actual_ecs_yr,
+        actual_ecs_start_yr,
+    ) = magicc_base._get_ecs_ecs_start_yr_from_CO2_concs(test_CO2_data)
     assert actual_ecs_yr == valid_ecs_diagnosis_results["ecs_time"]
     assert actual_ecs_start_yr == valid_ecs_diagnosis_results["ecs_start_time"]
 
@@ -672,7 +678,9 @@ def test_get_ecs_ecs_start_yr_from_CO2_concs(valid_ecs_diagnosis_results, magicc
     )
 
 
-def test_get_tcr_tcr_start_yr_from_CO2_concs(valid_tcr_tcre_diagnosis_results, magicc_base):
+def test_get_tcr_tcr_start_yr_from_CO2_concs(
+    valid_tcr_tcre_diagnosis_results, magicc_base
+):
     test_results_df = valid_tcr_tcre_diagnosis_results["mock_results"]
     test_CO2_data = test_results_df.filter(variable="Atmospheric Concentrations|CO2")
 
