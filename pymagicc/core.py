@@ -1143,6 +1143,11 @@ class MAGICCBase(object):
         timeseries = timeseries.filter(
             variable="Inverse Emissions*", level=1, keep=False
         )
+        # drop the final year as concs stay constant from some reason, 
+        # MAGICC bug...
+        timeseries = timeseries.filter(
+            time=timeseries["time"].max(), keep=False
+        )
         timeseries.set_meta("1pctCO2", "scenario")
         tcr, tcre = self.get_tcr_tcre_from_diagnosis_results(timeseries)
 
@@ -1154,7 +1159,7 @@ class MAGICCBase(object):
         )  # 4200 seems to be the max I can push too without an error
 
         self.update_config(
-            FILE_CO2_CONC="ECS_CO2_CONC.IN",
+            FILE_CO2_CONC="ABRUPT2XCO2_CO2_CONC.IN",
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
             RF_TOTAL_CONSTANTAFTERYR=2000,
@@ -1163,14 +1168,14 @@ class MAGICCBase(object):
 
     def _diagnose_tcr_tcre_config_setup(self, **kwargs):
         self.set_years(
-            startyear=1750, endyear=2010
-        )  # 4200 seems to be the max I can push too without an error
+            startyear=1750, endyear=2020
+        ) 
 
         self.update_config(
-            FILE_CO2_CONC="TCRTCRE_CO2_CONC.IN",
+            FILE_CO2_CONC="1PCTCO2_CO2_CONC.IN",
             CO2_SWITCHFROMCONC2EMIS_YEAR=30000,
             RF_TOTAL_RUNMODUS="CO2",
-            RF_TOTAL_CONSTANTAFTERYR=2000,
+            RF_TOTAL_CONSTANTAFTERYR=3000,
             out_inverseemis=1,
             **kwargs,
         )
