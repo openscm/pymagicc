@@ -1393,10 +1393,8 @@ class MAGICCBase(object):
 
     def _check_tcr_tcre_total_RF(self, df_total_rf, tcr_time):
         total_rf = df_total_rf.timeseries()
-        total_rf_max = total_rf.values.squeeze().max()
 
         t_start = total_rf.columns.min()
-        t_end = total_rf.columns.max()
         tcr_start_time = tcr_time - relativedelta(years=70)
 
         spin_up_rf = (
