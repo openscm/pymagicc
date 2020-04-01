@@ -47,6 +47,7 @@ REQUIREMENTS_INSTALL = [
     "PyYAML",
     "scmdata>=0.4",
     "scipy",
+    "openscm-runner @ git+https://github.com/openscm/openscm-runner.git@magicc7",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
