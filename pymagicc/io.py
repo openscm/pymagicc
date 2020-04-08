@@ -813,7 +813,7 @@ class _ScenReader(_NonStandardEmisInReader):
         except NameError:
             error_msg = (
                 "This is unexpected, please raise an issue on "
-                "https://github.com/openclimatedata/pymagicc/issues"
+                "https://github.com/openscm/pymagicc/issues"
             )
             raise Exception(error_msg)
 
@@ -1377,7 +1377,7 @@ def _get_dattype_regionmode_regions_row(regions, scen7=False):
             "Unrecognised regions, they must be part of "
             "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
             "sense, please raise an issue at "
-            "https://github.com/openclimatedata/pymagicc/issues"
+            "https://github.com/openscm/pymagicc/issues"
         )
         raise ValueError(error_msg)
 
@@ -2047,7 +2047,7 @@ class _RCPDatWriter(_Writer):
             "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
             "writers are not super well tested so the error messages are likely "
             "to be cryptic. If you need help, please raise an issue at "
-            "https://github.com/openclimatedata/pymagicc/issues"
+            "https://github.com/openscm/pymagicc/issues"
         )
         if "_RADFORCING.DAT" in self._filepath:
             return self._get_header_radforcing()

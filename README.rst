@@ -76,8 +76,8 @@ Basic Usage
 
 .. sec-end-example-plot
 
-For more example usage see this `Jupyter Notebook <https://github.com/openclimatedata/pymagicc/blob/master/notebooks/Example.ipynb>`_.
-Thanks to the `Binder project <https://mybinder.org>`_ the `Notebook <https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb>`_ can be run and modified without installing anything locally. A small interactive `demo app <https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb>`_ using Jupyter Notebook's `appmode extension <https://github.com/oschuett/appmode/>`_
+For more example usage see this `Jupyter Notebook <https://github.com/openscm/pymagicc/blob/master/notebooks/Example.ipynb>`_.
+Thanks to the `Binder project <https://mybinder.org>`_ the `Notebook <https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb>`_ can be run and modified without installing anything locally. A small interactive `demo app <https://mybinder.org/v2/gh/openscm/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb>`_ using Jupyter Notebook's `appmode extension <https://github.com/oschuett/appmode/>`_
 is also available.
 
 .. sec-end-usage
@@ -125,7 +125,7 @@ editable version for local development:
 
 .. code:: bash
 
-    git clone https://github.com/openclimatedata/pymagicc.git
+    git clone https://github.com/openscm/pymagicc.git
 
     cd pymagicc
     make venv
@@ -284,7 +284,7 @@ Contributing
 .. sec-begin-contributing
 
 Please report issues or discuss feature requests on Pymagicc's
-`issue tracker <https://github.com/openclimatedata/pymagicc/issues>`_.
+`issue tracker <https://github.com/openscm/pymagicc/issues>`_.
 
 You can also contact the `pymagicc` authors via email:
 `<mailto:robert.gieseke@pik-potsdam.de, zebedee.nicholls@climate-energy-college.org>`_
@@ -336,14 +336,14 @@ See `<https://doi.org/10.5281/zenodo.1111815>`_.
 
 .. sec-end-license
 
-.. |Build Status| image:: https://travis-ci.org/openclimatedata/pymagicc.svg?branch=master
-    :target: https://travis-ci.org/openclimatedata/pymagicc
-.. |AppVeyor| image:: https://img.shields.io/appveyor/ci/openclimatedata/pymagicc/master.svg
-    :target: https://ci.appveyor.com/project/openclimatedata/pymagicc
-.. |Codecov| image:: https://img.shields.io/codecov/c/github/openclimatedata/pymagicc.svg
-    :target: https://codecov.io/gh/openclimatedata/pymagicc
+.. |Build Status| image:: https://travis-ci.org/openscm/pymagicc.svg?branch=master
+    :target: https://travis-ci.org/openscm/pymagicc
+.. |AppVeyor| image:: https://img.shields.io/appveyor/ci/openscm/pymagicc/master.svg
+    :target: https://ci.appveyor.com/project/openscm/pymagicc
+.. |Codecov| image:: https://img.shields.io/codecov/c/github/openscm/pymagicc.svg
+    :target: https://codecov.io/gh/openscm/pymagicc
 .. |Launch Binder| image:: https://img.shields.io/badge/launch-binder-e66581.svg
-    :target: https://mybinder.org/v2/gh/openclimatedata/pymagicc/master?filepath=notebooks/Example.ipynb
+    :target: https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb
 .. |PyPI| image:: https://img.shields.io/pypi/pyversions/pymagicc.svg
     :target: https://pypi.org/project/pymagicc/
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/pymagicc.svg

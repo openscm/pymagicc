@@ -64,7 +64,7 @@ the "Launch Binder" link in the Readme on GitHub. This build might take a while.
 The Binder notebook will install the latest version available on PyPI.
 
 Finally, the new version needs to be turned into a release. This requires visiting
-https://github.com/openclimatedata/pymagicc/releases, pressing 'Draft a new release',
+https://github.com/openscm/pymagicc/releases, pressing 'Draft a new release',
 choosing the tag you just pushed, filling out the form and pressing 'Publish release'.
 Having done these steps, the package will be automatically archived on
 `Zenodo <https://doi.org/10.5281/zenodo.1111815>`__.

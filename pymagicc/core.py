@@ -1279,7 +1279,7 @@ class MAGICCBase(object):
             raise AssertionError(
                 "TCR/TCRE diagnosis assumed to be on annual timestep. Please "
                 "raise an issue at "
-                "https://github.com/openclimatedata/pymagicc/issues to discuss "
+                "https://github.com/openscm/pymagicc/issues to discuss "
                 "your use case"
             )
 

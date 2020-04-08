@@ -12,7 +12,7 @@ On Linux and macOS Wine (https://www.winehq.org) needs to be installed (usually
 available with your package manager).
 
 Find usage instructions in the
-GitHub repository at https://github.com/openclimatedata/pymagicc.
+GitHub repository at https://github.com/openscm/pymagicc.
 """
 import versioneer
 
@@ -27,11 +27,11 @@ AUTHORS = [
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
     ("Jared Lewis", "jared.lewis@climate-energy-college.org"),
 ]
-URL = "https://github.com/openclimatedata/pymagicc"
+URL = "https://github.com/openscm/pymagicc"
 PROJECT_URLS = {
-    "Bug Reports": "https://github.com/openclimatedata/pymagicc/issues",
+    "Bug Reports": "https://github.com/openscm/pymagicc/issues",
     "Documentation": "https://pymagicc.readthedocs.io/en/latest",
-    "Source": "https://github.com/openclimatedata/pymagicc",
+    "Source": "https://github.com/openscm/pymagicc",
 }
 LICENSE = "GNU Affero General Public License v3"
 CLASSIFIERS = [
