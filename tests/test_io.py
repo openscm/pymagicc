@@ -3703,6 +3703,7 @@ def test_mag_reader():
 @pytest.mark.parametrize("test_file", (
     join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
     join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG"),
+    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_LONG_DATA_SALT.MAG"),
 ))
 def test_mag_reader_metadata_only(benchmark, test_file):
     result = benchmark(read_mag_file_metadata, filepath=test_file)
