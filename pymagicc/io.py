@@ -117,20 +117,22 @@ class _Reader(object):
     def __init__(self, filepath):
         self.filepath = filepath
 
-    def _set_lines(self):
-        # TODO document this choice
-        # We have to make a choice about special characters e.g. names with
-        # umlauts. The standard seems to be utf-8 hence we set things up to
-        # only work if the encoding is utf-8.
-        with open(
-            self.filepath, "r", encoding="utf-8", newline=self._newline_char
-        ) as f:
-            self.lines = f.readlines()
-
     def read(self):
-        self._set_lines()
+        nml_start, nml_end = self._set_lines_and_find_nml()
 
-        nml_end, nml_start = self._find_nml()
+        metadata = self._derive_metadata(nml_start, nml_end)
+
+        # Create a stream from the remaining lines, ignoring any blank lines
+        stream = StringIO()
+        cleaned_lines = [l.strip() for l in self.lines[nml_end + 1 :] if l.strip()]
+        stream.write("\n".join(cleaned_lines))
+        stream.seek(0)
+
+        df, metadata, column_headers = self.process_data(stream, metadata)
+
+        return metadata, df, column_headers
+
+    def _derive_metadata(self, nml_start, nml_end):
 
         nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
 
@@ -143,37 +145,73 @@ class _Reader(object):
         header_metadata = self.process_header("".join(self.lines[:nml_start]))
         metadata.update(header_metadata)
 
-        # Create a stream from the remaining lines, ignoring any blank lines
-        stream = StringIO()
-        cleaned_lines = [l.strip() for l in self.lines[nml_end + 1 :] if l.strip()]
-        stream.write("\n".join(cleaned_lines))
-        stream.seek(0)
+        return metadata
 
-        df, metadata, column_headers = self.process_data(stream, metadata)
+    def _open_file(self):
+        # TODO document this choice of encoding
+        # We have to make a choice about special characters e.g. names with
+        # umlauts. The standard seems to be utf-8 hence we set things up to
+        # only work if the encoding is utf-8.
+        return open(self.filepath, "r", encoding="utf-8", newline=self._newline_char)
 
-        return metadata, df, column_headers
+    def _readlines(self, fh, metadata_only=False):
+        if metadata_only:
+            # read file line by line
+            line = None
+            while line != "":
+                line = fh.readline()
+                yield line
 
-    def _find_nml(self):
+        else:
+            # read whole file at once
+            for line in fh.readlines():
+                yield line
+
+    def _set_lines_and_find_nml(self, metadata_only=False):
         """
-        Find the start and end of the embedded namelist.
+        Set lines and find the start and end of the embedded namelist.
+
+        Parameters
+        ----------
+        metadata_only : bool
+            Should only the metadata be read? If yes, we will stop reading in lines
+            as soon as we get to the end of the namelist.
 
         Returns
         -------
         (int, int)
-            start and end index for the namelist
+            Start and end index for the namelist
         """
         nml_start = None
         nml_end = None
-        for i in range(len(self.lines)):
-            if self.lines[i].strip().startswith("&"):
-                nml_start = i
+        with self._open_file() as f:
+            lines = []
 
-            if self.lines[i].strip().startswith("/"):
-                nml_end = i
-        assert (
-            nml_start is not None and nml_end is not None
-        ), "Could not find namelist within {}".format(self.filepath)
-        return nml_end, nml_start
+            for i, line in enumerate(self._readlines(f, metadata_only=metadata_only)):
+                lines.append(line)
+
+                if self._is_nml_start(line):
+                    nml_start = i
+
+                if (nml_start is not None) and self._is_nml_end(line):
+                    nml_end = i
+                    # if metadata_only:
+                    #     break
+
+        self.lines = lines
+
+        if (nml_start is None) or (nml_end is None):
+            raise ValueError("Could not find namelist")
+
+        return nml_start, nml_end
+
+    @staticmethod
+    def _is_nml_start(line):
+        return line.strip().startswith("&THISFILE_SPECIFICATIONS")
+
+    @staticmethod
+    def _is_nml_end(line):
+        return line.strip().startswith("/")
 
     def process_metadata(self, lines):
         def preprocess_edge_cases(lines, inverse=False):
@@ -632,6 +670,10 @@ class _Scen7Reader(_StandardEmisInReader):
 
 
 class _NonStandardEmisInReader(_EmisInReader):
+    def _set_lines(self):
+        with self._open_file() as f:
+            self.lines = f.readlines()
+
     def read(self):
         self._set_lines()
         self._stream = self._get_stream()
@@ -788,9 +830,7 @@ class _ScenReader(_NonStandardEmisInReader):
 
 class _RCPDatReader(_Reader):
     def read(self):
-        self._set_lines()
-
-        nml_end, nml_start = self._find_nml()
+        nml_start, nml_end = self._set_lines_and_find_nml()
 
         # ignore all nml_values as they are redundant
         header = "".join(self.lines[:nml_start])
@@ -3493,41 +3533,13 @@ def read_mag_file_metadata(filepath):
     ValueError
         The file is not a ``.MAG`` file
     """
-    # TODO: as part of https://github.com/openscm/pymagicc/issues/166,
-    # update this so there is less code duplication and the function is tested
-    # for more than just ``.MAG`` files. That requires a rethink of the io
-    # module in general.
     if not filepath.endswith(".MAG"):
         raise ValueError("File must be a `.MAG` file")
 
     reader = _MAGReader(filepath)
+    nml_start, nml_end = reader._set_lines_and_find_nml(metadata_only=True)
 
-    reader._set_lines()
-    # with open(
-    #     reader.filepath, "r", encoding="utf-8", newline=reader._newline_char
-    # ) as f:
-    #     lines = []
-    #     line = f.readline()
-    #     while not line.strip().startswith("VARIABLE"):
-    #         line = f.readline()
-    #         lines.append(line)
-
-    #     reader.lines = lines
-
-    nml_end, nml_start = reader._find_nml()
-
-    nml_values = reader.process_metadata(reader.lines[nml_start : nml_end + 1])
-
-    # ignore all nml_values except units
-    metadata = {
-        key: value
-        for key, value in nml_values.items()
-        if key in ["units", "timeseriestype"]
-    }
-    header_metadata = reader.process_header("".join(reader.lines[:nml_start]))
-    metadata.update(header_metadata)
-
-    return metadata
+    return reader._derive_metadata(nml_start, nml_end)
 
 
 def read_cfg_file(filepath):

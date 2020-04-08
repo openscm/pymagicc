@@ -1,0 +1,49 @@
+---- HEADER ----
+
+Date crunched: DATESTRING
+Crunched by: Zebedee Nicholls
+Tool used: pymagicc vX.Y.Z, available at
+Affiliation: Climate & Energy College, The University of Melbourne
+
+---- METADATA ----
+
+key: value
+length: 53 furlongs
+original source: somewhere over the rainbow of 125 moons
+region abbreviations: Currently understood MAGICC abbreviations - GLOBAL (global average), NH (northern hemisphere average), SH (southern hemisphere average), NHOCEAN (northern hemisphere ocean average), SHOCEAN (southern hemisphere ocean average), NHLAND (northern hemisphere land average), SHLAND (southern hemisphere land average), OCEAN (ocean average), LAND (land average), N34 (El Nino 3.4 region average), AMV (northern Atlantic Ocean average i.e. average for the atlantic meridional variability region)
+
+&THISFILE_SPECIFICATIONS
+ THISFILE_DATACOLUMNS    =    6  ,
+ THISFILE_DATAROWS       =   19  ,
+ THISFILE_FIRSTYEAR      = 1910  ,
+ THISFILE_LASTYEAR       = 1911  ,
+ THISFILE_ANNUALSTEPS    =   12  ,
+ THISFILE_FIRSTDATAROW   =   31  ,
+ THISFILE_DATTYPE        = "MAG"  ,
+ THISFILE_REGIONMODE     = "NONE"  ,
+ THISFILE_TIMESERIESTYPE = "MONTHLY"  ,
+
+
+      VARIABLE        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP        SURFACE_TEMP
+          TODO                 SET                 SET                 SET                 SET                 SET                 SET
+         UNITS                   K                   K                   K                   K                   K                   K
+         YEARS              NHLAND              SHLAND             NHOCEAN             SHOCEAN                 N34                 AMV
+   1910.042000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.125000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.208000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.292000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.375000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.458000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.542000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.625000         0.00000e+00         3.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.708000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.792000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.875000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1910.958000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1911.042000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1911.125000         0.00000e+00         0.00000e+00         0.00000e+00         5.00000e+00         0.00000e+00         0.00000e+00
+   1911.208000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1911.292000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1911.375000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
+   1911.458000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         1.20000e+01
+   1911.542000         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         9.00000e+00         3.00000e+00
