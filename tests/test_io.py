@@ -827,7 +827,7 @@ def test_load_scen_last_resort_message(mock_scen_header_line_reader):
 
     error_msg = re.escape(
         "This is unexpected, please raise an issue on "
-        "https://github.com/openclimatedata/pymagicc/issues"
+        "https://github.com/openscm/pymagicc/issues"
     )
     with pytest.raises(Exception, match=error_msg):
         MAGICCData(join(MAGICC6_DIR, "RCP26.SCEN"))
@@ -3185,7 +3185,7 @@ def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emis
         "Unrecognised regions, they must be part of "
         "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
         "sense, please raise an issue at "
-        "https://github.com/openclimatedata/pymagicc/issues"
+        "https://github.com/openscm/pymagicc/issues"
     )
     assert isinstance(pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS, pd.DataFrame)
     with pytest.raises(ValueError, match=error_msg):
@@ -3407,7 +3407,7 @@ def test_writing_identical_rcpdat(
         "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
         "writers are not super well tested so the error messages are likely "
         "to be cryptic. If you need help, please raise an issue at "
-        "https://github.com/openclimatedata/pymagicc/issues"
+        "https://github.com/openscm/pymagicc/issues"
     )
     with pytest.warns(Warning, match=warning_msg):
         writer.write(res, magicc_version=magicc_version)

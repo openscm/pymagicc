@@ -48,7 +48,7 @@ It can be installed using `pip` from the Python Package Index ^[<https://pypi.py
 To enable Pymagicc to run under Linux and macOS the Wine^[https://www.winehq.org/] compatibility layer is used, usually being available from package managers.
 
 Source code, documentation and issue tracker are available in Pymagicc's GitHub
-repository^[<https://github.com/openclimatedata/pymagicc>].
+repository^[<https://github.com/openscm/pymagicc>].
 Usage examples are also contained in the repository as a Jupyter Notebook [@Perez2007; @Kluyver2016]. Thanks to the Binder project^[<https://mybinder.org/>], the example
 Notebook can also be run interactively and explored without the need to install Pymagicc locally.
 
