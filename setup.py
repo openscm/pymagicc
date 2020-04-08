@@ -60,6 +60,7 @@ REQUIREMENTS_NOTEBOOKS = [
 ]
 REQUIREMENTS_TESTS = [
     "pytest>=4.0,<5",
+    "pytest-benchmark",
     "pytest-cov",
     "pytest-mock",
     "codecov",
