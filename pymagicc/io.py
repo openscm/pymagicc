@@ -195,8 +195,8 @@ class _Reader(object):
 
                 if (nml_start is not None) and self._is_nml_end(line):
                     nml_end = i
-                    # if metadata_only:
-                    #     break
+                    if metadata_only:
+                        break
 
         self.lines = lines
 
