@@ -132,21 +132,6 @@ class _Reader(object):
 
         return metadata, df, column_headers
 
-    def _derive_metadata(self, nml_start, nml_end):
-
-        nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
-
-        # ignore all nml_values except units
-        metadata = {
-            key: value
-            for key, value in nml_values.items()
-            if key in ["units", "timeseriestype"]
-        }
-        header_metadata = self.process_header("".join(self.lines[:nml_start]))
-        metadata.update(header_metadata)
-
-        return metadata
-
     def _open_file(self):
         # TODO document this choice of encoding
         # We have to make a choice about special characters e.g. names with
@@ -212,6 +197,21 @@ class _Reader(object):
     @staticmethod
     def _is_nml_end(line):
         return line.strip().startswith("/")
+
+    def _derive_metadata(self, nml_start, nml_end):
+
+        nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
+
+        # ignore all nml_values except units
+        metadata = {
+            key: value
+            for key, value in nml_values.items()
+            if key in ["units", "timeseriestype"]
+        }
+        header_metadata = self.process_header("".join(self.lines[:nml_start]))
+        metadata.update(header_metadata)
+
+        return metadata
 
     def process_metadata(self, lines):
         def preprocess_edge_cases(lines, inverse=False):
