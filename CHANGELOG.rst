@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#288 <https://github.com/openclimatedata/pymagicc/pull/288>`_) Add ``pymagicc.io.read_mag_file_metadata``, which allows fast reading of metadata from a ``.MAG`` file
 - (`#285 <https://github.com/openclimatedata/pymagicc/pull/285>`_) Return ``pint.quantity.Quantity`` from all ECS, TCR and TCRE diagnostic methods
 - (`#284 <https://github.com/openclimatedata/pymagicc/pull/284>`_) Update ECS, TCR and TCRE diagnosis to use 1pctCO2 and abrupt-2xCO2 experiments
 - (`#283 <https://github.com/openclimatedata/pymagicc/pull/283>`_) Diagnose TCRE alongisde ECS and TCR, changes ``diagnose_tcr_ecs`` to ``diagnose_tcr_ecs_tcre`` and ``get_tcr_ecs_from_diagnosis_results`` method to ``get_tcr_ecs__tcre_from_diagnosis_results``
