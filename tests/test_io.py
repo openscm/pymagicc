@@ -2731,16 +2731,16 @@ def test_magicc_input_init_preserves_columns():
     assert (mdata["climate_model"] == tclimate_model).all()
 
 
-def test_set_lines():
+def test_set_lines_and_find_nml():
     reader = _Reader("test")
     with pytest.raises(FileNotFoundError):
-        reader._set_lines()
+        reader._set_lines_and_find_nml()
 
     test_file = join(TEST_DATA_DIR, "HISTSSP_CO2I_EMIS.IN")
     assert isfile(test_file)
 
     reader = _Reader(test_file)
-    reader._set_lines()
+    reader._set_lines_and_find_nml()
     with open(test_file, "r", encoding="utf-8", newline="\n") as f:
         assert reader.lines == f.readlines()
 
@@ -3716,6 +3716,15 @@ def test_mag_reader_metadata_only(benchmark, test_file):
 def test_mag_reader_metadata_only_wrong_file_type():
     with pytest.raises(ValueError, match=re.escape("File must be a `.MAG` file")):
         read_mag_file_metadata("CO2I_EMIS.IN")
+
+
+@pytest.mark.parametrize("broken_file", (
+    join(TEST_DATA_DIR, "MAG_FORMAT_MISSING_NAMELIST_END.MAG"),
+    join(TEST_DATA_DIR, "MAG_FORMAT_WRONG_NAMELIST_NAME.MAG"),
+))
+def test_mag_reader_metadata_only_missing_namelist(broken_file):
+    with pytest.raises(ValueError, match=re.escape("Could not find namelist")):
+        read_mag_file_metadata(broken_file)
 
 
 def test_mag_writer_default_header(temp_dir, writing_base):
