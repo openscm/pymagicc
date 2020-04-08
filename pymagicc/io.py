@@ -3473,9 +3473,9 @@ def _read_and_return_metadata_df(filepath):
 
 def read_mag_file_metadata(filepath):
     """
-    Read only the metadata in a .MAG file
+    Read only the metadata in a ``.MAG ``file
 
-    This provides a way to access a .MAG file's metadata without reading the
+    This provides a way to access a ``.MAG`` file's metadata without reading the
     entire datablock, significantly reducing read time.
 
     Parameters
@@ -3487,10 +3487,19 @@ def read_mag_file_metadata(filepath):
     -------
     dict
         Metadata read from the file
+
+    Raises
+    ------
+    ValueError
+        The file is not a ``.MAG`` file
     """
     # TODO: as part of https://github.com/openscm/pymagicc/issues/166,
-    # update this so there is less code duplication. That requires a rethink
-    # of the io module in general.
+    # update this so there is less code duplication and the function is tested
+    # for more than just ``.MAG`` files. That requires a rethink of the io
+    # module in general.
+    if not filepath.endswith(".MAG"):
+        raise ValueError("File must be a `.MAG` file")
+
     reader = _MAGReader(filepath)
 
     reader._set_lines()

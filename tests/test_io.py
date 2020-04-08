@@ -3712,6 +3712,11 @@ def test_mag_reader_metadata_only(benchmark, test_file):
     assert result == checker.metadata
 
 
+def test_mag_reader_metadata_only_wrong_file_type():
+    with pytest.raises(ValueError, match=re.escape("File must be a `.MAG` file")):
+        read_mag_file_metadata("CO2I_EMIS.IN")
+
+
 def test_mag_writer_default_header(temp_dir, writing_base):
     tregions = [
         "World|{}|{}".format(r, sr)
