@@ -4,46 +4,46 @@ Changelog
 master
 ------
 
-- (`#288 <https://github.com/openclimatedata/pymagicc/pull/288>`_) Add ``pymagicc.io.read_mag_file_metadata``, which allows fast reading of metadata from a ``.MAG`` file
-- (`#290 <https://github.com/openclimatedata/pymagicc/pull/290>`_) Update minimum ``scmdata`` version to v0.4.3
-- (`#285 <https://github.com/openclimatedata/pymagicc/pull/285>`_) Return ``pint.quantity.Quantity`` from all ECS, TCR and TCRE diagnostic methods
-- (`#284 <https://github.com/openclimatedata/pymagicc/pull/284>`_) Update ECS, TCR and TCRE diagnosis to use 1pctCO2 and abrupt-2xCO2 experiments
-- (`#283 <https://github.com/openclimatedata/pymagicc/pull/283>`_) Diagnose TCRE alongisde ECS and TCR, changes ``diagnose_tcr_ecs`` to ``diagnose_tcr_ecs_tcre`` and ``get_tcr_ecs_from_diagnosis_results`` method to ``get_tcr_ecs__tcre_from_diagnosis_results``
-- (`#282 <https://github.com/openclimatedata/pymagicc/pull/282>`_) Expose ``MAGICCBase.get_tcr_ecs_from_diagnosis_results`` method
-- (`#280 <https://github.com/openclimatedata/pymagicc/pull/280>`_) Also include source distribution in pypi release
-- (`#271 <https://github.com/openclimatedata/pymagicc/pull/271>`_) Update requirements of pyam, make error messages include ``stderr`` and remove overwrite of ``file_emisscen`` when creating MAGICC7 copies if ``not self.strict``
-- (`#274 <https://github.com/openclimatedata/pymagicc/pull/274>`_) Add better readers and writers for ``.DAT`` files
-- (`#272 <https://github.com/openclimatedata/pymagicc/pull/272>`_) Add support for new ``THISFILE_TIMESERIESTYPE`` in ``.MAG`` files
-- (`#269 <https://github.com/openclimatedata/pymagicc/pull/269>`_) Break circular dependency on OpenSCM by switching to using scmdata
-- (`#268 <https://github.com/openclimatedata/pymagicc/pull/268>`_) Update region mapping to match SSP database
-- (`#266 <https://github.com/openclimatedata/pymagicc/pull/266>`_) Use a whitelist of `OUT_` parameters which are converted to 1/0's
-- (`#264 <https://github.com/openclimatedata/pymagicc/pull/264>`_) Allowed an empty dataframe to be returned from ``MAGICCBase.run`` if no output is produced
-- (`#267 <https://github.com/openclimatedata/pymagicc/pull/267>`_) Hotfix appveyor failures
-- (`#261 <https://github.com/openclimatedata/pymagicc/pull/261>`_) Improve mapping of MAGICC7 to OpenSCM variables
-- (`#259 <https://github.com/openclimatedata/pymagicc/pull/259>`_) Added ``strict`` option for downgrading configuration exceptions to warnings
-- (`#256 <https://github.com/openclimatedata/pymagicc/pull/256>`_) Capture stderr output from MAGICC7 and above (not available in MAGICC6)
-- (`#252 <https://github.com/openclimatedata/pymagicc/pull/252>`_) Improve header writing, upgrade MAGICC time conversions and fix wine not installed error handling
-- (`#253 <https://github.com/openclimatedata/pymagicc/pull/253>`_) Add support for ``out_dynamic_vars`` parameter
-- (`#250 <https://github.com/openclimatedata/pymagicc/pull/250>`_) Add support for ``.MAG`` files
-- (`#249 <https://github.com/openclimatedata/pymagicc/pull/249>`_) Update to keep pace with MAGICC7 development
-- (`#247 <https://github.com/openclimatedata/pymagicc/pull/247>`_) Upgrade pyam dependency to use nominated release
-- (`#244 <https://github.com/openclimatedata/pymagicc/pull/244>`_) Use openscm from pip, hence drop Python3.6 support, and drop pyam dependency (moved into notebooks dependencies)
-- (`#236 <https://github.com/openclimatedata/pymagicc/pull/236>`_) Made all subannual files raise an InvalidTemporalResError exception as ScmDataFrame can't handle merging annual and subannual timeseries together yet
-- (`#239 <https://github.com/openclimatedata/pymagicc/pull/239>`_) Explicitly overwrite tuning model and emission scenario parameters for MAGICC7 when a temporary copy is created
-- (`#229 <https://github.com/openclimatedata/pymagicc/pull/229>`_) Add more robust tests of io, in particular that column order and spacing in files is preserved
-- (`#233 <https://github.com/openclimatedata/pymagicc/pull/233>`_) Fix inplace append hard coding as identified in `#232 <https://github.com/openclimatedata/pymagicc/issues/232>`_
-- (`#234 <https://github.com/openclimatedata/pymagicc/pull/234>`_) Raise ``ValueError`` if ``only`` doesn't match an output variable in ``MAGICC.run`` (solves `#231 <https://github.com/openclimatedata/pymagicc/issues/231>`_)
-- (`#227 <https://github.com/openclimatedata/pymagicc/pull/227>`_) Fixed up permafrost naming to avoid confusing inclusion when summing up "Emissions|CO2"
-- (`#226 <https://github.com/openclimatedata/pymagicc/pull/226>`_) Add ``SURFACE_TEMP.IN`` writer, closing `#211 <https://github.com/openclimatedata/pymagicc/issues/211>`_
-- (`#225 <https://github.com/openclimatedata/pymagicc/pull/225>`_) Fix reading of ``DAT_CO2PF_EMIS.OUT``
-- (`#224 <https://github.com/openclimatedata/pymagicc/pull/224>`_) Add ``INVERSEEMIS.OUT`` reader
-- (`#223 <https://github.com/openclimatedata/pymagicc/pull/223>`_) Ensure `pymagicc.io._BinaryOutReader` closes the input file
-- (`#222 <https://github.com/openclimatedata/pymagicc/pull/222>`_) Remove trailing ``/`` in ``MANIFEST.IN`` recursive includes as this is invalid syntax on windows.
-- (`#220 <https://github.com/openclimatedata/pymagicc/pull/220>`_) If binary and ascii output files exist for a given variable only read the binary file
-- (`#208 <https://github.com/openclimatedata/pymagicc/pull/208>`_) Add set zero config method. Also adds scenarios module, tidies up the notebooks and adds a notebook showing how to run in different modes.
-- (`#214 <https://github.com/openclimatedata/pymagicc/pull/214>`_) Refactor to use the timeseries capabilities of ScmDataFrameBase
-- (`#210 <https://github.com/openclimatedata/pymagicc/pull/210>`_) Updated to match new openscm naming
-- (`#199 <https://github.com/openclimatedata/pymagicc/pull/199>`_) Switched to OpenSCMDataFrameBase for the backend, also includes:
+- (`#288 <https://github.com/openscm/pymagicc/pull/288>`_) Add ``pymagicc.io.read_mag_file_metadata``, which allows fast reading of metadata from a ``.MAG`` file
+- (`#290 <https://github.com/openscm/pymagicc/pull/290>`_) Update minimum ``scmdata`` version to v0.4.3
+- (`#285 <https://github.com/openscm/pymagicc/pull/285>`_) Return ``pint.quantity.Quantity`` from all ECS, TCR and TCRE diagnostic methods
+- (`#284 <https://github.com/openscm/pymagicc/pull/284>`_) Update ECS, TCR and TCRE diagnosis to use 1pctCO2 and abrupt-2xCO2 experiments
+- (`#283 <https://github.com/openscm/pymagicc/pull/283>`_) Diagnose TCRE alongisde ECS and TCR, changes ``diagnose_tcr_ecs`` to ``diagnose_tcr_ecs_tcre`` and ``get_tcr_ecs_from_diagnosis_results`` method to ``get_tcr_ecs__tcre_from_diagnosis_results``
+- (`#282 <https://github.com/openscm/pymagicc/pull/282>`_) Expose ``MAGICCBase.get_tcr_ecs_from_diagnosis_results`` method
+- (`#280 <https://github.com/openscm/pymagicc/pull/280>`_) Also include source distribution in pypi release
+- (`#271 <https://github.com/openscm/pymagicc/pull/271>`_) Update requirements of pyam, make error messages include ``stderr`` and remove overwrite of ``file_emisscen`` when creating MAGICC7 copies if ``not self.strict``
+- (`#274 <https://github.com/openscm/pymagicc/pull/274>`_) Add better readers and writers for ``.DAT`` files
+- (`#272 <https://github.com/openscm/pymagicc/pull/272>`_) Add support for new ``THISFILE_TIMESERIESTYPE`` in ``.MAG`` files
+- (`#269 <https://github.com/openscm/pymagicc/pull/269>`_) Break circular dependency on OpenSCM by switching to using scmdata
+- (`#268 <https://github.com/openscm/pymagicc/pull/268>`_) Update region mapping to match SSP database
+- (`#266 <https://github.com/openscm/pymagicc/pull/266>`_) Use a whitelist of `OUT_` parameters which are converted to 1/0's
+- (`#264 <https://github.com/openscm/pymagicc/pull/264>`_) Allowed an empty dataframe to be returned from ``MAGICCBase.run`` if no output is produced
+- (`#267 <https://github.com/openscm/pymagicc/pull/267>`_) Hotfix appveyor failures
+- (`#261 <https://github.com/openscm/pymagicc/pull/261>`_) Improve mapping of MAGICC7 to OpenSCM variables
+- (`#259 <https://github.com/openscm/pymagicc/pull/259>`_) Added ``strict`` option for downgrading configuration exceptions to warnings
+- (`#256 <https://github.com/openscm/pymagicc/pull/256>`_) Capture stderr output from MAGICC7 and above (not available in MAGICC6)
+- (`#252 <https://github.com/openscm/pymagicc/pull/252>`_) Improve header writing, upgrade MAGICC time conversions and fix wine not installed error handling
+- (`#253 <https://github.com/openscm/pymagicc/pull/253>`_) Add support for ``out_dynamic_vars`` parameter
+- (`#250 <https://github.com/openscm/pymagicc/pull/250>`_) Add support for ``.MAG`` files
+- (`#249 <https://github.com/openscm/pymagicc/pull/249>`_) Update to keep pace with MAGICC7 development
+- (`#247 <https://github.com/openscm/pymagicc/pull/247>`_) Upgrade pyam dependency to use nominated release
+- (`#244 <https://github.com/openscm/pymagicc/pull/244>`_) Use openscm from pip, hence drop Python3.6 support, and drop pyam dependency (moved into notebooks dependencies)
+- (`#236 <https://github.com/openscm/pymagicc/pull/236>`_) Made all subannual files raise an InvalidTemporalResError exception as ScmDataFrame can't handle merging annual and subannual timeseries together yet
+- (`#239 <https://github.com/openscm/pymagicc/pull/239>`_) Explicitly overwrite tuning model and emission scenario parameters for MAGICC7 when a temporary copy is created
+- (`#229 <https://github.com/openscm/pymagicc/pull/229>`_) Add more robust tests of io, in particular that column order and spacing in files is preserved
+- (`#233 <https://github.com/openscm/pymagicc/pull/233>`_) Fix inplace append hard coding as identified in `#232 <https://github.com/openscm/pymagicc/issues/232>`_
+- (`#234 <https://github.com/openscm/pymagicc/pull/234>`_) Raise ``ValueError`` if ``only`` doesn't match an output variable in ``MAGICC.run`` (solves `#231 <https://github.com/openscm/pymagicc/issues/231>`_)
+- (`#227 <https://github.com/openscm/pymagicc/pull/227>`_) Fixed up permafrost naming to avoid confusing inclusion when summing up "Emissions|CO2"
+- (`#226 <https://github.com/openscm/pymagicc/pull/226>`_) Add ``SURFACE_TEMP.IN`` writer, closing `#211 <https://github.com/openscm/pymagicc/issues/211>`_
+- (`#225 <https://github.com/openscm/pymagicc/pull/225>`_) Fix reading of ``DAT_CO2PF_EMIS.OUT``
+- (`#224 <https://github.com/openscm/pymagicc/pull/224>`_) Add ``INVERSEEMIS.OUT`` reader
+- (`#223 <https://github.com/openscm/pymagicc/pull/223>`_) Ensure `pymagicc.io._BinaryOutReader` closes the input file
+- (`#222 <https://github.com/openscm/pymagicc/pull/222>`_) Remove trailing ``/`` in ``MANIFEST.IN`` recursive includes as this is invalid syntax on windows.
+- (`#220 <https://github.com/openscm/pymagicc/pull/220>`_) If binary and ascii output files exist for a given variable only read the binary file
+- (`#208 <https://github.com/openscm/pymagicc/pull/208>`_) Add set zero config method. Also adds scenarios module, tidies up the notebooks and adds a notebook showing how to run in different modes.
+- (`#214 <https://github.com/openscm/pymagicc/pull/214>`_) Refactor to use the timeseries capabilities of ScmDataFrameBase
+- (`#210 <https://github.com/openscm/pymagicc/pull/210>`_) Updated to match new openscm naming
+- (`#199 <https://github.com/openscm/pymagicc/pull/199>`_) Switched to OpenSCMDataFrameBase for the backend, also includes:
 
   - dropping Python3.5 support as OpenSCM typing is not Python3.5 compatible
   - ensuring that metadata is properly stripped when reading
