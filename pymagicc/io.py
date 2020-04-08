@@ -3503,6 +3503,16 @@ def read_mag_file_metadata(filepath):
     reader = _MAGReader(filepath)
 
     reader._set_lines()
+    # with open(
+    #     reader.filepath, "r", encoding="utf-8", newline=reader._newline_char
+    # ) as f:
+    #     lines = []
+    #     line = f.readline()
+    #     while not line.strip().startswith("VARIABLE"):
+    #         line = f.readline()
+    #         lines.append(line)
+
+    #     reader.lines = lines
 
     nml_end, nml_start = reader._find_nml()
 
