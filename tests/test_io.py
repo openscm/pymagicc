@@ -22,6 +22,7 @@ from pymagicc.io import (
     _ConcInReader,
     _ScenWriter,
     read_cfg_file,
+    read_mag_file_metadata,
     get_special_scen_code,
     NoReaderWriterError,
     InvalidTemporalResError,
@@ -3697,6 +3698,18 @@ def test_mag_reader():
         mdata, 12, region="World|North Atlantic Ocean", year=1911, month=6
     )
     assert_mdata_value(mdata, 9, region="World|El Nino N3.4", year=1911, month=7)
+
+
+@pytest.mark.parametrize("test_file", (
+    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
+    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG"),
+))
+def test_mag_reader_metadata_only(benchmark, test_file):
+    result = benchmark(read_mag_file_metadata, filepath=test_file)
+
+    checker = MAGICCData(test_file)
+
+    assert result == checker.metadata
 
 
 def test_mag_writer_default_header(temp_dir, writing_base):

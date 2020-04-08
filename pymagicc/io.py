@@ -3179,8 +3179,10 @@ class MAGICCData(ScmDataFrame):
     ----------
     data : :obj:`pd.DataFrame`
         A pandas dataframe with the data.
+
     metadata : dict
         Metadata for the data in ``self.df``.
+
     filepath : str
         The file the data was loaded from. None if data was not loaded from a file.
     """
@@ -3327,6 +3329,7 @@ def determine_tool(filepath, tool_to_get):
     ----------
     filepath : str
         Name of the file to read/write, including extension
+
     tool_to_get : str
         The tool to get, valid options are "reader", "writer".
         Invalid values will throw a NoReaderWriterError.
@@ -3468,8 +3471,49 @@ def _read_and_return_metadata_df(filepath):
     return Reader(filepath).read()
 
 
+def read_mag_file_metadata(filepath):
+    """
+    Read only the metadata in a .MAG file
+
+    This provides a way to access a .MAG file's metadata without reading the
+    entire datablock, significantly reducing read time.
+
+    Parameters
+    ----------
+    filepath : str
+        Full path (path and name) to the file to read
+
+    Returns
+    -------
+    dict
+        Metadata read from the file
+    """
+    # TODO: as part of https://github.com/openscm/pymagicc/issues/166,
+    # update this so there is less code duplication. That requires a rethink
+    # of the io module in general.
+    reader = _MAGReader(filepath)
+
+    reader._set_lines()
+
+    nml_end, nml_start = reader._find_nml()
+
+    nml_values = reader.process_metadata(reader.lines[nml_start : nml_end + 1])
+
+    # ignore all nml_values except units
+    metadata = {
+        key: value
+        for key, value in nml_values.items()
+        if key in ["units", "timeseriestype"]
+    }
+    header_metadata = reader.process_header("".join(reader.lines[:nml_start]))
+    metadata.update(header_metadata)
+
+    return metadata
+
+
 def read_cfg_file(filepath):
-    """Read a MAGICC ``.CFG`` file, or any other Fortran namelist
+    """
+    Read a MAGICC ``.CFG`` file, or any other Fortran namelist
 
     Parameters
     ----------
@@ -3488,7 +3532,8 @@ def read_cfg_file(filepath):
 
 
 def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs"):
-    """Pull out a single config set from a parameters_out namelist.
+    """
+    Pull out a single config set from a parameters_out namelist.
 
     This function returns a single file with the config that needs to be passed to
     MAGICC in order to do the same run as is represented by the values in
@@ -3543,7 +3588,8 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
 def pull_cfg_from_parameters_out_file(
     parameters_out_file, namelist_to_read="nml_allcfgs"
 ):
-    """Pull out a single config set from a MAGICC ``PARAMETERS.OUT`` file.
+    """
+    Pull out a single config set from a MAGICC ``PARAMETERS.OUT`` file.
 
     This function reads in the ``PARAMETERS.OUT`` file and returns a single file with
     the config that needs to be passed to MAGICC in order to do the same run as is
@@ -3574,7 +3620,8 @@ def pull_cfg_from_parameters_out_file(
 
 
 def get_generic_rcp_name(inname):
-    """Convert an RCP name into the generic Pymagicc RCP name
+    """
+    Convert an RCP name into the generic Pymagicc RCP name
 
     The conversion is case insensitive.
 
@@ -3668,22 +3715,26 @@ def _get_openscm_var_from_filepath(filepath):
     return openscm_var
 
 
-def to_int(x: np.ndarray) -> np.ndarray:
+def to_int(x):
     """
     Convert inputs to int and check conversion is sensible
+
     Parameters
     ----------
-    x
+    x : :obj:`np.array`
         Values to convert
+
     Returns
     -------
     :obj:`np.array` of :obj:`int`
         Input, converted to int
+
     Raises
     ------
     ValueError
         If the int representation of any of the values is not equal to its original
         representation (where equality is checked using the ``!=`` operator).
+
     TypeError
         x is not a ``np.ndarray``
     """
