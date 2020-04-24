@@ -7,6 +7,7 @@ before_install:
   - sudo dpkg --add-architecture i386
   - sudo apt-get update
   - sudo apt-get install --no-install-recommends -y wine32
+  - sudo ln -s /usr/lib/wine/wine /usr/bin/wine
   - pip install --upgrade pip
 install:
   - pip install .[tests]
