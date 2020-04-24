@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 import pandas as pd
 import f90nml
-from scmdata.units import unit_registry
+from openscm_units import unit_registry
 
 from pymagicc import MAGICC6, MAGICC7, rcp26, zero_emissions
 from pymagicc.core import MAGICCBase, config, _clean_value

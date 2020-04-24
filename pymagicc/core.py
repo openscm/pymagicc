@@ -12,7 +12,7 @@ import numpy as np
 import f90nml
 import pandas as pd
 from scmdata import df_append
-from scmdata.units import unit_registry
+from openscm_units import unit_registry
 
 from .config import config, _wine_installed
 from .scenarios import zero_emissions
