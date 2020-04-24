@@ -63,7 +63,7 @@ REQUIREMENTS_TESTS = [
     "pytest-mock",
     "codecov",
     "goodtables",
-    "goodtables",
+    "scipy",
 ]
 REQUIREMENTS_DOCS = [
     "sphinx>=1.4",
