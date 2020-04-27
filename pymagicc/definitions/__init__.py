@@ -249,7 +249,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             prefix = "Emissions"
         elif in_var.endswith("_CONC"):
             prefix = "Atmospheric Concentrations"
-        elif in_var.endswith("_EFFRF"):
+        elif in_var.endswith("_ERF"):
             prefix = "Effective Radiative Forcing"
         elif in_var.endswith("_RF"):
             prefix = "Radiative Forcing"
@@ -328,7 +328,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         return DATA_HIERARCHY_SEPARATOR.join([prefix, variable])
 
-    magicc7_suffixes = ["_EMIS", "_CONC", "_EFFRF", "_RF", "_OT", "_INVERSE_EMIS"]
+    magicc7_suffixes = ["_EMIS", "_CONC", "_ERF", "_RF", "_OT", "_INVERSE_EMIS"]
     magicc7_base_vars = MAGICC7_EMISSIONS_UNITS.magicc_variable.tolist() + [
         "SOLAR",
         "VOLCANIC",
@@ -374,16 +374,16 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "AIR_CONTRAILANDCIRRUS_RF": "Radiative Forcing|Aviation|Contrail and Cirrus",
         "AIR_H2O_RF": "Radiative Forcing|Aviation|H2O",
     }
-    rf_updates_with_effrf = {
+    rf_updates_with_erf = {
         **rf_updates,
         **{
-            k.replace("_RF", "_EFFRF"): v.replace(
+            k.replace("_RF", "_ERF"): v.replace(
                 "Radiative Forcing", "Effective Radiative Forcing"
             )
             for k, v in rf_updates.items()
         },
     }
-    replacements.update(rf_updates_with_effrf)
+    replacements.update(rf_updates_with_erf)
     replacements.update(
         {
             "SURFACE_TEMP": "Surface Temperature",
