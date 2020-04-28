@@ -1986,7 +1986,7 @@ def test_load_sample_dat_radiative_forcings():
 
 
 def test_load_sample_dat_effective_radiative_forcings():
-    test_file = "SAMPLE_MIDYEAR_EFFRADFORCING.DAT"
+    test_file = "SAMPLE_MIDYEAR_EFFECTIVERADFORCING.DAT"
     mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
@@ -3483,11 +3483,10 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
         ("EXPECTED_MAGICC7_EMISSIONS.DAT", 7),
         ("EXPECTED_MAGICC7_MIDYEAR_CONCENTRATIONS.DAT", 7),
         ("EXPECTED_MAGICC7_MIDYEAR_RADFORCING.DAT", 7),
-        ("EXPECTED_MAGICC7_MIDYEAR_EFFRADFORCING.DAT", 7),
+        ("EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT", 7),
         ("EXPECTED_MAGICC6_EMISSIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_CONCENTRATIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_RADFORCING.DAT", 6),
-        ("EXPECTED_MAGICC6_MIDYEAR_EFFRADFORCING.DAT", 6),
     ],
 )
 @pytest.mark.parametrize("add_extra_data", [True, False])
@@ -3546,6 +3545,14 @@ def test_writing_identical_rcpdat(
         run_writing_comparison(res, base_comp, update=update_expected_file)
     else:
         run_writing_comparison(res, base, update=update_expected_file)
+
+
+def test_writing_erf_magicc6_error():
+    writer = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT"))
+
+    error_msg = re.escape("MAGICC6 does not output effective radiative forcing")
+    with pytest.raises(ValueError, match=error_msg):
+        writer.write("IGNORED_MAGICC6_MIDYEAR_EFFECTIVERADFORCING.DAT", magicc_version=6)
 
 
 def test_mag_writer(temp_dir, writing_base_mag):

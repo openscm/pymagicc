@@ -15,33 +15,33 @@ NOTE:              three lines
                    notes
 
 COLUMN_DESCRIPTION________________________________________
-1       TOTAL_INCLVOLCANIC_EFFRF   Total anthropogenic and natural effective radiative forcing
-2       VOLCANIC_ANNUAL_EFFRF      Annual mean volcanic stratospheric aerosol forcing
-3       SOLAR_EFFRF                Solar irradiance forcing
-4       TOTAL_ANTHRO_EFFRF         Total anthropogenic forcing
-5       GHG_EFFRF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).
-6       KYOTOGHG_EFFRF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).
-7       CO2CH4N2O_EFFRF            Total forcing from CO2, methane and nitrous oxide.
-8       CO2_EFFRF                  CO2 Forcing
-9       CH4_EFFRF                  Methane Forcing
-10      N2O_EFFRF                  Nitrous Oxide Forcing
-11      FGASSUM_EFFRF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24 plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2)
-12      MHALOSUM_EFFRF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40 plus CH2CL2, CHCL3)
+1       TOTAL_INCLVOLCANIC_ERF   Total anthropogenic and natural effective radiative forcing
+2       VOLCANIC_ANNUAL_ERF      Annual mean volcanic stratospheric aerosol forcing
+3       SOLAR_ERF                Solar irradiance forcing
+4       TOTAL_ANTHRO_ERF         Total anthropogenic forcing
+5       GHG_ERF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).
+6       KYOTOGHG_ERF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).
+7       CO2CH4N2O_ERF            Total forcing from CO2, methane and nitrous oxide.
+8       CO2_ERF                  CO2 Forcing
+9       CH4_ERF                  Methane Forcing
+10      N2O_ERF                  Nitrous Oxide Forcing
+11      FGASSUM_ERF              Total forcing from all flourinated gases controlled under the Kyoto Protocol (HFCs, PFCs, SF6; i.e. columns 13-24 plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2)
+12      MHALOSUM_ERF             Total forcing from all gases controlled under the Montreal Protocol (columns 25-40 plus CH2CL2, CHCL3)
 13-24                              Flourinated gases controlled under the Kyoto Protocol
 25-40                              Ozone Depleting Substances controlled under the Montreal Protocol
-41      TOTAER_DIR_EFFRF           Total direct aerosol forcing (aggregating columns 42 to 47 plus NH3I i.e. direct fossil fuel ammonia forcing)
-42      OCI_EFFRF                  Direct fossil fuel aerosol (organic carbon)
-43      BCI_EFFRF                  Direct fossil fuel aerosol (black carbon)
-44      SOXI_EFFRF                 Direct sulphate aerosol
-45      NOXI_EFFRF                 Direct nitrate aerosol
-46      BIOMASSAER_EFFRF           Direct biomass burning related aerosol
-47      MINERALDUST_EFFRF          Direct Forcing from mineral dust aerosol
-48      CLOUD_TOT_EFFRF            Cloud albedo effect
-49      STRATOZ_EFFRF              Stratospheric ozone forcing
-50      TROPOZ_EFFRF               Tropospheric ozone forcing
-51      CH4OXSTRATH2O_EFFRF        Stratospheric water-vapour from methane oxidisation
-52      LANDUSE_EFFRF              Landuse albedo
-53      BCSNOW_EFFRF               Black carbon on snow.
+41      TOTAER_DIR_ERF           Total direct aerosol forcing (aggregating columns 42 to 47 plus NH3I i.e. direct fossil fuel ammonia forcing)
+42      OCI_ERF                  Direct fossil fuel aerosol (organic carbon)
+43      BCI_ERF                  Direct fossil fuel aerosol (black carbon)
+44      SOXI_ERF                 Direct sulphate aerosol
+45      NOXI_ERF                 Direct nitrate aerosol
+46      BIOMASSAER_ERF           Direct biomass burning related aerosol
+47      MINERALDUST_ERF          Direct Forcing from mineral dust aerosol
+48      CLOUD_TOT_ERF            Cloud albedo effect
+49      STRATOZ_ERF              Stratospheric ozone forcing
+50      TROPOZ_ERF               Tropospheric ozone forcing
+51      CH4OXSTRATH2O_ERF        Stratospheric water-vapour from methane oxidisation
+52      LANDUSE_ERF              Landuse albedo
+53      BCSNOW_ERF               Black carbon on snow.
 
 
 
@@ -57,7 +57,7 @@ COLUMN_DESCRIPTION________________________________________
 
    COLUMN:                   1                   2                   3                   4                   5                   6                   7                   8                   9                  10                  11                  12                  13                  14                  15                  16                  17                  18                  19                  20                  21                  22                  23                  24                  25                  26                  27                  28                  29                  30                  31                  32                  33                  34                  35                  36                  37                  38                  39                  40                  41                  42                  43                  44                  45                  46                  47                  48                  49                  50                  51                  52                  53
     UNITS:                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2                W/m2
-     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF  TOTAL_ANTHRO_EFFRF           GHG_EFFRF      KYOTOGHG_EFFRF     CO2CH4N2O_EFFRF           CO2_EFFRF           CH4_EFFRF           N2O_EFFRF       FGASSUM_EFFRF      MHALOSUM_EFFRF              CF4                C2F6               C6F14               HFC23               HFC32            HFC43_10              HFC125             HFC134a             HFC143a            HFC227ea            HFC245fa                 SF6              CFC_11              CFC_12             CFC_113             CFC_114             CFC_115            CARB_TET                 MCF             HCFC_22           HCFC_141B           HCFC_142B           HALON1211           HALON1202           HALON1301           HALON2402               CH3BR               CH3CL       TOTAER_DIR_EFFRF           OCI_EFFRF           BCI_EFFRF          SOXI_EFFRF          NOXI_EFFRF    BIOMASSAER_EFFRF   MINERALDUST_EFFRF     CLOUD_TOT_EFFRF       STRATOZ_EFFRF        TROPOZ_EFFRF CH4OXSTRATH2O_EFFRF       LANDUSE_EFFRF        BCSNOW_EFFRF
+     YEARS TOTAL_INCLVOLCANIC_ERF VOLCANIC_ANNUAL_ERF        SOLAR_ERF    TOTAL_ANTHRO_ERF             GHG_ERF        KYOTOGHG_ERF       CO2CH4N2O_ERF             CO2_ERF             CH4_ERF             N2O_ERF         FGASSUM_ERF        MHALOSUM_ERF                 CF4                C2F6               C6F14               HFC23               HFC32            HFC43_10              HFC125             HFC134a             HFC143a            HFC227ea            HFC245fa                 SF6              CFC_11              CFC_12             CFC_113             CFC_114             CFC_115            CARB_TET                 MCF             HCFC_22           HCFC_141B           HCFC_142B           HALON1211           HALON1202           HALON1301           HALON2402               CH3BR               CH3CL      TOTAER_DIR_ERF             OCI_ERF             BCI_ERF            SOXI_ERF            NOXI_ERF      BIOMASSAER_ERF     MINERALDUST_ERF       CLOUD_TOT_ERF         STRATOZ_ERF          TROPOZ_ERF   CH4OXSTRATH2O_ERF         LANDUSE_ERF          BCSNOW_ERF
       1765         0.00000e+00         0.00000e+00        -2.83587e-02         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
       1766         1.26027e-01         1.16222e-01        -2.06938e-02         1.63188e-02         1.53635e-02         1.53635e-02         1.53635e-02         1.10491e-02         3.57577e-03         7.38661e-04         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         1.77672e-05         0.00000e+00         0.00000e+00        -2.86731e-05        -1.29280e-05         2.50103e-04        -1.90735e-04        -8.01451e-04         0.00000e+00         1.40604e-03         6.06707e-04        -3.81470e-04         1.07708e-04
       1767         2.73031e-01         2.32444e-01         7.03937e-03         3.35479e-02         3.21232e-02         3.21232e-02         3.21232e-02         2.32460e-02         7.36074e-03         1.51637e-03         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00        -6.46768e-06         0.00000e+00         0.00000e+00        -7.97657e-05        -3.19082e-05         6.72939e-04        -5.67733e-04        -2.38112e-03         0.00000e+00         3.37827e-03         1.24891e-03        -1.13547e-03         3.20590e-04
