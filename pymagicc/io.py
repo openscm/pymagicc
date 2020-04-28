@@ -2204,7 +2204,7 @@ class _RCPDatWriter(_Writer):
         if self._filepath.endswith("_RADFORCING.DAT"):
             return self._get_header_radforcing()
 
-        if self._filepath.endswith("_EFFRADFORCING.DAT"):
+        if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             return self._get_header_effradforcing()
 
         if self._filepath.endswith("_EMISSIONS.DAT"):
@@ -2346,9 +2346,9 @@ class _RCPDatWriter(_Writer):
             "                   {}\n"
             "\n"
             "COLUMN_DESCRIPTION________________________________________\n"
-            "1       TOTAL_INCLVOLCANIC_ERF     Total anthropogenic and natural effective radiative forcing\n"
-            "2       VOLCANIC_ANNUAL_ERF        Annual mean volcanic stratospheric aerosol forcing\n"
-            "3       SOLAR_EFFRF                Solar irradiance forcing\n"
+            "1       TOTAL_INCLVOLCANIC_ERF   Total anthropogenic and natural effective radiative forcing\n"
+            "2       VOLCANIC_ANNUAL_ERF      Annual mean volcanic stratospheric aerosol forcing\n"
+            "3       SOLAR_ERF                Solar irradiance forcing\n"
             "4       TOTAL_ANTHRO_ERF         Total anthropogenic forcing\n"
             "5       GHG_ERF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
             "6       KYOTOGHG_ERF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
@@ -2545,7 +2545,7 @@ class _RCPDatWriter(_Writer):
         if self._filepath.endswith("_RADFORCING.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
-        elif self._filepath.endswith("_EFFRADFORCING.DAT"):
+        elif self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
         elif self._filepath.endswith("_EMISSIONS.DAT"):
@@ -2586,7 +2586,7 @@ class _RCPDatWriter(_Writer):
                 output, data_block, units_level
             )
 
-        if self._filepath.endswith("_EFFRADFORCING.DAT"):
+        if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             return self._write_variable_datablock_effradforcing(
                 output, data_block, units_level
             )
@@ -2709,7 +2709,7 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _get_col_order_rename_col(self):
-        if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith("_EFFRADFORCING.DAT"):
+        if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             col_order = [
                 "VARIABLE",
                 "TOTAL_INCLVOLCANIC_RF",
@@ -2774,8 +2774,8 @@ class _RCPDatWriter(_Writer):
             strip_keys = ["CF4_RF", "C2F6_RF", "C6F14_RF", "HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]
             case_keys = ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]
 
-            if self._filepath.endswith("_EFFRADFORCING.DAT"):
-                suf = "_EFFRF"
+            if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
+                suf = "_ERF"
                 col_order = [v.replace("_RF", suf) for v in col_order]
                 hfc4310_keys = [v.replace("_RF", suf) for v in hfc4310_keys]
                 ccl4_keys = [v.replace("_RF", suf) for v in ccl4_keys]
