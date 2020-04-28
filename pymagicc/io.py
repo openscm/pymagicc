@@ -2560,7 +2560,7 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _get_col_order_rename_col(self):
-        if self._filepath.endswith("_RADFORCING.DAT"):
+        if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith("_EFFRADFORCING.DAT"):
             col_order = [
                 "VARIABLE",
                 "TOTAL_INCLVOLCANIC_RF",
@@ -2618,41 +2618,54 @@ class _RCPDatWriter(_Writer):
                 "BCSNOW_RF",
             ]
 
+            suf = "_RF"
+            hfc4310_keys = ["HFC4310_RF"]
+            ccl4_keys = ["CCL4_RF"]
+            ch3ccl3_keys = ["CH3CCL3_RF"]
+            strip_keys = ["CF4_RF", "C2F6_RF", "C6F14_RF", "HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]
+            case_keys = ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]
+
+            if self._filepath.endswith("_EFFRADFORCING.DAT"):
+                suf = "_EFFRF"
+                col_order = [v.replace("_RF", suf) for v in col_order]
+                hfc4310_keys = [v.replace("_RF", suf) for v in hfc4310_keys]
+                ccl4_keys = [v.replace("_RF", suf) for v in ccl4_keys]
+                ch3ccl3_keys = [v.replace("_RF", suf) for v in ch3ccl3_keys]
+                strip_keys = [v.replace("_RF", suf) for v in strip_keys]
+                case_keys = [v.replace("_RF", suf) for v in case_keys]
+
             def rename_col(x):
-                if x == "HFC4310_RF":
+                if x in hfc4310_keys:
                     return "HFC43_10"
 
-                if x == "CCL4_RF":
+                if x in ccl4_keys:
                     return "CARB_TET"
 
-                if x == "CH3CCL3_RF":
+                if x in ch3ccl3_keys:
                     return "MCF"
 
-                if x in ["CF4_RF", "C2F6_RF", "C6F14_RF"]:
-                    return x.replace("_RF", "")
+                if x in strip_keys:
+                    return x.replace(suf, "")
 
-                if x in ["HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]:
-                    return x.replace("_RF", "")
-
-                if x in ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]:
+                if x in case_keys:
                     return (
                         x.replace("FA", "fa")
                         .replace("EA", "ea")
                         .replace("A", "a")
-                        .replace("_RF", "")
+                        .replace(suf, "")
                     )
 
                 if x.startswith("HCFC"):
-                    return x.replace("HCFC", "HCFC_").replace("_RF", "")
+                    return x.replace("HCFC", "HCFC_").replace(suf, "")
 
                 if x.startswith("CFC"):
-                    return x.replace("CFC", "CFC_").replace("_RF", "")
+                    return x.replace("CFC", "CFC_").replace(suf, "")
 
                 if x.startswith("HALON"):
-                    return x.replace("_RF", "")
+                    return x.replace(suf, "")
 
                 if x.startswith("CH3"):
-                    return x.replace("_RF", "")
+                    return x.replace(suf, "")
 
                 return x
 
