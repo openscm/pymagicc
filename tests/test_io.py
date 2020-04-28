@@ -1978,7 +1978,7 @@ def test_load_sample_dat_radiative_forcings():
 
 
 def test_load_sample_dat_effective_radiative_forcings():
-    test_file = "SAMPLE_MIDYEAR_EFFRADFORCING.DAT"
+    test_file = "SAMPLE_MIDYEAR_EFFECTIVERADFORCING.DAT"
     mdata = MAGICCData(join(TEST_DATA_DIR, test_file))
     generic_mdata_tests(mdata)
 
@@ -3383,7 +3383,7 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
         ("EXPECTED_MAGICC7_EMISSIONS.DAT", 7),
         ("EXPECTED_MAGICC7_MIDYEAR_CONCENTRATIONS.DAT", 7),
         ("EXPECTED_MAGICC7_MIDYEAR_RADFORCING.DAT", 7),
-        ("EXPECTED_MAGICC7_MIDYEAR_EFFRADFORCING.DAT", 7),
+        ("EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT", 7),
         ("EXPECTED_MAGICC6_EMISSIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_CONCENTRATIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_RADFORCING.DAT", 6),

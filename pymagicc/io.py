@@ -2009,16 +2009,16 @@ class _RCPDatWriter(_Writer):
             "to be cryptic. If you need help, please raise an issue at "
             "https://github.com/openclimatedata/pymagicc/issues"
         )
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             return self._get_header_radforcing()
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             return self._get_header_effradforcing()
 
-        if "_EMISSIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_EMISSIONS.DAT"):
             return self._get_header_emissions()
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_CONCENTRATIONS.DAT"):
             return self._get_header_concentrations()
 
         raise NotImplementedError
@@ -2154,9 +2154,9 @@ class _RCPDatWriter(_Writer):
             "                   {}\n"
             "\n"
             "COLUMN_DESCRIPTION________________________________________\n"
-            "1       TOTAL_INCLVOLCANIC_ERF     Total anthropogenic and natural effective radiative forcing\n"
-            "2       VOLCANIC_ANNUAL_ERF        Annual mean volcanic stratospheric aerosol forcing\n"
-            "3       SOLAR_EFFRF                Solar irradiance forcing\n"
+            "1       TOTAL_INCLVOLCANIC_ERF   Total anthropogenic and natural effective radiative forcing\n"
+            "2       VOLCANIC_ANNUAL_ERF      Annual mean volcanic stratospheric aerosol forcing\n"
+            "3       SOLAR_ERF                Solar irradiance forcing\n"
             "4       TOTAL_ANTHRO_ERF         Total anthropogenic forcing\n"
             "5       GHG_ERF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).\n"
             "6       KYOTOGHG_ERF             Total forcing from greenhouse gases controlled under the Kyoto Protocol (CO2, CH4, N2O, HFCs, PFCs, SF6).\n"
@@ -2329,16 +2329,16 @@ class _RCPDatWriter(_Writer):
         return header
 
     def _write_namelist(self, output):
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             return self._write_namelist_radforcing(output)
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             return self._write_namelist_effradforcing(output)
 
-        if "_EMISSIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_EMISSIONS.DAT"):
             return self._write_namelist_emissions(output)
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_CONCENTRATIONS.DAT"):
             return self._write_namelist_concentrations(output)
 
         raise NotImplementedError
@@ -2447,22 +2447,22 @@ class _RCPDatWriter(_Writer):
             if data_block.columns.get_level_values(i)[0] == "UNITS":
                 units_level = i
 
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             return self._write_variable_datablock_radforcing(
                 output, data_block, units_level
             )
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
             return self._write_variable_datablock_effradforcing(
                 output, data_block, units_level
             )
 
-        if "_EMISSIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_EMISSIONS.DAT"):
             return self._write_variable_datablock_emissions(
                 output, data_block, units_level
             )
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_CONCENTRATIONS.DAT"):
             return self._write_variable_datablock_concentrations(
                 output, data_block, units_level
             )
@@ -2717,7 +2717,7 @@ class _RCPDatWriter(_Writer):
         )
         units_row = "    UNITS:" + "".join(["{: >20}".format(u) for u in units[1:]])
         variable_row = (
-            "     YEARS TOTAL_INCLVOLCANIC_ERF VOLCANIC_ANNUAL_ERF  SOLAR_ERF"
+            "     YEARS TOTAL_INCLVOLCANIC_ERF VOLCANIC_ANNUAL_ERF        SOLAR_ERF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
         # for most data files, as long as the data is space separated, the
