@@ -2320,17 +2320,9 @@ class _RCPDatWriter(_Writer):
         else:
             raise AssertionError("climate_model should start with `MAGICC`")
         meta = self.minput.metadata
-        extra_fgases = (
-            ""
-            if self._magicc_version == 6
-            else " plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2"
-        )
-        extra_mhalos = "" if self._magicc_version == 6 else " plus CH2CL2, CHCL3"
-        extra_totaerdirrf = (
-            ""
-            if self._magicc_version == 6
-            else " plus NH3I i.e. direct fossil fuel ammonia forcing"
-        )
+        extra_fgases = " plus C3F8, C4F10, C5F12, C7F16, C8F18, CC4F8, HFC152A, HFC236FA, HFC365MFC, NF3, SO2F2"
+        extra_mhalos = " plus CH2CL2, CHCL3"
+        extra_totaerdirrf = " plus NH3I i.e. direct fossil fuel ammonia forcing"
         header = (
             "\n"
             "{}__EFFECTIVE_RADIATIVE FORCINGS____________________________\n"

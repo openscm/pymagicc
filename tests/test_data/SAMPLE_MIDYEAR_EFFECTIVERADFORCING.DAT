@@ -17,6 +17,7 @@ NOTE:              three lines
 COLUMN_DESCRIPTION________________________________________
 1       TOTAL_INCLVOLCANIC_ERF   Total anthropogenic and natural effective radiative forcing
 2       VOLCANIC_ANNUAL_ERF      Annual mean volcanic stratospheric aerosol forcing
+
 3       SOLAR_ERF                Solar irradiance forcing
 4       TOTAL_ANTHRO_ERF         Total anthropogenic forcing
 5       GHG_ERF                  Total greenhouse gas forcing (CO2, CH4, N2O, HFCs, PFCs, SF6, and Montreal Protocol gases).
