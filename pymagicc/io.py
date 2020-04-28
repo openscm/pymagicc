@@ -2393,16 +2393,16 @@ class _RCPDatWriter(_Writer):
         )
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_DATTYPE"] = "RCPDAT"
 
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
-        elif "_EFFRADFORCING.DAT" in self._filepath:
+        elif self._filepath.endswith("_EFFRADFORCING.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 59"
 
-        elif "_EMISSIONS.DAT" in self._filepath:
+        elif self._filepath.endswith("_EMISSIONS.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 37"
 
-        elif "_CONCENTRATIONS.DAT" in self._filepath:
+        elif self._filepath.endswith("_CONCENTRATIONS.DAT"):
             nml["THISFILE_SPECIFICATIONS"]["THISFILE_UNITS"] = "SEE ROW 38"
 
         else:
@@ -2432,22 +2432,22 @@ class _RCPDatWriter(_Writer):
             if data_block.columns.get_level_values(i)[0] == "UNITS":
                 units_level = i
 
-        if "_RADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_RADFORCING.DAT"):
             return self._write_variable_datablock_radforcing(
                 output, data_block, units_level
             )
 
-        if "_EFFRADFORCING.DAT" in self._filepath:
+        if self._filepath.endswith("_EFFRADFORCING.DAT"):
             return self._write_variable_datablock_effradforcing(
                 output, data_block, units_level
             )
 
-        if "_EMISSIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_EMISSIONS.DAT"):
             return self._write_variable_datablock_emissions(
                 output, data_block, units_level
             )
 
-        if "_CONCENTRATIONS.DAT" in self._filepath:
+        if self._filepath.endswith("_CONCENTRATIONS.DAT"):
             return self._write_variable_datablock_concentrations(
                 output, data_block, units_level
             )
