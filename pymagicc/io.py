@@ -3781,6 +3781,9 @@ def find_parameter_groups(columns):
     for c in columns:
         toks = c.split("_")
         start = "_".join(toks[:-1])
+        if start.lower() in ["file_emisscen", "out_keydata", "file_tuningmodel"]:
+            continue
+
         try:
             int(toks[-1])  # Check if the last token is an integer
             if start not in cols_to_merge:
