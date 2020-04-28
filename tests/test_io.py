@@ -3975,10 +3975,22 @@ def test_to_int_type_error():
         {
             "FGAS_H_ATOMS": ["FGAS_H_ATOMS_1", "FGAS_H_ATOMS_2", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_5", "FGAS_H_ATOMS_6", "FGAS_H_ATOMS_7"]
         }),
-    # what should we do here...
     (["CORE_CLIMATESENSITIVITY", "FILE_TUNINGMODEL", "FILE_TUNINGMODEL_2"], {}),
-    # what should we do here...
     (["CORE_CLIMATESENSITIVITY", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
+    (["CORE_CLIMATESENSITIVITY", "FILE_EMISSCEN", "FILE_EMISSCEN_2", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
 ))
-def test_find_parameter_groups(start_list, expected):
+@pytest.mark.parametrize("case", ("upper", "lower", "capital"))
+def test_find_parameter_groups(start_list, expected, case):
+    if case == "upper":
+        start_list = [v.upper() for v in start_list]
+        expected = {k.upper(): [vv.upper() for vv in v] for k, v in expected.items()}
+    elif case == "lower":
+        start_list = [v.lower() for v in start_list]
+        expected = {k.lower(): [vv.lower() for vv in v] for k, v in expected.items()}
+    elif case == "capital":
+        start_list = [v.capitalize() for v in start_list]
+        expected = {k.capitalize(): [vv.capitalize() for vv in v] for k, v in expected.items()}
+    else:
+        raise NotImplementedError()
+
     assert find_parameter_groups(start_list) == expected
