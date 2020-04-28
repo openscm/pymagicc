@@ -3768,12 +3768,12 @@ def find_parameter_groups(columns):
 
     Parameters
     ----------
-    list[str]
+    list of str
         List of strings to sort
 
     Returns
     -------
-    dict[str: list[str]]
+    dict of str: list of str
         Dictionary where the keys are the 'group names' and the values are the list of
         parameters which belong to that group name.
     """
