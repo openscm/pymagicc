@@ -2013,6 +2013,9 @@ class _RCPDatWriter(_Writer):
             return self._get_header_radforcing()
 
         if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
+            if self._magicc_version == 6:
+                raise ValueError("MAGICC6 does not output effective radiative forcing")
+
             return self._get_header_effradforcing()
 
         if self._filepath.endswith("_EMISSIONS.DAT"):

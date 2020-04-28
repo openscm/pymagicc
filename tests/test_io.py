@@ -3387,7 +3387,6 @@ def test_writing_identical(temp_dir, update_expected_file, starting_file):
         ("EXPECTED_MAGICC6_EMISSIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_CONCENTRATIONS.DAT", 6),
         ("EXPECTED_MAGICC6_MIDYEAR_RADFORCING.DAT", 6),
-        ("EXPECTED_MAGICC6_MIDYEAR_EFFRADFORCING.DAT", 6),
     ],
 )
 def test_writing_identical_rcpdat(
@@ -3437,6 +3436,14 @@ def test_writing_identical_rcpdat(
         run_writing_comparison(res, base_comp, update=update_expected_file)
     else:
         run_writing_comparison(res, base, update=update_expected_file)
+
+
+def test_writing_erf_magicc6_error():
+    writer = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT"))
+
+    error_msg = re.escape("MAGICC6 does not output effective radiative forcing")
+    with pytest.raises(ValueError, match=error_msg):
+        writer.write("IGNORED_MAGICC6_MIDYEAR_EFFECTIVERADFORCING.DAT", magicc_version=6)
 
 
 def test_mag_writer(temp_dir, writing_base_mag):
