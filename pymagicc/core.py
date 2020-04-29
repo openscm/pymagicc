@@ -1,5 +1,5 @@
 import shutil
-import subprocess
+import subprocess  # nosec # have to use subprocess
 import warnings
 from copy import deepcopy
 from os import listdir, makedirs
@@ -129,9 +129,9 @@ class MAGICCBase(object):
                 )
             )
         if self.is_temp:
-            assert (
-                self.root_dir is None
-            ), "A temp copy for this instance has already been created"
+            if not self.root_dir is None:
+                raise AssertionError("A temp copy for this instance has already been created")
+
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
         if exists(self.run_dir):
@@ -147,7 +147,8 @@ class MAGICCBase(object):
         # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
         dirs_to_copy = [".", "bin", "run"]
         # Check that the executable is in a valid sub directory
-        assert exec_dir in dirs_to_copy, "binary must be in bin/ or run/ directory"
+        if not exec_dir in dirs_to_copy:
+            raise AssertionError("binary must be in bin/ or run/ directory")
 
         for d in dirs_to_copy:
             source_dir = abspath(join(self.original_dir, "..", d))
@@ -338,9 +339,8 @@ class MAGICCBase(object):
                 )
             command.insert(0, "wine")
 
-        # On Windows shell=True is required.
         try:
-            res = subprocess.run(
+            res = subprocess.run(  # nosec # on Windows shell=True is required
                 command,
                 check=True,
                 capture_output=True,
@@ -967,9 +967,9 @@ class MAGICCBase(object):
             'keydata_2'
         """
 
-        assert (
-            write_ascii or write_binary
-        ), "write_binary and/or write_ascii must be configured"
+        if not (write_ascii or write_binary):
+            raise AssertionError("write_binary and/or write_ascii must be configured")
+
         if write_binary and write_ascii:
             ascii_binary = "BOTH"
         elif write_ascii:
