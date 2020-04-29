@@ -1,0 +1,186 @@
+name: pymagicc CI-CD
+on: push
+
+jobs:
+  linting-and-docs:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: [3.7]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dev dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[dev]
+    # TODO: add `pylint pymagicc`
+    - name: Formatting and linters
+      run: |
+        black --check pymagicc tests setup.py --exclude pymagicc/_version.py
+        black-nb --check notebooks
+        isort --check-only --quiet --recursive pymagicc tests setup.py
+        pydocstyle pymagicc
+        bandit -c .bandit.yml -r pymagicc
+        flake8 pymagicc tests setup.py
+    - name: Build docs
+      # treat warnings as errors (-W)...
+      # ...but not when being nitpicky (-n)
+      run: |
+          sphinx-build -M html docs/source docs/build -qW
+          sphinx-build -M html docs/source docs/build -Eqn -b coverage
+          if [[ -s docs/build/html/python.txt ]]
+          then
+              echo
+              echo \"Error: Documentation missing:\"
+              echo
+              cat docs/build/html/python.txt
+              exit 1
+          fi
+
+  build:
+    needs: linting-and-docs
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install test dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[tests]
+    - name: Test with pytest
+      env:
+        MIN_COVERAGE: 70  # TODO: put this back up to 95 once we start writing
+      run: |
+          pytest tests -r a --cov=pymagicc --cov-report=xml
+          if ! coverage report --fail-under=${MIN_COVERAGE} --show-missing
+          then
+              echo
+              echo "Error: Test coverage has to be at least ${MIN_COVERAGE}"
+              exit 1
+          fi
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+
+  test-notebooks:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install notebook dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[tests,notebooks]
+    - name: Test notebooks with nbval
+      run: |
+          pytest notebooks -r a --nbval-lax --sanitize-with tests/notebook-tests.cfg --no-cov
+    - name: Test notebooks strictly
+      if: matrix.python-version == 3.7
+      run: |
+        pytest notebooks -r a --nbval --sanitize-with tests/notebook-tests.cfg --no-cov
+
+
+  deploy-test-pypi:
+    needs: test-notebooks
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[dev]
+    - name: Create package
+      run: python setup.py sdist bdist_wheel --universal
+    - name: Publish package to TestPyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.test_pypi_password }}
+        repository_url: https://test.pypi.org/legacy/
+
+  test-pypi-install:
+    needs: deploy-test-pypi
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install package from test PyPI
+      run: |
+        pip install --upgrade pip
+        pip install cftime openscm_units pandas pint xarray
+        pip install -i https://testpypi.python.org/pypi pymagicc --no-dependencies --pre
+    - name: Test installation
+      run: |
+        python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
+
+  deploy-pypi:
+    needs: test-pypi-install
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -e .[dev]
+    - name: Create package
+      run: python setup.py sdist bdist_wheel --universal
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
