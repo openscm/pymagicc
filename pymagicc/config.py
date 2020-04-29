@@ -8,7 +8,7 @@ Overrides can be set using the ConfigStore
 """
 
 import platform
-import subprocess
+import subprocess  # nosec # have to use subprocess
 from os import environ
 from os.path import abspath, dirname, join
 
@@ -21,7 +21,7 @@ default_config = {
     "IS_WINDOWS": _is_windows,
 }
 _wine_installed = (
-    subprocess.call(
+    subprocess.call(  # nosec # require subprocess call here
         "type wine", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     == 0

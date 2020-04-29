@@ -327,7 +327,8 @@ class _Reader(object):
             "scenario",
         ]
         for col in required_cols:
-            assert col in ch
+            if not col in ch:
+                raise AssertionError("Missing column {}".format(col))
 
         return ch
 
@@ -494,8 +495,14 @@ class _Reader(object):
         for exp_hd in expected_header:
             tokens = stream.readline().split()
             try:
-                assert tokens[0] == exp_hd
+                if not tokens[0] == exp_hd:
+                    raise AssertionError(
+                        "Token '{}' does not match expected header "
+                        "'{}'".format(tokens[0], exp_hd)
+                    )
+
                 return tokens[1:]
+
             except AssertionError:
                 stream.seek(pos)
                 continue
@@ -537,9 +544,8 @@ class _FourBoxReader(_Reader):
 
         column_headers["region"] = self._unify_magicc_regions(column_headers["region"])
 
-        assert (
-            len(set(column_headers["unit"])) == 1
-        ), "Only one unit should be found for a MAGICC6 style file"
+        if not len(set(column_headers["unit"])) == 1:
+            raise AssertionError("Only one unit should be found for a MAGICC6 style file")
 
         return column_headers, metadata
 
@@ -992,7 +998,9 @@ class _PrnReader(_NonStandardEmisInReader):
         elif units[0] == "metric tons":
             emms = True
 
-        assert emms or concs, "Should have detected either emms or concs..."
+        if not (emms or concs):
+            raise AssertionError("Should have detected either emms or concs...")
+
         if concs:
             unit = "ppt"
             variables = [v + "_CONC" for v in variables]
@@ -1194,10 +1202,15 @@ class _BinData(object):
         size = self.data[self.pos : self.pos + 4].cast("i")[0]
         d = self.data[self.pos + 4 : self.pos + 4 + size]
 
-        assert (
-            self.data[self.pos + 4 + size : self.pos + 4 + size + 4].cast("i")[0]
-            == size
-        )
+        actual_size = self.data[
+            self.pos + 4 + size : self.pos + 4 + size + 4
+        ].cast("i")[0]
+
+        if not actual_size == size:
+            raise AssertionError(
+                "Expected data size: {}, got: {}".format(size, actual_size)
+            )
+
         self.pos = self.pos + 4 + size + 4
 
         res = np.array(d.cast(t))
@@ -1240,7 +1253,11 @@ class _BinaryOutReader(_Reader):
         # The first variable is the global values
         globe = stream.read_chunk("d")
 
-        assert len(globe) == len(index)
+        if not len(globe) == len(index):
+            raise AssertionError(
+                "Length of data doesn't match length of index: "
+                "{} != {}".format(len(globe), len(index))
+            )
 
         regions = stream.read_chunk("d")
         num_regions = int(len(regions) / len(index))
@@ -1403,7 +1420,8 @@ class _CompactOutReader(_Reader):
         for line in fh:
             toks = line.strip(",\n").split(",")
 
-            assert len(toks) == len(headers), "# headers does not match # lines"
+            if not len(toks) == len(headers):
+                raise AssertionError("# headers does not match # lines")
 
             yield {h: float(v) for h, v in zip(headers, toks)}
 
@@ -1490,8 +1508,17 @@ class _BinaryCompactOutReader(_CompactOutReader):
         return pd.DataFrame(lines_as_dicts)
 
     def _read_header(self, fh):
-        assert self._read_item(fh).tobytes() == b"COMPACT_V1"
-        assert self._read_item(fh).tobytes() == b"HEAD"
+        first_value = self._read_item(fh).tobytes()
+        if not first_value == b"COMPACT_V1":
+            raise AssertionError(
+                "Unexpected first value: {}".format(first_value)
+            )
+
+        second_value = self._read_item(fh).tobytes()
+        if not second_value == b"HEAD":
+            raise AssertionError(
+                "Unexpected second value: {}".format(second_value)
+            )
 
         items = []
         while True:
@@ -1516,7 +1543,10 @@ class _BinaryCompactOutReader(_CompactOutReader):
 
             # Check the line terminator
             item = self._read_item(fh)
-            assert item.tobytes() == b"END"
+            if not item.tobytes() == b"END":
+                raise AssertionError(
+                    "Unexpected final line value: {}".format(item.tobytes())
+                )
 
             yield {h: float(v) for h, v in zip(headers, items.tolist())}
 
@@ -1527,7 +1557,12 @@ class _BinaryCompactOutReader(_CompactOutReader):
         if d != b"":
             s = memoryview(d).cast("i")[0]
             item = memoryview(fh.read(s))
-            assert memoryview(fh.read(4)).cast("i")[0] == s
+            s_after = memoryview(fh.read(4)).cast("i")[0]
+            if not s_after == s:
+                raise AssertionError(
+                    "Wrong size after data. Before: {}. "
+                    "After: {}".format(s, s_after)
+                )
 
             return item
 
@@ -1625,7 +1660,12 @@ class _Writer(object):
         try:
             number_col_headers = len(data_block.columns.levels)
         except AttributeError:
-            assert isinstance(data_block.columns, pd.core.indexes.base.Index)
+            if not isinstance(data_block.columns, pd.core.indexes.base.Index):
+                raise AssertionError(
+                    "Unexpected type of `data_block.columns`: "
+                    "{}".format(type(data_block.columns))
+                )
+
             number_col_headers = 1
 
         if self._magicc_version == 6:
@@ -1742,9 +1782,7 @@ class _Writer(object):
         data_block = self.minput.timeseries(
             meta=["variable", "todo", "unit", "region"]
         ).T
-        # probably not necessary but a sensible check
-        assert data_block.columns.names == ["variable", "todo", "unit", "region"]
-
+        self._check_data_block_column_names(data_block)
         self._check_data_filename_variable_consistency(data_block)
 
         region_col = "region"
@@ -1768,6 +1806,15 @@ class _Writer(object):
         data_block = self._convert_data_block_to_magicc_time(data_block)
 
         return data_block
+
+    @staticmethod
+    def _check_data_block_column_names(data_block):
+        # probably not necessary but a sensible check
+        if not data_block.columns.names == ["variable", "todo", "unit", "region"]:
+            raise AssertionError(
+                "Unexpected data block columns: "
+                "{}".format(data_block.columns.names)
+            )
 
     def _get_region_order(self, data_block):
         regions = data_block.columns.get_level_values("region").tolist()
@@ -1944,13 +1991,13 @@ class _PrnWriter(_Writer):
 
         unit = units[0].split(" ")[0]
         if unit == "t":
-            assert all(
-                [u.startswith("t ") and u.endswith(" / yr") for u in units]
-            ), "Prn emissions file with units other than tonne per year won't work"
+            if not all([u.startswith("t ") and u.endswith(" / yr") for u in units]):
+                raise AssertionError("Prn emissions file with units other than tonne per year won't work")
+
         elif unit == "ppt":
-            assert all(
-                [u == "ppt" for u in units]
-            ), "Prn concentrations file with units other than ppt won't work"
+            if not all([u == "ppt" for u in units]):
+                raise AssertionError("Prn concentrations file with units other than ppt won't work")
+
         else:
             error_msg = (
                 "prn file units should either all be 'ppt' or all be 't [gas] / yr', "
@@ -1964,12 +2011,12 @@ class _PrnWriter(_Writer):
         data_block = self.minput.timeseries(
             meta=["variable", "todo", "unit", "region"]
         ).T
-        # probably not necessary but a sensible check
-        assert data_block.columns.names == ["variable", "todo", "unit", "region"]
+        self._check_data_block_column_names(data_block)
 
         regions = data_block.columns.get_level_values("region").unique()
         region_error_msg = ".prn files can only contain the 'World' region"
-        assert (len(regions) == 1) and (regions[0] == "World"), region_error_msg
+        if not (len(regions) == 1) and (regions[0] == "World"):
+            raise AssertionError(region_error_msg)
 
         magicc7_vars = convert_magicc7_to_openscm_variables(
             data_block.columns.get_level_values("variable"), inverse=True
@@ -1984,7 +2031,9 @@ class _PrnWriter(_Writer):
             "Prn files must have, and only have, "
             "the following species: {}".format(PART_OF_PRNFILE)
         )
-        assert set(data_block.columns) == set(PART_OF_PRNFILE), emms_assert_msg
+        if not (set(data_block.columns) == set(PART_OF_PRNFILE)):
+            raise AssertionError(emms_assert_msg)
+
         data_block = data_block[PART_OF_PRNFILE]
 
         data_block.index.name = "Years"
@@ -2144,7 +2193,12 @@ class _ScenWriter(_Writer):
             # column widths don't work with expressive units
             units = [u.replace("peryr", "") for u in units]
 
-            assert region_block.columns.names == ["variable", "unit"]
+            if not (region_block.columns.names == ["variable", "unit"]):
+                raise AssertionError(
+                    "Unexpected region block columns: "
+                    "{}".format(region_block.columns.names)
+                )
+
             region_block = region_block.rename(columns=str).reset_index()
             region_block.columns = [["YEARS"] + variables, ["Yrs"] + units]
 
@@ -3578,11 +3632,20 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
                     clean_list = [v.strip(" \t\n\r").replace("\x00", "") for v in value]
                     single_cfg[namelist_to_read][key] = [v for v in clean_list if v]
                 else:
-                    assert isinstance(value, Number)
+                    if not isinstance(value, Number):
+                        raise AssertionError(
+                            "value is not a number: {}".format(value)
+                        )
+
                     single_cfg[namelist_to_read][key] = value
             except AttributeError:
                 if isinstance(value, list):
-                    assert all([isinstance(v, Number) for v in value])
+                    if not all([isinstance(v, Number) for v in value]):
+                        raise AssertionError(
+                            "List where not all values are numbers? "
+                            "{}".format(value)
+                        )
+
                     single_cfg[namelist_to_read][key] = value
                 else:
                     raise AssertionError(
@@ -3795,7 +3858,7 @@ def find_parameter_groups(columns):
             if start not in cols_to_merge:
                 cols_to_merge[start] = []
             cols_to_merge[start].append(c)
-        except:
+        except (ValueError, TypeError):
             continue
 
     return {k: sorted(v) for k, v in cols_to_merge.items()}
