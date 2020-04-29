@@ -3,6 +3,8 @@
 VENV_DIR ?= venv
 TESTS_DIR=$(PWD)/tests
 
+NOTEBOOKS_DIR=./notebooks
+
 define PRINT_HELP_PYSCRIPT
 import re, sys
 
@@ -59,6 +61,14 @@ test: $(VENV_DIR)  ## run the tests
 
 test-notebooks: $(VENV_DIR) notebooks/*.ipynb scripts/test_notebooks.sh  ## run the notebook tests
 	./scripts/test_notebooks.sh
+
+format-notebooks: $(VENV_DIR)  ## format the notebooks
+	@status=$$(git status --porcelain $(NOTEBOOKS_DIR)); \
+	if test "x$${status}" = x; then \
+		$(VENV_DIR)/bin/black-nb $(NOTEBOOKS_DIR); \
+	else \
+		echo Not trying any formatting. Working directory is dirty ... >&2; \
+	fi;
 
 $(VENV_DIR): setup.py
 	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
@@ -128,4 +138,4 @@ validate-data: $(VENV_DIR)  ## validate the data packaged in pymagicc
 clean:  ## remove the virtual environment
 	rm -rf $(VENV_DIR)
 
-.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test black clean
+.PHONY: publish-on-testpypi test-testpypi-install publish-on-pypi test-pypi-install flake8 test black clean format-notebooks
