@@ -49,13 +49,13 @@ REQUIREMENTS_INSTALL = [
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
-    "matplotlib",
-    "nbval",
+    "matplotlib",  # TODO: try removing and see what happens
+    "nbval",  # TODO: move to tests
     "expectexception",
     "ipywidgets",
     "appmode",
     "seaborn",
-    "pyam-iamc>=0.3.0",
+    "pyam-iamc>=0.3.0",  # TODO: try removing and see what happens
 ]
 REQUIREMENTS_TESTS = [
     "pytest>=4.0,<5",
@@ -64,7 +64,7 @@ REQUIREMENTS_TESTS = [
     "pytest-mock",
     "codecov",
     "goodtables",
-    "scipy",
+    "scipy",  # TODO: try removing and see what happens
 ]
 REQUIREMENTS_DOCS = [
     "sphinx>=1.4",
@@ -74,7 +74,12 @@ REQUIREMENTS_DOCS = [
 ]
 REQUIREMENTS_DEPLOY = ["setuptools>=38.6.0", "twine>=1.11.0", "wheel>=0.31.0"]
 REQUIREMENTS_DEV = (
-    ["black", "flake8"]
+    ["bandit", "black",
+        "black-nb", "flake8",
+        "isort",
+        "nbdime",
+        "pydocstyle",
+        "pylint",]
     + REQUIREMENTS_NOTEBOOKS
     + REQUIREMENTS_TESTS
     + REQUIREMENTS_DOCS
