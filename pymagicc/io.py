@@ -2621,7 +2621,7 @@ class _RCPDatWriter(_Writer):
         units = [u.replace("Wpermsuper2", "W/m2") for u in units]
 
         variable_row = (
-            "     YEARS TOTAL_INCLVOLCANIC_EFFRF VOLCANIC_ANNUAL_EFFRF  SOLAR_EFFRF"
+            "     YEARS TOTAL_INCLVOLCANIC_ERF VOLCANIC_ANNUAL_ERF        SOLAR_ERF"
             + "".join(["{: >20}".format(v) for v in data_block.iloc[:, 4:]])
         )
 
