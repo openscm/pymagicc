@@ -3,9 +3,11 @@ import warnings
 
 import pytest
 
-from pymagicc.definitions import (convert_magicc6_to_magicc7_variables,
-                                  convert_magicc7_to_openscm_variables,
-                                  convert_magicc_to_openscm_regions)
+from pymagicc.definitions import (
+    convert_magicc6_to_magicc7_variables,
+    convert_magicc7_to_openscm_variables,
+    convert_magicc_to_openscm_regions,
+)
 
 
 @pytest.mark.parametrize(

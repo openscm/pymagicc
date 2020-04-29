@@ -13,16 +13,22 @@ from f90nml.namelist import Namelist
 from scmdata import ScmDataFrame
 from six import StringIO
 
-from .definitions import (DATA_HIERARCHY_SEPARATOR, DATTYPE_REGIONMODE_REGIONS,
-                          PART_OF_PRNFILE,
-                          PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
-                          PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1,
-                          convert_magicc6_to_magicc7_variables,
-                          convert_magicc7_to_openscm_variables,
-                          convert_magicc_to_openscm_regions,
-                          convert_pint_to_fortran_safe_units)
-from .magicc_time import (_adjust_df_index_to_match_timeseries_type,
-                          convert_to_datetime, convert_to_decimal_year)
+from .definitions import (
+    DATA_HIERARCHY_SEPARATOR,
+    DATTYPE_REGIONMODE_REGIONS,
+    PART_OF_PRNFILE,
+    PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0,
+    PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1,
+    convert_magicc6_to_magicc7_variables,
+    convert_magicc7_to_openscm_variables,
+    convert_magicc_to_openscm_regions,
+    convert_pint_to_fortran_safe_units,
+)
+from .magicc_time import (
+    _adjust_df_index_to_match_timeseries_type,
+    convert_to_datetime,
+    convert_to_decimal_year,
+)
 from .utils import apply_string_substitutions
 
 DATTYPE_FLAG = "THISFILE_DATTYPE"

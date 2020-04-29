@@ -14,16 +14,31 @@ from scmdata import ScmDataFrame
 
 import pymagicc.definitions
 from pymagicc import MAGICC6
-from pymagicc.io import (InvalidTemporalResError, MAGICCData,
-                         NoReaderWriterError, _ConcInReader, _Reader,
-                         _ScenWriter, determine_tool, find_parameter_groups,
-                         get_generic_rcp_name, get_special_scen_code,
-                         pull_cfg_from_parameters_out,
-                         pull_cfg_from_parameters_out_file, read_cfg_file,
-                         read_mag_file_metadata, to_int)
+from pymagicc.io import (
+    InvalidTemporalResError,
+    MAGICCData,
+    NoReaderWriterError,
+    _ConcInReader,
+    _Reader,
+    _ScenWriter,
+    determine_tool,
+    find_parameter_groups,
+    get_generic_rcp_name,
+    get_special_scen_code,
+    pull_cfg_from_parameters_out,
+    pull_cfg_from_parameters_out_file,
+    read_cfg_file,
+    read_mag_file_metadata,
+    to_int,
+)
 
-from .conftest import (EXPECTED_FILES_DIR, MAGICC6_DIR, TEST_DATA_DIR,
-                       TEST_OUT_DIR, run_writing_comparison)
+from .conftest import (
+    EXPECTED_FILES_DIR,
+    MAGICC6_DIR,
+    TEST_DATA_DIR,
+    TEST_OUT_DIR,
+    run_writing_comparison,
+)
 
 # Not all files can be read in
 TEST_OUT_FILES = listdir(TEST_OUT_DIR)

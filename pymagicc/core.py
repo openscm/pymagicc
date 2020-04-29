@@ -14,8 +14,13 @@ from openscm_units import unit_registry
 from scmdata import df_append
 
 from .config import _wine_installed, config
-from .io import (InvalidTemporalResError, MAGICCData, NoReaderWriterError,
-                 _get_openscm_var_from_filepath, read_cfg_file)
+from .io import (
+    InvalidTemporalResError,
+    MAGICCData,
+    NoReaderWriterError,
+    _get_openscm_var_from_filepath,
+    read_cfg_file,
+)
 from .scenarios import zero_emissions
 from .utils import get_date_time_string
 
