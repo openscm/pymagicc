@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#291 <https://github.com/openscm/pymagicc/pull/291>`_) Use the ``_ERF`` suffix for IPCC definition of Effective Radiative Forcing variables. This replaces ``_EFFRF`` which was a MAGICC specific version of Effective RF.
+- (`#291 <https://github.com/openscm/pymagicc/pull/291>`_) Switch to using the ``_ERF`` suffix for IPCC definition of Effective Radiative Forcing variables. This replaces ``_EFFRF`` which is a MAGICC internal variable and was incorrectly labelled as Effective Radiative Forcing.
 - (`#277 <https://github.com/openscm/pymagicc/pull/277>`_) Add MAGICC7 compact output file readers
 - (`#281 <https://github.com/openscm/pymagicc/pull/281>`_) Hotfix readers and writers for ``.DAT`` files (``thisfile_datacolumns`` was wrong)
 - (`#288 <https://github.com/openscm/pymagicc/pull/288>`_) Add ``pymagicc.io.read_mag_file_metadata``, which allows fast reading of metadata from a ``.MAG`` file
