@@ -2708,7 +2708,6 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _get_col_order_rename_col(self):
-
         if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith(
             "_EFFECTIVERADFORCING.DAT"
         ):
