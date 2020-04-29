@@ -51,7 +51,7 @@ isort: $(VENV_DIR)  ## sort the imports in the code
 	fi;
 
 flake8: $(VENV_DIR)  ## apply the flake8 linter
-	$(VENV_DIR)/bin/flake8 pymagicc
+	$(VENV_DIR)/bin/flake8 pymagicc tests setup.py
 
 test: $(VENV_DIR)  ## run the tests
 	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'

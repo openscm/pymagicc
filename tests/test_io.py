@@ -1,26 +1,27 @@
 import datetime as dt
+import filecmp
 import re
+import shutil
 import warnings
 from copy import deepcopy
-from os import listdir, remove
-from os.path import basename, isfile, join
-from unittest.mock import MagicMock, patch
+from os import listdir
+from os.path import dirname, isfile, join
+from unittest.mock import patch
 
 import f90nml
 import numpy as np
 import pandas as pd
+import pkg_resources
 import pytest
 from scmdata import ScmDataFrame
 
 import pymagicc.definitions
-from pymagicc import MAGICC6
 from pymagicc.io import (
     InvalidTemporalResError,
     MAGICCData,
     NoReaderWriterError,
     _ConcInReader,
     _Reader,
-    _ScenWriter,
     determine_tool,
     find_parameter_groups,
     get_generic_rcp_name,
@@ -32,13 +33,11 @@ from pymagicc.io import (
     to_int,
 )
 
-from .conftest import (
-    EXPECTED_FILES_DIR,
-    MAGICC6_DIR,
-    TEST_DATA_DIR,
-    TEST_OUT_DIR,
-    run_writing_comparison,
-)
+MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
+TEST_DATA_DIR = join(dirname(__file__), "test_data")
+TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
+
+EXPECTED_FILES_DIR = join(TEST_DATA_DIR, "expected_files")
 
 # Not all files can be read in
 TEST_OUT_FILES = listdir(TEST_OUT_DIR)
@@ -58,9 +57,37 @@ INVALID_OUT_FILES = [
 ]
 
 
+def run_writing_comparison(res, expected, update=False):
+    """Run test that writing file is behaving as expected
+
+    Parameters
+    ----------
+    res : str
+        File written as part of the test
+
+    expected : str
+        File against which the comparison should be done
+
+    update : bool
+        If True, don't perform the test and instead simply
+        overwrite the existing expected file with ``res``
+
+    Raises
+    ------
+    AssertionError
+        If ``update`` is ``False`` and ``res`` and ``expected``
+        are not identical.
+    """
+    if update:
+        shutil.copy(res, expected)
+        pytest.skip("Updated {}".format(expected))
+    else:
+        assert filecmp.cmp(res, expected, shallow=False)
+
+
 def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
     """Resusable tests to ensure data format"""
-    assert mdata.is_loaded == True
+    assert mdata.is_loaded
 
     assert isinstance(mdata, ScmDataFrame)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
@@ -149,7 +176,7 @@ def test_get_invalid_tool():
 
 def test_load_magicc6_emis():
     mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
-    assert mdata.is_loaded == True
+    assert mdata.is_loaded
     generic_mdata_tests(mdata)
 
     assert_mdata_value(
@@ -2662,7 +2689,6 @@ def test_filter():
 
     tvariable = "Emissions|CO2|MAGICC Fossil and Industrial"
     tregion = "World|R5LAM"
-    tyear = 1983
     result = mdata.filter(variable=tvariable, region=tregion).timeseries()
     mask = np.array(
         (mdata.meta["variable"] == tvariable) & (mdata.meta["region"] == tregion)
@@ -2851,7 +2877,7 @@ def test_in_file_read_write_functionally_identical(
                 continue
             try:
                 assert value_written.strip() == mi_initial.metadata[key_written].strip()
-            except:
+            except:  # noqa
                 assert value_written == mi_initial.metadata[key_written]
 
     pd.testing.assert_frame_equal(
@@ -3122,8 +3148,8 @@ def test_pull_cfg_from_parameters_out():
         "nml_allcfgs": {
             "para_1": 3,
             "para_2": "  string  here  ",
-            "para_2": [1, 2, 3, 4],
-            "para_2": [" as sld  ", "abc", "\x00"],
+            "para_3": [1, 2, 3, 4],
+            "para_4": [" as sld  ", "abc", "\x00"],
             "file_tuningmodel": "MAGTUNE_ABC.CFG",
             "file_tuningmodel_2": "MAGTUNE_DEF.CFG",
             "file_tuningmodel_3": "MAGTUNE_JAKF.CFG",
@@ -3131,8 +3157,8 @@ def test_pull_cfg_from_parameters_out():
         "nml_outcfgs": {
             "para_1": -13,
             "para_2": "string  here too",
-            "para_2": [-0.1, 0, 0.1, 0.2],
-            "para_2": ["tabs sldx  ", "  abc  ", "\x00", "\x00", " "],
+            "para_3": [-0.1, 0, 0.1, 0.2],
+            "para_4": ["tabs sldx  ", "  abc  ", "\x00", "\x00", " "],
         },
     }
 
@@ -3142,8 +3168,8 @@ def test_pull_cfg_from_parameters_out():
             "nml_allcfgs": {
                 "para_1": 3,
                 "para_2": "string  here",
-                "para_2": [1, 2, 3, 4],
-                "para_2": ["as sld", "abc"],
+                "para_3": [1, 2, 3, 4],
+                "para_4": ["as sld", "abc"],
                 "file_tuningmodel": "",
                 "file_tuningmodel_2": "",
                 "file_tuningmodel_3": "",
@@ -3162,8 +3188,8 @@ def test_pull_cfg_from_parameters_out():
             "nml_outcfgs": {
                 "para_1": -13,
                 "para_2": "string  here too",
-                "para_2": [-0.1, 0, 0.1, 0.2],
-                "para_2": ["tabs sldx", "abc"],
+                "para_3": [-0.1, 0, 0.1, 0.2],
+                "para_4": ["tabs sldx", "abc"],
             }
         }
     )

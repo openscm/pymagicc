@@ -1,24 +1,16 @@
 import datetime as dt
-import filecmp
 import os
 import shutil
-import subprocess
-from os.path import dirname, exists, join
+from os import environ
+from os.path import exists
 from tempfile import mkdtemp, mkstemp
 
 import numpy as np
-import pkg_resources
 import pytest
 
 from pymagicc import MAGICC6, MAGICC7
-from pymagicc.config import _is_windows, _wine_installed
+from pymagicc.config import _is_windows, _wine_installed, config
 from pymagicc.io import MAGICCData
-
-MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
-TEST_DATA_DIR = join(dirname(__file__), "test_data")
-TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
-
-EXPECTED_FILES_DIR = join(TEST_DATA_DIR, "expected_files")
 
 
 def pytest_addoption(parser):
@@ -40,34 +32,6 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "slow" in item.keywords:
                 item.add_marker(skip_slow)
-
-
-def run_writing_comparison(res, expected, update=False):
-    """Run test that writing file is behaving as expected
-
-    Parameters
-    ----------
-    res : str
-        File written as part of the test
-
-    expected : str
-        File against which the comparison should be done
-
-    update : bool
-        If True, don't perform the test and instead simply
-        overwrite the existing expected file with ``res``
-
-    Raises
-    ------
-    AssertionError
-        If ``update`` is ``False`` and ``res`` and ``expected``
-        are not identical.
-    """
-    if update:
-        shutil.copy(res, expected)
-        pytest.skip("Updated {}".format(expected))
-    else:
-        assert filecmp.cmp(res, expected, shallow=False)
 
 
 @pytest.fixture
@@ -229,3 +193,47 @@ def writing_base_mag():
     }
 
     yield writing_base_mag
+
+
+def temp_set_var(store):
+    """
+    Temporary sets a value of a Dict-like object for the duration of a test
+    :param store: A Dict-like object which holds key-value pairs. The store is
+        restored to its original state at the end of the test
+    """
+    prev_values = {}
+
+    def set_var(name, value):
+        if name not in prev_values:  # Only remember the first value
+            prev_values[name] = store.get(name)
+        if value is None:
+            try:
+                del store[name]
+            except KeyError:
+                pass
+        else:
+            store[name] = value
+
+    def cleanup():
+        # Clean up any set variables
+        for n in prev_values:
+            if prev_values[n] is not None:
+                store[n] = prev_values[n]
+            else:
+                del store[n]
+
+    return set_var, cleanup
+
+
+@pytest.fixture(scope="function")
+def env_override():
+    set_var, cleanup = temp_set_var(environ)
+    yield set_var
+    cleanup()
+
+
+@pytest.fixture(scope="function")
+def config_override():
+    set_var, cleanup = temp_set_var(config.overrides)
+    yield set_var
+    cleanup()

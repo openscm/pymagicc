@@ -327,7 +327,7 @@ class _Reader(object):
             "scenario",
         ]
         for col in required_cols:
-            if not col in ch:
+            if col not in ch:
                 raise AssertionError("Missing column {}".format(col))
 
         return ch
@@ -545,7 +545,9 @@ class _FourBoxReader(_Reader):
         column_headers["region"] = self._unify_magicc_regions(column_headers["region"])
 
         if not len(set(column_headers["unit"])) == 1:
-            raise AssertionError("Only one unit should be found for a MAGICC6 style file")
+            raise AssertionError(
+                "Only one unit should be found for a MAGICC6 style file"
+            )
 
         return column_headers, metadata
 
@@ -1202,9 +1204,9 @@ class _BinData(object):
         size = self.data[self.pos : self.pos + 4].cast("i")[0]
         d = self.data[self.pos + 4 : self.pos + 4 + size]
 
-        actual_size = self.data[
-            self.pos + 4 + size : self.pos + 4 + size + 4
-        ].cast("i")[0]
+        actual_size = self.data[self.pos + 4 + size : self.pos + 4 + size + 4].cast(
+            "i"
+        )[0]
 
         if not actual_size == size:
             raise AssertionError(
@@ -1413,8 +1415,8 @@ class _CompactOutReader(_Reader):
         return pd.DataFrame(lines_as_dicts)
 
     def _read_header(self, fh):
-        l = fh.readline().strip(",\n")
-        return [item.strip('"') for item in l.split(",")]
+        line = fh.readline().strip(",\n")
+        return [item.strip('"') for item in line.split(",")]
 
     def _read_lines(self, fh, headers):
         for line in fh:
@@ -1510,15 +1512,11 @@ class _BinaryCompactOutReader(_CompactOutReader):
     def _read_header(self, fh):
         first_value = self._read_item(fh).tobytes()
         if not first_value == b"COMPACT_V1":
-            raise AssertionError(
-                "Unexpected first value: {}".format(first_value)
-            )
+            raise AssertionError("Unexpected first value: {}".format(first_value))
 
         second_value = self._read_item(fh).tobytes()
         if not second_value == b"HEAD":
-            raise AssertionError(
-                "Unexpected second value: {}".format(second_value)
-            )
+            raise AssertionError("Unexpected second value: {}".format(second_value))
 
         items = []
         while True:
@@ -1560,8 +1558,7 @@ class _BinaryCompactOutReader(_CompactOutReader):
             s_after = memoryview(fh.read(4)).cast("i")[0]
             if not s_after == s:
                 raise AssertionError(
-                    "Wrong size after data. Before: {}. "
-                    "After: {}".format(s, s_after)
+                    "Wrong size after data. Before: {}. " "After: {}".format(s, s_after)
                 )
 
             return item
@@ -1812,8 +1809,7 @@ class _Writer(object):
         # probably not necessary but a sensible check
         if not data_block.columns.names == ["variable", "todo", "unit", "region"]:
             raise AssertionError(
-                "Unexpected data block columns: "
-                "{}".format(data_block.columns.names)
+                "Unexpected data block columns: " "{}".format(data_block.columns.names)
             )
 
     def _get_region_order(self, data_block):
@@ -1992,11 +1988,15 @@ class _PrnWriter(_Writer):
         unit = units[0].split(" ")[0]
         if unit == "t":
             if not all([u.startswith("t ") and u.endswith(" / yr") for u in units]):
-                raise AssertionError("Prn emissions file with units other than tonne per year won't work")
+                raise AssertionError(
+                    "Prn emissions file with units other than tonne per year won't work"
+                )
 
         elif unit == "ppt":
             if not all([u == "ppt" for u in units]):
-                raise AssertionError("Prn concentrations file with units other than ppt won't work")
+                raise AssertionError(
+                    "Prn concentrations file with units other than ppt won't work"
+                )
 
         else:
             error_msg = (
@@ -3633,17 +3633,14 @@ def pull_cfg_from_parameters_out(parameters_out, namelist_to_read="nml_allcfgs")
                     single_cfg[namelist_to_read][key] = [v for v in clean_list if v]
                 else:
                     if not isinstance(value, Number):
-                        raise AssertionError(
-                            "value is not a number: {}".format(value)
-                        )
+                        raise AssertionError("value is not a number: {}".format(value))
 
                     single_cfg[namelist_to_read][key] = value
             except AttributeError:
                 if isinstance(value, list):
                     if not all([isinstance(v, Number) for v in value]):
                         raise AssertionError(
-                            "List where not all values are numbers? "
-                            "{}".format(value)
+                            "List where not all values are numbers? " "{}".format(value)
                         )
 
                     single_cfg[namelist_to_read][key] = value
