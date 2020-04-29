@@ -208,6 +208,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
             "Effective Radiative Forcing|Aerosols|Direct Effect|NH3|MAGICC Fossil and Industrial",
         ),
         ("TOTAL_INCLVOLCANIC_ERF", "Effective Radiative Forcing"),
+        ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
+        ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
     ],
 )
