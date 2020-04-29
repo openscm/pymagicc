@@ -4,7 +4,7 @@ Module for collating configuration variables from various sources
 The order of preference is:
 Overrides > Environment variable > Defaults
 
-Overrides can be set using the ConfigStore
+Overrides can be set using the :class:`ConfigStore`
 """
 
 import platform
@@ -29,23 +29,60 @@ _wine_installed = (
 
 
 def lookup_defaults(item):
+    """
+    Retrive configuration from ``pymagicc.config.default_config``
+
+    Parameters
+    ----------
+    item : str
+        Configuration to lookup (case insensitive)
+
+    Returns
+    -------
+    str
+        Configuration
+    """
     return default_config.get(item.upper())
 
 
 def lookup_env(item):
+    """
+    Retrive configuration from environment
+
+    We look for an environment variable named ``MAGICC_[item]``, where
+    ``[item]`` is replaced by the value of ``item.upper()``.
+
+    Parameters
+    ----------
+    item : str
+        Configuration to lookup
+
+    Returns
+    -------
+    str
+        Configuration
+    """
     env_var = "MAGICC_" + item.upper()
     return environ.get(env_var)
 
 
-class ConfigStore(object):
+class ConfigStore:
     """
-    A list of functions which, given an item, attempts to find the associated
-    config variable. All queries are case insensitive. If a lookup cannot
-    find the item return None
-    This list is in decending order of priority
+    Class which, given an item, attempts to find the associated config variable.
+
+    All queries are case insensitive. If a lookup cannot find the item,
+    ``None`` is returned. The items are looked up in the following order:
+
+        #. user overrides (stored in ``.overrides``)
+        #. environment variables
+        #. defaults
+
     """
 
     def __init__(self):
+        """
+        Initialise
+        """
         self.overrides = {}
 
         self.config_lookups = [lookup_env, lookup_defaults]

@@ -3543,7 +3543,7 @@ def _read_and_return_metadata_df(filepath):
 
 def read_mag_file_metadata(filepath):
     """
-    Read only the metadata in a ``.MAG ``file
+    Read only the metadata in a ``.MAG`` file
 
     This provides a way to access a ``.MAG`` file's metadata without reading the
     entire datablock, significantly reducing read time.

@@ -41,17 +41,19 @@ release = version
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.coverage",
     "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
 ]
 
-autodoc_default_flags = [
-    "members",
-    "undoc-members",
-    "inherited-members",
-    "show-inheritance",
-]
+autodoc_default_options = {
+    "inherited-members": None,
+    "members": None,
+    "show-inheritance": None,
+    "undoc-members": None,
+}
 
 todo_include_todos = True
 
@@ -177,3 +179,20 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+coverage_write_headline = False  # do not write headlines.
+
+# -- Options for intersphinx extension ---------------------------------------
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {
+    "numpy": ("https://docs.scipy.org/doc/numpy", None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "python": ("https://docs.python.org/3", None),
+    "pyam": ("https://pyam-iamc.readthedocs.io/en/latest", None),
+    "scmdata": ("https://scmdata.readthedocs.io/en/latest", None),
+    # "pint": ("https://pint.readthedocs.io/en/latest", None), # no full API doc here, unfortunately
+}
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+set_type_checking_flag = False
