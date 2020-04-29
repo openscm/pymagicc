@@ -1,10 +1,8 @@
-from os.path import dirname, join, abspath
 from copy import deepcopy
+from os.path import abspath, dirname, join
 
-
-from ..io import MAGICCData, read_scen_file
 from ..config import default_config
-
+from ..io import MAGICCData, read_scen_file
 
 # path to load files from included package
 _magicc6_included_distribution_path = dirname(default_config["EXECUTABLE_6"])

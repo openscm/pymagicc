@@ -3,7 +3,7 @@ import datetime as dt
 import numpy as np
 import pytest
 
-from pymagicc.magicc_time import convert_to_decimal_year, convert_to_datetime
+from pymagicc.magicc_time import convert_to_datetime, convert_to_decimal_year
 
 
 @pytest.mark.parametrize(

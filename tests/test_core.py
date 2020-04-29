@@ -1,24 +1,25 @@
-from os import remove, listdir
-from os.path import exists, join
+import copy
+import re
+import warnings
 from datetime import datetime
-from dateutil.relativedelta import relativedelta
+from os import listdir, remove
+from os.path import exists, join
 from subprocess import CalledProcessError
 from unittest.mock import patch
-import re
-import copy
-import warnings
 
-import numpy as np
-import pytest
-import pandas as pd
 import f90nml
+import numpy as np
+import pandas as pd
+import pytest
+from dateutil.relativedelta import relativedelta
 from openscm_units import unit_registry
 
 from pymagicc import MAGICC6, MAGICC7, rcp26, zero_emissions
-from pymagicc.core import MAGICCBase, config, _clean_value
+from pymagicc.core import MAGICCBase, _clean_value, config
 from pymagicc.io import MAGICCData, read_cfg_file
-from .test_config import config_override  #  noqa
+
 from .conftest import MAGICC6_DIR, TEST_DATA_DIR
+from .test_config import config_override  # noqa
 
 
 @pytest.fixture(scope="function")

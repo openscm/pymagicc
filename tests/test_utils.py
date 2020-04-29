@@ -1,16 +1,15 @@
+import re
+import warnings
 from os.path import join
 from unittest.mock import patch
-import warnings
-
 
 import numpy as np
 import pandas as pd
 import pytest
-import re
-
 
 from pymagicc.io import MAGICCData
 from pymagicc.utils import apply_string_substitutions
+
 from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
 
 

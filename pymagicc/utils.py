@@ -8,10 +8,10 @@ thinks, "I need this, I can't find it anywhere else and I would probably use it 
 in another project". One day we may move all these utility functions to another
 project to make it easier for ourselves and others to re-use them.
 """
-from copy import deepcopy
-import re
 import datetime
+import re
 import warnings
+from copy import deepcopy
 
 
 # Thank you https://stackoverflow.com/a/15448887/10473080

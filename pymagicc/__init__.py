@@ -11,7 +11,6 @@ from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData, read_scen_file  # noqa
 from .scenarios import rcp26, rcp45, rcp60, rcp85, rcps, zero_emissions  # noqa
 
-
 __version__ = get_versions()["version"]
 del get_versions
 

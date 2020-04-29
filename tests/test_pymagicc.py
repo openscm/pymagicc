@@ -1,16 +1,13 @@
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
 
-
-from pymagicc import read_scen_file, rcp26, rcp45, rcp60, rcp85, run
-from pymagicc.scenarios import _magicc6_included_distribution_path
+from pymagicc import rcp26, rcp45, rcp60, rcp85, read_scen_file, run
 from pymagicc.io import MAGICCData
-
+from pymagicc.scenarios import _magicc6_included_distribution_path
 
 RCP26_SCEN_FILE = os.path.join(_magicc6_included_distribution_path, "RCP26.SCEN")
 RCP85_SCEN_FILE = os.path.join(_magicc6_included_distribution_path, "RCP85.SCEN")

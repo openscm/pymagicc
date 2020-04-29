@@ -1,30 +1,23 @@
 import shutil
 import subprocess
 import warnings
-from os import listdir, makedirs
-from os.path import basename, dirname, exists, join, isfile, abspath
-from tempfile import mkdtemp
-from dateutil.relativedelta import relativedelta
 from copy import deepcopy
+from os import listdir, makedirs
+from os.path import abspath, basename, dirname, exists, isfile, join
+from tempfile import mkdtemp
 
-
-import numpy as np
 import f90nml
+import numpy as np
 import pandas as pd
-from scmdata import df_append
+from dateutil.relativedelta import relativedelta
 from openscm_units import unit_registry
+from scmdata import df_append
 
-from .config import config, _wine_installed
+from .config import _wine_installed, config
+from .io import (InvalidTemporalResError, MAGICCData, NoReaderWriterError,
+                 _get_openscm_var_from_filepath, read_cfg_file)
 from .scenarios import zero_emissions
 from .utils import get_date_time_string
-from .io import (
-    MAGICCData,
-    NoReaderWriterError,
-    InvalidTemporalResError,
-    read_cfg_file,
-    _get_openscm_var_from_filepath,
-)
-
 
 IS_WINDOWS = config["is_windows"]
 
