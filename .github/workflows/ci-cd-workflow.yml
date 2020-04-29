@@ -21,12 +21,12 @@ jobs:
         pip install --upgrade pip
         pip install -e .[dev]
     # TODO: add `pylint pymagicc`
+    # TODO: add pydocstyle pymagicc
     - name: Formatting and linters
       run: |
         black --check pymagicc tests setup.py --exclude pymagicc/_version.py
         black-nb --check notebooks
         isort --check-only --quiet --recursive pymagicc tests setup.py
-        pydocstyle pymagicc
         bandit -c .bandit.yml -r pymagicc
         flake8 pymagicc tests setup.py
     - name: Build docs
