@@ -1,21 +1,18 @@
 import datetime as dt
+import filecmp
 import os
-from os.path import exists, join, dirname
-import pkg_resources
-from tempfile import mkstemp, mkdtemp
 import shutil
 import subprocess
-import filecmp
+from os.path import dirname, exists, join
+from tempfile import mkdtemp, mkstemp
 
-
-import pytest
 import numpy as np
-
+import pkg_resources
+import pytest
 
 from pymagicc import MAGICC6, MAGICC7
 from pymagicc.config import _is_windows, _wine_installed
 from pymagicc.io import MAGICCData
-
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")

@@ -1,0 +1,2 @@
+exclude_dirs:
+  - pymagicc/_version.py

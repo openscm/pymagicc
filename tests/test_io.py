@@ -1,46 +1,29 @@
-from os import remove, listdir
-from os.path import join, isfile, basename
-from copy import deepcopy
-import warnings
-from unittest.mock import patch, MagicMock
 import datetime as dt
+import re
+import warnings
+from copy import deepcopy
+from os import listdir, remove
+from os.path import basename, isfile, join
+from unittest.mock import MagicMock, patch
 
-
+import f90nml
 import numpy as np
 import pandas as pd
-import re
 import pytest
-import f90nml
 from scmdata import ScmDataFrame
-
 
 import pymagicc.definitions
 from pymagicc import MAGICC6
-from pymagicc.io import (
-    MAGICCData,
-    _Reader,
-    _ConcInReader,
-    _ScenWriter,
-    read_cfg_file,
-    read_mag_file_metadata,
-    get_special_scen_code,
-    NoReaderWriterError,
-    InvalidTemporalResError,
-    pull_cfg_from_parameters_out_file,
-    pull_cfg_from_parameters_out,
-    get_generic_rcp_name,
-    determine_tool,
-    to_int,
-    find_parameter_groups,
-)
-from .conftest import (
-    MAGICC6_DIR,
-    TEST_DATA_DIR,
-    TEST_OUT_DIR,
-    EXPECTED_FILES_DIR,
-    run_writing_comparison,
-)
+from pymagicc.io import (InvalidTemporalResError, MAGICCData,
+                         NoReaderWriterError, _ConcInReader, _Reader,
+                         _ScenWriter, determine_tool, find_parameter_groups,
+                         get_generic_rcp_name, get_special_scen_code,
+                         pull_cfg_from_parameters_out,
+                         pull_cfg_from_parameters_out_file, read_cfg_file,
+                         read_mag_file_metadata, to_int)
 
+from .conftest import (EXPECTED_FILES_DIR, MAGICC6_DIR, TEST_DATA_DIR,
+                       TEST_OUT_DIR, run_writing_comparison)
 
 # Not all files can be read in
 TEST_OUT_FILES = listdir(TEST_OUT_DIR)

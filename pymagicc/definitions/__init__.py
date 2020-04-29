@@ -12,13 +12,12 @@ For more details about how these constants are used, see the documentation of
 ``pymagicc.io.get_special_scen_code``, ``pymagicc.io.get_dattype_regionmode`` and
 ``pymagicc.io.get_region_order`` in :ref:`pymagicc.io`.
 """
-from pathlib import Path
-import warnings
 import functools
+import warnings
+from pathlib import Path
 
 import pandas as pd
 from pandas_datapackage_reader import read_datapackage
-
 
 from pymagicc.utils import apply_string_substitutions
 

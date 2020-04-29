@@ -1,13 +1,9 @@
 from os import environ
 
 import pytest
-from pymagicc.config import (
-    config,
-    ConfigStore,
-    default_config,
-    lookup_defaults,
-    lookup_env,
-)
+
+from pymagicc.config import (ConfigStore, config, default_config,
+                             lookup_defaults, lookup_env)
 
 
 def temp_set_var(store):

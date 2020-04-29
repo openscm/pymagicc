@@ -20,17 +20,38 @@ help:
 
 all: $(VENV_DIR)
 
+# to turn on in future:
+# 		echo "\n\n=== pydocstyle ==="; $(VENV_DIR)/bin/pydocstyle pymagicc || echo "--- pydocstyle failed ---" >&2; \
+# 		echo "\n\n=== pylint ==="; $(VENV_DIR)/bin/pylint pymagicc || echo "--- pylint failed ---" >&2; \
+
 checks: $(VENV_DIR)  ## run all the checks
 	@echo "=== bandit ==="; $(VENV_DIR)/bin/bandit -c .bandit.yml -r pymagicc || echo "--- bandit failed ---" >&2; \
 		echo "\n\n=== black ==="; $(VENV_DIR)/bin/black --check pymagicc tests setup.py docs/conf.py --exclude pymagicc/_version.py || echo "--- black failed ---" >&2; \
 		echo "\n\n=== flake8 ==="; $(VENV_DIR)/bin/flake8 pymagicc tests setup.py || echo "--- flake8 failed ---" >&2; \
 		echo "\n\n=== isort ==="; $(VENV_DIR)/bin/isort --check-only --quiet --recursive pymagicc tests setup.py || echo "--- isort failed ---" >&2; \
-		echo "\n\n=== pydocstyle ==="; $(VENV_DIR)/bin/pydocstyle pymagicc || echo "--- pydocstyle failed ---" >&2; \
-		echo "\n\n=== pylint ==="; $(VENV_DIR)/bin/pylint pymagicc || echo "--- pylint failed ---" >&2; \
 		echo "\n\n=== notebook tests ==="; $(VENV_DIR)/bin/pytest notebooks -r a --nbval --sanitize-with tests/notebook-tests.cfg || echo "--- notebook tests failed ---" >&2; \
 		echo "\n\n=== tests ==="; $(VENV_DIR)/bin/pytest tests --cov -rfsxEX --cov-report term-missing || echo "--- tests failed ---" >&2; \
 		echo "\n\n=== docs ==="; $(VENV_DIR)/bin/sphinx-build -M html docs/source docs/build -qW || echo "--- docs failed ---" >&2; \
 		echo
+
+black: $(VENV_DIR)  ## reformat the code with black
+	@status=$$(git status --porcelain pymagicc tests); \
+	if test "x$${status}" = x; then \
+		$(VENV_DIR)/bin/black --exclude _version.py setup.py pymagicc tests; \
+	else \
+		echo Not trying any formatting. Working directory is dirty ... >&2; \
+	fi;
+
+isort: $(VENV_DIR)  ## sort the imports in the code
+	@status=$$(git status --porcelain pymagicc tests); \
+	if test "x$${status}" = x; then \
+		$(VENV_DIR)/bin/isort --recursive pymagicc tests setup.py; \
+	else \
+		echo Not trying any formatting. Working directory is dirty ... >&2; \
+	fi;
+
+flake8: $(VENV_DIR)  ## apply the flake8 linter
+	$(VENV_DIR)/bin/flake8 pymagicc
 
 test: $(VENV_DIR)  ## run the tests
 	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
@@ -100,17 +121,6 @@ test-pypi-install: $(VENV_DIR)  ## test installation from PyPI
 
 docs: $(VENV_DIR) docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py')  ## make the docs
 	$(VENV_DIR)/bin/sphinx-build -M html docs docs/build
-
-flake8: $(VENV_DIR)  ## apply the flake8 linter
-	$(VENV_DIR)/bin/flake8 pymagicc
-
-black: $(VENV_DIR)  ## reformat the code with black
-	@status=$$(git status --porcelain pymagicc tests); \
-	if test "x$${status}" = x; then \
-		$(VENV_DIR)/bin/black --exclude _version.py setup.py pymagicc tests; \
-	else \
-		echo Not trying any formatting. Working directory is dirty ... >&2; \
-	fi;
 
 validate-data: $(VENV_DIR)  ## validate the data packaged in pymagicc
 	$(VENV_DIR)/bin/goodtables pymagicc/definitions/datapackage.json
