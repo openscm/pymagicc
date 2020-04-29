@@ -66,7 +66,7 @@ REQUIREMENTS_TESTS = [
     "scipy",  # TODO: try removing and see what happens
 ]
 REQUIREMENTS_DOCS = [
-    "sphinx>=1.4",
+    "sphinx>2.1",
     "sphinx_rtd_theme",
     "sphinx-autodoc-typehints",
     "pydoc-markdown",
