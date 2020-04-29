@@ -1,12 +1,10 @@
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from pymagicc import rcp26, rcp45, rcp60, rcp85, read_scen_file, run
-from pymagicc.io import MAGICCData
 from pymagicc.scenarios import _magicc6_included_distribution_path
 
 RCP26_SCEN_FILE = os.path.join(_magicc6_included_distribution_path, "RCP26.SCEN")
@@ -18,7 +16,7 @@ WORLD_ONLY = read_scen_file(
 
 @patch("pymagicc.io.MAGICCData")
 def test_read_scen_file(mock_magicc_data):
-    result = read_scen_file(RCP26_SCEN_FILE)
+    read_scen_file(RCP26_SCEN_FILE)
 
     mock_magicc_data.assert_called()
 

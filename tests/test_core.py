@@ -11,15 +11,13 @@ import f90nml
 import numpy as np
 import pandas as pd
 import pytest
-from dateutil.relativedelta import relativedelta
 from openscm_units import unit_registry
 
-from pymagicc import MAGICC6, MAGICC7, rcp26, zero_emissions
+from pymagicc import MAGICC6, MAGICC7, zero_emissions
 from pymagicc.core import MAGICCBase, _clean_value, config
 from pymagicc.io import MAGICCData, read_cfg_file
 
-from .conftest import MAGICC6_DIR, TEST_DATA_DIR
-from .test_config import config_override  # noqa
+from .test_io import MAGICC6_DIR
 
 
 @pytest.fixture(scope="function")
@@ -547,7 +545,6 @@ def valid_tcr_tcre_diagnosis_results():
     fake_inverse_emms = np.linspace(0, 60, endyear - startyear + 1)
     fake_rf = 2.0 * np.log(fake_concs / fake_PI_conc)
     fake_temp = np.log(fake_rf + 1.0) + fake_time / fake_time[len(fake_time) // 3]
-    fake_regions = ["World"] * len(fake_time)
 
     mock_results = _get_mock_diagnosis_results_as_magiccdata(
         fake_time, fake_concs, fake_rf, fake_temp, fake_inverse_emms=fake_inverse_emms
@@ -1638,6 +1635,6 @@ def test_failure_message(package, capsys):
     emisscen_key = "file_emissionscenario" if package.version == 6 else "file_emisscen"
     remove(join(package.run_dir, package.default_config["nml_allcfgs"][emisscen_key]))
     with pytest.raises(CalledProcessError):
-        res = package.run()
+        package.run()
 
     assert "stderr:\n" in capsys.readouterr().out

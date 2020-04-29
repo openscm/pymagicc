@@ -1,16 +1,10 @@
 import re
 import warnings
-from os.path import join
 from unittest.mock import patch
 
-import numpy as np
-import pandas as pd
 import pytest
 
-from pymagicc.io import MAGICCData
 from pymagicc.utils import apply_string_substitutions
-
-from .conftest import MAGICC6_DIR, TEST_DATA_DIR, TEST_OUT_DIR
 
 
 @patch("pymagicc.utils._compile_replacement_regexp")
@@ -141,7 +135,7 @@ def test_apply_string_substitutions_unused_substitutions(
 def test_apply_string_substitutions_duplicate_substitutions():
     # Note: we can ignore non case insensitive substitutions as if you try to generate
     # a dictionary with a duplicate key, it will just be overwritten
-    assert {"teeth": "tooth", "teeth": "other"} == {"teeth": "other"}
+    assert {"teeth": "tooth", "teeth": "other"} == {"teeth": "other"}  # noqa
 
 
 @pytest.mark.parametrize(

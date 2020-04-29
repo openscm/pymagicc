@@ -129,8 +129,10 @@ class MAGICCBase(object):
                 )
             )
         if self.is_temp:
-            if not self.root_dir is None:
-                raise AssertionError("A temp copy for this instance has already been created")
+            if self.root_dir is not None:
+                raise AssertionError(
+                    "A temp copy for this instance has already been created"
+                )
 
             self.root_dir = mkdtemp(prefix="pymagicc-")
 
@@ -147,7 +149,7 @@ class MAGICCBase(object):
         # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
         dirs_to_copy = [".", "bin", "run"]
         # Check that the executable is in a valid sub directory
-        if not exec_dir in dirs_to_copy:
+        if exec_dir not in dirs_to_copy:
             raise AssertionError("binary must be in bin/ or run/ directory")
 
         for d in dirs_to_copy:
