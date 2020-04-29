@@ -113,10 +113,7 @@ PACKAGE_DATA = {
     ],
 }
 
-with open(README, "r", encoding="utf-8", errors="replace") as f:
-    print(f.readlines())
-
-with open(README, "r", encoding="utf-8", errors="replace") as f:
+with open(README, "r", encoding="utf-8") as f:
     README_LINES = ["Pymagicc", "========", ""]
     add_line = False
     for line in f:
