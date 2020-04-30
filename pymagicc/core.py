@@ -4,6 +4,7 @@ import warnings
 from copy import deepcopy
 from os import listdir, makedirs
 from os.path import abspath, basename, dirname, exists, isfile, join
+from subprocess import PIPE  # nosec # have to use subprocess
 from tempfile import mkdtemp
 
 import f90nml
@@ -345,7 +346,9 @@ class MAGICCBase(object):
             res = subprocess.run(  # nosec # on Windows shell=True is required
                 command,
                 check=True,
-                capture_output=True,
+                # thank you https://stackoverflow.com/a/53209196 for Python 3.6 hack
+                stdout=PIPE,
+                stderr=PIPE,
                 cwd=self.run_dir,
                 shell=IS_WINDOWS,
             )
