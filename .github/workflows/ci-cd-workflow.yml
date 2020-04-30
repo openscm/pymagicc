@@ -68,6 +68,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install --no-install-recommends -y wine-stable wine32
 
+    - name: Install wine (${{ runner.os }})
+      if: startsWith(runner.os, 'macOS')
+      run: |
+        brew cask install wine-stable
+
     - uses: actions/cache@v1
       if: startsWith(runner.os, 'Linux')
       with:
