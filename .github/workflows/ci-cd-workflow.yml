@@ -100,7 +100,7 @@ jobs:
 
 
     - name: Test with pytest (${{ runner.os }})
-      if: startsWith(runner.os, 'macOS') or startsWith(runner.os, 'Linux')
+      if: startsWith(runner.os, 'macOS') || startsWith(runner.os, 'Linux')
       env:
         MIN_COVERAGE: 70  # TODO: put this back up to 95 once we start writing
       run: |
