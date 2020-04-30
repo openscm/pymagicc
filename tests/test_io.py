@@ -31,7 +31,9 @@ from pymagicc.io import (
     read_cfg_file,
     read_mag_file_metadata,
     to_int,
+    _is_windows,
 )
+
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
@@ -78,6 +80,9 @@ def run_writing_comparison(res, expected, update=False):
         If ``update`` is ``False`` and ``res`` and ``expected``
         are not identical.
     """
+    if _is_windows:
+        pytest.skip("Regression files written on linux")
+
     if update:
         shutil.copy(res, expected)
         pytest.skip("Updated {}".format(expected))
