@@ -21,6 +21,7 @@ from pymagicc.io import (
     MAGICCData,
     NoReaderWriterError,
     _ConcInReader,
+    _is_windows,
     _Reader,
     determine_tool,
     find_parameter_groups,
@@ -31,9 +32,7 @@ from pymagicc.io import (
     read_cfg_file,
     read_mag_file_metadata,
     to_int,
-    _is_windows,
 )
-
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
