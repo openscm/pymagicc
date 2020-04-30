@@ -15,8 +15,8 @@ import pkg_resources
 import pytest
 from scmdata import ScmDataFrame
 
-from pymagicc.config import _is_windows
 import pymagicc.definitions
+from pymagicc.config import _is_windows
 from pymagicc.io import (
     InvalidTemporalResError,
     MAGICCData,
