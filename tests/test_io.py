@@ -15,13 +15,13 @@ import pkg_resources
 import pytest
 from scmdata import ScmDataFrame
 
+from pymagicc.config import _is_windows
 import pymagicc.definitions
 from pymagicc.io import (
     InvalidTemporalResError,
     MAGICCData,
     NoReaderWriterError,
     _ConcInReader,
-    _is_windows,
     _Reader,
     determine_tool,
     find_parameter_groups,
