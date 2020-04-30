@@ -61,6 +61,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Install wine (${{ runner.os }})
+      if: startsWith(runner.os, 'Linux')
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends -y wine-stable wine32
 
     - uses: actions/cache@v1
       if: startsWith(runner.os, 'Linux')
@@ -89,6 +95,7 @@ jobs:
 
     - name: Install test dependencies
       run: |
+        pip install --upgrade pip
         pip install -e .[tests]
     - name: Test with pytest
       env:
