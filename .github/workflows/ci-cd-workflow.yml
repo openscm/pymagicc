@@ -71,6 +71,7 @@ jobs:
     - name: Install wine (${{ runner.os }})
       if: startsWith(runner.os, 'macOS')
       run: |
+        brew cask install xquartz
         brew cask install wine-stable
 
     - uses: actions/cache@v1
