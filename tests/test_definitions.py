@@ -107,6 +107,42 @@ def test_dir_aerosols(variable, prefix, suffix):
             assert openscm_var.endswith(variable if variable != "SOX" else "SOx")
 
 
+@pytest.mark.parametrize("suffix", [
+    "RF",
+    "ERF",
+    "CONC",
+    "OT"
+])
+@pytest.mark.parametrize("prefix", [
+    "I",
+    "B",
+    "T",
+])
+@pytest.mark.parametrize("variable", [
+    "CO2",
+    "N2O",
+    "CH4",
+])
+def test_ch4_co2_n2o(variable, prefix, suffix):
+    openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, prefix, suffix))
+
+    if suffix == "RF":
+        assert openscm_var.startswith("Radiative Forcing")
+    elif suffix == "ERF":
+        assert openscm_var.startswith("Effective Radiative Forcing")
+    elif suffix == "CONC":
+        assert openscm_var.startswith("Atmospheric Concentrations")
+    elif suffix == "OT":
+        assert openscm_var.startswith("Optical Thickness")
+
+    if prefix == "I":
+        assert openscm_var.endswith("MAGICC Fossil and Industrial")
+    elif prefix == "B":
+        assert openscm_var.endswith("MAGICC AFOLU")
+    else:
+        assert openscm_var.endswith(variable)
+
+
 @pytest.mark.parametrize(
     "magicc7, openscm",
     [
@@ -180,8 +216,8 @@ def test_dir_aerosols(variable, prefix, suffix):
         ("TOTAL_INCLVOLCANIC_ERF", "Effective Radiative Forcing"),
         ("SLR_TOT", "Sea Level Rise"),
         ("CO2T_EMIS", "Emissions|CO2"),
-        ("CH4T_RF", "Radiative Forcing|CO2"),
-        ("N2OT_ERF", "Effective Radiative Forcing|CO2"),
+        ("CH4T_RF", "Radiative Forcing|CH4"),
+        ("N2OT_ERF", "Effective Radiative Forcing|N2O"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -197,16 +233,16 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CO2I_EMIS", "Emissions|CO2|MAGICC Fossil and Industrial"),
         ("CH3CCL3_EMIS", "Emissions|CH3CCl3"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
-        ("CO2_EMIS", "Emissions|CO2"),
-        ("CH4_EMIS", "Emissions|CH4"),
-        ("N2O_EMIS", "Emissions|N2O"),
+        ("CO2T_EMIS", "Emissions|CO2"),
+        ("CH4T_EMIS", "Emissions|CH4"),
+        ("N2OT_EMIS", "Emissions|N2O"),
         ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
         ("AIR_CIRRUS_RF", "Radiative Forcing|Aviation|Cirrus"),
         ("AIR_CONTRAIL_RF", "Radiative Forcing|Aviation|Contrail"),
         ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
-        ("CH4_ERF", "Effective Radiative Forcing|CH4"),
+        ("CH4T_ERF", "Effective Radiative Forcing|CH4"),
         ("GHG_ERF", "Effective Radiative Forcing|Greenhouse Gases"),
         ("TOTAL_ANTHRO_ERF", "Effective Radiative Forcing|Anthropogenic"),
         ("TOTAER_DIR_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect"),
