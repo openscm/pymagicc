@@ -46,7 +46,7 @@ DATTYPE_REGIONMODE_REGIONS["regions"] = [
     for raw in _dtrm.loc[:, _region_cols].values.tolist()
 ]
 
-MAGICC7_EMISSIONS_UNITS = read_datapackage(path, "magicc_emisssions_units")
+MAGICC7_EMISSIONS_UNITS = read_datapackage(path, "magicc_emissions_units")
 """:obj:`pandas.DataFrame` Definitions of emissions variables and their expected units in MAGICC7.
 """
 
@@ -266,11 +266,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         if "GHG" in variable:
             variable = variable.replace("GHG", "Greenhouse Gases")
 
-        if "BIOMASSAER" in variable:
-            variable = variable.replace(
-                "BIOMASSAER", "Aerosols|Direct Effect|MAGICC AFOLU"
-            )
-
         if "CO2CH4N2O" in variable:
             variable = variable.replace("CO2CH4N2O", "CO2, CH4 and N2O")
 
@@ -296,6 +291,20 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             variable = DATA_HIERARCHY_SEPARATOR.join([variable[:-1], "MAGICC AFOLU"])
         elif variable.endswith("T"):
             variable = variable[:-1]
+
+        dir_aerosols = [
+            "OC",
+            "BC",
+            "SOX",
+            "NOX",  # Deprecated
+            "NH3",  # Deprecated
+            "NO3",
+            "MINERALDUST",
+            "BIOMASSAER"
+        ]
+        for aer in dir_aerosols:
+            if variable.startswith(aer):
+                variable = "Aerosols|Direct Effect|" + variable
 
         case_adjustments = {
             "SOX": "SOx",
@@ -323,6 +332,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "SOLAR": "Solar",
             "VOLCANIC": "Volcanic",
             "EXTRA": "Extra",
+            "MINERALDUST": "Mineral Dust",
+            "BIOMASSAER": "MAGICC AFOLU",
         }
         variable = apply_string_substitutions(variable, case_adjustments)
 
@@ -358,12 +369,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
         "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
         "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
-        "OCI_RF": "Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
-        "BCI_RF": "Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
-        "SOXI_RF": "Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
-        "NOXI_RF": "Radiative Forcing|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
-        "NH3I_RF": "Radiative Forcing|Aerosols|Direct Effect|NH3|MAGICC Fossil and Industrial",
-        "MINERALDUST_RF": "Radiative Forcing|Aerosols|Direct Effect|Mineral Dust",
         "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
         "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
         "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",
@@ -416,11 +421,14 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     else:
         # these come from MAGICC's output
         one_way_replacements = {
-            "CO2T_EMIS": "Emissions|CO2",
-            "CH4T_EMIS": "Emissions|CH4",
-            "N2OT_EMIS": "Emissions|N2O",
             "SURFACE_TEMP_SUBANNUAL": "Surface Temperature",
         }
+
+        # Replace the XXXT_YYY with XXX_YYY variables
+        for k in replacements:
+            toks = k.split("_")
+            if len(toks) == 2 and toks[0].endswith("T") and toks[0] != "MINERALDUST":
+                one_way_replacements["{}_{}".format(toks[0][:-1], toks[1])] = replacements[k]
         replacements.update(one_way_replacements)
         return replacements
 

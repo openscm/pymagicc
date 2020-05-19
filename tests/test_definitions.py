@@ -66,6 +66,47 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
     )
 
 
+@pytest.mark.parametrize("suffix", [
+    "RF",
+    "ERF"
+])
+@pytest.mark.parametrize("prefix", [
+    "I",
+    "B",
+    "T",
+])
+@pytest.mark.parametrize("variable", [
+    "OC",
+    "BC",
+    "SOX",
+    "NO3",
+    "BIOMASSAER",
+    "MINERALDUST"
+])
+def test_dir_aerosols(variable, prefix, suffix):
+    no_prefix_variable = ["BIOMASSAER", "MINERALDUST"]
+
+    if variable in no_prefix_variable:
+        # Ignoring the prefix
+        openscm_var = convert_magicc7_to_openscm_variables("{}_{}".format(variable, suffix))
+    else:
+        openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, prefix, suffix))
+
+    assert "Aerosols|Direct Effect" in openscm_var
+    if suffix == "RF":
+        assert openscm_var.startswith("Radiative Forcing")
+    elif suffix == "ERF":
+        assert openscm_var.startswith("Effective Radiative Forcing")
+
+    if variable not in no_prefix_variable:
+        if prefix == "I":
+            assert openscm_var.endswith("MAGICC Fossil and Industrial")
+        elif prefix == "B":
+            assert openscm_var.endswith("MAGICC AFOLU")
+        else:
+            assert openscm_var.endswith(variable if variable != "SOX" else "SOx")
+
+
 @pytest.mark.parametrize(
     "magicc7, openscm",
     [
@@ -138,6 +179,9 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
         ),
         ("TOTAL_INCLVOLCANIC_ERF", "Effective Radiative Forcing"),
         ("SLR_TOT", "Sea Level Rise"),
+        ("CO2T_EMIS", "Emissions|CO2"),
+        ("CH4T_RF", "Radiative Forcing|CO2"),
+        ("N2OT_ERF", "Effective Radiative Forcing|CO2"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -204,8 +248,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
             "Effective Radiative Forcing|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
         ),
         (
-            "NH3I_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|NH3|MAGICC Fossil and Industrial",
+            "NO3I_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|NO3|MAGICC Fossil and Industrial",
         ),
         ("TOTAL_INCLVOLCANIC_ERF", "Effective Radiative Forcing"),
         ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
