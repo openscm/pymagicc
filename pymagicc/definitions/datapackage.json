@@ -146,8 +146,8 @@
       }
     },
     {
-      "name": "magicc_emisssions_units",
-      "path": "magicc_emisssions_units.csv",
+      "name": "magicc_emissions_units",
+      "path": "magicc_emissions_units.csv",
       "format": "csv",
       "mediatype": "text/csv",
       "schema": {
