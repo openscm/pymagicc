@@ -207,6 +207,7 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_RF", "Radiative Forcing|CH4"),
         ("CH4_RF", "Radiative Forcing|CH4"),
+        ("NOX_EMIS", "Emissions|Aerosols|Direct Effect|NOx"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -280,7 +281,6 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
         ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
-        ("NOX_EMIS", "Emissions|Aerosols|Direct Effect|NOx"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
