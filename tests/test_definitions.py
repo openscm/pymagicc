@@ -66,31 +66,23 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
     )
 
 
-@pytest.mark.parametrize("suffix", [
-    "RF",
-    "ERF"
-])
-@pytest.mark.parametrize("suffix_part_1", [
-    "I",
-    "B",
-    "T",
-])
-@pytest.mark.parametrize("variable", [
-    "OC",
-    "BC",
-    "SOX",
-    "NO3",
-    "BIOMASSAER",
-    "MINERALDUST"
-])
+@pytest.mark.parametrize("suffix", ["RF", "ERF"])
+@pytest.mark.parametrize("suffix_part_1", ["I", "B", "T",])
+@pytest.mark.parametrize(
+    "variable", ["OC", "BC", "SOX", "NO3", "BIOMASSAER", "MINERALDUST"]
+)
 def test_dir_aerosols(variable, suffix_part_1, suffix):
     no_prefix_variable = ["BIOMASSAER", "MINERALDUST"]
 
     if variable in no_prefix_variable:
         # Ignoring the prefix
-        openscm_var = convert_magicc7_to_openscm_variables("{}_{}".format(variable, suffix))
+        openscm_var = convert_magicc7_to_openscm_variables(
+            "{}_{}".format(variable, suffix)
+        )
     else:
-        openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, suffix_part_1, suffix))
+        openscm_var = convert_magicc7_to_openscm_variables(
+            "{}{}_{}".format(variable, suffix_part_1, suffix)
+        )
 
     assert "Aerosols|Direct Effect" in openscm_var
     if suffix == "RF":
@@ -110,24 +102,13 @@ def test_dir_aerosols(variable, suffix_part_1, suffix):
             assert openscm_var.endswith(openscm_var_name)
 
 
-@pytest.mark.parametrize("suffix", [
-    "RF",
-    "ERF",
-    "CONC",
-    "OT"
-])
-@pytest.mark.parametrize("prefix", [
-    "I",
-    "B",
-    "T",
-])
-@pytest.mark.parametrize("variable", [
-    "CO2",
-    "N2O",
-    "CH4",
-])
+@pytest.mark.parametrize("suffix", ["RF", "ERF", "CONC", "OT"])
+@pytest.mark.parametrize("prefix", ["I", "B", "T",])
+@pytest.mark.parametrize("variable", ["CO2", "N2O", "CH4",])
 def test_ch4_co2_n2o(variable, prefix, suffix):
-    openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, prefix, suffix))
+    openscm_var = convert_magicc7_to_openscm_variables(
+        "{}{}_{}".format(variable, prefix, suffix)
+    )
 
     if suffix == "RF":
         assert openscm_var.startswith("Radiative Forcing")
