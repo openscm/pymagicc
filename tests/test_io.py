@@ -334,13 +334,13 @@ def test_load_ot():
     assert (mdata["todo"] == "SET").all()
     assert (
         mdata["variable"]
-        == "Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial"
+        == "Optical Thickness|NOx|MAGICC Fossil and Industrial"
     ).all()
 
     assert_mdata_value(
         mdata,
         0.00668115649,
-        variable="Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
         region="World|Northern Hemisphere|Ocean",
         year=1765,
         unit="dimensionless",
@@ -350,7 +350,7 @@ def test_load_ot():
     assert_mdata_value(
         mdata,
         0.526135104,
-        variable="Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
         region="World|Northern Hemisphere|Land",
         year=1865,
         unit="dimensionless",
@@ -360,7 +360,7 @@ def test_load_ot():
     assert_mdata_value(
         mdata,
         0.612718845,
-        variable="Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
         region="World|Southern Hemisphere|Ocean",
         year=1965,
         unit="dimensionless",
@@ -370,7 +370,7 @@ def test_load_ot():
     assert_mdata_value(
         mdata,
         3.70378,
-        variable="Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
+        variable="Optical Thickness|NOx|MAGICC Fossil and Industrial",
         region="World|Southern Hemisphere|Land",
         year=2000,
         unit="dimensionless",
@@ -647,7 +647,7 @@ def test_load_scen():
     assert_mdata_value(
         mdata,
         11.9769,
-        variable="Emissions|Aerosols|Direct Effect|SOx",
+        variable="Emissions|SOx",
         region="World|R5OECD",
         year=2005,
         unit="Mt S / yr",
@@ -717,7 +717,7 @@ def test_load_scen():
     assert_mdata_value(
         mdata,
         1.8693,
-        variable="Emissions|Aerosols|Direct Effect|NOx",
+        variable="Emissions|NOx",
         region="World|R5LAM",
         year=2080,
         unit="Mt N / yr",
@@ -727,7 +727,7 @@ def test_load_scen():
     assert_mdata_value(
         mdata,
         0.4254,
-        variable="Emissions|Aerosols|Direct Effect|BC",
+        variable="Emissions|BC",
         region="World|R5LAM",
         year=2090,
         unit="Mt BC / yr",
@@ -737,7 +737,7 @@ def test_load_scen():
     assert_mdata_value(
         mdata,
         0,
-        variable="Emissions|Aerosols|Direct Effect|NH3",
+        variable="Emissions|NH3",
         region="World|Bunkers",
         year=2000,
         unit="Mt N / yr",
@@ -883,7 +883,7 @@ def test_load_scen_sres():
     assert_mdata_value(
         mdata,
         9.8762,
-        variable="Emissions|Aerosols|Direct Effect|SOx",
+        variable="Emissions|SOx",
         region="World|OECD90",
         year=2010,
         unit="Mt S / yr",
@@ -1015,7 +1015,7 @@ def test_load_scen7():
     assert_mdata_value(
         mdata,
         11.9769,
-        variable="Emissions|Aerosols|Direct Effect|SOx",
+        variable="Emissions|SOx",
         region="World|R5.2OECD",
         year=2005,
         unit="Mt S / yr",
@@ -1095,7 +1095,7 @@ def test_load_scen7():
     assert_mdata_value(
         mdata,
         1.8693,
-        variable="Emissions|Aerosols|Direct Effect|NOx",
+        variable="Emissions|NOx",
         region="World|R5.2LAM",
         year=2080,
         unit="Mt N / yr",
@@ -1105,7 +1105,7 @@ def test_load_scen7():
     assert_mdata_value(
         mdata,
         0.4254,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World|R5.2LAM",
         year=2090,
         unit="Mt BC / yr",
@@ -1115,7 +1115,7 @@ def test_load_scen7():
     assert_mdata_value(
         mdata,
         0,
-        variable="Emissions|Aerosols|Direct Effect|NH3",
+        variable="Emissions|NH3",
         region="World|Bunkers",
         year=2000,
         unit="Mt N / yr",
@@ -1211,7 +1211,7 @@ def test_load_rewritten_scen7(temp_dir):
     assert_mdata_value(
         mdata,
         11.9769,
-        variable="Emissions|Aerosols|Direct Effect|SOx",
+        variable="Emissions|SOx",
         region="World|R5.2OECD",
         year=2005,
         unit="Mt S / yr",
@@ -1271,7 +1271,7 @@ def test_load_rewritten_scen7(temp_dir):
     assert_mdata_value(
         mdata,
         1.8693,
-        variable="Emissions|Aerosols|Direct Effect|NOx",
+        variable="Emissions|NOx",
         region="World|R5.2LAM",
         year=2080,
         unit="Mt N / yr",
@@ -1281,7 +1281,7 @@ def test_load_rewritten_scen7(temp_dir):
     assert_mdata_value(
         mdata,
         0.4254,
-        variable="Emissions|Aerosols|Direct Effect|BC",
+        variable="Emissions|BC",
         region="World|R5.2LAM",
         year=2090,
         unit="Mt BC / yr",
@@ -1291,7 +1291,7 @@ def test_load_rewritten_scen7(temp_dir):
     assert_mdata_value(
         mdata,
         0,
-        variable="Emissions|Aerosols|Direct Effect|NH3",
+        variable="Emissions|NH3",
         region="World|Bunkers",
         year=2000,
         unit="Mt N / yr",
@@ -2265,13 +2265,13 @@ def test_load_out_emis():
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "Mt BC / yr").all()
     assert (
-        mdata["variable"] == "Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU"
+        mdata["variable"] == "Emissions|BC|MAGICC AFOLU"
     ).all()
 
     assert_mdata_value(
         mdata,
         0,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World",
         year=1765,
         unit="Mt BC / yr",
@@ -2280,7 +2280,7 @@ def test_load_out_emis():
     assert_mdata_value(
         mdata,
         2.0025816,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World",
         year=1965,
         unit="Mt BC / yr",
@@ -2289,7 +2289,7 @@ def test_load_out_emis():
     assert_mdata_value(
         mdata,
         0.0,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World|Northern Hemisphere|Ocean",
         year=1769,
         unit="Mt BC / yr",
@@ -2298,7 +2298,7 @@ def test_load_out_emis():
     assert_mdata_value(
         mdata,
         0.0,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World|Southern Hemisphere|Ocean",
         year=1820,
         unit="Mt BC / yr",
@@ -2307,7 +2307,7 @@ def test_load_out_emis():
     assert_mdata_value(
         mdata,
         0.71504927,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World|Northern Hemisphere|Land",
         year=2093,
         unit="Mt BC / yr",
@@ -2316,7 +2316,7 @@ def test_load_out_emis():
     assert_mdata_value(
         mdata,
         0.48390716,
-        variable="Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU",
+        variable="Emissions|BC|MAGICC AFOLU",
         region="World|Southern Hemisphere|Land",
         year=2100,
         unit="Mt BC / yr",

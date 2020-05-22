@@ -102,7 +102,38 @@ def test_dir_aerosols(variable, suffix_part_1, suffix):
             assert openscm_var.endswith(openscm_var_name)
 
 
-@pytest.mark.parametrize("suffix", ["RF", "ERF", "CONC", "OT"])
+@pytest.mark.parametrize("suffix", ["CONC", "OT", "EMIS", "INVERSE_EMIS"])
+@pytest.mark.parametrize("suffix_part_1", ["I", "B", "T",])
+@pytest.mark.parametrize(
+    "variable", ["OC", "BC", "SOX", "NO3"]
+)
+def test_dir_aerosols(variable, suffix_part_1, suffix):
+    openscm_var = convert_magicc7_to_openscm_variables(
+        "{}{}_{}".format(variable, suffix_part_1, suffix)
+    )
+
+    assert "Aerosols|Direct Effect" not in openscm_var
+    if suffix == "CONC":
+        assert openscm_var.startswith("Atmospheric Concentrations")
+    elif suffix == "OT":
+        assert openscm_var.startswith("Optical Thickness")
+    elif suffix == "EMIS":
+        assert openscm_var.startswith("Emissions")
+    elif suffix == "INVERSE_EMIS":
+        assert openscm_var.startswith("Inverse Emissions")
+
+    openscm_var_name = variable if variable != "SOX" else "SOx"
+    if suffix_part_1 == "I":
+        assert openscm_var.endswith("MAGICC Fossil and Industrial")
+        assert "|{}|".format(openscm_var_name) in openscm_var
+    elif suffix_part_1 == "B":
+        assert openscm_var.endswith("MAGICC AFOLU")
+        assert "|{}|".format(openscm_var_name) in openscm_var
+    else:
+        assert openscm_var.endswith(openscm_var_name)
+
+
+@pytest.mark.parametrize("suffix", ["RF", "ERF", "CONC", "OT", "EMIS"])
 @pytest.mark.parametrize("prefix", ["I", "B", "T",])
 @pytest.mark.parametrize("variable", ["CO2", "N2O", "CH4",])
 def test_ch4_co2_n2o(variable, prefix, suffix):
@@ -207,8 +238,8 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_RF", "Radiative Forcing|CH4"),
         ("CH4_RF", "Radiative Forcing|CH4"),
-        ("NOX_EMIS", "Emissions|Aerosols|Direct Effect|NOx"),
-        ("NOXT_EMIS", "Emissions|Aerosols|Direct Effect|NOx"),
+        ("NOX_EMIS", "Emissions|NOx"),
+        ("NOXT_EMIS", "Emissions|NOx"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
