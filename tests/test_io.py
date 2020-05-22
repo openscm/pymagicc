@@ -3393,11 +3393,7 @@ def test_compact_binout_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.BINOUT"))
 
     generic_mdata_tests(
-        mdata,
-        extra_index_cols={
-            "run_id": int,
-            "core_climatesensitivity": float,
-        },
+        mdata, extra_index_cols={"run_id": int, "core_climatesensitivity": float,},
     )
 
     assert (mdata["unit"] == "unknown").all()
@@ -3418,7 +3414,6 @@ def test_compact_binout_reader():
     assert_mdata_value(
         mdata, 355.8137, region="World|Northern Hemisphere|Ocean", year=1990, run_id=1
     )
-
 
 
 def test_compact_out_writer():
@@ -3548,11 +3543,15 @@ def test_writing_identical_rcpdat(
 
 
 def test_writing_erf_magicc6_error():
-    writer = MAGICCData(join(EXPECTED_FILES_DIR, "EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT"))
+    writer = MAGICCData(
+        join(EXPECTED_FILES_DIR, "EXPECTED_MAGICC7_MIDYEAR_EFFECTIVERADFORCING.DAT")
+    )
 
     error_msg = re.escape("MAGICC6 does not output effective radiative forcing")
     with pytest.raises(ValueError, match=error_msg):
-        writer.write("IGNORED_MAGICC6_MIDYEAR_EFFECTIVERADFORCING.DAT", magicc_version=6)
+        writer.write(
+            "IGNORED_MAGICC6_MIDYEAR_EFFECTIVERADFORCING.DAT", magicc_version=6
+        )
 
 
 def test_mag_writer(temp_dir, writing_base_mag):
@@ -3815,11 +3814,14 @@ def test_mag_reader():
     assert_mdata_value(mdata, 9, region="World|El Nino N3.4", year=1911, month=7)
 
 
-@pytest.mark.parametrize("test_file", (
-    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
-    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG"),
-    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_LONG_DATA_SALT.MAG"),
-))
+@pytest.mark.parametrize(
+    "test_file",
+    (
+        join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
+        join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG"),
+        join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_LONG_DATA_SALT.MAG"),
+    ),
+)
 def test_mag_reader_metadata_only(benchmark, test_file):
     result = benchmark(read_mag_file_metadata, filepath=test_file)
 
@@ -3833,10 +3835,13 @@ def test_mag_reader_metadata_only_wrong_file_type():
         read_mag_file_metadata("CO2I_EMIS.IN")
 
 
-@pytest.mark.parametrize("broken_file", (
-    join(TEST_DATA_DIR, "MAG_FORMAT_MISSING_NAMELIST_END.MAG"),
-    join(TEST_DATA_DIR, "MAG_FORMAT_WRONG_NAMELIST_NAME.MAG"),
-))
+@pytest.mark.parametrize(
+    "broken_file",
+    (
+        join(TEST_DATA_DIR, "MAG_FORMAT_MISSING_NAMELIST_END.MAG"),
+        join(TEST_DATA_DIR, "MAG_FORMAT_WRONG_NAMELIST_NAME.MAG"),
+    ),
+)
 def test_mag_reader_metadata_only_missing_namelist(broken_file):
     with pytest.raises(ValueError, match=re.escape("Could not find namelist")):
         read_mag_file_metadata(broken_file)
@@ -3970,22 +3975,90 @@ def test_to_int_type_error():
         to_int(inp)
 
 
-@pytest.mark.parametrize("start_list,expected", (
-    (["CORE_CLIMATESENSITIVITY", "RUN_ID"], {}),
-    (["CORE_CLIMATESENSITIVITY", "RF_BBAER_DIR_WM2", "OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"], {"OUT_ZERO_TEMP_PERIOD": ["OUT_ZERO_TEMP_PERIOD_1", "OUT_ZERO_TEMP_PERIOD_2"]}),
-    (["RUN_ID", "RF_REGIONS_CH4OXSTRATH2O_2", "RF_REGIONS_CH4OXSTRATH2O_1", "RF_REGIONS_CH4OXSTRATH2O_3", "RF_REGIONS_CH4OXSTRATH2O_4", "RF_REGIONS_CIRRUS_1", "RF_REGIONS_CIRRUS_2", "RF_REGIONS_CIRRUS_3", "RF_REGIONS_CIRRUS_4", "SRF_FACTOR_LANDUSE"],
-        {
-            "RF_REGIONS_CH4OXSTRATH2O": ["RF_REGIONS_CH4OXSTRATH2O_1", "RF_REGIONS_CH4OXSTRATH2O_2", "RF_REGIONS_CH4OXSTRATH2O_3", "RF_REGIONS_CH4OXSTRATH2O_4"],
-            "RF_REGIONS_CIRRUS": ["RF_REGIONS_CIRRUS_1", "RF_REGIONS_CIRRUS_2", "RF_REGIONS_CIRRUS_3", "RF_REGIONS_CIRRUS_4"]
-        }),
-    (["RUN_ID", "FGAS_H_ATOMS_1", "FGAS_H_ATOMS_2", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_5", "FGAS_H_ATOMS_6", "FGAS_H_ATOMS_7", "SRF_FACTOR_LANDUSE"],
-        {
-            "FGAS_H_ATOMS": ["FGAS_H_ATOMS_1", "FGAS_H_ATOMS_2", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_4", "FGAS_H_ATOMS_5", "FGAS_H_ATOMS_6", "FGAS_H_ATOMS_7"]
-        }),
-    (["CORE_CLIMATESENSITIVITY", "FILE_TUNINGMODEL", "FILE_TUNINGMODEL_2"], {}),
-    (["CORE_CLIMATESENSITIVITY", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
-    (["CORE_CLIMATESENSITIVITY", "FILE_EMISSCEN", "FILE_EMISSCEN_2", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
-))
+@pytest.mark.parametrize(
+    "start_list,expected",
+    (
+        (["CORE_CLIMATESENSITIVITY", "RUN_ID"], {}),
+        (
+            [
+                "CORE_CLIMATESENSITIVITY",
+                "RF_BBAER_DIR_WM2",
+                "OUT_ZERO_TEMP_PERIOD_1",
+                "OUT_ZERO_TEMP_PERIOD_2",
+            ],
+            {
+                "OUT_ZERO_TEMP_PERIOD": [
+                    "OUT_ZERO_TEMP_PERIOD_1",
+                    "OUT_ZERO_TEMP_PERIOD_2",
+                ]
+            },
+        ),
+        (
+            [
+                "RUN_ID",
+                "RF_REGIONS_CH4OXSTRATH2O_2",
+                "RF_REGIONS_CH4OXSTRATH2O_1",
+                "RF_REGIONS_CH4OXSTRATH2O_3",
+                "RF_REGIONS_CH4OXSTRATH2O_4",
+                "RF_REGIONS_CIRRUS_1",
+                "RF_REGIONS_CIRRUS_2",
+                "RF_REGIONS_CIRRUS_3",
+                "RF_REGIONS_CIRRUS_4",
+                "SRF_FACTOR_LANDUSE",
+            ],
+            {
+                "RF_REGIONS_CH4OXSTRATH2O": [
+                    "RF_REGIONS_CH4OXSTRATH2O_1",
+                    "RF_REGIONS_CH4OXSTRATH2O_2",
+                    "RF_REGIONS_CH4OXSTRATH2O_3",
+                    "RF_REGIONS_CH4OXSTRATH2O_4",
+                ],
+                "RF_REGIONS_CIRRUS": [
+                    "RF_REGIONS_CIRRUS_1",
+                    "RF_REGIONS_CIRRUS_2",
+                    "RF_REGIONS_CIRRUS_3",
+                    "RF_REGIONS_CIRRUS_4",
+                ],
+            },
+        ),
+        (
+            [
+                "RUN_ID",
+                "FGAS_H_ATOMS_1",
+                "FGAS_H_ATOMS_2",
+                "FGAS_H_ATOMS_4",
+                "FGAS_H_ATOMS_4",
+                "FGAS_H_ATOMS_5",
+                "FGAS_H_ATOMS_6",
+                "FGAS_H_ATOMS_7",
+                "SRF_FACTOR_LANDUSE",
+            ],
+            {
+                "FGAS_H_ATOMS": [
+                    "FGAS_H_ATOMS_1",
+                    "FGAS_H_ATOMS_2",
+                    "FGAS_H_ATOMS_4",
+                    "FGAS_H_ATOMS_4",
+                    "FGAS_H_ATOMS_5",
+                    "FGAS_H_ATOMS_6",
+                    "FGAS_H_ATOMS_7",
+                ]
+            },
+        ),
+        (["CORE_CLIMATESENSITIVITY", "FILE_TUNINGMODEL", "FILE_TUNINGMODEL_2"], {}),
+        (["CORE_CLIMATESENSITIVITY", "OUT_KEYDATA_1", "OUT_KEYDATA_2"], {}),
+        (
+            [
+                "CORE_CLIMATESENSITIVITY",
+                "FILE_EMISSCEN",
+                "FILE_EMISSCEN_2",
+                "OUT_KEYDATA_1",
+                "OUT_KEYDATA_2",
+            ],
+            {},
+        ),
+    ),
+)
 @pytest.mark.parametrize("case", ("upper", "lower", "capital"))
 def test_find_parameter_groups(start_list, expected, case):
     if case == "upper":
@@ -3996,7 +4069,9 @@ def test_find_parameter_groups(start_list, expected, case):
         expected = {k.lower(): [vv.lower() for vv in v] for k, v in expected.items()}
     elif case == "capital":
         start_list = [v.capitalize() for v in start_list]
-        expected = {k.capitalize(): [vv.capitalize() for vv in v] for k, v in expected.items()}
+        expected = {
+            k.capitalize(): [vv.capitalize() for vv in v] for k, v in expected.items()
+        }
     else:
         raise NotImplementedError()
 
