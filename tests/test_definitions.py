@@ -207,7 +207,6 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_RF", "Radiative Forcing|CH4"),
         ("CH4_RF", "Radiative Forcing|CH4"),
-        ("N2OT_ERF", "Effective Radiative Forcing|N2O"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
