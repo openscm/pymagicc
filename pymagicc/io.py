@@ -1683,7 +1683,7 @@ class _Writer(object):
             data_block.columns.get_level_values("variable").tolist(), inverse=True
         )
         # trailing EMIS is incompatible, for now
-        variables = [v.replace("_EMIS", "").rstrip("T") for v in variables]
+        variables = [v.replace("_EMIS", "") for v in variables]
         units = convert_pint_to_fortran_safe_units(
             data_block.columns.get_level_values("unit").tolist()
         )
@@ -2021,7 +2021,7 @@ class _ScenWriter(_Writer):
     def _get_variables(self):
         variables = self._get_df_header_row("variable")
         variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
-        return [v.replace("_EMIS", "").rstrip("T") for v in variables]
+        return [v.replace("_EMIS", "") for v in variables]
 
     def _write_header(self, output):
         header_lines = []
@@ -2111,7 +2111,7 @@ class _ScenWriter(_Writer):
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        variables = [v.replace("_EMIS", "").rstrip("T") for v in variables]
+        variables = [v.replace("_EMIS", "") for v in variables]
 
         special_scen_code = get_special_scen_code(
             regions=region_order_magicc, emissions=variables
@@ -2132,7 +2132,7 @@ class _ScenWriter(_Writer):
             variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
-                levels=[v.replace("_EMIS", "").rstrip("T") for v in variables],
+                levels=[v.replace("_EMIS", "") for v in variables],
                 level="variable",
             )
 
@@ -2142,7 +2142,7 @@ class _ScenWriter(_Writer):
 
             variables = region_block.columns.get_level_values("variable").tolist()
             variables = convert_magicc6_to_magicc7_variables(
-                [v.replace("_EMIS", "").rstrip("T") for v in variables], inverse=True
+                [v.replace("_EMIS", "") for v in variables], inverse=True
             )
 
             units = convert_pint_to_fortran_safe_units(
@@ -2668,13 +2668,6 @@ class _RCPDatWriter(_Writer):
         metadata = data_block.columns.to_frame().reset_index(drop=True)
         metadata.columns = metadata.iloc[0]
 
-        def clean_tot_vars(v):
-            toks = v.split("_")
-            if toks[0] != "MINERALDUST":
-                toks[0] = toks[0].rstrip("T")
-            return "_".join(toks)
-        metadata["VARIABLE"] = [clean_tot_vars(v) for v in metadata["VARIABLE"] ]
-
         # Drop the T from the total variables
         data_block.columns = metadata["VARIABLE"]
         data_block = data_block[col_order]
@@ -2816,7 +2809,7 @@ class _RCPDatWriter(_Writer):
                     return "MCF"
 
                 if x in strip_keys:
-                    return x.replace(suf, "").rstrip("T")
+                    return x.replace(suf, "")
 
                 if x in case_keys:
                     return (
