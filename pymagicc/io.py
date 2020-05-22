@@ -2665,11 +2665,21 @@ class _RCPDatWriter(_Writer):
     def _reorder_data_block_and_get_units(self, data_block, units_level):
         col_order, rename_col = self._get_col_order_rename_col()
 
+        metadata = data_block.columns.to_frame().reset_index(drop=True)
+        metadata.columns = metadata.iloc[0]
+
+        def clean_tot_vars(v):
+            toks = v.split("_")
+            if toks[0] != "MINERALDUST":
+                toks[0] = toks[0].rstrip("T")
+            return "_".join(toks)
+        metadata["VARIABLE"] = [clean_tot_vars(v) for v in metadata["VARIABLE"] ]
+
+        # Drop the T from the total variables
+        data_block.columns = metadata["VARIABLE"]
         data_block = data_block[col_order]
 
-        units = data_block.columns.get_level_values(units_level)
-        data_block.columns = data_block.columns.droplevel(units_level)
-
+        units = metadata.set_index("VARIABLE").loc[col_order].UNITS.to_list()
         data_block.columns = data_block.columns.map(rename_col)
 
         return data_block, units
@@ -2710,6 +2720,7 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _get_col_order_rename_col(self):
+
         if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith(
             "_EFFECTIVERADFORCING.DAT"
         ):
@@ -2805,7 +2816,7 @@ class _RCPDatWriter(_Writer):
                     return "MCF"
 
                 if x in strip_keys:
-                    return x.replace(suf, "")
+                    return x.replace(suf, "").rstrip("T")
 
                 if x in case_keys:
                     return (
@@ -2874,6 +2885,7 @@ class _RCPDatWriter(_Writer):
             ]
 
             def rename_col(x):
+                x = x.strip("T")
                 if x == "CO2I":
                     return "FossilCO2"
 
