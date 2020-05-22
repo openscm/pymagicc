@@ -3155,7 +3155,6 @@ def get_special_scen_code(regions, emissions):
     elif sorted(set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1)) == sorted(set(emissions)):
         scenfile_emissions_code = 1
     else:
-        breakpoint()
         msg = "Could not determine scen special code for emissions {}".format(emissions)
         raise ValueError(msg)
 
