@@ -2018,16 +2018,13 @@ class _ScenWriter(_Writer):
 
         super().write(magicc_input, filepath)
 
-    def _get_variables(self):
-        variables = self._get_df_header_row("variable")
-        variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
-        return [v.replace("_EMIS", "") for v in variables]
-
     def _write_header(self, output):
         header_lines = []
         header_lines.append("{}".format(len(self.data_block)))
 
-        variables = self._get_variables()
+        variables = self._get_df_header_row("variable")
+        variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
+        variables = [v.replace("_EMIS", "") for v in variables]
 
         regions = self._get_df_header_row("region")
         regions = convert_magicc_to_openscm_regions(regions, inverse=True)
@@ -2878,7 +2875,6 @@ class _RCPDatWriter(_Writer):
             ]
 
             def rename_col(x):
-                x = x.strip("T")
                 if x == "CO2I":
                     return "FossilCO2"
 
