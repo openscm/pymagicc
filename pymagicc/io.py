@@ -1683,7 +1683,7 @@ class _Writer(object):
             data_block.columns.get_level_values("variable").tolist(), inverse=True
         )
         # trailing EMIS is incompatible, for now
-        variables = [v.replace("_EMIS", "") for v in variables]
+        variables = [v.replace("_EMIS", "").rstrip("T") for v in variables]
         units = convert_pint_to_fortran_safe_units(
             data_block.columns.get_level_values("unit").tolist()
         )
