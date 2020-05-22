@@ -29,7 +29,7 @@ OCB,Mt OC / yr,False,False,False
 NH3,Mt N / yr,False,True,False
 NH3I,Mt N / yr,False,False,False
 NH3B,Mt N / yr,False,False,False
-NO3T,Mt N / yr,False,True,False
+NO3T,Mt N / yr,False,False,False
 NO3I,Mt N / yr,False,False,False
 NO3B,Mt N / yr,False,False,False
 CF4,kt CF4 / yr,True,True,False
