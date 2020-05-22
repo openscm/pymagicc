@@ -614,7 +614,9 @@ class _EmisInReader(_Reader):
                 raise ValueError("Unexpected emissions unit")
 
             if not emissions_unit or emissions_unit.replace(" ", "") == "/yr":
-                emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[1]
+                emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[-1]
+                if emissions_unit in ["MAGICC AFOLU", "MAGICC Fossil and Industrial"]:
+                    emissions_unit = variable.split(DATA_HIERARCHY_SEPARATOR)[-2]
 
             if "/" not in emissions_unit:
                 # TODO: think of a way to not have to assume years...
