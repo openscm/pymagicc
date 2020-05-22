@@ -304,7 +304,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "BIOMASSAER",
         ]
         for aer in dir_aerosols:
-            if variable.startswith(aer):
+            if variable.startswith(aer) and "Radiative Forcing" in prefix:
                 variable = "Aerosols|Direct Effect|" + variable
 
         case_adjustments = {
