@@ -50,34 +50,26 @@ MAGICC7_EMISSIONS_UNITS = read_datapackage(path, "magicc_emissions_units")
 """:obj:`pandas.DataFrame` Definitions of emissions variables and their expected units in MAGICC7.
 """
 
-PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0 = [
-    v.rstrip("T")
-    for v in MAGICC7_EMISSIONS_UNITS[
-        MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_0"]
-    ]["magicc_variable"].tolist()
-]
+PART_OF_SCENFILE_WITH_EMISSIONS_CODE_0 = MAGICC7_EMISSIONS_UNITS[
+    MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_0"]
+]["magicc_variable"].tolist()
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 0.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1 = [
-    v.rstrip("T")
-    for v in MAGICC7_EMISSIONS_UNITS[
-        MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_1"]
-    ]["magicc_variable"].tolist()
-]
+PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1 = MAGICC7_EMISSIONS_UNITS[
+    MAGICC7_EMISSIONS_UNITS["part_of_scenfile_with_emissions_code_1"]
+]["magicc_variable"].tolist()
+
 """list: The emissions which are included in a SCEN file if the SCEN emms code is 1.
 
 See documentation of ``pymagicc.io.get_special_scen_code`` for more details.
 """
 
-PART_OF_PRNFILE = [
-    v.rstrip("T")
-    for v in MAGICC7_EMISSIONS_UNITS[MAGICC7_EMISSIONS_UNITS["part_of_prnfile"]][
-        "magicc_variable"
-    ].tolist()
-]
+PART_OF_PRNFILE = MAGICC7_EMISSIONS_UNITS[MAGICC7_EMISSIONS_UNITS["part_of_prnfile"]][
+    "magicc_variable"
+].tolist()
 """list: The emissions which are included in a ``.prn`` file.
 """
 
@@ -434,22 +426,23 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "SURFACE_TEMP_SUBANNUAL": "Surface Temperature",
         }
 
-        # Replace the XXXT_YYY with XXX_YYY variables
+        # Replace the XXX_YYY with XXXT_YYY variables
         total_variables = [
-            "BCT",
-            "OCT",
-            "SOXT",
-            "NOXT",
-            "CO2T",
-            "N2OT",
-            "CH4T",
+            "BC",
+            "OC",
+            "SOX",
+            "NOX",
+            "CO2",
+            "N2O",
+            "CH4",
+            "NO3",
         ]
 
         for k in replacements:
             toks = k.split("_")
             if toks[0] in total_variables:
                 one_way_replacements[
-                    "{}_{}".format(toks[0][:-1], "_".join(toks[1:]))
+                    "{}T_{}".format(toks[0], "_".join(toks[1:]))
                 ] = replacements[k]
         replacements.update(one_way_replacements)
         return replacements
