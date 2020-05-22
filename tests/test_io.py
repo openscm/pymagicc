@@ -333,7 +333,8 @@ def test_load_ot():
     assert (mdata["unit"] == "dimensionless").all()
     assert (mdata["todo"] == "SET").all()
     assert (
-        mdata["variable"] == "Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial"
+        mdata["variable"]
+        == "Optical Thickness|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial"
     ).all()
 
     assert_mdata_value(
@@ -399,7 +400,9 @@ def test_load_rf():
 
     assert (mdata["unit"] == "W / m^2").all()
     assert (mdata["todo"] == "SET").all()
-    assert (mdata["variable"] == "Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC AFOLU").all()
+    assert (
+        mdata["variable"] == "Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC AFOLU"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -2261,7 +2264,9 @@ def test_load_out_emis():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "Mt BC / yr").all()
-    assert (mdata["variable"] == "Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU").all()
+    assert (
+        mdata["variable"] == "Emissions|Aerosols|Direct Effect|BC|MAGICC AFOLU"
+    ).all()
 
     assert_mdata_value(
         mdata,
@@ -2331,7 +2336,9 @@ def test_load_out_slash_and_caret_in_rf_units():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "W / m^2").all()
-    assert (mdata["variable"] == "Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC AFOLU").all()
+    assert (
+        mdata["variable"] == "Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC AFOLU"
+    ).all()
 
     assert_mdata_value(
         mdata,
