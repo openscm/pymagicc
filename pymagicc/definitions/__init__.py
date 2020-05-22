@@ -439,6 +439,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "BCT",
             "OCT",
             "SOXT",
+            "NOXT",
             "CO2T",
             "N2OT",
             "CH4T",
@@ -446,9 +447,9 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         for k in replacements:
             toks = k.split("_")
-            if len(toks) == 2 and toks[0] in total_variables:
+            if toks[0] in total_variables:
                 one_way_replacements[
-                    "{}_{}".format(toks[0][:-1], toks[1])
+                    "{}_{}".format(toks[0][:-1], "_".join(toks[1:]))
                 ] = replacements[k]
         replacements.update(one_way_replacements)
         return replacements
