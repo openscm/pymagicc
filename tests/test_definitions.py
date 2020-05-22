@@ -70,7 +70,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
     "RF",
     "ERF"
 ])
-@pytest.mark.parametrize("prefix", [
+@pytest.mark.parametrize("suffix_part_1", [
     "I",
     "B",
     "T",
@@ -83,14 +83,14 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
     "BIOMASSAER",
     "MINERALDUST"
 ])
-def test_dir_aerosols(variable, prefix, suffix):
+def test_dir_aerosols(variable, suffix_part_1, suffix):
     no_prefix_variable = ["BIOMASSAER", "MINERALDUST"]
 
     if variable in no_prefix_variable:
         # Ignoring the prefix
         openscm_var = convert_magicc7_to_openscm_variables("{}_{}".format(variable, suffix))
     else:
-        openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, prefix, suffix))
+        openscm_var = convert_magicc7_to_openscm_variables("{}{}_{}".format(variable, suffix_part_1, suffix))
 
     assert "Aerosols|Direct Effect" in openscm_var
     if suffix == "RF":
@@ -98,13 +98,16 @@ def test_dir_aerosols(variable, prefix, suffix):
     elif suffix == "ERF":
         assert openscm_var.startswith("Effective Radiative Forcing")
 
+    openscm_var_name = variable if variable != "SOX" else "SOx"
     if variable not in no_prefix_variable:
-        if prefix == "I":
+        if suffix_part_1 == "I":
             assert openscm_var.endswith("MAGICC Fossil and Industrial")
-        elif prefix == "B":
+            assert "|{}|".format(openscm_var_name) in openscm_var
+        elif suffix_part_1 == "B":
             assert openscm_var.endswith("MAGICC AFOLU")
+            assert "|{}|".format(openscm_var_name) in openscm_var
         else:
-            assert openscm_var.endswith(variable if variable != "SOX" else "SOx")
+            assert openscm_var.endswith(openscm_var_name)
 
 
 @pytest.mark.parametrize("suffix", [
@@ -137,8 +140,10 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
 
     if prefix == "I":
         assert openscm_var.endswith("MAGICC Fossil and Industrial")
+        assert "|{}|".format(variable) in openscm_var
     elif prefix == "B":
         assert openscm_var.endswith("MAGICC AFOLU")
+        assert "|{}|".format(variable) in openscm_var
     else:
         assert openscm_var.endswith(variable)
 
@@ -153,6 +158,9 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CH4_CONC", "Atmospheric Concentrations|CH4"),
         ("EXTRA_RF", "Radiative Forcing|Extra"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
+        ("CO2_EMIS", "Emissions|CO2"),
+        ("CH4_EMIS", "Emissions|CH4"),
+        ("N2O_EMIS", "Emissions|N2O"),
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_EMIS", "Emissions|CH4"),
         ("N2OT_EMIS", "Emissions|N2O"),
@@ -217,6 +225,7 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("SLR_TOT", "Sea Level Rise"),
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_RF", "Radiative Forcing|CH4"),
+        ("CH4_RF", "Radiative Forcing|CH4"),
         ("N2OT_ERF", "Effective Radiative Forcing|N2O"),
     ],
 )

@@ -1491,13 +1491,13 @@ class _BinaryCompactOutReader(_CompactOutReader):
         return pd.DataFrame(lines_as_dicts)
 
     def _read_header(self, fh):
-        assert self._read_item(fh).tobytes() == b'COMPACT_V1'
-        assert self._read_item(fh).tobytes() == b'HEAD'
+        assert self._read_item(fh).tobytes() == b"COMPACT_V1"
+        assert self._read_item(fh).tobytes() == b"HEAD"
 
         items = []
         while True:
             item = self._read_item(fh)
-            if item is None or item.tobytes() == b'END':
+            if item is None or item.tobytes() == b"END":
                 break
             items.append(item.tobytes().decode())
 
@@ -1511,13 +1511,13 @@ class _BinaryCompactOutReader(_CompactOutReader):
                 break
 
             # Read the values as an array of floats (4 byte)
-            items = items.cast('f')
+            items = items.cast("f")
             if len(items) != len(headers):
-                raise AssertionError('# headers does not match # lines')
+                raise AssertionError("# headers does not match # lines")
 
             # Check the line terminator
             item = self._read_item(fh)
-            assert item.tobytes() == b'END'
+            assert item.tobytes() == b"END"
 
             yield {h: float(v) for h, v in zip(headers, items.tolist())}
 
@@ -1525,10 +1525,10 @@ class _BinaryCompactOutReader(_CompactOutReader):
         # Fortran writes out a 4 byte integer representing the # of bytes to read for
         # a given chunk, the data and then the size again
         d = fh.read(4)
-        if d != b'':
-            s = memoryview(d).cast('i')[0]
+        if d != b"":
+            s = memoryview(d).cast("i")[0]
             item = memoryview(fh.read(s))
-            assert memoryview(fh.read(4)).cast('i')[0] == s
+            assert memoryview(fh.read(4)).cast("i")[0] == s
 
             return item
 
@@ -2016,13 +2016,16 @@ class _ScenWriter(_Writer):
 
         super().write(magicc_input, filepath)
 
+    def _get_variables(self):
+        variables = self._get_df_header_row("variable")
+        variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
+        return [v.replace("_EMIS", "").rstrip("T") for v in variables]
+
     def _write_header(self, output):
         header_lines = []
         header_lines.append("{}".format(len(self.data_block)))
 
-        variables = self._get_df_header_row("variable")
-        variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
-        variables = [v.replace("_EMIS", "") for v in variables]
+        variables = self._get_variables()
 
         regions = self._get_df_header_row("region")
         regions = convert_magicc_to_openscm_regions(regions, inverse=True)
@@ -2106,7 +2109,7 @@ class _ScenWriter(_Writer):
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        variables = [v.replace("_EMIS", "") for v in variables]
+        variables = [v.replace("_EMIS", "").rstrip("T") for v in variables]
 
         special_scen_code = get_special_scen_code(
             regions=region_order_magicc, emissions=variables
@@ -2127,7 +2130,8 @@ class _ScenWriter(_Writer):
             variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
-                levels=[v.replace("_EMIS", "") for v in variables], level="variable"
+                levels=[v.replace("_EMIS", "").rstrip("T") for v in variables],
+                level="variable",
             )
 
             region_block = region_block.reindex(
@@ -2136,7 +2140,7 @@ class _ScenWriter(_Writer):
 
             variables = region_block.columns.get_level_values("variable").tolist()
             variables = convert_magicc6_to_magicc7_variables(
-                [v.replace("_EMIS", "") for v in variables], inverse=True
+                [v.replace("_EMIS", "").rstrip("T") for v in variables], inverse=True
             )
 
             units = convert_pint_to_fortran_safe_units(
@@ -2704,7 +2708,9 @@ class _RCPDatWriter(_Writer):
         return output
 
     def _get_col_order_rename_col(self):
-        if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
+        if self._filepath.endswith("_RADFORCING.DAT") or self._filepath.endswith(
+            "_EFFECTIVERADFORCING.DAT"
+        ):
             col_order = [
                 "VARIABLE",
                 "TOTAL_INCLVOLCANIC_RF",
@@ -2766,7 +2772,15 @@ class _RCPDatWriter(_Writer):
             hfc4310_keys = ["HFC4310_RF"]
             ccl4_keys = ["CCL4_RF"]
             ch3ccl3_keys = ["CH3CCL3_RF"]
-            strip_keys = ["CF4_RF", "C2F6_RF", "C6F14_RF", "HFC23_RF", "HFC32_RF", "HFC125_RF", "SF6_RF"]
+            strip_keys = [
+                "CF4_RF",
+                "C2F6_RF",
+                "C6F14_RF",
+                "HFC23_RF",
+                "HFC32_RF",
+                "HFC125_RF",
+                "SF6_RF",
+            ]
             case_keys = ["HFC134A_RF", "HFC143A_RF", "HFC227EA_RF", "HFC245FA_RF"]
 
             if self._filepath.endswith("_EFFECTIVERADFORCING.DAT"):
@@ -3139,6 +3153,7 @@ def get_special_scen_code(regions, emissions):
     elif sorted(set(PART_OF_SCENFILE_WITH_EMISSIONS_CODE_1)) == sorted(set(emissions)):
         scenfile_emissions_code = 1
     else:
+        breakpoint()
         msg = "Could not determine scen special code for emissions {}".format(emissions)
         raise ValueError(msg)
 
