@@ -2665,7 +2665,6 @@ class _RCPDatWriter(_Writer):
         metadata = data_block.columns.to_frame().reset_index(drop=True)
         metadata.columns = metadata.iloc[0]
 
-        # Drop the T from the total variables
         data_block.columns = metadata["VARIABLE"]
         data_block = data_block[col_order]
 
