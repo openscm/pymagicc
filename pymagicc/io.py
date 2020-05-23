@@ -119,7 +119,9 @@ class _Reader(object):
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
-        cleaned_lines = [l.strip() for l in self.lines[nml_end + 1 :] if l.strip()]
+        cleaned_lines = [
+            line.strip() for line in self.lines[nml_end + 1 :] if line.strip()
+        ]
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
@@ -694,7 +696,7 @@ class _NonStandardEmisInReader(_EmisInReader):
     def _get_stream(self):
         # Create a stream to work with, ignoring any blank lines
         stream = StringIO()
-        cleaned_lines = [l.strip() for l in self.lines if l.strip()]
+        cleaned_lines = [line.strip() for line in self.lines if line.strip()]
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
@@ -843,7 +845,9 @@ class _RCPDatReader(_Reader):
 
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
-        cleaned_lines = [l.strip() for l in self.lines[nml_end + 1 :] if l.strip()]
+        cleaned_lines = [
+            line.strip() for line in self.lines[nml_end + 1 :] if line.strip()
+        ]
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
 
@@ -867,7 +871,7 @@ class _RCPDatReader(_Reader):
         """
         metadata = {}
 
-        lines_iterator = (l.strip() for l in header.split("\n"))
+        lines_iterator = (line.strip() for line in header.split("\n"))
         for i in range(len(header.split("\n"))):
             line = next(lines_iterator)
 
@@ -1174,7 +1178,7 @@ class _TempOceanLayersOutReader(_Reader):
             self._raise_cannot_determine_variable_from_filepath_error()
 
         column_headers["variable"] = [
-            "OCEAN_TEMP_" + l for l in column_headers["region"]
+            "OCEAN_TEMP_" + line for line in column_headers["region"]
         ]
         column_headers["region"] = [region] * len(column_headers["region"])
 
@@ -1410,7 +1414,7 @@ class _CompactOutReader(_Reader):
         with open(self.filepath, "r") as fh:
             headers = self._read_header(fh)
             # TODO: change to reading a limited number of lines
-            lines_as_dicts = [l for l in self._read_lines(fh, headers)]
+            lines_as_dicts = [line for line in self._read_lines(fh, headers)]
 
         return pd.DataFrame(lines_as_dicts)
 
@@ -1505,7 +1509,7 @@ class _BinaryCompactOutReader(_CompactOutReader):
         with open(self.filepath, "rb") as fh:
             headers = self._read_header(fh)
             # can change to reading limited number of lines in future
-            lines_as_dicts = [l for l in self._read_lines(fh, headers)]
+            lines_as_dicts = [line for line in self._read_lines(fh, headers)]
 
         return pd.DataFrame(lines_as_dicts)
 

@@ -3907,8 +3907,8 @@ def test_mag_writer_default_header(temp_dir, writing_base):
 
     for d in default_header_lines:
         found_line = False
-        for l in content:
-            if d.match(l):
+        for line in content:
+            if d.match(line):
                 found_line = True
                 break
         if not found_line:
