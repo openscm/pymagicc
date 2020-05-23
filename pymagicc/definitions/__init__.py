@@ -426,7 +426,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "SURFACE_TEMP_SUBANNUAL": "Surface Temperature",
         }
 
-        # Replace the XXX_YYY with XXXT_YYY variables
         total_variables = [
             "BC",
             "OC",
