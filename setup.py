@@ -53,7 +53,7 @@ REQUIREMENTS_NOTEBOOKS = [
     "ipywidgets",
     "appmode",
     "seaborn",
-    # "pyam-iamc>=0.3.0",  # TODO: try removing and see what happens
+    "pyam-iamc>=0.3.0",
 ]
 REQUIREMENTS_TESTS = [
     "nbval",
