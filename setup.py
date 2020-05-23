@@ -63,7 +63,7 @@ REQUIREMENTS_TESTS = [
     "pytest-mock",
     "codecov",
     "goodtables",
-    # "scipy",  # TODO: try removing and see what happens
+    "scipy",
 ]
 REQUIREMENTS_DOCS = [
     "sphinx>2.1",
