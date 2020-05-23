@@ -333,8 +333,7 @@ def test_load_ot():
     assert (mdata["unit"] == "dimensionless").all()
     assert (mdata["todo"] == "SET").all()
     assert (
-        mdata["variable"]
-        == "Optical Thickness|NOx|MAGICC Fossil and Industrial"
+        mdata["variable"] == "Optical Thickness|NOx|MAGICC Fossil and Industrial"
     ).all()
 
     assert_mdata_value(
@@ -2264,9 +2263,7 @@ def test_load_out_emis():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "N/A").all()
     assert (mdata["unit"] == "Mt BC / yr").all()
-    assert (
-        mdata["variable"] == "Emissions|BC|MAGICC AFOLU"
-    ).all()
+    assert (mdata["variable"] == "Emissions|BC|MAGICC AFOLU").all()
 
     assert_mdata_value(
         mdata,
