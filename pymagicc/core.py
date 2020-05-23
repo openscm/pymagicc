@@ -409,11 +409,11 @@ class MAGICCBase(object):
 
         mdata.metadata["stderr"] = res.stderr.decode("ascii")
         levels_to_warn = ["WARNING", "ERROR", "FATAL"]
-        for l in levels_to_warn:
-            if l in mdata.metadata["stderr"]:
+        for level in levels_to_warn:
+            if level in mdata.metadata["stderr"]:
                 warnings.warn(
                     "magicc logged a {} message. Check the 'stderr' key of the "
-                    "result's `metadata` attribute.".format(l)
+                    "result's `metadata` attribute.".format(level)
                 )
 
         return mdata
