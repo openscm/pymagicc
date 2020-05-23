@@ -104,9 +104,7 @@ def test_dir_aerosols(variable, suffix_part_1, suffix):
 
 @pytest.mark.parametrize("suffix", ["CONC", "OT", "EMIS", "INVERSE_EMIS"])
 @pytest.mark.parametrize("suffix_part_1", ["I", "B", "T",])
-@pytest.mark.parametrize(
-    "variable", ["OC", "BC", "SOX", "NO3"]
-)
+@pytest.mark.parametrize("variable", ["OC", "BC", "SOX", "NO3"])
 def test_dir_aerosols(variable, suffix_part_1, suffix):
     openscm_var = convert_magicc7_to_openscm_variables(
         "{}{}_{}".format(variable, suffix_part_1, suffix)
