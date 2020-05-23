@@ -48,22 +48,22 @@ REQUIREMENTS_INSTALL = [
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
-    "matplotlib",  # TODO: try removing and see what happens
-    "nbval",  # TODO: move to tests
+    # "matplotlib",  # TODO: try removing and see what happens
     "expectexception",
     "ipywidgets",
     "appmode",
     "seaborn",
-    "pyam-iamc>=0.3.0",  # TODO: try removing and see what happens
+    # "pyam-iamc>=0.3.0",  # TODO: try removing and see what happens
 ]
 REQUIREMENTS_TESTS = [
+    "nbval",
     "pytest>=4.0,<5",
     "pytest-benchmark",
     "pytest-cov",
     "pytest-mock",
     "codecov",
     "goodtables",
-    "scipy",  # TODO: try removing and see what happens
+    # "scipy",  # TODO: try removing and see what happens
 ]
 REQUIREMENTS_DOCS = [
     "sphinx>2.1",
