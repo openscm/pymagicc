@@ -161,6 +161,7 @@ jobs:
         pip install --upgrade pip
         pip install -e .[tests,notebooks]
     - name: Test notebooks with nbval
+      if: startsWith(runner.os, 'Linux')
       run: |
           pytest notebooks -r a --nbval-lax --sanitize-with tests/notebook-tests.cfg --no-cov
     - name: Test notebooks strictly
