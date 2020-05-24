@@ -1,15 +1,63 @@
 Pymagicc
 ========
 
-+----------------+-----------------+
-| |Build Status| | |AppVeyor|      |
-+----------------+-----------------+
-| |Codecov|      | |Launch Binder| |
-+----------------+-----------------+
-| |PyPI|         | |PyPI Version|  |
-+----------------+-----------------+
-| |JOSS|         | |Zenodo|        |
-+----------------+-----------------+
++-------------------+----------------+--------------+--------+
+| Repository health |    |CI CD|     |  |Coverage|  | |Docs| |
++-------------------+----------------+--------------+--------+
+
++------+------------------+----------------+------------------+
+| Pypi |  |PyPI Install|  |     |PyPI|     |  |PyPI Version|  |
++------+------------------+----------------+------------------+
+
++-------+-----------------+-------------------+-----------------+
+| Conda | |conda install| | |conda platforms| | |conda version| |
++-------+-----------------+-------------------+-----------------+
+
++-------+--------+----------+
+| Paper | |JOSS| | |Zenodo| |
++-------+--------+----------+
+
++--------+-----------------+
+| Binder | |Launch Binder| |
++--------+-----------------+
+
++-----------------+----------------+---------------+-----------+
+|   Other info    | |Contributors| | |Last Commit| | |License| |
++-----------------+----------------+---------------+-----------+
+
+.. sec-begin-links
+
+.. |CI CD| image:: https://github.com/openscm/pymagicc/workflows/pymagicc%20CI-CD/badge.svg
+    :target: https://github.com/openscm/pymagicc/actions?query=workflow%3A%22pymagicc+CI-CD%22
+.. |Coverage| image:: https://codecov.io/gh/openscm/pymagicc/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/openscm/pymagicc
+.. |Docs| image:: https://readthedocs.org/projects/pymagicc/badge/?version=latest
+    :target: https://pymagicc.readthedocs.io/en/latest/?badge=latest
+.. |PyPI Install| image:: https://github.com/openscm/pymagicc/workflows/Test%20PyPI%20install/badge.svg
+    :target: https://github.com/openscm/pymagicc/actions?query=workflow%3A%22Test+PyPI+install%22
+.. |PyPI| image:: https://img.shields.io/pypi/pyversions/pymagicc.svg
+    :target: https://pypi.org/project/pymagicc/
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/pymagicc.svg
+    :target: https://pypi.org/project/pymagicc/
+.. |conda install| image:: https://github.com/openscm/pymagicc/workflows/Test%20conda%20install/badge.svg
+    :target: https://github.com/openscm/pymagicc/actions?query=workflow%3A%22Test+conda+install%22
+.. |conda platforms| image:: https://img.shields.io/conda/pn/conda-forge/pymagicc.svg
+    :target: https://anaconda.org/conda-forge/pymagicc
+.. |conda version| image:: https://img.shields.io/conda/vn/conda-forge/pymagicc.svg
+.. |JOSS| image:: https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e/status.svg
+    :target: https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e
+.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1111815.svg
+    :target: https://zenodo.org/record/1111815
+.. |Launch Binder| image:: https://img.shields.io/badge/launch-binder-e66581.svg
+    :target: https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb
+.. |Contributors| image:: https://img.shields.io/github/contributors/openscm/pymagicc.svg
+    :target: https://github.com/openscm/pymagicc/graphs/contributors
+.. |Last Commit| image:: https://img.shields.io/github/last-commit/openscm/pymagicc.svg
+    :target: https://github.com/openscm/pymagicc/commits/master
+.. |License| image:: https://img.shields.io/github/license/openscm/pymagicc.svg
+    :target: https://github.com/openscm/pymagicc/blob/master/LICENSE
+
+.. sec-end-links
 
 .. sec-begin-index
 
@@ -335,21 +383,3 @@ Pymagicc releases are archived at Zenodo and the version used should also be cit
 See `<https://doi.org/10.5281/zenodo.1111815>`_.
 
 .. sec-end-license
-
-.. |Build Status| image:: https://travis-ci.org/openscm/pymagicc.svg?branch=master
-    :target: https://travis-ci.org/openscm/pymagicc
-.. |AppVeyor| image:: https://img.shields.io/appveyor/ci/openscm/pymagicc/master.svg
-    :target: https://ci.appveyor.com/project/openscm/pymagicc
-.. |Codecov| image:: https://img.shields.io/codecov/c/github/openscm/pymagicc.svg
-    :target: https://codecov.io/gh/openscm/pymagicc
-.. |Launch Binder| image:: https://img.shields.io/badge/launch-binder-e66581.svg
-    :target: https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb
-.. |PyPI| image:: https://img.shields.io/pypi/pyversions/pymagicc.svg
-    :target: https://pypi.org/project/pymagicc/
-.. |PyPI Version| image:: https://img.shields.io/pypi/v/pymagicc.svg
-    :target: https://pypi.org/project/pymagicc/
-.. |JOSS| image:: https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e/status.svg
-    :target: https://joss.theoj.org/papers/85eb9a9401fe968073bb429ea361924e
-.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1111815.svg
-    :target: https://zenodo.org/record/1111815
-
