@@ -112,7 +112,7 @@ test-testpypi-install: $(VENV_DIR)  ## test installation from test PyPI
 	@echo "This doesn't test dependencies"
 	$(TEMPVENV)/bin/python -c "import sys; sys.path.remove(''); import pymagicc; print(pymagicc.__version__)"
 
-publish-on-pypi: $(VENV_DIR)  ## release this version on PyPI
+publish-on-pypi: $(VENV_DIR)  ## release this version on PyPI (manual override, by default let CI do these releases)
 	-rm -rf build dist
 	@status=$$(git status --porcelain); \
 	if test "x$${status}" = x; then \
