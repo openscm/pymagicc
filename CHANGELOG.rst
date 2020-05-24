@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#293 <https://github.com/openscm/pymagicc/pull/293>`_) Update CI to use github actions
 - (`#294 <https://github.com/openscm/pymagicc/pull/294>`_) Convert the direct aerosols variable names from MAGICC in a consistent way. Renamed ``definitions/magicc_emisssions_units.csv`` to ``definitions/magicc_emissions_units.csv``
 - (`#291 <https://github.com/openscm/pymagicc/pull/291>`_) Switch to using the ``_ERF`` suffix for IPCC definition of Effective Radiative Forcing variables. This replaces ``_EFFRF`` which is a MAGICC internal variable and was incorrectly labelled as Effective Radiative Forcing.
 - (`#277 <https://github.com/openscm/pymagicc/pull/277>`_) Add MAGICC7 compact output file readers
