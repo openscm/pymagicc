@@ -3309,7 +3309,7 @@ class MAGICCData(ScmRun):
     @property
     def is_loaded(self):
         """bool: Whether the data has been loaded yet."""
-        return self._meta is not None
+        return len(self) > 0
 
     def append(self, other, inplace=False, constructor_kwargs={}, **kwargs):
         """
