@@ -3276,6 +3276,7 @@ class MAGICCData(ScmRun):
         if not isinstance(data, str):
             self.filepath = None
             self.metadata = {}
+            data = data.reset_index(drop=True)
             super().__init__(data, columns=columns, **kwargs)
         else:
             filepath = data  # assume filepath

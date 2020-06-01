@@ -1,12 +1,12 @@
-from copy import deepcopy
 from os.path import abspath, dirname, join
+
+from scmdata.run import df_append
 
 from ..config import default_config
 from ..io import MAGICCData, read_scen_file
 
 # path to load files from included package
 _magicc6_included_distribution_path = dirname(default_config["EXECUTABLE_6"])
-
 
 rcp26 = read_scen_file(
     join(_magicc6_included_distribution_path, "RCP26.SCEN"),
@@ -25,9 +25,7 @@ rcp85 = read_scen_file(
     columns={"model": ["MESSAGE"], "scenario": ["RCP85"]},
 )
 
-rcps = deepcopy(rcp26)
-for rcp in [rcp45, rcp60, rcp85]:
-    rcps.append(rcp)
+rcps = df_append([rcp26, rcp45, rcp60, rcp85])
 
 zero_emissions = MAGICCData(
     join(dirname(abspath(__file__)), "RCP3PD_EMISSIONS.DAT"),
