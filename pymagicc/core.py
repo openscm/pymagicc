@@ -1159,7 +1159,7 @@ class MAGICCBase(object):
         # drop the final year as concs stay constant from some reason,
         # MAGICC bug...
         timeseries = timeseries.filter(time=timeseries["time"].max(), keep=False)
-        timeseries.set_meta("1pctCO2", "scenario")
+        timeseries["scenario"] = "1pctCO2"
         tcr, tcre = self.get_tcr_tcre_from_diagnosis_results(timeseries)
 
         return {"tcr": tcr, "tcre": tcre, "timeseries": timeseries}
