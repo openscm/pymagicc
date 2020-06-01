@@ -13,7 +13,8 @@ import numpy as np
 import pandas as pd
 import pkg_resources
 import pytest
-from scmdata import ScmDataFrame
+from scmdata import ScmRun
+from scmdata.testing import assert_scmdf_almost_equal
 
 import pymagicc.definitions
 from pymagicc.config import _is_windows
@@ -93,7 +94,7 @@ def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
     """Resusable tests to ensure data format"""
     assert mdata.is_loaded
 
-    assert isinstance(mdata, ScmDataFrame)
+    assert isinstance(mdata, ScmRun)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
     if extra_index_cols is not None:
         index += list(extra_index_cols.keys())
@@ -3037,11 +3038,9 @@ def test_bin_and_ascii_equal(file_to_read):
     # There are some minor differences between in the dataframes due to availability
     # of metadata in BINOUT files
     drop_axes = ["unit", "todo"]
-    pd.testing.assert_frame_equal(mdata_ascii._data, mdata_bin._data, check_like=False)
-    pd.testing.assert_frame_equal(
-        mdata_ascii.meta.drop(drop_axes, axis="columns"),
-        mdata_bin.meta.drop(drop_axes, axis="columns"),
-    )
+    mdata_ascii.drop_meta(drop_axes)
+    mdata_bin.drop_meta(drop_axes)
+    assert_scmdf_almost_equal(mdata_ascii, mdata_bin, check_ts_names=False)
 
 
 @patch("pymagicc.io._read_and_return_metadata_df")
@@ -3538,7 +3537,7 @@ def test_writing_identical_rcpdat(
     writer.metadata = deepcopy(writing_base.metadata)
     warning_msg = re.escape(
         "The `.DAT` format is an old, custom format. We strongly recommend using "
-        "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+        "the `ScmRun` format instead (just call `.to_csv()`). Our `.DAT` "
         "writers are not super well tested so the error messages are likely "
         "to be cryptic. If you need help, please raise an issue at "
         "https://github.com/openscm/pymagicc/issues"

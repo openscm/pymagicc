@@ -38,4 +38,5 @@ zero_emissions = MAGICCData(
     },
 ).filter(region="World")
 
-zero_emissions._data[:] = 0
+for ts in zero_emissions._ts:
+    ts[:] = 0

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 from openscm_units import unit_registry
-from scmdata import df_append
+from scmdata.run import df_append
 
 from .config import _wine_installed, config
 from .io import (
@@ -1111,7 +1111,7 @@ class MAGICCBase(object):
                 "Surface Temperature",
             ],
         )
-        timeseries.set_meta("abrupt-2xCO2", "scenario")
+        timeseries["scenario"] = "abrupt-2xCO2"
 
         ecs = self.get_ecs_from_diagnosis_results(timeseries)
         return {"ecs": ecs, "timeseries": timeseries}
@@ -1195,7 +1195,7 @@ class MAGICCBase(object):
 
         Parameters
         ----------
-        results_ecs_run : :obj:`ScmDataFrame`
+        results_ecs_run : :obj:`ScmRun`
             Results of the abrupt-2xCO2 experiment, must contain atmospheric |CO2|
             concentrations, total radiative forcing and surface temperature.
 
@@ -1233,7 +1233,7 @@ class MAGICCBase(object):
 
         Parameters
         ----------
-        results_tcr_tcre_run : :obj:`ScmDataFrame`
+        results_tcr_tcre_run : :obj:`ScmRun`
             Results of the 1pctCO2 experiment, must contain atmospheric |CO2|
             concentrations, inverse |CO2| emissions, total radiative forcing and
             surface temperature.

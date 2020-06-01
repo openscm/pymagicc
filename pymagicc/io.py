@@ -10,7 +10,7 @@ import f90nml
 import numpy as np
 import pandas as pd
 from f90nml.namelist import Namelist
-from scmdata import ScmDataFrame
+from scmdata import ScmRun
 from six import StringIO
 
 from .definitions import (
@@ -2253,7 +2253,7 @@ class _RCPDatWriter(_Writer):
         """
         warnings.warn(
             "The `.DAT` format is an old, custom format. We strongly recommend using "
-            "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+            "the `ScmRun` format instead (just call `.to_csv()`). Our `.DAT` "
             "writers are not super well tested so the error messages are likely "
             "to be cryptic. If you need help, please raise an issue at "
             "https://github.com/openscm/pymagicc/issues"
@@ -3228,7 +3228,7 @@ def get_special_scen_code(regions, emissions):
         raise ValueError(msg)
 
 
-class MAGICCData(ScmDataFrame):
+class MAGICCData(ScmRun):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -3256,7 +3256,7 @@ class MAGICCData(ScmDataFrame):
         Initialise a MAGICCData instance
 
         Here we provide a brief over of inputs, for more details
-        see ``scmdata.ScmDataFrame``.
+        see ``scmdata.run.ScmRun``.
 
         Parameters
         ----------
@@ -3268,7 +3268,7 @@ class MAGICCData(ScmDataFrame):
             Dictionary to use to write the metadata for each timeseries in data. MAGICCData will
             also attempt to infer values from data. Any values in columns will be used in
             preference to any values found in data. The default value for "model", "scenario"
-            and "climate_model" is "unspecified". See ``scmdata.ScmDataFrame`` for details.
+            and "climate_model" is "unspecified". See ``scmdata.run.ScmRun`` for details.
 
         kwargs:
             Additional parameters passed to `pyam.core.read_files` to read non-standard files.
@@ -3281,6 +3281,7 @@ class MAGICCData(ScmDataFrame):
             filepath = data  # assume filepath
             self.filepath = filepath
             self.metadata, data, read_columns = _read_and_return_metadata_df(filepath)
+            data.columns = np.arange(data.shape[1])
             columns = deepcopy(columns) if columns is not None else {}
             for k, v in read_columns.items():
                 columns.setdefault(k, v)
@@ -3335,8 +3336,7 @@ class MAGICCData(ScmDataFrame):
 
         if inplace:
             super().append(other, inplace=inplace, **kwargs)
-            # updating metadata is why we can't just use ``ScmDataFrameBase``'s append
-            # method
+            # updating metadata is why we can't just use ``ScmRun``'s append method
             self.metadata.update(other.metadata)
         else:
             res = super().append(other, inplace=inplace, **kwargs)

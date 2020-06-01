@@ -1161,7 +1161,7 @@ def test_pymagicc_writing_has_an_effect(
         join(package.run_dir, test_filename),
         columns={"model": ["unspecified"], "scenario": ["unspecified"]},
     )
-    mdata._data *= ttweak_factor
+    mdata = mdata * ttweak_factor
     mdata.write(join(package.run_dir, test_filename), package.version)
 
     tweaked_results = package.run(only=outputs_to_check)
