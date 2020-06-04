@@ -4108,3 +4108,23 @@ def test_find_parameter_groups(start_list, expected, case):
         raise NotImplementedError()
 
     assert find_parameter_groups(start_list) == expected
+
+
+def test_binary_reader_fourbox():
+    res = MAGICCData(join(TEST_DATA_DIR, "DAT_SURFACE_TEMP.BINOUT"))
+
+    assert res.get_unique_meta("variable", no_duplicates=True) == "Surface Temperature"
+    assert set(res.get_unique_meta("region")) == {
+        "World",
+        "World|Northern Hemisphere|Land",
+        "World|Southern Hemisphere|Land",
+        "World|Northern Hemisphere|Ocean",
+        "World|Southern Hemisphere|Ocean",
+    }
+
+
+def test_binary_reader_global_only():
+    res = MAGICCData(join(TEST_DATA_DIR, "DAT_CORE_CLIMATESENSITIVITY_CUMTADJ.BINOUT"))
+
+    assert res.get_unique_meta("variable", no_duplicates=True) == "CORE_CLIMATESENSITIVITY_CUMTADJ"
+    assert res.get_unique_meta("region", no_duplicates=True) == "World"
