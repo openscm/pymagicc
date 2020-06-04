@@ -4126,5 +4126,8 @@ def test_binary_reader_fourbox():
 def test_binary_reader_global_only():
     res = MAGICCData(join(TEST_DATA_DIR, "DAT_CORE_CLIMATESENSITIVITY_CUMTADJ.BINOUT"))
 
-    assert res.get_unique_meta("variable", no_duplicates=True) == "CORE_CLIMATESENSITIVITY_CUMTADJ"
+    assert (
+        res.get_unique_meta("variable", no_duplicates=True)
+        == "CORE_CLIMATESENSITIVITY_CUMTADJ"
+    )
     assert res.get_unique_meta("region", no_duplicates=True) == "World"
