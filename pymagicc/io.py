@@ -1240,6 +1240,26 @@ class _BinaryOutReader(_Reader):
 
         return metadata, df, columns
 
+    def process_header(self, data):
+        """
+        Reads the first part of the file to get some essential metadata
+
+        # Returns
+        return (dict): the metadata in the header
+        """
+        metadata = {
+            "datacolumns": data.read_chunk("I"),
+            "firstyear": data.read_chunk("I"),
+            "lastyear": data.read_chunk("I"),
+            "annualsteps": data.read_chunk("I"),
+        }
+        if metadata["annualsteps"] != 1:
+            raise InvalidTemporalResError(
+                "{}: Only annual files can currently be processed".format(self.filepath)
+            )
+
+        return metadata
+
     def process_data(self, stream, metadata):
         """
         Extract the tabulated data from the input file
@@ -1265,11 +1285,27 @@ class _BinaryOutReader(_Reader):
                 "{} != {}".format(len(globe), len(index))
             )
 
-        regions = stream.read_chunk("d")
-        num_regions = int(len(regions) / len(index))
-        regions = regions.reshape((-1, num_regions), order="F")
+        if metadata["datacolumns"] == 1:
+            num_boxes = 0
 
-        data = np.concatenate((globe[:, np.newaxis], regions), axis=1)
+            data = globe[:, np.newaxis]
+
+            regions = ["World"]
+
+        else:
+            regions = stream.read_chunk("d")
+            num_boxes = int(len(regions) / len(index))
+            regions = regions.reshape((-1, num_boxes), order="F")
+
+            data = np.concatenate((globe[:, np.newaxis], regions), axis=1)
+
+            regions = [
+                "World",
+                "World|Northern Hemisphere|Ocean",
+                "World|Northern Hemisphere|Land",
+                "World|Southern Hemisphere|Ocean",
+                "World|Southern Hemisphere|Land",
+            ]
 
         df = pd.DataFrame(data, index=index)
 
@@ -1278,46 +1314,18 @@ class _BinaryOutReader(_Reader):
 
         df.index.name = "time"
 
-        regions = [
-            "World",
-            "World|Northern Hemisphere|Ocean",
-            "World|Northern Hemisphere|Land",
-            "World|Southern Hemisphere|Ocean",
-            "World|Southern Hemisphere|Land",
-        ]
-
         variable = convert_magicc6_to_magicc7_variables(
             self._get_variable_from_filepath()
         )
         variable = convert_magicc7_to_openscm_variables(variable)
         column_headers = {
-            "variable": [variable] * (num_regions + 1),
+            "variable": [variable] * (num_boxes + 1),
             "region": regions,
             "unit": ["unknown"] * len(regions),
             "todo": ["SET"] * len(regions),
         }
 
         return df, metadata, self._set_column_defaults(column_headers)
-
-    def process_header(self, data):
-        """
-        Reads the first part of the file to get some essential metadata
-
-        # Returns
-        return (dict): the metadata in the header
-        """
-        metadata = {
-            "datacolumns": data.read_chunk("I"),
-            "firstyear": data.read_chunk("I"),
-            "lastyear": data.read_chunk("I"),
-            "annualsteps": data.read_chunk("I"),
-        }
-        if metadata["annualsteps"] != 1:
-            raise InvalidTemporalResError(
-                "{}: Only annual files can currently be processed".format(self.filepath)
-            )
-
-        return metadata
 
 
 def get_dattype_regionmode(regions, scen7=False):
