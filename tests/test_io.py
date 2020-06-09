@@ -1387,17 +1387,15 @@ def test_write_scen7_single_variable(temp_dir, variable_filename, variable, exp_
     tfile = join(temp_dir, tfilename)
 
     if exp_error:
-        short_var_filename = pymagicc.definitions.convert_magicc7_to_openscm_variables(
-            variable_filename, inverse=True
+        var_filename = pymagicc.definitions.convert_magicc7_to_openscm_variables(
+            "{}_EMIS".format(variable_filename)
         )
-        short_var = pymagicc.definitions.convert_magicc7_to_openscm_variables(
-            variable, inverse=True
-        )
+
         error_msg = re.escape(
             "Your filename variable, {}, does not match the data "
-            "variable, {}".format(short_var_filename, short_var)
+            "variable, {}".format(var_filename, variable)
         )
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match=error_msg):
             start.write(tfile, magicc_version=7)
 
     else:
