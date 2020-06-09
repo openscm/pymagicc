@@ -1913,6 +1913,10 @@ class _Scen7Writer(_HistEmisInWriter):
 
         return new_regions
 
+    def _check_data_filename_variable_consistency(self, data_block):
+        data_var = data_block.columns.get_level_values("variable").unique()
+        # don't check consistency for SCEN7
+
 
 class _PrnWriter(_Writer):
     def _write_header(self, output):
