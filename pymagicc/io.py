@@ -673,7 +673,21 @@ class _HistEmisInReader(_StandardEmisInReader):
 
 
 class _Scen7Reader(_StandardEmisInReader):
-    pass
+    _regexp_capture_variable = re.compile(r".*\_(\w*\-?\w*)\.SCEN7$")
+
+    def _get_variable_from_filepath(self):
+        """
+        Determine the file variable from the filepath.
+
+        Returns
+        -------
+        str
+            Best guess of variable name from the filepath
+        """
+        try:
+            return "{}_EMIS".format(self.regexp_capture_variable.search(self.filepath).group(1))
+        except AttributeError:
+            self._raise_cannot_determine_variable_from_filepath_error()
 
 
 class _NonStandardEmisInReader(_EmisInReader):
@@ -1912,10 +1926,6 @@ class _Scen7Writer(_HistEmisInWriter):
         warnings.warn(warn_msg)
 
         return new_regions
-
-    def _check_data_filename_variable_consistency(self, data_block):
-        data_var = data_block.columns.get_level_values("variable").unique()
-        # don't check consistency for SCEN7
 
 
 class _PrnWriter(_Writer):

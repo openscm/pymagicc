@@ -10,6 +10,7 @@ from unittest.mock import patch
 
 import f90nml
 import numpy as np
+import numpy.testing as npt
 import pandas as pd
 import pkg_resources
 import pytest
@@ -1358,6 +1359,48 @@ def test_load_rewrite_scen7_scen_loop(temp_dir):
             for v in ["R5ASIA", "R5MAF", "R5REF", "R5LAM", "R5OECD", "Bunkers",]
         ]
     )
+
+
+@pytest.mark.parametrize("variable_filename,variable,exp_error",
+    (
+        ("CO2I", "Emissions|CO2|MAGICC Fossil and Industrial", False),
+        ("CO2", "Emissions|CO2|MAGICC Fossil and Industrial", True),
+    )
+)
+def test_write_scen7_single_variable(temp_dir, variable_filename, variable, exp_error):
+    tfilename = "SINGLE_VARIABLE_TEST_{}.SCEN7".format(variable_filename)
+    start = MAGICCData(
+        data=range(10),
+        index=range(2020, 2030),
+        columns={
+            "variable": variable,
+            "unit": "GtC / yr",
+            "region": "World",
+            "scenario": "Test",
+            "model": "test",
+            "todo": "SET",
+        }
+    )
+    start.metadata = {"header": "test_write_scen7_single_variable"}
+
+    tfile = join(temp_dir, tfilename)
+
+    if exp_error:
+        short_var_filename = pymagicc.definitions.convert_magicc7_to_openscm_variables(variable_filename, inverse=True)
+        short_var = pymagicc.definitions.convert_magicc7_to_openscm_variables(variable, inverse=True)
+        error_msg = re.escape(
+            "Your filename variable, {}, does not match the data "
+            "variable, {}".format(short_var_filename, short_var)
+        )
+        with pytest.raises(ValueError):
+            start.write(tfile, magicc_version=7)
+
+    else:
+        start.write(tfile, magicc_version=7)
+
+        res = MAGICCData(tfile)
+        assert res.get_unique_meta("variable", no_duplicates=True) == variable
+        npt.assert_allclose(res.values.squeeze(), range(10))
 
 
 def test_load_scen7_mhalo():
