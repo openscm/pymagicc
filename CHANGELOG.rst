@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#298 <https://github.com/openscm/pymagicc/pull/298>`_) Make SCEN7 writing work with single variables
 - (`#297 <https://github.com/openscm/pymagicc/pull/297>`_) Make Binary reader able to handle global-only binary output
 - (`#293 <https://github.com/openscm/pymagicc/pull/293>`_) Update CI to use GitHub actions
 - (`#294 <https://github.com/openscm/pymagicc/pull/294>`_) Convert the direct aerosols variable names from MAGICC in a consistent way. Renamed ``definitions/magicc_emisssions_units.csv`` to ``definitions/magicc_emissions_units.csv``

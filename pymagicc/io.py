@@ -685,7 +685,9 @@ class _Scen7Reader(_StandardEmisInReader):
             Best guess of variable name from the filepath
         """
         try:
-            return "{}_EMIS".format(self.regexp_capture_variable.search(self.filepath).group(1))
+            return "{}_EMIS".format(
+                self.regexp_capture_variable.search(self.filepath).group(1)
+            )
         except AttributeError:
             self._raise_cannot_determine_variable_from_filepath_error()
 
