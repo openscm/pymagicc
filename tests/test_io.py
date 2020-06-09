@@ -1361,11 +1361,12 @@ def test_load_rewrite_scen7_scen_loop(temp_dir):
     )
 
 
-@pytest.mark.parametrize("variable_filename,variable,exp_error",
+@pytest.mark.parametrize(
+    "variable_filename,variable,exp_error",
     (
         ("CO2I", "Emissions|CO2|MAGICC Fossil and Industrial", False),
         ("CO2", "Emissions|CO2|MAGICC Fossil and Industrial", True),
-    )
+    ),
 )
 def test_write_scen7_single_variable(temp_dir, variable_filename, variable, exp_error):
     tfilename = "SINGLE_VARIABLE_TEST_{}.SCEN7".format(variable_filename)
@@ -1379,15 +1380,19 @@ def test_write_scen7_single_variable(temp_dir, variable_filename, variable, exp_
             "scenario": "Test",
             "model": "test",
             "todo": "SET",
-        }
+        },
     )
     start.metadata = {"header": "test_write_scen7_single_variable"}
 
     tfile = join(temp_dir, tfilename)
 
     if exp_error:
-        short_var_filename = pymagicc.definitions.convert_magicc7_to_openscm_variables(variable_filename, inverse=True)
-        short_var = pymagicc.definitions.convert_magicc7_to_openscm_variables(variable, inverse=True)
+        short_var_filename = pymagicc.definitions.convert_magicc7_to_openscm_variables(
+            variable_filename, inverse=True
+        )
+        short_var = pymagicc.definitions.convert_magicc7_to_openscm_variables(
+            variable, inverse=True
+        )
         error_msg = re.escape(
             "Your filename variable, {}, does not match the data "
             "variable, {}".format(short_var_filename, short_var)
