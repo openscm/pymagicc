@@ -11,14 +11,14 @@ Test CO2 Emissions file
     THISFILE_FIRSTYEAR = 1995
     THISFILE_LASTYEAR = 1996
     THISFILE_ANNUALSTEPS = 1
-    THISFILE_UNITS = 'GtCperyr'
+    THISFILE_UNITS = 'GtC_per_yr'
     THISFILE_DATTYPE = 'REGIONDATA'
     THISFILE_FIRSTDATAROW = 23
 /
 
         GAS                 CO2                 CO2                 CO2                 CO2                 CO2
        TODO                 SET                 SET                 SET                 SET                 SET
-      UNITS            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr
+      UNITS          GtC_per_yr          GtC_per_yr          GtC_per_yr          GtC_per_yr          GtC_per_yr
       YEARS              R5OECD               R5REF              R5ASIA               R5MAF               R5LAM
        1995         1.00000e+00         0.00000e+00         3.00000e+00         4.00000e+00         2.00000e+00
        1996         6.00000e+00         5.00000e+00         8.00000e+00         9.00000e+00         7.00000e+00

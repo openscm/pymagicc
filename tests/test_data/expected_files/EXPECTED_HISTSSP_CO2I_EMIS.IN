@@ -88,14 +88,14 @@ timeseriestype: AVERAGE_YEAR_MID_YEAR
     THISFILE_FIRSTYEAR = 1750
     THISFILE_LASTYEAR = 2015
     THISFILE_ANNUALSTEPS = 1
-    THISFILE_UNITS = 'GtCperyr'
+    THISFILE_UNITS = 'Gt_C_per_yr'
     THISFILE_DATTYPE = 'REGIONDATA'
     THISFILE_FIRSTDATAROW = 100
 /
 
         GAS                CO2I                CO2I                CO2I                CO2I                CO2I                CO2I                CO2I
        TODO                 SET                 SET                 SET                 SET                 SET                 SET                 SET
-      UNITS            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr
+      UNITS         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr
       YEARS               WORLD            R5.2OECD             R5.2REF            R5.2ASIA             R5.2MAF             R5.2LAM             BUNKERS
        1750         2.60000e-03         2.60000e-03         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
        1751         2.60000e-03         2.60000e-03         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
