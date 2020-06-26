@@ -632,7 +632,7 @@ class _EmisInReader(_Reader):
             else:
                 emissions_unit = re.sub(r"(\S)\s?/\s?yr", r"\1 / yr", emissions_unit)
 
-            units[i] = "{} {}".format(mass, emissions_unit)
+            units[i] = "{} {}".format(mass.strip(), emissions_unit.strip())
             variables[i] = variable
 
         column_headers["unit"] = units
@@ -1733,6 +1733,7 @@ class _Writer(object):
         formatters[0] = first_col_format_str
 
         data_block.to_string(output, index=False, formatters=formatters, sparsify=False)
+
         output.write(self._newline_char)
         return output
 
@@ -2221,7 +2222,7 @@ class _ScenWriter(_Writer):
                 region_block.columns.get_level_values("unit").tolist()
             )
             # column widths don't work with expressive units
-            units = [u.replace("peryr", "") for u in units]
+            units = [u.replace("_", "").replace("peryr", "") for u in units]
 
             if not (region_block.columns.names == ["variable", "unit"]):
                 raise AssertionError(
@@ -2686,7 +2687,7 @@ class _RCPDatWriter(_Writer):
             data_block, units_level
         )
 
-        units = [u.replace("Wpermsuper2", "W/m2") for u in units]
+        units = [u.replace("W_per_msuper2", "W/m2") for u in units]
 
         variable_row = (
             "     YEARS  TOTAL_INCLVOLCANIC_RF  VOLCANIC_ANNUAL_RF         SOLAR_RF"
@@ -2701,7 +2702,7 @@ class _RCPDatWriter(_Writer):
         data_block, units = self._reorder_data_block_and_get_units(
             data_block, units_level
         )
-        units = [u.replace("Wpermsuper2", "W/m2") for u in units]
+        units = [u.replace("W_per_msuper2", "W/m2") for u in units]
 
         variable_row = (
             "     YEARS TOTAL_INCLVOLCANIC_ERF VOLCANIC_ANNUAL_ERF        SOLAR_ERF"
@@ -2716,7 +2717,7 @@ class _RCPDatWriter(_Writer):
         data_block, units = self._reorder_data_block_and_get_units(
             data_block, units_level
         )
-        units = [u.replace("per", "/") for u in units]
+        units = [u.replace("per", "/").replace("_", "") for u in units]
 
         variable_row = "     YEARS" + "".join(
             ["{: >20}".format(c) for c in data_block.columns[1:]]

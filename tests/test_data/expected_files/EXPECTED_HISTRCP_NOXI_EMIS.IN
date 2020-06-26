@@ -15,14 +15,14 @@ source: RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, Augu
     THISFILE_FIRSTYEAR = 1765
     THISFILE_LASTYEAR = 2000
     THISFILE_ANNUALSTEPS = 1
-    THISFILE_UNITS = 'MtNperyr'
+    THISFILE_UNITS = 'Mt_N_per_yr'
     THISFILE_DATTYPE = 'REGIONDATA'
     THISFILE_FIRSTDATAROW = 27
 /
 
         GAS                NOXI                NOXI                NOXI                NOXI                NOXI                NOXI
        TODO                 SET                 SET                 SET                 SET                 SET                 SET
-      UNITS            MtNperyr            MtNperyr            MtNperyr            MtNperyr            MtNperyr            MtNperyr
+      UNITS         Mt_N_per_yr         Mt_N_per_yr         Mt_N_per_yr         Mt_N_per_yr         Mt_N_per_yr         Mt_N_per_yr
       YEARS              R5OECD               R5REF              R5ASIA               R5MAF               R5LAM             BUNKERS
        1765         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
        1766         2.29008e-02         5.29185e-03         1.79569e-02         3.00523e-03         1.31354e-03         2.71684e-03

@@ -17,14 +17,14 @@ unit: Watt per square meter (W/m2)
     THISFILE_FIRSTYEAR = 1610
     THISFILE_LASTYEAR = 2600
     THISFILE_ANNUALSTEPS = 1
-    THISFILE_UNITS = 'Wpermsuper2'
+    THISFILE_UNITS = 'W_per_msuper2'
     THISFILE_DATTYPE = 'NOTUSED'
     THISFILE_FIRSTDATAROW = 29
 /
 
    VARIABLE            SOLAR_RF
        TODO                 SET
-      UNITS         Wpermsuper2
+      UNITS       W_per_msuper2
       YEARS               WORLD
        1610         1.49792e-02
        1611         4.83167e-02

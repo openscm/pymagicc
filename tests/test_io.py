@@ -88,7 +88,12 @@ def run_writing_comparison(res, expected, update=False):
         shutil.copy(res, expected)
         pytest.skip("Updated {}".format(expected))
     else:
+        # try:
         assert filecmp.cmp(res, expected, shallow=False)
+        # except AssertionError:
+        #     import pdb
+        #     pdb.set_trace()
+        #     print("vimdiff {} {}".format(res, expected))
 
 
 def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
