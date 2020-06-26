@@ -636,10 +636,13 @@ def test_load_volcanic_rf():
         ("Wperm ^ 2", "W / m^2",),
     ),
 )
-@pytest.mark.parametrize("start_file", (
-    # join(TEST_DATA_DIR, "expected_files", "EXPECTED_HISTRCP85_SOLAR_RF.IN"),
-    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
-))
+@pytest.mark.parametrize(
+    "start_file",
+    (
+        # join(TEST_DATA_DIR, "expected_files", "EXPECTED_HISTRCP85_SOLAR_RF.IN"),
+        join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
+    ),
+)
 def test_fortran_unit_handling(temp_dir, start_unit, expected_unit, start_file):
     start = MAGICCData(start_file)
     start["variable"] = "Radiative Forcing|Solar"
