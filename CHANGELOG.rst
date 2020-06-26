@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#300 <https://github.com/openscm/pymagicc/pull/300>`_) Fix name in docs (closes `#205 <https://github.com/openscm/pymagicc/issues/205>`_)
 - (`#298 <https://github.com/openscm/pymagicc/pull/298>`_) Make SCEN7 writing work with single variables
 - (`#297 <https://github.com/openscm/pymagicc/pull/297>`_) Make Binary reader able to handle global-only binary output
 - (`#293 <https://github.com/openscm/pymagicc/pull/293>`_) Update CI to use GitHub actions
