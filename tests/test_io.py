@@ -629,17 +629,21 @@ def test_load_volcanic_rf():
 @pytest.mark.parametrize(
     "start_unit,expected_unit",
     (
-        ("Wpermsuper2", "W / m^2",),
-        ("Wperm**2", "W / m^2",),
-        ("W per m**2", "W / m^2",),
-        ("W per m ** 2", "W / m^2",),
-        ("Wperm ^ 2", "W / m^2",),
+        ("Wpermsuper2", "W / m^2"),
+        ("Wperm**2", "W / m^2"),
+        ("W per m**2", "W / m^2"),
+        ("W per m ** 2", "W / m^2"),
+        ("Wperm ^ 2", "W / m^2"),
+        ("kg m^-2 s^-2", "kg m^-2 s^-2"),
+        ("kg per m^2 s^-2", "kg/m^2s^-2"),
+        ("kgperm^2 s^-2", "kg/m^2s^-2"),
+        ("kgsuper1perm^2s^-2", "kg^1/m^2s^-2"),
     ),
 )
 @pytest.mark.parametrize(
     "start_file",
     (
-        # join(TEST_DATA_DIR, "expected_files", "EXPECTED_HISTRCP85_SOLAR_RF.IN"),
+        join(TEST_DATA_DIR, "expected_files", "EXPECTED_HISTRCP85_SOLAR_RF.IN"),
         join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
     ),
 )
