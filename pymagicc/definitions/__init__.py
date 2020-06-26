@@ -731,9 +731,12 @@ def get_pint_to_fortran_safe_units_mapping(inverse=False):
     dict
         Dictionary of mappings
     """
-    replacements = {"^": "super", "/": "per", " ": ""}
+    replacements = {"^": "super", "/": "per", " ": "", "**": "super"}
     if inverse:
-        replacements = {v: k for k, v in replacements.items()}
+        replacements = {
+            v: k for k, v in replacements.items()
+            if k not in ["**"]
+        }
         # mapping nothing to something is obviously not going to work in the inverse
         # hence remove
         replacements.pop("")
