@@ -3771,6 +3771,9 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
     assert "THISFILE_TIMESERIESTYPE = '{}'".format(timeseriestype) in content
 
     res_ts = MAGICCData(file_to_write).timeseries()
+
+    unit = writing_base_mag.get_unique_meta("unit", no_duplicates=True)
+    writing_base_mag.set_meta(unit.replace("per", "/"), "unit")
     exp_ts = writing_base_mag.timeseries()
     if timeseriestype == "MONTHLY":
         # month test is overly sensitive so do column by column

@@ -337,7 +337,7 @@ class _Reader(object):
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         if self._magicc7_style_header():
             column_headers, metadata = self._read_magicc7_style_header(stream, metadata)
-            column_headers = self._read_units(column_headers)
+
         else:
             column_headers, metadata = self._read_magicc6_style_header(stream, metadata)
 
@@ -1198,7 +1198,11 @@ class _TempOceanLayersOutReader(_Reader):
 
 
 class _MAGReader(_Reader):
-    pass
+    def _get_column_headers_and_update_metadata(self, stream, metadata):
+        column_headers, metadata = super()._get_column_headers_and_update_metadata(stream, metadata)
+        column_headers = self._read_units(column_headers)
+
+        return column_headers, metadata
 
 
 class _BinData(object):
