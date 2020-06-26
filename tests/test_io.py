@@ -109,6 +109,13 @@ def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
 
     assert mdata["variable"].dtype == "object"
     assert mdata["unit"].dtype == "object"
+    for u in mdata.get_unique_meta("unit"):
+        if u in ["unknown"]:
+            continue
+
+        # check the unit is recognised by pint
+        unit_registry(u)
+
     assert mdata["region"].dtype == "object"
     assert mdata["scenario"].dtype == "object"
     assert mdata["model"].dtype == "object"
@@ -666,7 +673,9 @@ def test_fortran_unit_handling(temp_dir, start_unit, expected_unit, start_file):
     res_unit = res.get_unique_meta("unit", no_duplicates=True)
 
     assert res_unit.replace(" ", "") == expected_unit.replace(" ", "")
-    npt.assert_allclose(unit_registry(res_unit).to(expected_unit).magnitude, 1, rtol=1e-10)
+    npt.assert_allclose(
+        unit_registry(res_unit).to(expected_unit).magnitude, 1, rtol=1e-10
+    )
 
 
 def test_load_scen():
