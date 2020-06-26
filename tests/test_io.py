@@ -638,6 +638,7 @@ def test_load_volcanic_rf():
         ("kg per m^2 s^-2", "kg/m^2s^-2"),
         ("kgperm^2 s^-2", "kg/m^2s^-2"),
         ("kgsuper1perm^2s^-2", "kg^1/m^2s^-2"),
+        ("Gt C / yr", "Gt C / yr"),
     ),
 )
 @pytest.mark.parametrize(
@@ -660,7 +661,7 @@ def test_fortran_unit_handling(temp_dir, start_unit, expected_unit, start_file):
     res_unit = res.get_unique_meta("unit", no_duplicates=True)
 
     assert res_unit.replace(" ", "") == expected_unit.replace(" ", "")
-    npt.assert_equal(unit_registry(res_unit).to(expected_unit).magnitude, 1)
+    npt.assert_allclose(unit_registry(res_unit).to(expected_unit).magnitude, 1, rtol=1e-10)
 
 
 def test_load_scen():
