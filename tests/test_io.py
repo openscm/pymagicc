@@ -5,7 +5,7 @@ import shutil
 import warnings
 from copy import deepcopy
 from os import listdir
-from os.path import dirname, isfile, join
+from os.path import basename, dirname, isfile, join
 from unittest.mock import patch
 
 import f90nml
@@ -14,6 +14,7 @@ import numpy.testing as npt
 import pandas as pd
 import pkg_resources
 import pytest
+from openscm_units import unit_registry
 from scmdata import ScmDataFrame
 
 import pymagicc.definitions
@@ -623,6 +624,36 @@ def test_load_volcanic_rf():
         # unit="W / m^2",
         todo="SET",
     )
+
+
+@pytest.mark.parametrize(
+    "start_unit,expected_unit",
+    (
+        ("Wpermsuper2", "W / m^2",),
+        ("Wperm**2", "W / m^2",),
+        ("W per m**2", "W / m^2",),
+        ("W per m ** 2", "W / m^2",),
+        ("Wperm ^ 2", "W / m^2",),
+    ),
+)
+@pytest.mark.parametrize("start_file", (
+    # join(TEST_DATA_DIR, "expected_files", "EXPECTED_HISTRCP85_SOLAR_RF.IN"),
+    join(TEST_DATA_DIR, "MAG_FORMAT_SAMPLE.MAG"),
+))
+def test_fortran_unit_handling(temp_dir, start_unit, expected_unit, start_file):
+    start = MAGICCData(start_file)
+    start["variable"] = "Radiative Forcing|Solar"
+    start["unit"] = start_unit
+
+    test_file = join(temp_dir, basename(start_file))
+    start.write(test_file, magicc_version=7)
+
+    res = MAGICCData(test_file)
+
+    res_unit = res.get_unique_meta("unit", no_duplicates=True)
+
+    assert res_unit.replace(" ", "") == expected_unit.replace(" ", "")
+    npt.assert_equal(unit_registry(res_unit).to(expected_unit).magnitude, 1)
 
 
 def test_load_scen():
