@@ -238,6 +238,8 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CH4_RF", "Radiative Forcing|CH4"),
         ("NOX_EMIS", "Emissions|NOx"),
         ("NOXT_EMIS", "Emissions|NOx"),
+        ("HEAT_EARTH", "Earth System Heat Content"),
+        ("HEAT_NONOCEAN", "Non-Ocean Heat Content"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -267,6 +269,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("TOTAL_ANTHRO_ERF", "Effective Radiative Forcing|Anthropogenic"),
         ("TOTAER_DIR_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect"),
         ("CLOUD_TOT_ERF", "Effective Radiative Forcing|Aerosols|Indirect Effect"),
+        ("AEROSOL_ERF", "Effective Radiative Forcing|Aerosols"),
+        ("AEROSOL_RF", "Radiative Forcing|Aerosols"),
         (
             "CH4OXSTRATH2O_ERF",
             "Effective Radiative Forcing|CH4 Oxidation Stratospheric H2O",
@@ -311,6 +315,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
         ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
+        ("HEAT_EARTH", "Earth System Heat Content"),
+        ("HEAT_NONOCEAN", "Non-Ocean Heat Content"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
