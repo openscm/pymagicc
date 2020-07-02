@@ -409,6 +409,10 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     }
     replacements.update(heat_content_aggreg_depths)
     replacements.update({"HEATCONTENT_AGGREG_TOTAL": agg_ocean_heat_top})
+    replacements.update({
+        "HEAT_EARTH": "Earth System Heat Content",
+        "HEAT_NONOCEAN": "Non-Ocean Heat Content",
+    })
 
     ocean_temp_layer = {
         "OCEAN_TEMP_LAYER_{0:03d}".format(i): "Ocean Temperature{}Layer {}".format(
