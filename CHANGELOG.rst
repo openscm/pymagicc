@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#301 <https://github.com/openscm/pymagicc/pull/301>`_) Add MAGICC7 variables ``AEROSOL_RF``, ``HEAT_EARTH`` and ``HEAT_NONOCEAN``
 - (`#299 <https://github.com/openscm/pymagicc/pull/299>`_) Make conversion of FORTRAN safe units apply to ``.MAG`` files too and be more consistent
 - (`#300 <https://github.com/openscm/pymagicc/pull/300>`_) Fix name in docs (closes `#205 <https://github.com/openscm/pymagicc/issues/205>`_)
 - (`#298 <https://github.com/openscm/pymagicc/pull/298>`_) Make SCEN7 writing work with single variables
