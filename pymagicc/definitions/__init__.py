@@ -370,6 +370,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         "TOTAL_ANTHRO_RF": "Radiative Forcing|Anthropogenic",
         "TOTAER_DIR_RF": "Radiative Forcing|Aerosols|Direct Effect",
         "CLOUD_TOT_RF": "Radiative Forcing|Aerosols|Indirect Effect",
+        "AEROSOL_RF": "Radiative Forcing|Aerosols",
         "STRATOZ_RF": "Radiative Forcing|Stratospheric Ozone",
         "TROPOZ_RF": "Radiative Forcing|Tropospheric Ozone",
         "CH4OXSTRATH2O_RF": "Radiative Forcing|CH4 Oxidation Stratospheric H2O",
