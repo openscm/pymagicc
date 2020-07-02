@@ -189,6 +189,8 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("TOTAL_ANTHRO_ERF", "Effective Radiative Forcing|Anthropogenic"),
         ("TOTAER_DIR_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect"),
         ("CLOUD_TOT_ERF", "Effective Radiative Forcing|Aerosols|Indirect Effect"),
+        ("AEROSOL_ERF", "Effective Radiative Forcing|Aerosols"),
+        ("AEROSOL_RF", "Radiative Forcing|Aerosols"),
         (
             "CH4OXSTRATH2O_ERF",
             "Effective Radiative Forcing|CH4 Oxidation Stratospheric H2O",
