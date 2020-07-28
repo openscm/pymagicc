@@ -12,7 +12,6 @@ import datetime
 import re
 import warnings
 from copy import deepcopy
-from os.path import exists
 
 
 # Thank you https://stackoverflow.com/a/15448887/10473080
@@ -196,8 +195,3 @@ def get_date_time_string():
     """
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M")
-
-
-def _check_file_exists(file_to_read):
-    if not exists(file_to_read):
-        raise FileNotFoundError("Cannot find {}".format(file_to_read))
