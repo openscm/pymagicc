@@ -11,7 +11,6 @@ from scmdata import ScmDataFrame
 
 from pymagicc.errors import NoReaderWriterError
 from pymagicc.magicc_time import convert_to_datetime
-from pymagicc.utils import _check_file_exists
 
 from .binout import _BinaryOutReader
 from .compact import _BinaryCompactOutReader, _CompactOutReader
@@ -38,6 +37,8 @@ from .prn import _PrnReader, _PrnWriter
 from .rcpdat import _RCPDatReader, _RCPDatWriter
 from .scen import _ScenReader, _ScenWriter
 from .scen7 import _Scen7Reader, _Scen7Writer
+from .utils import _check_file_exists
+
 
 UNSUPPORTED_OUT_FILES = [
     r"CARBONCYCLE.*OUT",

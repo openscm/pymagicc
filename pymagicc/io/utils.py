@@ -1,3 +1,5 @@
+from os.path import exists
+
 from pymagicc.definitions import (
     DATTYPE_REGIONMODE_REGIONS,
     convert_magicc6_to_magicc7_variables,
@@ -120,3 +122,8 @@ def _get_openscm_var_from_filepath(filepath):
     )
 
     return openscm_var
+
+
+def _check_file_exists(file_to_read):
+    if not exists(file_to_read):
+        raise FileNotFoundError("Cannot find {}".format(file_to_read))
