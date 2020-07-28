@@ -1,7 +1,6 @@
 import re
 
 from pymagicc.definitions import (
-    DATA_HIERARCHY_SEPARATOR,
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
 )
