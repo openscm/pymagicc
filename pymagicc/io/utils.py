@@ -1,5 +1,9 @@
-from pymagicc.definitions import convert_magicc_to_openscm_regions, convert_magicc7_to_openscm_variables, convert_magicc6_to_magicc7_variables, \
-    DATTYPE_REGIONMODE_REGIONS
+from pymagicc.definitions import (
+    convert_magicc_to_openscm_regions,
+    convert_magicc7_to_openscm_variables,
+    convert_magicc6_to_magicc7_variables,
+    DATTYPE_REGIONMODE_REGIONS,
+)
 
 DATTYPE_FLAG = "THISFILE_DATTYPE"
 """str: Flag used to indicate the file's data type in MAGICCC"""

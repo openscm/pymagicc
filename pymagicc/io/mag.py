@@ -3,10 +3,15 @@ from datetime import datetime
 
 from pymagicc.definitions import (
     convert_magicc_to_openscm_regions,
-    DATA_HIERARCHY_SEPARATOR
+    DATA_HIERARCHY_SEPARATOR,
 )
 from .base import _Reader, _Writer
-from .utils import get_region_order, get_dattype_regionmode, REGIONMODE_FLAG, DATTYPE_FLAG
+from .utils import (
+    get_region_order,
+    get_dattype_regionmode,
+    REGIONMODE_FLAG,
+    DATTYPE_FLAG,
+)
 
 
 class _MAGReader(_Reader):
@@ -17,6 +22,7 @@ class _MAGReader(_Reader):
         column_headers = self._read_units(column_headers)
 
         return column_headers, metadata
+
 
 class _MAGWriter(_Writer):
     def __init__(self, magicc_version=7):

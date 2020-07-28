@@ -103,7 +103,7 @@ class _PrnReader(_NonStandardEmisInReader):
         col_width = 10
 
         for w in range(0, len(data_block_header_line), col_width):
-            variable = data_block_header_line[w: w + col_width].strip()
+            variable = data_block_header_line[w : w + col_width].strip()
             variables.append(variable)
 
         # update in read method using metadata

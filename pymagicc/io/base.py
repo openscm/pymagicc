@@ -20,7 +20,11 @@ from pymagicc.magicc_time import (
     convert_to_decimal_year,
 )
 from pymagicc.utils import apply_string_substitutions
-from .utils import get_dattype_regionmode, get_region_order, _get_openscm_var_from_filepath
+from .utils import (
+    get_dattype_regionmode,
+    get_region_order,
+    _get_openscm_var_from_filepath,
+)
 
 
 class _Reader(object):
@@ -53,7 +57,7 @@ class _Reader(object):
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
         cleaned_lines = [
-            line.strip() for line in self.lines[nml_end + 1:] if line.strip()
+            line.strip() for line in self.lines[nml_end + 1 :] if line.strip()
         ]
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
@@ -130,7 +134,7 @@ class _Reader(object):
 
     def _derive_metadata(self, nml_start, nml_end):
 
-        nml_values = self.process_metadata(self.lines[nml_start: nml_end + 1])
+        nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
 
         # ignore all nml_values except units
         metadata = {
@@ -395,7 +399,7 @@ class _Reader(object):
                     for tag in self.header_tags:
                         tag_text = "{}:".format(tag)
                         if line.lower().startswith(tag_text):
-                            metadata[tag] = line[len(tag_text) + 1:].strip()
+                            metadata[tag] = line[len(tag_text) + 1 :].strip()
                             break
                     else:
                         header_lines.append(line)
@@ -486,6 +490,7 @@ class _FourBoxReader(_Reader):
             )
 
         return column_headers, metadata
+
 
 class _EmisInReader(_Reader):
     def _read_units(self, column_headers):

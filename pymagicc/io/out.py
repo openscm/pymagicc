@@ -1,6 +1,9 @@
 import re
 
-from pymagicc.definitions import convert_magicc6_to_magicc7_variables, convert_magicc7_to_openscm_variables
+from pymagicc.definitions import (
+    convert_magicc6_to_magicc7_variables,
+    convert_magicc7_to_openscm_variables,
+)
 from .base import _Reader, _FourBoxReader
 from .in_mon import _EmisInReader
 
