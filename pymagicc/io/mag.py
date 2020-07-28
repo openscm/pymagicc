@@ -2,15 +2,16 @@ import warnings
 from datetime import datetime
 
 from pymagicc.definitions import (
-    convert_magicc_to_openscm_regions,
     DATA_HIERARCHY_SEPARATOR,
+    convert_magicc_to_openscm_regions,
 )
+
 from .base import _Reader, _Writer
 from .utils import (
-    get_region_order,
-    get_dattype_regionmode,
-    REGIONMODE_FLAG,
     DATTYPE_FLAG,
+    REGIONMODE_FLAG,
+    get_dattype_regionmode,
+    get_region_order,
 )
 
 

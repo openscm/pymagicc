@@ -10,18 +10,18 @@ from unittest.mock import patch
 
 import f90nml
 import numpy as np
-import numpy.testing as npt
 import pandas as pd
 import pkg_resources
 import pytest
+from numpy import testing as npt
 from openscm_units import unit_registry
 from scmdata import ScmDataFrame
 
 import pymagicc.definitions
 from pymagicc.config import _is_windows
+from pymagicc.errors import InvalidTemporalResError, NoReaderWriterError
 from pymagicc.io import (
     MAGICCData,
-    to_int,
     _ConcInReader,
     determine_tool,
     get_generic_rcp_name,
@@ -29,11 +29,11 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out_file,
     read_cfg_file,
     read_mag_file_metadata,
+    to_int,
 )
 from pymagicc.io.base import _Reader
-from pymagicc.io.scen import get_special_scen_code
 from pymagicc.io.compact import find_parameter_groups
-from pymagicc.errors import InvalidTemporalResError, NoReaderWriterError
+from pymagicc.io.scen import get_special_scen_code
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")

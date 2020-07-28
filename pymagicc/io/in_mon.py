@@ -1,11 +1,12 @@
 import re
 
 from pymagicc.definitions import (
+    DATA_HIERARCHY_SEPARATOR,
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
-    DATA_HIERARCHY_SEPARATOR,
 )
-from .base import _FourBoxReader, _EmisInReader, _Writer
+
+from .base import _EmisInReader, _FourBoxReader, _Writer
 
 
 class _ConcInReader(_FourBoxReader):

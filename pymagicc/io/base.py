@@ -20,10 +20,11 @@ from pymagicc.magicc_time import (
     convert_to_decimal_year,
 )
 from pymagicc.utils import apply_string_substitutions
+
 from .utils import (
+    _get_openscm_var_from_filepath,
     get_dattype_regionmode,
     get_region_order,
-    _get_openscm_var_from_filepath,
 )
 
 

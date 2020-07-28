@@ -9,15 +9,15 @@
 from ._version import get_versions
 from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData  # noqa
-from .scenarios import (
+from .scenarios import (  # noqa
     rcp26,
     rcp45,
     rcp60,
     rcp85,
     rcps,
-    zero_emissions,
     read_scen_file,
-)  # noqa
+    zero_emissions,
+)
 
 __version__ = get_versions()["version"]
 del get_versions

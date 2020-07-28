@@ -1,12 +1,15 @@
-from six import StringIO
 import warnings
 from datetime import datetime
+
+from six import StringIO
+
 from pymagicc.definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
     convert_pint_to_fortran_safe_units,
 )
-from .base import _Reader, _Writer, _EmisInReader
+
+from .base import _EmisInReader, _Reader, _Writer
 
 
 class _RCPDatReader(_Reader):

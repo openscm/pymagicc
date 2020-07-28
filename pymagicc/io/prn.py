@@ -4,14 +4,14 @@ import numpy as np
 import pandas as pd
 from six import StringIO
 
-from .base import _Writer
-from .scen import _NonStandardEmisInReader
 from ..definitions import (
     PART_OF_PRNFILE,
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
     convert_magicc_to_openscm_regions,
 )
+from .base import _Writer
+from .scen import _NonStandardEmisInReader
 
 
 class _PrnReader(_NonStandardEmisInReader):
