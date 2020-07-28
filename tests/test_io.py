@@ -20,18 +20,19 @@ from scmdata import ScmDataFrame
 import pymagicc.definitions
 from pymagicc.config import _is_windows
 from pymagicc.io import (
+    MAGICCData,
+    to_int,
     _ConcInReader,
-    _Reader,
     determine_tool,
-    find_parameter_groups,
     get_generic_rcp_name,
-    get_special_scen_code,
     pull_cfg_from_parameters_out,
     pull_cfg_from_parameters_out_file,
     read_cfg_file,
     read_mag_file_metadata,
 )
-from pymagicc.io.magicc_data import MAGICCData, to_int
+from pymagicc.io.base import _Reader
+from pymagicc.io.scen import get_special_scen_code
+from pymagicc.io.compact import find_parameter_groups
 from pymagicc.errors import InvalidTemporalResError, NoReaderWriterError
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
