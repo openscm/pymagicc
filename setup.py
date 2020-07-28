@@ -61,6 +61,7 @@ REQUIREMENTS_TESTS = [
     "pytest-benchmark",
     "pytest-cov",
     "pytest-mock",
+    "pytest-xdist",
     "codecov",
     "goodtables",
     "scipy",

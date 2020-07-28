@@ -1,12 +1,13 @@
+import warnings
+from datetime import datetime
+
 from pymagicc.definitions import (
-    convert_magicc7_to_openscm_variables,
     convert_magicc_to_openscm_regions,
-DATA_HIERARCHY_SEPARATOR,
-DATTYPE_REGIONMODE_REGIONS
+    DATA_HIERARCHY_SEPARATOR
 )
 from .base import _Reader, _Writer
-from datetime import datetime
-import warnings
+from .utils import get_region_order, get_dattype_regionmode, REGIONMODE_FLAG, DATTYPE_FLAG
+
 
 class _MAGReader(_Reader):
     def _get_column_headers_and_update_metadata(self, stream, metadata):
@@ -32,7 +33,7 @@ class _MAGWriter(_Writer):
                 "setting `self.metadata['header']` to ensure your files have the "
                 "desired metadata."
             )
-            from . import __version__
+            from pymagicc import __version__
 
             header = "Date: {}\n" "Writer: pymagicc v{}".format(
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"), __version__
