@@ -15,7 +15,7 @@ from pymagicc.utils import _check_file_exists
 
 from .binout import _BinaryOutReader
 from .compact import _BinaryCompactOutReader, _CompactOutReader
-from .in_mon import (
+from .in_files import (
     _ConcInReader,
     _ConcInWriter,
     _HistEmisInReader,
@@ -35,7 +35,7 @@ from .out import (
     _TempOceanLayersOutReader,
 )
 from .prn import _PrnReader, _PrnWriter
-from .rcp import _RCPDatReader, _RCPDatWriter
+from .rcpdat import _RCPDatReader, _RCPDatWriter
 from .scen import _ScenReader, _ScenWriter
 from .scen7 import _Scen7Reader, _Scen7Writer
 
@@ -249,7 +249,7 @@ def determine_tool(filepath, tool_to_get):
     raise NoReaderWriterError(error_msg)
 
 
-def _read_and_return_metadata_df(filepath):
+def _read_metadata_and_df(filepath):
     from pymagicc.io import determine_tool
 
     _check_file_exists(filepath)
@@ -528,7 +528,7 @@ class MAGICCData(ScmDataFrame):
 
             filepath = data  # assume filepath
             self.filepath = filepath
-            self.metadata, data, read_columns = _read_and_return_metadata_df(filepath)
+            self.metadata, data, read_columns = _read_metadata_and_df(filepath)
             columns = deepcopy(columns) if columns is not None else {}
             for k, v in read_columns.items():
                 columns.setdefault(k, v)

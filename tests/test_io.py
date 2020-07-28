@@ -3142,9 +3142,9 @@ def test_bin_and_ascii_equal(file_to_read):
     )
 
 
-@patch("pymagicc.io._read_and_return_metadata_df")
+@patch("pymagicc.io._read_metadata_and_df")
 @pytest.mark.parametrize("inplace", (True, False))
-def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
+def test_magicc_data_append(mock_read_metadata_and_df, inplace):
     tfilepath = "mocked/out/here.txt"
 
     tindex_yr = 2000
@@ -3179,14 +3179,14 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
         tdf_append_columns.values(), names=tdf_append_columns.keys()
     )
 
-    mock_read_and_return_metadata_df.return_value = (
+    mock_read_metadata_and_df.return_value = (
         tmetadata_init,
         tdf_init_df,
         tdf_init_columns,
     )
     mdata = MAGICCData("mocked")
 
-    mock_read_and_return_metadata_df.return_value = (
+    mock_read_metadata_and_df.return_value = (
         tmetadata_append,
         tdf_append_df,
         tdf_append_columns,
@@ -3200,7 +3200,7 @@ def test_magicc_data_append(mock_read_and_return_metadata_df, inplace):
         pd.testing.assert_frame_equal(original.timeseries(), mdata.timeseries())
         assert original.metadata == mdata.metadata
 
-    mock_read_and_return_metadata_df.assert_called_with(tfilepath)
+    mock_read_metadata_and_df.assert_called_with(tfilepath)
 
     assert isinstance(res, MAGICCData)
 
