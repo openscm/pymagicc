@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#303 <https://github.com/openscm/pymagicc/pull/303>`_) Refactor ``pymagicc.io`` into a package
+- (`#303 <https://github.com/openscm/pymagicc/pull/303>`_) Refactor ``pymagicc.io`` into multiple files
 - (`#301 <https://github.com/openscm/pymagicc/pull/301>`_) Add MAGICC7 variables ``AEROSOL_RF``, ``HEAT_EARTH`` and ``HEAT_NONOCEAN``
 - (`#299 <https://github.com/openscm/pymagicc/pull/299>`_) Make conversion of FORTRAN safe units apply to ``.MAG`` files too and be more consistent
 - (`#300 <https://github.com/openscm/pymagicc/pull/300>`_) Fix name in docs (closes `#205 <https://github.com/openscm/pymagicc/issues/205>`_)

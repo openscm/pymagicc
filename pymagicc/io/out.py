@@ -6,7 +6,7 @@ from pymagicc.definitions import (
 )
 
 from .base import _FourBoxReader, _Reader
-from .in_mon import _EmisInReader
+from .in_files import _EmisInReader
 
 
 class _OutReader(_FourBoxReader):

@@ -1,7 +1,7 @@
 import re
 import warnings
 
-from pymagicc.io.in_mon import _HistEmisInWriter, _StandardEmisInReader
+from pymagicc.io.in_files import _HistEmisInWriter, _StandardEmisInReader
 
 
 class _Scen7Reader(_StandardEmisInReader):
