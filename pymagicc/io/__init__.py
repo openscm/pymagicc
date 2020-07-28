@@ -14,11 +14,27 @@ from pymagicc.magicc_time import convert_to_datetime
 from pymagicc.utils import _check_file_exists
 from .binout import _BinaryOutReader
 from .compact import _BinaryCompactOutReader, _CompactOutReader
-from .in_mon import _ConcInReader, _ConcInWriter, _HistEmisInWriter, _HistEmisInReader, _OpticalThicknessInReader, _OpticalThicknessInWriter, \
-    _RadiativeForcingInReader, _RadiativeForcingInWriter, _SurfaceTemperatureInReader, _SurfaceTemperatureInWriter, _StandardEmisInReader, \
-    _EmisInReader
+from .in_mon import (
+    _ConcInReader,
+    _ConcInWriter,
+    _HistEmisInWriter,
+    _HistEmisInReader,
+    _OpticalThicknessInReader,
+    _OpticalThicknessInWriter,
+    _RadiativeForcingInReader,
+    _RadiativeForcingInWriter,
+    _SurfaceTemperatureInReader,
+    _SurfaceTemperatureInWriter,
+    _StandardEmisInReader,
+    _EmisInReader,
+)
 from .mag import _MAGReader, _MAGWriter
-from .out import _OutReader, _EmisOutReader, _InverseEmisReader, _TempOceanLayersOutReader
+from .out import (
+    _OutReader,
+    _EmisOutReader,
+    _InverseEmisReader,
+    _TempOceanLayersOutReader,
+)
 from .prn import _PrnReader, _PrnWriter
 from .rcp import _RCPDatReader, _RCPDatWriter
 from .scen import _ScenReader, _ScenWriter

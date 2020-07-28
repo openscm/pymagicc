@@ -1,7 +1,11 @@
 from six import StringIO
 import warnings
 from datetime import datetime
-from pymagicc.definitions import convert_magicc6_to_magicc7_variables, convert_magicc7_to_openscm_variables, convert_pint_to_fortran_safe_units
+from pymagicc.definitions import (
+    convert_magicc6_to_magicc7_variables,
+    convert_magicc7_to_openscm_variables,
+    convert_pint_to_fortran_safe_units,
+)
 from .base import _Reader, _Writer, _EmisInReader
 
 
@@ -16,7 +20,7 @@ class _RCPDatReader(_Reader):
         # Create a stream from the remaining lines, ignoring any blank lines
         stream = StringIO()
         cleaned_lines = [
-            line.strip() for line in self.lines[nml_end + 1:] if line.strip()
+            line.strip() for line in self.lines[nml_end + 1 :] if line.strip()
         ]
         stream.write("\n".join(cleaned_lines))
         stream.seek(0)
@@ -768,9 +772,9 @@ class _RCPDatWriter(_Writer):
                 if x in case_keys:
                     return (
                         x.replace("FA", "fa")
-                            .replace("EA", "ea")
-                            .replace("A", "a")
-                            .replace(suf, "")
+                        .replace("EA", "ea")
+                        .replace("A", "a")
+                        .replace(suf, "")
                     )
 
                 if x.startswith("HCFC"):

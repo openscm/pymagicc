@@ -27,10 +27,10 @@ class _BinData(object):
         :param t: Data type (same format as used by struct).
         :return: Numpy array if the variable is an array, otherwise a scalar.
         """
-        size = self.data[self.pos: self.pos + 4].cast("i")[0]
-        d = self.data[self.pos + 4: self.pos + 4 + size]
+        size = self.data[self.pos : self.pos + 4].cast("i")[0]
+        d = self.data[self.pos + 4 : self.pos + 4 + size]
 
-        actual_size = self.data[self.pos + 4 + size: self.pos + 4 + size + 4].cast(
+        actual_size = self.data[self.pos + 4 + size : self.pos + 4 + size + 4].cast(
             "i"
         )[0]
 

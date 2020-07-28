@@ -9,7 +9,7 @@ from pymagicc.definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
     convert_magicc_to_openscm_regions,
-    convert_pint_to_fortran_safe_units
+    convert_pint_to_fortran_safe_units,
 )
 from .base import _EmisInReader, _Writer
 from .utils import get_region_order
@@ -49,6 +49,7 @@ class _NonStandardEmisInReader(_EmisInReader):
 
     def _read_notes(self):
         raise NotImplementedError()
+
 
 def get_special_scen_code(regions, emissions):
     """
@@ -107,7 +108,6 @@ def get_special_scen_code(regions, emissions):
     except NameError:
         msg = "Could not determine scen special code for regions {}".format(regions)
         raise ValueError(msg)
-
 
 
 class _ScenReader(_NonStandardEmisInReader):
@@ -231,7 +231,6 @@ class _ScenReader(_NonStandardEmisInReader):
             notes.append(line)
 
         return notes
-
 
 
 class _ScenWriter(_Writer):
