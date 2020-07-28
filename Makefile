@@ -59,6 +59,10 @@ test: $(VENV_DIR)  ## run the tests
 	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
 	$(VENV_DIR)/bin/pytest -r a tests --durations=10
 
+test-parallel: $(VENV_DIR)  ## run the tests
+	@[ ! -z "`which wine`" ] || echo 'If you want to test pymagicc fully on a non-windows system, install wine now'
+	$(VENV_DIR)/bin/pytest -n auto -r a tests --durations=10
+
 test-notebooks: $(VENV_DIR) notebooks/*.ipynb scripts/test_notebooks.sh  ## run the notebook tests
 	./scripts/test_notebooks.sh
 
