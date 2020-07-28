@@ -39,7 +39,6 @@ from .scen import _ScenReader, _ScenWriter
 from .scen7 import _Scen7Reader, _Scen7Writer
 from .utils import _check_file_exists
 
-
 UNSUPPORTED_OUT_FILES = [
     r"CARBONCYCLE.*OUT",
     r"PF\_.*OUT",
