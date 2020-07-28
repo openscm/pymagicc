@@ -197,6 +197,7 @@ def get_date_time_string():
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d %H:%M")
 
+
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
         raise FileNotFoundError("Cannot find {}".format(file_to_read))

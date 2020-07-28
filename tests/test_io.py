@@ -20,9 +20,6 @@ from scmdata import ScmDataFrame
 import pymagicc.definitions
 from pymagicc.config import _is_windows
 from pymagicc.io import (
-    InvalidTemporalResError,
-    MAGICCData,
-    NoReaderWriterError,
     _ConcInReader,
     _Reader,
     determine_tool,
@@ -33,8 +30,9 @@ from pymagicc.io import (
     pull_cfg_from_parameters_out_file,
     read_cfg_file,
     read_mag_file_metadata,
-    to_int,
 )
+from pymagicc.io.magicc_data import MAGICCData, to_int
+from pymagicc.errors import InvalidTemporalResError, NoReaderWriterError
 
 MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
