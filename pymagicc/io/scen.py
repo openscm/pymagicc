@@ -11,6 +11,7 @@ from pymagicc.definitions import (
     convert_magicc_to_openscm_regions,
     convert_pint_to_fortran_safe_units,
 )
+
 from .base import _EmisInReader, _Writer
 from .utils import get_region_order
 

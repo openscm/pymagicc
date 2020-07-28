@@ -12,27 +12,28 @@ from scmdata import ScmDataFrame
 from pymagicc.errors import NoReaderWriterError
 from pymagicc.magicc_time import convert_to_datetime
 from pymagicc.utils import _check_file_exists
+
 from .binout import _BinaryOutReader
 from .compact import _BinaryCompactOutReader, _CompactOutReader
 from .in_mon import (
     _ConcInReader,
     _ConcInWriter,
-    _HistEmisInWriter,
+    _EmisInReader,
     _HistEmisInReader,
+    _HistEmisInWriter,
     _OpticalThicknessInReader,
     _OpticalThicknessInWriter,
     _RadiativeForcingInReader,
     _RadiativeForcingInWriter,
+    _StandardEmisInReader,
     _SurfaceTemperatureInReader,
     _SurfaceTemperatureInWriter,
-    _StandardEmisInReader,
-    _EmisInReader,
 )
 from .mag import _MAGReader, _MAGWriter
 from .out import (
-    _OutReader,
     _EmisOutReader,
     _InverseEmisReader,
+    _OutReader,
     _TempOceanLayersOutReader,
 )
 from .prn import _PrnReader, _PrnWriter

@@ -4,6 +4,7 @@ from pymagicc.definitions import (
     convert_magicc7_to_openscm_variables,
     convert_magicc_to_openscm_regions,
 )
+
 from .base import _Reader
 
 
