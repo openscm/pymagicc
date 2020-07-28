@@ -80,7 +80,7 @@ REQUIREMENTS_DEV = (
         "black",
         "black-nb",
         "flake8",
-        "isort",
+        "isort>=5",
         "nbdime",
         "pydocstyle",
         "pylint",

@@ -18,14 +18,12 @@ from .compact import _BinaryCompactOutReader, _CompactOutReader
 from .in_mon import (
     _ConcInReader,
     _ConcInWriter,
-    _EmisInReader,
     _HistEmisInReader,
     _HistEmisInWriter,
     _OpticalThicknessInReader,
     _OpticalThicknessInWriter,
     _RadiativeForcingInReader,
     _RadiativeForcingInWriter,
-    _StandardEmisInReader,
     _SurfaceTemperatureInReader,
     _SurfaceTemperatureInWriter,
 )
