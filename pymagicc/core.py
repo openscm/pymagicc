@@ -28,15 +28,22 @@ class WineNotInstalledError(Exception):
     """Exception raised if wine is not installed but is required"""
 
 
-def _copy_files(source, target):
+def _copy_files(source, target, recursive=False):
     """
     Copy all the files in source directory to target.
 
-    Ignores subdirectories.
+    If ``recursive``, include subdirectories, otherwise ignores subdirectories.
     """
+    if recursive:
+        shutil.copytree(source, target)
+
+        return
+
     source_files = listdir(source)
+
     if not exists(target):
         makedirs(target)
+
     for filename in source_files:
         full_filename = join(source, filename)
         if isfile(full_filename):
@@ -135,6 +142,7 @@ class MAGICCBase(object):
 
         if exists(self.run_dir):
             raise Exception("A copy of MAGICC has already been created.")
+
         if not exists(self.root_dir):
             makedirs(self.root_dir)
 
@@ -144,15 +152,20 @@ class MAGICCBase(object):
         # Also copy anything which is in the root of the MAGICC distribution
         # Assumes that the MAGICC binary is in a folder one level below the root
         # of the MAGICC distribution. i.e. /run/magicc.exe or /bin/magicc
-        dirs_to_copy = [".", "bin", "run"]
+        dirs_to_copy = [".", "bin"]
+        dirs_to_copy_recursive = ["run"]
         # Check that the executable is in a valid sub directory
         if exec_dir not in dirs_to_copy:
             raise AssertionError("binary must be in bin/ or run/ directory")
 
-        for d in dirs_to_copy:
+        for d in dirs_to_copy + dirs_to_copy_recursive:
             source_dir = abspath(join(self.original_dir, "..", d))
             if exists(source_dir):
-                _copy_files(source_dir, join(self.root_dir, d))
+                _copy_files(
+                    source_dir,
+                    join(self.root_dir, d),
+                    recursive= d in dirs_to_copy_recursive,
+                )
 
         # Create an empty out dir
         # MAGICC assumes that the 'out' directory already exists
