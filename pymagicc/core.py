@@ -155,7 +155,7 @@ class MAGICCBase(object):
         dirs_to_copy = [".", "bin"]
         dirs_to_copy_recursive = ["run"]
         # Check that the executable is in a valid sub directory
-        if exec_dir not in dirs_to_copy:
+        if exec_dir not in dirs_to_copy + dirs_to_copy_recursive:
             raise AssertionError("binary must be in bin/ or run/ directory")
 
         for d in dirs_to_copy + dirs_to_copy_recursive:
