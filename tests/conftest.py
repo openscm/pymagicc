@@ -35,7 +35,7 @@ def pytest_collection_modifyitems(config, items):
 
 
 def pytest_collectstart(collector):
-    collector.skip_compare += 'stderr',
+    collector.skip_compare += ("stderr",)
 
 
 @pytest.fixture
