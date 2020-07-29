@@ -34,6 +34,10 @@ def pytest_collection_modifyitems(config, items):
                 item.add_marker(skip_slow)
 
 
+def pytest_collectstart(collector):
+    collector.skip_compare += 'stderr',
+
+
 @pytest.fixture
 def update_expected_file(request):
     return request.config.getoption("--update-expected-file")
