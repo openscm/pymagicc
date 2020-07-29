@@ -164,7 +164,7 @@ class MAGICCBase(object):
                 _copy_files(
                     source_dir,
                     join(self.root_dir, d),
-                    recursive= d in dirs_to_copy_recursive,
+                    recursive=d in dirs_to_copy_recursive,
                 )
 
         # Create an empty out dir
