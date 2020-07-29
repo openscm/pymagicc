@@ -46,6 +46,7 @@ REQUIREMENTS_INSTALL = [
     "f90nml",
     "PyYAML",
     "scmdata>=0.5.0",
+    "pandas<1.1",  # Remove dependency once scmdata=0.6.2 is released
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
