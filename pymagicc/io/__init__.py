@@ -522,13 +522,12 @@ class MAGICCData(ScmRun):
         """
         if not isinstance(data, str):
             self.filepath = None
-            self.metadata = {}
             super().__init__(data, columns=columns, **kwargs)
         else:
 
             filepath = data  # assume filepath
             self.filepath = filepath
-            self.metadata, data, read_columns = _read_metadata_and_df(filepath)
+            metadata, data, read_columns = _read_metadata_and_df(filepath)
             columns = deepcopy(columns) if columns is not None else {}
             for k, v in read_columns.items():
                 columns.setdefault(k, v)
@@ -538,6 +537,7 @@ class MAGICCData(ScmRun):
             columns.setdefault("climate_model", ["unspecified"])
 
             super().__init__(data, columns=columns, **kwargs)
+            self.metadata = metadata
 
     def _format_datetime_col(self):
         time_srs = self["time"]
