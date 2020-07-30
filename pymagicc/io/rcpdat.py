@@ -165,7 +165,7 @@ class _RCPDatWriter(_Writer):
         """
         warnings.warn(
             "The `.DAT` format is an old, custom format. We strongly recommend using "
-            "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+            "the `ScmRun` format instead (just call `.to_csv()`). Our `.DAT` "
             "writers are not super well tested so the error messages are likely "
             "to be cryptic. If you need help, please raise an issue at "
             "https://github.com/openscm/pymagicc/issues"

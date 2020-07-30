@@ -7,7 +7,7 @@ from os.path import basename
 import f90nml
 import numpy as np
 from f90nml.namelist import Namelist
-from scmdata import ScmDataFrame
+from scmdata import ScmRun
 
 from pymagicc.errors import NoReaderWriterError
 from pymagicc.magicc_time import convert_to_datetime
@@ -475,7 +475,7 @@ def to_int(x):
     return cols
 
 
-class MAGICCData(ScmDataFrame):
+class MAGICCData(ScmRun):
     """
     An interface to read and write the input files used by MAGICC.
 
@@ -503,7 +503,7 @@ class MAGICCData(ScmDataFrame):
         Initialise a MAGICCData instance
 
         Here we provide a brief over of inputs, for more details
-        see ``scmdata.ScmDataFrame``.
+        see ``scmdata.ScmRun``.
 
         Parameters
         ----------
@@ -515,7 +515,7 @@ class MAGICCData(ScmDataFrame):
             Dictionary to use to write the metadata for each timeseries in data. MAGICCData will
             also attempt to infer values from data. Any values in columns will be used in
             preference to any values found in data. The default value for "model", "scenario"
-            and "climate_model" is "unspecified". See ``scmdata.ScmDataFrame`` for details.
+            and "climate_model" is "unspecified". See ``scmdata.ScmRun`` for details.
 
         kwargs:
             Additional parameters passed to `pyam.core.read_files` to read non-standard files.
@@ -549,49 +549,6 @@ class MAGICCData(ScmDataFrame):
             time_srs = time_srs.apply(lambda x: convert_to_datetime(x))
 
         self["time"] = time_srs
-
-    def _raise_not_loaded_error(self):
-        raise ValueError("File has not been read from disk yet")
-
-    @property
-    def is_loaded(self):
-        """bool: Whether the data has been loaded yet."""
-        return self._meta is not None
-
-    def append(self, other, inplace=False, constructor_kwargs={}, **kwargs):
-        """
-        Append any input which can be converted to MAGICCData to self.
-
-        Parameters
-        ----------
-        other : MAGICCData, pd.DataFrame, pd.Series, str
-            Source of data to append.
-
-        inplace : bool
-            If True, append ``other`` inplace, otherwise return a new ``MAGICCData``
-            instance.
-
-        constructor_kwargs : dict
-            Passed to ``MAGICCData`` constructor (only used if ``other`` is not a
-            ``MAGICCData`` instance).
-
-        **kwargs
-            Passed to ``super().append()``
-        """
-        if not isinstance(other, MAGICCData):
-            other = MAGICCData(other, **constructor_kwargs)
-
-        if inplace:
-            super().append(other, inplace=inplace, **kwargs)
-            # updating metadata is why we can't just use ``ScmDataFrameBase``'s append
-            # method
-            self.metadata.update(other.metadata)
-        else:
-            res = super().append(other, inplace=inplace, **kwargs)
-            res.metadata = deepcopy(self.metadata)
-            res.metadata.update(other.metadata)
-
-            return res
 
     def write(self, filepath, magicc_version):
         """
