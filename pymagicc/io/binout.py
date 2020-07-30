@@ -6,7 +6,7 @@ import pandas as pd
 from pymagicc.definitions import (
     convert_magicc6_to_magicc7_variables,
     convert_magicc7_to_openscm_variables,
-    convert_magicc_to_openscm_regions
+    convert_magicc_to_openscm_regions,
 )
 from pymagicc.errors import InvalidTemporalResError
 from pymagicc.io.base import _Reader
@@ -66,7 +66,9 @@ class _LegacyBinFormat:
         }
         if metadata["annualsteps"] != 1:
             raise InvalidTemporalResError(
-                "{}: Only annual files can currently be processed".format(reader.filepath)
+                "{}: Only annual files can currently be processed".format(
+                    reader.filepath
+                )
             )
 
         return metadata
@@ -193,10 +195,7 @@ class _V2BinFormat(_LegacyBinFormat):
 
 
 def get_bin_format(version):
-    bin_formats = [
-        _LegacyBinFormat(),
-        _V2BinFormat()
-    ]
+    bin_formats = [_LegacyBinFormat(), _V2BinFormat()]
 
     for f in bin_formats:
         if f.version == version:
