@@ -194,7 +194,7 @@ def test_get_invalid_tool():
 
 def test_load_magicc6_emis():
     mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
-    len(mdata)
+    assert len(mdata)
     generic_mdata_tests(mdata)
 
     assert_mdata_value(
