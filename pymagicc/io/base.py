@@ -252,10 +252,10 @@ class _Reader(object):
         return df
 
     def _set_column_defaults(self, ch):
-        length = len(ch["variable"])
-        ch.setdefault("climate_model", ["unspecified"] * length)
-        ch.setdefault("model", ["unspecified"] * length)
-        ch.setdefault("scenario", ["unspecified"] * length)
+        ch.setdefault("todo", self._default_todo_fill_value)
+        ch.setdefault("climate_model", "unspecified")
+        ch.setdefault("model", "unspecified")
+        ch.setdefault("scenario", "unspecified")
 
         required_cols = [
             "variable",

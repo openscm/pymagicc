@@ -135,8 +135,7 @@ class _LegacyBinFormat:
         column_headers = {
             "variable": [variable] * (num_boxes + 1),
             "region": regions,
-            "unit": ["unknown"] * len(regions),
-            "todo": ["SET"] * len(regions),
+            "unit": "unknown"
         }
 
         return df, metadata, column_headers
@@ -249,8 +248,4 @@ class _BinaryOutReader(_Reader):
         metadata (dict): updated metadata based on the processing performed
         """
         df, metadata, columns = self.format.process_data(self, stream, metadata)
-
-        if "todo" not in columns:
-            columns["todo"] = self._default_todo_fill_value
-
         return df, metadata, self._set_column_defaults(columns)
