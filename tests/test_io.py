@@ -4211,7 +4211,13 @@ def test_find_parameter_groups(start_list, expected, case):
     assert find_parameter_groups(start_list) == expected
 
 
-@pytest.mark.parametrize("inp_file", [join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT"), join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT")])
+@pytest.mark.parametrize(
+    "inp_file",
+    [
+        join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT"),
+        join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT"),
+    ],
+)
 def test_binary_reader_fourbox(inp_file):
     res = MAGICCData(inp_file)
 
@@ -4236,7 +4242,9 @@ def test_binary_reader_global_only():
 
 
 def test_binary_reader_different_versions():
-    res_legacy = MAGICCData(join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT"))
+    res_legacy = MAGICCData(
+        join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT")
+    )
     res_v2 = MAGICCData(join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT"))
 
     assert res_v2.get_unique_meta("unit", True) == "K"

@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#305 <https://github.com/openscm/pymagicc/pull/305>`_) Added functionality to read new MAGICC binary format which includes units
 - (`#306 <https://github.com/openscm/pymagicc/pull/306>`_) Copy ``run`` folder recursively when creating temporary copy
 - (`#238 <https://github.com/openscm/pymagicc/pull/238>`_) Add documentation for handling of World region in ``.SCEN7`` files
 - (`#303 <https://github.com/openscm/pymagicc/pull/303>`_) Refactor ``pymagicc.io`` into multiple files
