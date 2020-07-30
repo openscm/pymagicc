@@ -572,9 +572,11 @@ def test_load_volcanic_rf():
     assert mdata.metadata["source"] == "NASA-GISS: http://data.giss.nasa.gov/"
     assert (
         mdata.metadata["compiled by"]
-        == "Malte Meinshausen, Lauder NZ, NCAR/PIK, malte.meinshausen@gmail.com, manually extended by zero forcing from 2001 to 2006"
+        == "Tom Wigley and (a little bit by) Malte Meinshausen"
     )
-    assert mdata.metadata["date"] == "15-Jun-2006 00:20:54"
+    assert (
+        mdata.metadata["date"] == "10-Oct-2008 21:09:25 & updated 22-Sept-2009 18:46:24"
+    )
 
     assert (mdata.filter(variable="*Forcing*")["unit"] == "W / m^2").all()
     assert (mdata["todo"] == "SET").all()
