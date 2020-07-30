@@ -4211,8 +4211,9 @@ def test_find_parameter_groups(start_list, expected, case):
     assert find_parameter_groups(start_list) == expected
 
 
-def test_binary_reader_fourbox():
-    res = MAGICCData(join(TEST_DATA_DIR, "DAT_SURFACE_TEMP.BINOUT"))
+@pytest.mark.parametrize("inp_file", [join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT"), join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT")])
+def test_binary_reader_fourbox(inp_file):
+    res = MAGICCData(inp_file)
 
     assert res.get_unique_meta("variable", no_duplicates=True) == "Surface Temperature"
     assert set(res.get_unique_meta("region")) == {
@@ -4232,3 +4233,15 @@ def test_binary_reader_global_only():
         == "CORE_CLIMATESENSITIVITY_CUMTADJ"
     )
     assert res.get_unique_meta("region", no_duplicates=True) == "World"
+
+
+def test_binary_reader_different_versions():
+    res_legacy = MAGICCData(join(TEST_DATA_DIR, "bin_legacy", "DAT_SURFACE_TEMP.BINOUT"))
+    res_v2 = MAGICCData(join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT"))
+
+    assert res_v2.get_unique_meta("unit", True) == "K"
+    assert res_legacy.get_unique_meta("unit", True) == "unknown"
+    meta_columns = res_v2.meta.columns.drop(["unit", "todo"])
+    pd.testing.assert_frame_equal(
+        res_v2.timeseries(meta_columns), res_legacy.timeseries(meta_columns)
+    )
