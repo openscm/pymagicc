@@ -3456,8 +3456,9 @@ def test_prn_wrong_region_error():
 
     other = base.copy()
     other["region"] = "World|R5ASIA"
+    merged = pd.concat([base, other]).reset_index(drop=True)
 
-    writer = MAGICCData(pd.concat([base, other]))
+    writer = MAGICCData(merged)
 
     error_msg = re.escape(".prn files can only contain the 'World' region")
     with pytest.raises(AssertionError, match=error_msg):
