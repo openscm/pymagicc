@@ -1470,10 +1470,7 @@ def test_default_config(package):
 
 
 def test_out_forcing(package):
-    # we get a warning about duplicate timeseries as we're reading both the annual
-    # and subannual volcanic forcing, we can safely ignore it here
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*duplicate.*")
+    with pytest.warns(UserWarning, match="Not reading file: DAT_VOLCANIC_RF.OUT"):
         run_kwargs = {"out_forcing": True, "out_ascii_binary": "ASCII"}
         if package.version == 7:
             run_kwargs["out_forcing_subannual"] = True
@@ -1481,14 +1478,18 @@ def test_out_forcing(package):
         res = package.run(**run_kwargs)
 
     # The results should include sub-annual timeseries by default
-    idx = res.filter(variable="Radiative Forcing|Volcanic").timeseries().T.index
-    assert (idx[1] - idx[0]).days == 30
+    volc_monthly = MAGICCData(join(package.out_dir, "DAT_VOLCANIC_RF.OUT"))
+    assert (volc_monthly["time"][1] - volc_monthly["time"][0]).days == 30
+    volc = res.filter(variable="Radiative Forcing|Volcanic")
+    assert (volc["time"][1] - volc["time"][0]).days == 365
+
     # make sure annual series also read sensibly
-    exp = 289.2 if package.version == 6 else 288.636
-    assert (
-        res.filter(variable="*Conc*CO2", year=1876, region="World").values.squeeze()
-        == exp
-    )
+    if package.version == 6:
+        exp = 289.2
+        assert (
+            res.filter(variable="*Conc*CO2", year=1876, region="World").values.squeeze()
+            == exp
+        )
 
 
 def test_format_config(package):
