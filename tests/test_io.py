@@ -3204,7 +3204,9 @@ def test_magicc_data_append(mock_read_metadata_and_df, inplace):
     assert isinstance(res, MAGICCData)
 
     expected_metadata = deepcopy(tmetadata_init)
-    expected_metadata.update(tmetadata_append)
+    for k, v in tmetadata_append.items():
+        if k not in expected_metadata:
+            expected_metadata[k] = v
     assert res.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])

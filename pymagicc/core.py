@@ -379,6 +379,12 @@ class MAGICCBase(object):
 
         mdata = []
         for filepath in outfiles:
+            if filepath.startswith("DAT_VOLCANIC_RF.") or "SUBANN" in filepath:
+                warnings.warn(
+                    "Not reading file: {}. Monthly data are not read in automatically by `run`. "
+                    "Use `MAGICCData` instead.".format(filepath)
+                )
+                continue
             try:
                 openscm_var = _get_openscm_var_from_filepath(filepath)
                 if only is None or openscm_var in only:
