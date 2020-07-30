@@ -4249,7 +4249,7 @@ def test_binary_reader_different_versions():
 
     assert res_v2.get_unique_meta("unit", True) == "K"
     assert res_legacy.get_unique_meta("unit", True) == "unknown"
-    meta_columns = res_v2.meta.columns.drop(["unit", "todo"])
+    meta_columns = res_v2.meta.columns.drop("unit")
     pd.testing.assert_frame_equal(
         res_v2.timeseries(meta_columns), res_legacy.timeseries(meta_columns)
     )
