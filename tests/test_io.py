@@ -3300,8 +3300,8 @@ def test_pull_cfg_from_parameters_out():
 
 def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base_emissions):
     tregions = ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
-    writing_base_emissions.set_meta(tregions, name="region")
-    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions["region"] = tregions
+    writing_base_emissions["variable"] = "Emissions|CO2"
     writing_base_emissions.metadata = {"header": "TODO: fix error message"}
 
     error_msg = re.escape(
@@ -3315,7 +3315,7 @@ def test_write_emis_in_unrecognised_region_error(temp_dir, writing_base_emission
 
 
 def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emissions):
-    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions["variable"] = "Emissions|CO2"
     error_msg = re.escape(
         "Unrecognised regions, they must be part of "
         "pymagicc.definitions.DATTYPE_REGIONMODE_REGIONS. If that doesn't make "
@@ -3330,13 +3330,13 @@ def test_write_unrecognised_region_combination_error(temp_dir, writing_base_emis
 
 
 def test_write_no_header_error(temp_dir, writing_base_emissions):
-    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
+    writing_base_emissions["variable"] = "Emissions|CO2"
     tregions = [
         "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base_emissions.set_meta(tregions, name="region")
-    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
-    writing_base_emissions.set_meta("GtC / yr", name="unit")
+    writing_base_emissions["region"] = tregions
+    writing_base_emissions["variable"] = "Emissions|CO2"
+    writing_base_emissions["unit"] = "GtC / yr"
 
     error_msg = re.escape('Please provide a file header in ``self.metadata["header"]``')
     with pytest.raises(KeyError, match=error_msg):
@@ -3350,9 +3350,9 @@ def test_write_emis_in(temp_dir, update_expected_file, writing_base_emissions):
     tregions = [
         "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base_emissions.set_meta(tregions, name="region")
-    writing_base_emissions.set_meta("Emissions|CO2", name="variable")
-    writing_base_emissions.set_meta("GtC / yr", name="unit")
+    writing_base_emissions["region"] = tregions
+    writing_base_emissions["variable"] = "Emissions|CO2"
+    writing_base_emissions["unit"] = "GtC / yr"
 
     res = join(temp_dir, "TMP_CO2_EMIS.IN")
     writing_base_emissions.metadata = {"header": "Test CO2 Emissions file"}
@@ -3367,8 +3367,8 @@ def test_write_emis_in_variable_name_error(temp_dir, writing_base_emissions):
     tregions = [
         "World|{}".format(r) for r in ["R5REF", "R5OECD", "R5LAM", "R5ASIA", "R5MAF"]
     ]
-    writing_base_emissions.set_meta(tregions, name="region")
-    writing_base_emissions.set_meta("Emissions|CO2|MAGICC AFOLU", name="variable")
+    writing_base_emissions["region"] = tregions
+    writing_base_emissions["variable"] = "Emissions|CO2|MAGICC AFOLU"
     writing_base_emissions.metadata = {"header": "Test misnamed CO2 Emissions file"}
 
     error_msg = re.escape(
@@ -3390,9 +3390,9 @@ def test_write_temp_in(temp_dir, update_expected_file, writing_base):
         for r in ["Southern Hemisphere", "Northern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Surface Temperature", name="variable")
-    writing_base.set_meta("K", name="unit")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Surface Temperature"
+    writing_base["unit"] = "K"
 
     res = join(temp_dir, "TMP_SURFACE_TEMP.IN")
     writing_base.metadata = {"header": "Test Surface temperature input file"}
@@ -3409,8 +3409,8 @@ def test_write_temp_in_variable_name_error(temp_dir, writing_base):
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Ocean Temperature"
     writing_base.metadata = {"header": "Test misnamed Surface temperature file"}
 
     error_msg = re.escape(
@@ -3792,7 +3792,7 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
     res_ts = MAGICCData(file_to_write).timeseries()
 
     unit = writing_base_mag.get_unique_meta("unit", no_duplicates=True)
-    writing_base_mag.set_meta(unit.replace("per", "/"), "unit")
+    writing_base_mag["unit"] = unit.replace("per", "/")
     exp_ts = writing_base_mag.timeseries()
     if timeseriestype == "MONTHLY":
         # month test is overly sensitive so do column by column
@@ -3853,8 +3853,8 @@ def test_mag_writer_valid_region_mode(temp_dir, writing_base):
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Ocean Temperature"
     writing_base.metadata = {
         "header": "Test mag file where regionmode is picked up",
         "timeseriestype": "AVERAGE_YEAR_START_YEAR",
@@ -3875,8 +3875,8 @@ def test_mag_writer_unrecognised_region_warning(temp_dir, writing_base):
         for r in ["Northern Hemisphere", "Southern Hemisphare"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Ocean Temperature"
     writing_base.metadata = {
         "header": "Test mag file where regions are misnamed",
         "timeseriestype": "AVERAGE_YEAR_START_YEAR",
@@ -3900,8 +3900,8 @@ def test_mag_writer_error_if_magicc6(temp_dir, writing_base):
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Ocean Temperature"
     writing_base.metadata = {"header": "MAGICC6 error test"}
 
     error_msg = re.escape(".MAG files are not MAGICC6 compatible")
@@ -3984,8 +3984,8 @@ def test_mag_writer_default_header(temp_dir, writing_base):
         for r in ["Northern Hemisphere", "Southern Hemisphere"]
         for sr in ["Ocean", "Land"]
     ]
-    writing_base.set_meta(tregions, name="region")
-    writing_base.set_meta("Ocean Temperature", name="variable")
+    writing_base["region"] = tregions
+    writing_base["variable"] = "Ocean Temperature"
     writing_base.metadata = {"timeseriestype": "AVERAGE_YEAR_START_YEAR"}
 
     write_file = join(temp_dir, "TEST_NAME.MAG")
