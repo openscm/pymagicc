@@ -15,7 +15,7 @@ import pkg_resources
 import pytest
 from numpy import testing as npt
 from openscm_units import unit_registry
-from scmdata import ScmDataFrame
+from scmdata import ScmRun
 
 import pymagicc.definitions
 from pymagicc.config import _is_windows
@@ -97,9 +97,9 @@ def run_writing_comparison(res, expected, update=False):
 
 def generic_mdata_tests(mdata, extra_index_cols={"todo": "object"}):
     """Resusable tests to ensure data format"""
-    assert mdata.is_loaded
+    assert len(mdata)
 
-    assert isinstance(mdata, ScmDataFrame)
+    assert isinstance(mdata, ScmRun)
     index = ["model", "scenario", "region", "variable", "unit", "climate_model"]
     if extra_index_cols is not None:
         index += list(extra_index_cols.keys())
@@ -193,7 +193,7 @@ def test_get_invalid_tool():
 
 def test_load_magicc6_emis():
     mdata = MAGICCData(join(MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN"))
-    assert mdata.is_loaded
+    len(mdata)
     generic_mdata_tests(mdata)
 
     assert_mdata_value(
@@ -3634,7 +3634,7 @@ def test_writing_identical_rcpdat(
     writer.metadata = deepcopy(writing_base.metadata)
     warning_msg = re.escape(
         "The `.DAT` format is an old, custom format. We strongly recommend using "
-        "the `ScmDataFrame` format instead (just call `.to_csv()`). Our `.DAT` "
+        "the `ScmRun` format instead (just call `.to_csv()`). Our `.DAT` "
         "writers are not super well tested so the error messages are likely "
         "to be cryptic. If you need help, please raise an issue at "
         "https://github.com/openscm/pymagicc/issues"

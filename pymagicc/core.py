@@ -1207,7 +1207,7 @@ class MAGICCBase(object):
 
         Parameters
         ----------
-        results_ecs_run : :obj:`ScmDataFrame`
+        results_ecs_run : :obj:`ScmRun`
             Results of the abrupt-2xCO2 experiment, must contain atmospheric |CO2|
             concentrations, total radiative forcing and surface temperature.
 
@@ -1245,7 +1245,7 @@ class MAGICCBase(object):
 
         Parameters
         ----------
-        results_tcr_tcre_run : :obj:`ScmDataFrame`
+        results_tcr_tcre_run : :obj:`ScmRun`
             Results of the 1pctCO2 experiment, must contain atmospheric |CO2|
             concentrations, inverse |CO2| emissions, total radiative forcing and
             surface temperature.
