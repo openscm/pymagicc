@@ -16,6 +16,7 @@ import pytest
 from numpy import testing as npt
 from openscm_units import unit_registry
 from scmdata import ScmRun
+from scmdata.testing import assert_scmdf_almost_equal
 
 import pymagicc.definitions
 from pymagicc.config import _is_windows
@@ -3133,10 +3134,10 @@ def test_bin_and_ascii_equal(file_to_read):
     mdata_ascii = MAGICCData(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 
     drop_axes = ["unit"]
-    pd.testing.assert_frame_equal(mdata_ascii._data, mdata_bin._data, check_like=False)
-    pd.testing.assert_frame_equal(
-        mdata_ascii.meta.drop(drop_axes, axis="columns"),
-        mdata_bin.meta.drop(drop_axes, axis="columns"),
+    assert_scmdf_almost_equal(
+        mdata_ascii.drop_meta(drop_axes, inplace=False),
+        mdata_bin.drop_meta(drop_axes, inplace=False),
+        check_ts_names=False,
     )
 
 
@@ -3789,27 +3790,21 @@ def test_mag_writer_timeseriestypes(temp_dir, writing_base_mag, timeseriestype):
     assert "THISFILE_ANNUALSTEPS = 1" in content
     assert "THISFILE_TIMESERIESTYPE = '{}'".format(timeseriestype) in content
 
-    res_ts = MAGICCData(file_to_write).timeseries()
+    res = MAGICCData(file_to_write)
 
     unit = writing_base_mag.get_unique_meta("unit", no_duplicates=True)
     writing_base_mag["unit"] = unit.replace("per", "/")
     exp_ts = writing_base_mag.timeseries()
     if timeseriestype == "MONTHLY":
+        res_ts = res.timeseries()
         # month test is overly sensitive so do column by column
         for res_col, exp_col in zip(res_ts.columns, exp_ts.columns):
             assert res_col.year == exp_col.year
             assert res_col.month == exp_col.month
             assert np.abs(res_col.day - exp_col.day) <= 1
 
-        res_ts.columns = exp_ts.columns
-        res_ts.columns = res_ts.columns.map(
-            lambda x: dt.datetime(x.year, x.month, x.day, 1, 1, 1)
-        )
-        exp_ts.columns = exp_ts.columns.map(
-            lambda x: dt.datetime(x.year, x.month, x.day, 1, 1, 1)
-        )
-
-    pd.testing.assert_frame_equal(res_ts, exp_ts, check_like=True)
+        res["time"] = writing_base_mag["time"]
+    assert_scmdf_almost_equal(res, writing_base_mag, check_ts_names=False)
 
 
 @pytest.mark.parametrize("timeseriestype", _TIMESERIESTYPES)

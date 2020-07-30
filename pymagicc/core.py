@@ -410,7 +410,7 @@ class MAGICCBase(object):
                     },
                 )
         else:
-            mdata = df_append(mdata)
+            mdata = run_append(mdata)
 
         try:
             run_paras = self.read_parameters()
@@ -1083,7 +1083,7 @@ class MAGICCBase(object):
         tcr_tcre_res = self.diagnose_tcr_tcre(**kwargs)
 
         out = {**ecs_res, **tcr_tcre_res}
-        out["timeseries"] = df_append(
+        out["timeseries"] = run_append(
             [ecs_res["timeseries"], tcr_tcre_res["timeseries"]]
         )
 
