@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 from openscm_units import unit_registry
-from scmdata import df_append
+from scmdata import run_append
 
 from .config import _wine_installed, config
 from .errors import InvalidTemporalResError, NoReaderWriterError
@@ -1123,7 +1123,7 @@ class MAGICCBase(object):
                 "Surface Temperature",
             ],
         )
-        timeseries.set_meta("abrupt-2xCO2", "scenario")
+        timeseries["scenario"] = "abrupt-2xCO2"
 
         ecs = self.get_ecs_from_diagnosis_results(timeseries)
         return {"ecs": ecs, "timeseries": timeseries}
@@ -1171,7 +1171,7 @@ class MAGICCBase(object):
         # drop the final year as concs stay constant from some reason,
         # MAGICC bug...
         timeseries = timeseries.filter(time=timeseries["time"].max(), keep=False)
-        timeseries.set_meta("1pctCO2", "scenario")
+        timeseries["scenario"] = "1pctCO2"
         tcr, tcre = self.get_tcr_tcre_from_diagnosis_results(timeseries)
 
         return {"tcr": tcr, "tcre": tcre, "timeseries": timeseries}
