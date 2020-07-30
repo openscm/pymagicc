@@ -1,6 +1,5 @@
 import copy
 import re
-import warnings
 from datetime import datetime
 from os import listdir, remove
 from os.path import exists, join
