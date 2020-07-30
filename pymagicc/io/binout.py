@@ -135,7 +135,7 @@ class _LegacyBinFormat:
         column_headers = {
             "variable": [variable] * (num_boxes + 1),
             "region": regions,
-            "unit": "unknown"
+            "unit": "unknown",
         }
 
         return df, metadata, column_headers
