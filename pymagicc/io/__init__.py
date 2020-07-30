@@ -528,6 +528,7 @@ class MAGICCData(ScmRun):
             filepath = data  # assume filepath
             self.filepath = filepath
             metadata, data, read_columns = _read_metadata_and_df(filepath)
+            data.columns = range(len(data.columns))
             columns = deepcopy(columns) if columns is not None else {}
             for k, v in read_columns.items():
                 columns.setdefault(k, v)
