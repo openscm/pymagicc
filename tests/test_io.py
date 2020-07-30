@@ -3128,13 +3128,11 @@ def test_bin_and_ascii_equal(file_to_read):
         return
 
     assert (mdata_bin["unit"] == "unknown").all()
-    assert (mdata_bin["todo"] == "SET").all()
+    assert (mdata_bin["todo"] == "N/A").all()
 
     mdata_ascii = MAGICCData(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 
-    # There are some minor differences between in the dataframes due to availability
-    # of metadata in BINOUT files
-    drop_axes = ["unit", "todo"]
+    drop_axes = ["unit"]
     pd.testing.assert_frame_equal(mdata_ascii._data, mdata_bin._data, check_like=False)
     pd.testing.assert_frame_equal(
         mdata_ascii.meta.drop(drop_axes, axis="columns"),
