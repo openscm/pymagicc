@@ -273,6 +273,9 @@ class MAGICCBase(object):
         For MAGICC7 and above, The level of logging can be controlled with the
         ``debug`` argument.
 
+        Any subannual files output by MAGICC will be ignored by this function. These
+        files can be read in manually using :class:`pymagicc.io.MAGICCData` directly.
+
         Parameters
         ----------
         scenario : :obj:`pymagicc.io.MAGICCData`
