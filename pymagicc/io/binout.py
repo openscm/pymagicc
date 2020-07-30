@@ -146,7 +146,8 @@ class _V2BinFormat(_LegacyBinFormat):
     @staticmethod
     def process_variable(stream):
         def _read_str(s):
-            return b"".join(s.read_chunk("c").tolist()).decode()
+            bytes = np.atleast_1d(s.read_chunk("c"))
+            return b"".join(bytes.tolist()).decode()
 
         var_name = _read_str(stream)
         region = _read_str(stream)
