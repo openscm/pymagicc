@@ -125,6 +125,9 @@ class MAGICCBase(object):
         """
         Initialises a temporary directory structure and copy of MAGICC
         configuration files and binary.
+
+        The root folder and ``bin`` folders are copied (not recursively). The
+        ``run`` folder is copied recursively.
         """
         if self.executable is None or not isfile(self.executable):
             raise FileNotFoundError(
