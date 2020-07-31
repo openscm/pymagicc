@@ -11,7 +11,7 @@ from .in_files import _EmisInReader
 
 class _OutReader(_FourBoxReader):
     _regexp_capture_variable = re.compile(r"DAT\_(\w*)\.OUT$")
-    _default_todo_fill_value = "N/A"
+    _default_todo_fill_value = "not_relevant"
 
     def _get_column_headers_and_update_metadata(self, stream, metadata):
         column_headers, metadata = super()._get_column_headers_and_update_metadata(
@@ -61,7 +61,7 @@ class _InverseEmisReader(_EmisOutReader):
 
 class _TempOceanLayersOutReader(_Reader):
     _regexp_capture_variable = re.compile(r"(TEMP\_OCEANLAYERS\_?\w*)\.OUT$")
-    _default_todo_fill_value = "N/A"
+    _default_todo_fill_value = "not_relevant"
 
     def _read_magicc6_style_header(self, stream, metadata):
         column_headers, metadata = super()._read_magicc6_style_header(stream, metadata)
