@@ -78,7 +78,7 @@ $(VENV_DIR): setup.py
 	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
 
 	$(VENV_DIR)/bin/pip install --upgrade pip
-	$(VENV_DIR)/bin/pip install -e .[dev]
+	$(VENV_DIR)/bin/pip install -e .[dev] --use-feature=2020-resolver
 
 	$(VENV_DIR)/bin/jupyter serverextension enable --py --sys-prefix appmode
 	$(VENV_DIR)/bin/jupyter nbextension     enable --py --sys-prefix appmode
@@ -130,7 +130,7 @@ test-pypi-install: $(VENV_DIR)  ## test installation from PyPI
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
-	$(TEMPVENV)/bin/pip install pymagicc --pre
+	$(TEMPVENV)/bin/pip install pymagicc --pre --use-feature=2020-resolver
 	$(TEMPVENV)/bin/python scripts/test_install.py
 
 docs: $(VENV_DIR) docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py')  ## make the docs
