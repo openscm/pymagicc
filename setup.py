@@ -45,8 +45,7 @@ REQUIREMENTS_INSTALL = [
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    "scmdata>=0.5.0",
-    "pandas<1.1",  # Remove dependency once scmdata=0.6.2 is released
+    "scmdata>=0.6.2",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",

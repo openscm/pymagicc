@@ -93,7 +93,6 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -e .[tests]
-        pip install git+https://github.com/openscm/scmdata.git@77-metadata # TO REMOVE
 
 
     - name: Test with pytest (${{ runner.os }})
@@ -164,7 +163,6 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -e .[tests,notebooks]
-        pip install git+https://github.com/openscm/scmdata.git@77-metadata # TO REMOVE
     - name: Test notebooks with nbval
       if: startsWith(runner.os, 'Linux')
       run: |
