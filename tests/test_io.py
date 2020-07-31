@@ -2318,7 +2318,7 @@ def test_load_out(test_file):
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "K").all()
     assert (mdata["variable"] == "Surface Temperature").all()
 
@@ -2388,7 +2388,7 @@ def test_load_out_emis():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "Mt BC / yr").all()
     assert (mdata["variable"] == "Emissions|BC|MAGICC AFOLU").all()
 
@@ -2458,7 +2458,7 @@ def test_load_out_slash_and_caret_in_rf_units():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "W / m^2").all()
     assert (
         mdata["variable"] == "Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC AFOLU"
@@ -2521,7 +2521,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "10^22J").all()
     assert (mdata["variable"] == "Aggregated Ocean Heat Content|Depth 1").all()
 
@@ -2593,7 +2593,7 @@ def test_load_out_ocean_layers():
     assert (
         "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
     )
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "K").all()
 
     assert_mdata_value(
@@ -2637,7 +2637,7 @@ def test_load_out_ocean_layers_hemisphere():
     assert (
         "__MAGICC 6.X TEMP_OCEANLAYERS DATA OUTPUT FILE__" in mdata.metadata["header"]
     )
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "K").all()
 
     assert_mdata_value(
@@ -2679,7 +2679,7 @@ def test_load_out_inverseemis():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X MISC DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["region"] == "World").all()
 
     assert_mdata_value(
@@ -2730,7 +2730,7 @@ def test_load_out_co2pf_emis():
         == "6.8.01 BETA, 7th July 2012 - live.magicc.org"
     )
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
-    assert (mdata["todo"] == "N/A").all()
+    assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "Gt C / yr").all()
     assert (mdata["variable"] == "Land to Air Flux|CO2|MAGICC Permafrost").all()
 
@@ -3128,7 +3128,7 @@ def test_bin_and_ascii_equal(file_to_read):
         return
 
     assert (mdata_bin["unit"] == "unknown").all()
-    assert (mdata_bin["todo"] == "N/A").all()
+    assert (mdata_bin["todo"] == "not_relevant").all()
 
     mdata_ascii = MAGICCData(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 

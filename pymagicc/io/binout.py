@@ -204,7 +204,7 @@ def get_bin_format(version):
 
 class _BinaryOutReader(_Reader):
     _regexp_capture_variable = re.compile(r"DAT\_(.*)\.BINOUT$")
-    _default_todo_fill_value = "N/A"
+    _default_todo_fill_value = "not_relevant"
 
     def _determine_bin_version(self, data):
         try:
