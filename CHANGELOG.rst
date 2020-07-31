@@ -4,7 +4,7 @@ Changelog
 master
 ------
 
-- (`#238 <https://github.com/openscm/pymagicc/pull/238>`_) Add gotcha documentation for emissions files
+- (`#238 <https://github.com/openscm/pymagicc/pull/238>`_) Add documentation for handling of World region in emissions files
 - (`#303 <https://github.com/openscm/pymagicc/pull/303>`_) Refactor ``pymagicc.io`` into multiple files
 - (`#301 <https://github.com/openscm/pymagicc/pull/301>`_) Add MAGICC7 variables ``AEROSOL_RF``, ``HEAT_EARTH`` and ``HEAT_NONOCEAN``
 - (`#299 <https://github.com/openscm/pymagicc/pull/299>`_) Make conversion of FORTRAN safe units apply to ``.MAG`` files too and be more consistent
