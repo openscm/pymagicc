@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#306 <https://github.com/openscm/pymagicc/pull/306>`_) Copy ``run`` folder recursively when creating temporary copy
 - (`#238 <https://github.com/openscm/pymagicc/pull/238>`_) Add documentation for handling of World region in ``.SCEN7`` files
 - (`#303 <https://github.com/openscm/pymagicc/pull/303>`_) Refactor ``pymagicc.io`` into multiple files
 - (`#301 <https://github.com/openscm/pymagicc/pull/301>`_) Add MAGICC7 variables ``AEROSOL_RF``, ``HEAT_EARTH`` and ``HEAT_NONOCEAN``
