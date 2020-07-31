@@ -15,7 +15,7 @@ source: RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, Augu
     THISFILE_FIRSTYEAR = 1765
     THISFILE_LASTYEAR = 2006
     THISFILE_ANNUALSTEPS = 1
-    THISFILE_UNITS = 'GtCperyr'
+    THISFILE_UNITS = 'Gt_C_per_yr'
     THISFILE_DATTYPE = 'REGIONDATA'
     THISFILE_REGIONMODE = 'RCP'
     THISFILE_FIRSTDATAROW = 28
@@ -23,7 +23,7 @@ source: RCP data as presented on http://www.iiasa.ac.at/web-apps/tnt/RcpDb, Augu
 
         GAS                CO2I                CO2I                CO2I                CO2I                CO2I
        TODO                 SET                 SET                 SET                 SET                 SET
-      UNITS            GtCperyr            GtCperyr            GtCperyr            GtCperyr            GtCperyr
+      UNITS         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr         Gt_C_per_yr
       YEARS              R5OECD               R5REF              R5ASIA               R5MAF               R5LAM
        1765         3.00000e-03         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
        1766         3.00000e-03         0.00000e+00         0.00000e+00         0.00000e+00         0.00000e+00
