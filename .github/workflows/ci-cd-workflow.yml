@@ -19,7 +19,7 @@ jobs:
     - name: Install dev dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[dev]
+        pip install -e .[dev] --use-feature=2020-resolver
     # TODO: add `pylint pymagicc`
     # TODO: add pydocstyle pymagicc
     - name: Formatting and linters
@@ -92,7 +92,7 @@ jobs:
     - name: Install test dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[tests]
+        pip install -e .[tests] --use-feature=2020-resolver
 
 
     - name: Test with pytest (${{ runner.os }})
@@ -162,7 +162,7 @@ jobs:
     - name: Install notebook dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[tests,notebooks]
+        pip install -e .[tests,notebooks] --use-feature=2020-resolver
     - name: Test notebooks with nbval
       if: startsWith(runner.os, 'Linux')
       run: |
@@ -191,7 +191,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install -e .[dev]
+        pip install -e .[dev] --use-feature=2020-resolver
     - name: Create package
       run: python setup.py sdist bdist_wheel --universal
     - name: Publish package to PyPI
