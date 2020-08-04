@@ -33,7 +33,7 @@ from .out import (
     _OutReader,
     _TempOceanLayersOutReader,
 )
-from .prn import _PrnReader, _PrnWriter
+from .prn_files import _PrnReader, _PrnWriter
 from .rcpdat import _RCPDatReader, _RCPDatWriter
 from .scen import _ScenReader, _ScenWriter
 from .scen7 import _Scen7Reader, _Scen7Writer
