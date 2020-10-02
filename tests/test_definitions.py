@@ -250,7 +250,6 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
-        ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
         ("SURFACE_MIXEDLAYERTEMP", "Surface Air Ocean Blended Temperature Change"),
     ],
 )
@@ -327,6 +326,7 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
         ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
+        ("HEAT_EARTH", "Heat Content"),
         ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
