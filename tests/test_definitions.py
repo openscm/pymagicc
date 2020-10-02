@@ -180,8 +180,14 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_EMIS", "Emissions|CH4"),
         ("N2OT_EMIS", "Emissions|N2O"),
-        ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
-        ("CH4PF_EMIS", "Land to Air Flux|CH4|MAGICC Permafrost"),
+        (
+            "CO2PF_EMIS",
+            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|MAGICC Permafrost",
+        ),
+        (
+            "CH4PF_EMIS",
+            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|MAGICC Permafrost",
+        ),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("SURFACE_TEMP_SUBANNUAL", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
@@ -251,6 +257,8 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
         ("SURFACE_MIXEDLAYERTEMP", "Surface Air Ocean Blended Temperature Change"),
+        ("CO2_AIR2LAND_FLUX", "Net Atmosphere to Land Flux|CO2"),
+        ("CO2_AIR2OCEAN_FLUX", "Net Atmosphere to Ocean Flux|CO2"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -269,7 +277,14 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CO2_EMIS", "Emissions|CO2"),
         ("CH4_EMIS", "Emissions|CH4"),
         ("N2O_EMIS", "Emissions|N2O"),
-        ("CO2PF_EMIS", "Land to Air Flux|CO2|MAGICC Permafrost"),
+        (
+            "CO2PF_EMIS",
+            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|MAGICC Permafrost",
+        ),
+        (
+            "CH4PF_EMIS",
+            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|MAGICC Permafrost",
+        ),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
         ("AIR_CIRRUS_RF", "Radiative Forcing|Aviation|Cirrus"),
@@ -331,6 +346,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
         ("SURFACE_MIXEDLAYERTEMP", "Surface Air Ocean Blended Temperature Change"),
+        ("CO2_AIR2LAND_FLUX", "Net Atmosphere to Land Flux|CO2"),
+        ("CO2_AIR2OCEAN_FLUX", "Net Atmosphere to Ocean Flux|CO2"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
