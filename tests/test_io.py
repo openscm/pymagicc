@@ -2526,12 +2526,12 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert "__MAGICC 6.X DATA OUTPUT FILE__" in mdata.metadata["header"]
     assert (mdata["todo"] == "not_relevant").all()
     assert (mdata["unit"] == "10^22J").all()
-    assert (mdata["variable"] == "Aggregated Ocean Heat Content|Depth 1").all()
+    assert (mdata["variable"] == "Heat Content|Ocean|Depth 1").all()
 
     assert_mdata_value(
         mdata,
         0.046263236,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World",
         year=1767,
         # unit="10^22J"
@@ -2540,7 +2540,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert_mdata_value(
         mdata,
         3.4193050,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World",
         year=1965,
         # unit="10^22J"
@@ -2549,7 +2549,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert_mdata_value(
         mdata,
         0.067484257,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World|Northern Hemisphere|Ocean",
         year=1769,
         # unit="10^22J"
@@ -2558,7 +2558,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert_mdata_value(
         mdata,
         -4.2688102,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World|Southern Hemisphere|Ocean",
         year=1820,
         # unit="10^22J"
@@ -2567,7 +2567,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert_mdata_value(
         mdata,
         0,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World|Northern Hemisphere|Land",
         year=2093,
         # unit="10^22J"
@@ -2576,7 +2576,7 @@ def test_load_out_slash_and_caret_in_heat_content_units():
     assert_mdata_value(
         mdata,
         0,
-        variable="Aggregated Ocean Heat Content|Depth 1",
+        variable="Heat Content|Ocean|Depth 1",
         region="World|Southern Hemisphere|Land",
         year=1765,
         # unit="10^22J"
@@ -3135,12 +3135,8 @@ def test_bin_and_ascii_equal(file_to_read):
 
     mdata_ascii = MAGICCData(join(TEST_OUT_DIR, file_to_read.replace("BINOUT", "OUT")))
 
-    drop_axes = ["unit"]
-    assert_scmdf_almost_equal(
-        mdata_ascii.drop_meta(drop_axes, inplace=False),
-        mdata_bin.drop_meta(drop_axes, inplace=False),
-        check_ts_names=False,
-    )
+    mdata_bin["unit"] = mdata_ascii.get_unique_meta("unit", no_duplicates=True)
+    assert_scmdf_almost_equal(mdata_ascii, mdata_bin, check_ts_names=False)
 
 
 @patch("pymagicc.io._read_metadata_and_df")
