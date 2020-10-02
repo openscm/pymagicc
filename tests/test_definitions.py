@@ -66,12 +66,7 @@ def test_convert_magicc7_to_magicc6_variables(magicc7, magicc6):
 
 @pytest.mark.parametrize("suffix", ["RF", "ERF"])
 @pytest.mark.parametrize(
-    "suffix_part_1",
-    [
-        "I",
-        "B",
-        "T",
-    ],
+    "suffix_part_1", ["I", "B", "T",],
 )
 @pytest.mark.parametrize(
     "variable", ["OC", "BC", "SOX", "NO3", "BIOMASSAER", "MINERALDUST"]
@@ -109,12 +104,7 @@ def test_dir_aerosols(variable, suffix_part_1, suffix):
 
 @pytest.mark.parametrize("suffix", ["CONC", "OT", "EMIS", "INVERSE_EMIS"])
 @pytest.mark.parametrize(
-    "suffix_part_1",
-    [
-        "I",
-        "B",
-        "T",
-    ],
+    "suffix_part_1", ["I", "B", "T",],
 )
 @pytest.mark.parametrize("variable", ["OC", "BC", "SOX", "NO3"])
 def test_aerosols_not_rf(variable, suffix_part_1, suffix):
@@ -145,20 +135,10 @@ def test_aerosols_not_rf(variable, suffix_part_1, suffix):
 
 @pytest.mark.parametrize("suffix", ["RF", "ERF", "CONC", "OT", "EMIS"])
 @pytest.mark.parametrize(
-    "prefix",
-    [
-        "I",
-        "B",
-        "T",
-    ],
+    "prefix", ["I", "B", "T",],
 )
 @pytest.mark.parametrize(
-    "variable",
-    [
-        "CO2",
-        "N2O",
-        "CH4",
-    ],
+    "variable", ["CO2", "N2O", "CH4",],
 )
 def test_ch4_co2_n2o(variable, prefix, suffix):
     openscm_var = convert_magicc7_to_openscm_variables(
