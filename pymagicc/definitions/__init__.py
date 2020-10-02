@@ -400,7 +400,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         }
     )
 
-    agg_ocean_heat_top = "Aggregated Ocean Heat Content"
+    agg_ocean_heat_top = "Heat Content|Ocean"
     heat_content_aggreg_depths = {
         "HEATCONTENT_AGGREG_DEPTH{}".format(i): "{}{}Depth {}".format(
             agg_ocean_heat_top, DATA_HIERARCHY_SEPARATOR, i
@@ -408,11 +408,12 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         for i in range(1, 4)
     }
     replacements.update(heat_content_aggreg_depths)
-    replacements.update({"HEATCONTENT_AGGREG_TOTAL": agg_ocean_heat_top})
     replacements.update(
         {
-            "HEAT_EARTH": "Earth System Heat Content",
-            "HEAT_NONOCEAN": "Non-Ocean Heat Content",
+            "HEATCONTENT_AGGREG_TOTAL": agg_ocean_heat_top,
+            "HEAT_EARTH": "Heat Content",
+            "HEAT_NONOCEAN": "Heat Content|Non-Ocean",
+            "HEATUPTK_AGGREG": "Heat Uptake|Ocean",
         }
     )
 
