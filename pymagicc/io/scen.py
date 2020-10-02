@@ -366,7 +366,8 @@ class _ScenWriter(_Writer):
             variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
-                levels=[v.replace("_EMIS", "") for v in variables], level="variable",
+                levels=[v.replace("_EMIS", "") for v in variables],
+                level="variable",
             )
 
             region_block = region_block.reindex(
