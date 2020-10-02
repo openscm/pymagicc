@@ -397,8 +397,8 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "SURFACE_MIXEDLAYERTEMP": "Surface Air Ocean Blended Temperature Change",
             "CO2_AIR2LAND_FLUX": "Net Atmosphere to Land Flux|CO2",
             "CO2_AIR2OCEAN_FLUX": "Net Atmosphere to Ocean Flux|CO2",
-            "CO2PF_EMIS": "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|MAGICC Permafrost",
-            "CH4PF_EMIS": "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|MAGICC Permafrost",
+            "CO2PF_EMIS": "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|Permafrost",
+            "CH4PF_EMIS": "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|Permafrost",
             "SLR_TOT": "Sea Level Rise",
         }
     )

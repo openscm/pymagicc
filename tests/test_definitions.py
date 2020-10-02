@@ -182,11 +182,11 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("N2OT_EMIS", "Emissions|N2O"),
         (
             "CO2PF_EMIS",
-            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|MAGICC Permafrost",
+            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|Permafrost",
         ),
         (
             "CH4PF_EMIS",
-            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|MAGICC Permafrost",
+            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|Permafrost",
         ),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("SURFACE_TEMP_SUBANNUAL", "Surface Temperature"),
@@ -279,11 +279,11 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("N2O_EMIS", "Emissions|N2O"),
         (
             "CO2PF_EMIS",
-            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|MAGICC Permafrost",
+            "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|Permafrost",
         ),
         (
             "CH4PF_EMIS",
-            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|MAGICC Permafrost",
+            "Net Land to Atmosphere Flux|CH4|Earth System Feedbacks|Permafrost",
         ),
         ("SURFACE_TEMP", "Surface Temperature"),
         ("CC4F8_CONC", "Atmospheric Concentrations|cC4F8"),
