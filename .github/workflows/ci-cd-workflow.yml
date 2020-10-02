@@ -105,6 +105,7 @@ jobs:
               echo "Error: Test coverage has to be at least ${MIN_COVERAGE}"
               exit 1
           fi
+
     - name: Test with pytest (${{ runner.os }})
       if: startsWith(runner.os, 'Windows')
       run: |
@@ -116,6 +117,7 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         file: ./coverage.xml
+
 
   test-notebooks:
     needs: build
