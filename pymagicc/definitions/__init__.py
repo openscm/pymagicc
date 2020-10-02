@@ -394,6 +394,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     replacements.update(
         {
             "SURFACE_TEMP": "Surface Temperature",
+            "SURFACE_MIXEDLAYERTEMP": "Surface Air Ocean Blended Temperature Change",
             "CO2PF_EMIS": "Land to Air Flux|CO2|MAGICC Permafrost",
             "CH4PF_EMIS": "Land to Air Flux|CH4|MAGICC Permafrost",
             "SLR_TOT": "Sea Level Rise",
