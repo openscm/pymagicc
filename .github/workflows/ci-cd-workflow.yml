@@ -26,7 +26,7 @@ jobs:
       run: |
         black --check pymagicc tests setup.py --exclude pymagicc/_version.py
         black-nb --check notebooks
-        isort --check-only --quiet --recursive pymagicc tests setup.py
+        isort --check-only --quiet pymagicc tests setup.py
         bandit -c .bandit.yml -r pymagicc
         flake8 pymagicc tests setup.py
     - name: Build docs
