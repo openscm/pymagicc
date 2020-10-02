@@ -1266,9 +1266,10 @@ class MAGICCBase(object):
         global_co2_concs = results_tcr_tcre_run.filter(
             variable="Atmospheric Concentrations|CO2", region="World"
         )
-        (tcr_time, tcr_start_time,) = self._get_tcr_tcr_start_yr_from_CO2_concs(
-            global_co2_concs
-        )
+        (
+            tcr_time,
+            tcr_start_time,
+        ) = self._get_tcr_tcr_start_yr_from_CO2_concs(global_co2_concs)
 
         if tcr_time.year != tcr_start_time.year + 70:  # pragma: no cover # emergency
             raise AssertionError("Has the definition of TCR and TCRE changed?")

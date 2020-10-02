@@ -613,15 +613,19 @@ def test_get_tcr_tcre_from_diagnosis_results(
         .timeseries()
         .squeeze()
     ) * unit_registry("K")
-    expected_tcre_cumulative_co2 = test_results_df.filter(
-        variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
-        year=range(test_tcre_start_time.year, test_tcr_time.year),
-    ).values.sum() * unit_registry("GtC")
+    expected_tcre_cumulative_co2 = (
+        test_results_df.filter(
+            variable="Inverse Emissions|CO2|MAGICC Fossil and Industrial",
+            year=range(test_tcre_start_time.year, test_tcr_time.year),
+        ).values.sum()
+        * unit_registry("GtC")
+    )
     expected_tcre = expected_tcr / expected_tcre_cumulative_co2
 
-    (actual_tcr, actual_tcre,) = magicc_base.get_tcr_tcre_from_diagnosis_results(
-        test_results_df
-    )
+    (
+        actual_tcr,
+        actual_tcre,
+    ) = magicc_base.get_tcr_tcre_from_diagnosis_results(test_results_df)
     assert actual_tcr == expected_tcr
     assert actual_tcre == expected_tcre
 
@@ -700,7 +704,8 @@ def test_check_ecs_total_RF(valid_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_ecs_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_ecs_total_RF(
-        test_RF_data, valid_ecs_diagnosis_results["ecs_start_time"],
+        test_RF_data,
+        valid_ecs_diagnosis_results["ecs_start_time"],
     )
 
     _assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
@@ -715,7 +720,8 @@ def test_check_tcr_tcre_total_RF(valid_tcr_tcre_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_tcre_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_tcr_tcre_total_RF(
-        test_RF_data, valid_tcr_tcre_diagnosis_results["tcr_time"],
+        test_RF_data,
+        valid_tcr_tcre_diagnosis_results["tcr_time"],
     )
 
     _assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
