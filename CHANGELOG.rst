@@ -4,7 +4,8 @@ Changelog
 master
 ------
 
-- (`#310 <https://github.com/openscm/pymagicc/pull/310>`_) Rename ``pymagicc.io.prn` to ``pymagicc.io.prn_files`` as PRN is a reserved filename on Windows
+- (`#311 <https://github.com/openscm/pymagicc/pull/311>`_) Fix naming of ocean heat content and ocean heat uptake output variables to match RCMIP conventions
+- (`#310 <https://github.com/openscm/pymagicc/pull/310>`_) Rename ``pymagicc.io.prn`` to ``pymagicc.io.prn_files`` as PRN is a reserved filename on Windows
 - (`#307 <https://github.com/openscm/pymagicc/pull/307>`_) Use ``scmdata.ScmRun`` as a base class for ``MAGICCData`` instead of the deprecated ``scmdata.ScmDataFrame`` (closes `#295 <https://github.com/openscm/pymagicc/issues/295>`_)
 - (`#305 <https://github.com/openscm/pymagicc/pull/305>`_) Added functionality to read new MAGICC binary format which includes units
 - (`#306 <https://github.com/openscm/pymagicc/pull/306>`_) Copy ``run`` folder recursively when creating temporary copy
