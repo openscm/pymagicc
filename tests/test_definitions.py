@@ -238,8 +238,10 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("CH4_RF", "Radiative Forcing|CH4"),
         ("NOX_EMIS", "Emissions|NOx"),
         ("NOXT_EMIS", "Emissions|NOx"),
-        ("HEAT_EARTH", "Earth System Heat Content"),
-        ("HEAT_NONOCEAN", "Non-Ocean Heat Content"),
+        ("HEAT_EARTH", "Heat Content"),
+        ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
+        ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
+        ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
     ],
 )
 def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
@@ -315,8 +317,9 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("TOTAL_INCLVOLCANIC_EFFRF", "TOTAL_INCLVOLCANIC_EFFRF"),
         ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
-        ("HEAT_EARTH", "Earth System Heat Content"),
-        ("HEAT_NONOCEAN", "Non-Ocean Heat Content"),
+        ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
+        ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
+        ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
     ],
 )
 def test_convert_openscm_to_magicc7_variables(magicc7, openscm):

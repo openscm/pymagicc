@@ -77,7 +77,7 @@ format-notebooks: $(VENV_DIR)  ## format the notebooks
 $(VENV_DIR): setup.py
 	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
 
-	$(VENV_DIR)/bin/pip install --upgrade pip
+	$(VENV_DIR)/bin/pip install --upgrade pip wheel
 	$(VENV_DIR)/bin/pip install -e .[dev] --use-feature=2020-resolver
 
 	$(VENV_DIR)/bin/jupyter serverextension enable --py --sys-prefix appmode
