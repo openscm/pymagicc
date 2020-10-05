@@ -4228,12 +4228,19 @@ def test_binary_reader_fourbox(inp_file):
     }
 
 
-def test_binary_reader_global_only():
-    res = MAGICCData(join(TEST_DATA_DIR, "DAT_CORE_CLIMATESENSITIVITY_CUMTADJ.BINOUT"))
+@pytest.mark.parametrize(
+    "inp_file",
+    [
+        join(TEST_DATA_DIR, "bin_legacy", "DAT_CO2_AIR2LAND_FLUX.BINOUT"),
+        join(TEST_DATA_DIR, "bin_v2", "DAT_CO2_AIR2LAND_FLUX.BINOUT"),
+    ],
+)
+def test_binary_reader_global_only(inp_file):
+    res = MAGICCData(inp_file)
 
     assert (
         res.get_unique_meta("variable", no_duplicates=True)
-        == "CORE_CLIMATESENSITIVITY_CUMTADJ"
+        == "Net Atmosphere to Land Flux|CO2"
     )
     assert res.get_unique_meta("region", no_duplicates=True) == "World"
 
@@ -4245,6 +4252,20 @@ def test_binary_reader_different_versions():
     res_v2 = MAGICCData(join(TEST_DATA_DIR, "bin_v2", "DAT_SURFACE_TEMP.BINOUT"))
 
     assert res_v2.get_unique_meta("unit", True) == "K"
+    assert res_legacy.get_unique_meta("unit", True) == "unknown"
+    meta_columns = res_v2.meta.columns.drop("unit")
+    pd.testing.assert_frame_equal(
+        res_v2.timeseries(meta_columns), res_legacy.timeseries(meta_columns)
+    )
+
+
+def test_binary_reader_different_versions_global_only():
+    res_legacy = MAGICCData(
+        join(TEST_DATA_DIR, "bin_legacy", "DAT_CO2_AIR2LAND_FLUX.BINOUT")
+    )
+    res_v2 = MAGICCData(join(TEST_DATA_DIR, "bin_v2", "DAT_CO2_AIR2LAND_FLUX.BINOUT"))
+
+    assert res_v2.get_unique_meta("unit", True) == "GtC / yr"
     assert res_legacy.get_unique_meta("unit", True) == "unknown"
     meta_columns = res_v2.meta.columns.drop("unit")
     pd.testing.assert_frame_equal(
