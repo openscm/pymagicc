@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#313 <https://github.com/openscm/pymagicc/pull/313>`_) Add tests for global-only binary files written with ``out_binary_format=2``
 - (`#311 <https://github.com/openscm/pymagicc/pull/311>`_) Fix naming of ocean heat content and ocean heat uptake output variables to match RCMIP conventions
 - (`#310 <https://github.com/openscm/pymagicc/pull/310>`_) Rename ``pymagicc.io.prn`` to ``pymagicc.io.prn_files`` as PRN is a reserved filename on Windows
 - (`#307 <https://github.com/openscm/pymagicc/pull/307>`_) Use ``scmdata.ScmRun`` as a base class for ``MAGICCData`` instead of the deprecated ``scmdata.ScmDataFrame`` (closes `#295 <https://github.com/openscm/pymagicc/issues/295>`_)
