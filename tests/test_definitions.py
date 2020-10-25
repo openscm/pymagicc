@@ -391,6 +391,8 @@ def test_convert_openscm_to_magicc7_variables(magicc7, openscm):
         ("AMV", "World|North Atlantic Ocean"),
         ("OCEAN", "World|Ocean"),
         ("LAND", "World|Land"),
+        ("AR6-NZ", "World|AR6 regions|NZ"),
+        ("AR6-NEN", "World|AR6 regions|NEN"),
     ],
 )
 def test_convert_openscm_to_magicc_regions(magicc7, openscm):

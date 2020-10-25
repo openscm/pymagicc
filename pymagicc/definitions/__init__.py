@@ -76,6 +76,69 @@ MAGICC7_CONCENTRATIONS_UNITS = read_datapackage(path, "magicc_concentrations_uni
 """:obj:`pandas.DataFrame` Definitions of concentrations variables and their expected units in MAGICC7.
 """
 
+AR6_REGION_ABBREVIATIONS = [
+    "GIC",
+    "NWN",
+    "NEN",
+    "WNA",
+    "CNA",
+    "ENA",
+    "NCA",
+    "SCA",
+    "CAR",
+    "NWS",
+    "NSA",
+    "NES",
+    "SAM",
+    "SWS",
+    "SES",
+    "SSA",
+    "NEU",
+    "WCE",
+    "EEU",
+    "MED",
+    "SAH",
+    "WAF",
+    "CAF",
+    "NEAF",
+    "SEAF",
+    "WSAF",
+    "ESAF",
+    "MDG",
+    "RAR",
+    "WSB",
+    "ESB",
+    "RFE",
+    "WCA",
+    "ECA",
+    "TIB",
+    "EAS",
+    "ARP",
+    "SAS",
+    "SEA",
+    "NAU",
+    "CAU",
+    "EAU",
+    "SAU",
+    "NZ",
+    "EAN",
+    "WAN",
+    "ARO",
+    "NPO",
+    "EPO",
+    "SPO",
+    "NAO",
+    "EAO",
+    "SAO",
+    "ARS",
+    "BOB",
+    "EIO",
+    "SIO",
+    "SOO",
+]
+"""list: Abbreviations for the AR6 regions as defined in Iturbide et al (2020)
+"""
+
 
 def get_magicc_region_to_openscm_region_mapping(inverse=False):
     """Get the mappings from MAGICC to OpenSCM regions.
@@ -163,6 +226,9 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         if (openscm_region in replacements.values()) and inverse:
             continue
         replacements[magicc_region] = openscm_region
+
+    for region in AR6_REGION_ABBREVIATIONS:
+        replacements["AR6-" + region] = "World|AR6 regions|" + region
 
     if inverse:
         return {v: k for k, v in replacements.items()}
