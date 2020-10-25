@@ -53,7 +53,7 @@ REQUIREMENTS_NOTEBOOKS = [
     "ipywidgets",
     "appmode",
     "seaborn",
-    "pyam-iamc>=0.3.0",
+    "pyam-iamc>=0.3.0,<0.8.0",
 ]
 REQUIREMENTS_TESTS = [
     "nbval",
