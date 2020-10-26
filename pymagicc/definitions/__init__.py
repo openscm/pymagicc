@@ -136,7 +136,7 @@ AR6_REGION_ABBREVIATIONS = [
     "SIO",
     "SOO",
 ]
-"""list: Abbreviations for the AR6 regions as defined in Iturbide et al (2020)
+"""list: Abbreviations for the AR6 regions as defined in `Iturbide et al (2020) <https://doi.org/10.5194/essd-2019-258>`_
 """
 
 
