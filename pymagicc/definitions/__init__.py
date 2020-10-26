@@ -228,7 +228,7 @@ def get_magicc_region_to_openscm_region_mapping(inverse=False):
         replacements[magicc_region] = openscm_region
 
     for region in AR6_REGION_ABBREVIATIONS:
-        replacements["AR6-" + region] = "World|AR6 regions|" + region
+        replacements["AR6-" + region] = "World|AR6|" + region
 
     if inverse:
         return {v: k for k, v in replacements.items()}
