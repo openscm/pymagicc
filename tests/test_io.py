@@ -3722,6 +3722,34 @@ def test_mag_writer(temp_dir, writing_base_mag):
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 130
 
 
+def test_mag_writer_ar6_region(temp_dir, writing_base_mag):
+    file_to_write = join(temp_dir, "TEST_AR6_LINK.MAG")
+    region_map = {
+        "World": "World",
+        "World|Northern Hemisphere": "World|AR6|ARO",
+        "World|Southern Hemisphere": "World|AR6|NEN",
+        "World|Land": "World|Land",
+        "World|Ocean": "World|Ocean",
+    }
+    writing_base_mag["region"] = writing_base_mag["region"].map(region_map)
+    writing_base_mag.filter(year=2100, keep=False).write(
+        file_to_write, magicc_version=7
+    )
+
+    with open(file_to_write) as f:
+        content = f.read()
+
+    assert (
+        "For more information on the AR6 regions (including mapping the "
+        "abbrevations to their full names), see: "
+        "https://github.com/SantanderMetGroup/ATLAS/tree/master/reference-regions, "
+        "specifically https://github.com/SantanderMetGroup/ATLAS/blob/master/reference-regions/IPCC-WGI-reference-regions-v4_coordinates.csv "
+        "(paper is at https://doi.org/10.5194/essd-2019-258)"
+    )
+    assert "AR6-NZ" in content
+    assert "AR6-NEN" in content
+
+
 def _alter_to_timeseriestype(inscmdf, timeseriestype):
     if timeseriestype == "POINT_START_YEAR":
         return inscmdf.interpolate(
