@@ -46,6 +46,16 @@ class _MAGWriter(_Writer):
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"), __version__
             )
 
+        if self.minput["region"].str.contains("AR6|").any():
+            ar6_region_info = (
+                "For more information on the AR6 regions (including mapping the "
+                "abbrevations to their full names), see: "
+                "https://github.com/SantanderMetGroup/ATLAS/tree/master/reference-regions, "
+                "specifically https://github.com/SantanderMetGroup/ATLAS/blob/master/reference-regions/IPCC-WGI-reference-regions-v4_coordinates.csv "
+                "(paper is at https://doi.org/10.5194/essd-2019-258)"
+            )
+            header = "\n".join([header, ar6_region_info])
+
         mdata = self.minput.metadata
         sorted_keys = sorted(mdata.keys())
         metadata = "\n".join(

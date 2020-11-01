@@ -3746,7 +3746,8 @@ def test_mag_writer_ar6_region(temp_dir, writing_base_mag):
         "specifically https://github.com/SantanderMetGroup/ATLAS/blob/master/reference-regions/IPCC-WGI-reference-regions-v4_coordinates.csv "
         "(paper is at https://doi.org/10.5194/essd-2019-258)"
     )
-    assert "AR6-NZ" in content
+    assert "World|AR6-ARO" not in content
+    assert "AR6-ARO" in content
     assert "AR6-NEN" in content
 
 
