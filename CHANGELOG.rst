@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#315 <https://github.com/openscm/pymagicc/pull/315>`_) Include links to AR6 region abbreviations if they are written in ``.MAG`` files
 - (`#314 <https://github.com/openscm/pymagicc/pull/314>`_) Add AR6 regions to the list of known regions
 - (`#313 <https://github.com/openscm/pymagicc/pull/313>`_) Add tests for global-only binary files written with ``out_binary_format=2``
 - (`#311 <https://github.com/openscm/pymagicc/pull/311>`_) Fix naming of ocean heat content and ocean heat uptake output variables to match RCMIP conventions
