@@ -3755,7 +3755,17 @@ def test_mag_writer_ar6_region(temp_dir, writing_base_mag, n_writes):
     assert "AR6-ARO" in content
     assert "AR6-NEN" in content
 
-    assert len([l for l in content.split("\n") if "doi.org/10.5194/essd-2019-258" in l]) == 1
+    assert (
+        len(
+            [
+                line
+                for line in content.split("\n")
+                if "doi.org/10.5194/essd-2019-258" in line
+            ]
+        )
+        == 1
+    )
+
 
 def _alter_to_timeseriestype(inscmdf, timeseriestype):
     if timeseriestype == "POINT_START_YEAR":
