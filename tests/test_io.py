@@ -3722,7 +3722,8 @@ def test_mag_writer(temp_dir, writing_base_mag):
     assert res.filter(region="World", year=2101, month=3).values.squeeze() == 130
 
 
-def test_mag_writer_ar6_region(temp_dir, writing_base_mag):
+@pytest.mark.parametrize("n_writes", [1, 2])
+def test_mag_writer_ar6_region(temp_dir, writing_base_mag, n_writes):
     file_to_write = join(temp_dir, "TEST_AR6_LINK.MAG")
     region_map = {
         "World": "World",
@@ -3735,6 +3736,10 @@ def test_mag_writer_ar6_region(temp_dir, writing_base_mag):
     writing_base_mag.filter(year=2100, keep=False).write(
         file_to_write, magicc_version=7
     )
+
+    for _ in range(1, n_writes):
+        read = MAGICCData(file_to_write)
+        read.write(file_to_write, magicc_version=7)
 
     with open(file_to_write) as f:
         content = f.read()
@@ -3750,6 +3755,7 @@ def test_mag_writer_ar6_region(temp_dir, writing_base_mag):
     assert "AR6-ARO" in content
     assert "AR6-NEN" in content
 
+    assert len([l for l in content.split("\n") if "doi.org/10.5194/essd-2019-258" in l]) == 1
 
 def _alter_to_timeseriestype(inscmdf, timeseriestype):
     if timeseriestype == "POINT_START_YEAR":
