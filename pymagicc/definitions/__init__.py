@@ -325,7 +325,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             raise ValueError("This shouldn't happen")
 
         variable = in_var.split("_")[0]
-        # I hate edge cases
+
         if variable.endswith("EQ"):
             variable = variable.replace("EQ", " Equivalent")
 
@@ -337,7 +337,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
 
         aggregate_indicators = {
             "KYOTO": "Kyoto Gases",
-            "FGASSUM": "F Gases",
+            "FGASSUM": "F-Gases",
             "MHALOSUM": "Montreal Protocol Halogen Gases",
         }
         for agg_indicator, long_name in aggregate_indicators.items():
@@ -480,9 +480,11 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     replacements.update(
         {
             "HEATCONTENT_AGGREG_TOTAL": agg_ocean_heat_top,
-            "HEAT_EARTH": "Heat Content",
-            "HEAT_NONOCEAN": "Heat Content|Non-Ocean",
             "HEATUPTK_AGGREG": "Heat Uptake|Ocean",
+            "HEAT_EARTH": "Heat Content",
+            "HEATUPTK_EARTH": "Heat Uptake",
+            "HEAT_NONOCEAN": "Heat Content|Non-Ocean",
+            "DELTA_HEAT_NONOCEAN": "Heat Uptake|Non-Ocean",
         }
     )
 
@@ -495,7 +497,25 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
     replacements.update(ocean_temp_layer)
 
     if inverse:
-        return {v: k for k, v in replacements.items()}
+        replacements = {v: k for k, v in replacements.items()}
+
+        # these variables need a specific inverse conversion, different
+        # to going the other way
+        total_erf_variables = [
+            "BC",
+            "OC",
+            "SOX",
+        ]
+        suffixes = ["RF", "ERF"]
+
+        one_way_replacements = {}
+        for k, v in replacements.items():
+            toks = v.split("_")
+            if toks[0] in total_erf_variables and toks[1] in suffixes:
+                one_way_replacements[
+                    k
+                ] = "{}T_{}".format(toks[0], "_".join(toks[1:]))
+
     else:
         # these come from MAGICC's output
         one_way_replacements = {
@@ -519,8 +539,10 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
                 one_way_replacements[
                     "{}T_{}".format(toks[0], "_".join(toks[1:]))
                 ] = replacements[k]
-        replacements.update(one_way_replacements)
-        return replacements
+
+    replacements.update(one_way_replacements)
+
+    return replacements
 
 
 MAGICC7_TO_OPENSCM_VARIABLES_MAPPING = get_magicc7_to_openscm_variable_mapping()
