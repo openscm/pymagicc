@@ -200,6 +200,7 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         # ("CH4CLATHRATE_EMIS", "Emissions|CH4|???")
         ("CH4_ERF", "Effective Radiative Forcing|CH4"),
         ("GHG_ERF", "Effective Radiative Forcing|Greenhouse Gases"),
+        ("FGASSUM_ERF", "Effective Radiative Forcing|F-Gases"),
         ("TOTAL_ANTHRO_ERF", "Effective Radiative Forcing|Anthropogenic"),
         ("TOTAER_DIR_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect"),
         ("CLOUD_TOT_ERF", "Effective Radiative Forcing|Aerosols|Indirect Effect"),
@@ -230,12 +231,36 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
             "Effective Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
         ),
         (
+            "OCT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
+        ),
+        (
+            "OC_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
+        ),
+        (
             "BCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
         ),
         (
+            "BCT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
+        ),
+        (
+            "BC_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
+        ),
+        (
             "SOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
+        ),
+        (
+            "SOXT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
+        ),
+        (
+            "SOX_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
         ),
         (
             "NOXI_ERF",
@@ -253,7 +278,9 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("NOX_EMIS", "Emissions|NOx"),
         ("NOXT_EMIS", "Emissions|NOx"),
         ("HEAT_EARTH", "Heat Content"),
+        ("HEATUPTK_EARTH", "Heat Uptake"),
         ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
+        ("DELTA_HEAT_NONOCEAN", "Heat Uptake|Non-Ocean"),
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
         ("SURFACE_MIXEDLAYERTEMP", "Surface Air Ocean Blended Temperature Change"),
@@ -292,6 +319,7 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("AIR_H2O_RF", "Radiative Forcing|Aviation|H2O"),
         ("CH4_ERF", "Effective Radiative Forcing|CH4"),
         ("GHG_ERF", "Effective Radiative Forcing|Greenhouse Gases"),
+        ("FGASSUM_ERF", "Effective Radiative Forcing|F-Gases"),
         ("TOTAL_ANTHRO_ERF", "Effective Radiative Forcing|Anthropogenic"),
         ("TOTAER_DIR_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect"),
         ("CLOUD_TOT_ERF", "Effective Radiative Forcing|Aerosols|Indirect Effect"),
@@ -322,12 +350,24 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
             "Effective Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
         ),
         (
+            "OCT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
+        ),
+        (
             "BCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
         ),
         (
+            "BCT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
+        ),
+        (
             "SOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
+        ),
+        (
+            "SOXT_ERF",
+            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
         ),
         (
             "NOXI_ERF",
@@ -342,7 +382,9 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CH4_EFFRF", "CH4_EFFRF"),
         ("SLR_TOT", "Sea Level Rise"),
         ("HEAT_EARTH", "Heat Content"),
+        ("HEATUPTK_EARTH", "Heat Uptake"),
         ("HEAT_NONOCEAN", "Heat Content|Non-Ocean"),
+        ("DELTA_HEAT_NONOCEAN", "Heat Uptake|Non-Ocean"),
         ("HEATCONTENT_AGGREG_TOTAL", "Heat Content|Ocean"),
         ("HEATUPTK_AGGREG", "Heat Uptake|Ocean"),
         ("SURFACE_MIXEDLAYERTEMP", "Surface Air Ocean Blended Temperature Change"),
