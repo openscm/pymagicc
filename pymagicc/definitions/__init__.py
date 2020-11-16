@@ -484,7 +484,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             "HEAT_EARTH": "Heat Content",
             "HEATUPTK_EARTH": "Heat Uptake",
             "HEAT_NONOCEAN": "Heat Content|Non-Ocean",
-            "DELTA_HEAT_NONOCEAN": "Heat Uptake|Non-Ocean",
+            "HEATUPTK_NONOCEAN": "Heat Uptake|Non-Ocean",
         }
     )
 
