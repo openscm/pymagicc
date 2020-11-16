@@ -230,38 +230,20 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
             "OCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
         ),
-        (
-            "OCT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
-        ),
-        (
-            "OC_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
-        ),
+        ("OCT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|OC",),
+        ("OC_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|OC",),
         (
             "BCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
         ),
-        (
-            "BCT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
-        ),
-        (
-            "BC_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
-        ),
+        ("BCT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|BC",),
+        ("BC_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|BC",),
         (
             "SOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
         ),
-        (
-            "SOXT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
-        ),
-        (
-            "SOX_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
-        ),
+        ("SOXT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",),
+        ("SOX_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",),
         (
             "NOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",
@@ -349,26 +331,17 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
             "OCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|OC|MAGICC Fossil and Industrial",
         ),
-        (
-            "OCT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|OC",
-        ),
+        ("OCT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|OC",),
         (
             "BCI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|BC|MAGICC Fossil and Industrial",
         ),
-        (
-            "BCT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|BC",
-        ),
+        ("BCT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|BC",),
         (
             "SOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|SOx|MAGICC Fossil and Industrial",
         ),
-        (
-            "SOXT_ERF",
-            "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",
-        ),
+        ("SOXT_ERF", "Effective Radiative Forcing|Aerosols|Direct Effect|SOx",),
         (
             "NOXI_ERF",
             "Effective Radiative Forcing|Aerosols|Direct Effect|NOx|MAGICC Fossil and Industrial",

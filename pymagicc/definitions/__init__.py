@@ -512,9 +512,7 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
         for k, v in replacements.items():
             toks = v.split("_")
             if toks[0] in total_erf_variables and toks[1] in suffixes:
-                one_way_replacements[
-                    k
-                ] = "{}T_{}".format(toks[0], "_".join(toks[1:]))
+                one_way_replacements[k] = "{}T_{}".format(toks[0], "_".join(toks[1:]))
 
     else:
         # these come from MAGICC's output
