@@ -1684,7 +1684,7 @@ def test_load_rcp_historical_dat_concentrations():
     assert_mdata_value(
         mdata,
         126.7694,
-        variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
+        variable="Atmospheric Concentrations|HFC134a Equivalent|F-Gases",
         region="World",
         year=2005,
         unit="ppt",
@@ -1836,7 +1836,7 @@ def test_load_rcp_projections_dat_concentrations():
     assert_mdata_value(
         mdata,
         900.02269,
-        variable="Atmospheric Concentrations|HFC134a Equivalent|F Gases",
+        variable="Atmospheric Concentrations|HFC134a Equivalent|F-Gases",
         region="World",
         year=2500,
         unit="ppt",
@@ -1932,7 +1932,7 @@ def test_load_rcp_projections_dat_forcings():
     assert_mdata_value(
         mdata,
         0,
-        variable="Radiative Forcing|F Gases",
+        variable="Radiative Forcing|F-Gases",
         region="World",
         year=1766,
         # unit="W / m^2"
