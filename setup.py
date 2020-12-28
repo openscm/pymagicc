@@ -23,7 +23,7 @@ PACKAGE_NAME = "pymagicc"
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
 KEYWORDS = ["simple climate model MAGICC python"]
 AUTHORS = [
-    ("Robert Gieseke", "robert.gieseke@pik-potsdam.de"),
+    ("Robert Gieseke", "rob.g@web.de"),
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
     ("Jared Lewis", "jared.lewis@climate-energy-college.org"),
 ]
@@ -42,6 +42,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
 ]
 REQUIREMENTS_INSTALL = [
+    "pandas<1.2",
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
