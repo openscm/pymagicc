@@ -125,8 +125,7 @@ Basic Usage
 .. sec-end-example-plot
 
 For more example usage see this `Jupyter Notebook <https://github.com/openscm/pymagicc/blob/master/notebooks/Example.ipynb>`_.
-Thanks to the `Binder project <https://mybinder.org>`_ the `Notebook <https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb>`_ can be run and modified without installing anything locally. A small interactive `demo app <https://mybinder.org/v2/gh/openscm/pymagicc/master?urlpath=apps/notebooks/Demo.ipynb>`_ using Jupyter Notebook's `appmode extension <https://github.com/oschuett/appmode/>`_
-is also available.
+Thanks to the `Binder project <https://mybinder.org>`_ the `Notebook <https://mybinder.org/v2/gh/openscm/pymagicc/master?filepath=notebooks/Example.ipynb>`_ can be run and modified without installing anything locally.
 
 .. sec-end-usage
 .. sec-begin-installation
@@ -335,7 +334,7 @@ Please report issues or discuss feature requests on Pymagicc's
 `issue tracker <https://github.com/openscm/pymagicc/issues>`_.
 
 You can also contact the `pymagicc` authors via email:
-`<mailto:robert.gieseke@pik-potsdam.de, zebedee.nicholls@climate-energy-college.org>`_
+`<mailto:rob.g@web.de, zebedee.nicholls@climate-energy-college.org>`_
 
 .. sec-end-contributing
 

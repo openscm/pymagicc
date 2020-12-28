@@ -80,9 +80,6 @@ $(VENV_DIR): setup.py
 	$(VENV_DIR)/bin/pip install --upgrade pip wheel
 	$(VENV_DIR)/bin/pip install -e .[dev] --use-feature=2020-resolver
 
-	$(VENV_DIR)/bin/jupyter serverextension enable --py --sys-prefix appmode
-	$(VENV_DIR)/bin/jupyter nbextension     enable --py --sys-prefix appmode
-	$(VENV_DIR)/bin/jupyter nbextension enable --py widgetsnbextension
 
 	touch $(VENV_DIR)
 

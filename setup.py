@@ -50,8 +50,6 @@ REQUIREMENTS_INSTALL = [
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
     "expectexception",
-    "ipywidgets",
-    "appmode",
     "seaborn",
     "pyam-iamc>=0.3.0,<0.8.0",
 ]
