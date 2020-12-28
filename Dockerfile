@@ -1,6 +1,6 @@
-FROM jupyter/scipy-notebook:281505737f8a
+FROM jupyter/scipy-notebook:d113a601dbb8
 
-MAINTAINER Robert Gieseke <robert.gieseke@pik-potsdam.de>
+MAINTAINER Robert Gieseke <rob.g@web.de>
 
 USER root
 
@@ -10,11 +10,7 @@ RUN apt-get update && \
     apt-get install -y wine && \
     apt-get clean
 RUN pip install pip --upgrade
-RUN pip install ipywidgets appmode
-RUN jupyter nbextension enable --py --sys-prefix widgetsnbextension
-RUN jupyter nbextension     enable --py --sys-prefix appmode
-RUN jupyter serverextension enable --py --sys-prefix appmode
-RUN pip install pymagicc
+RUN pip install pymagicc --pre
 
 COPY . ${HOME}
 USER root
