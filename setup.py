@@ -42,11 +42,10 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
 ]
 REQUIREMENTS_INSTALL = [
-    "pandas<1.2",
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    "scmdata>=0.6.3",
+    "scmdata>=0.7.5",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
