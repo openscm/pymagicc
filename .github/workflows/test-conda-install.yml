@@ -1,8 +1,8 @@
 name: Test conda install
-on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '0 0 * * 3'
+on: push
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   - cron:  '0 0 * * 3'
 
 jobs:
   test-installation:
@@ -15,7 +15,7 @@ jobs:
 
     steps:
     - name: Setup conda
-      uses: goanpeca/setup-miniconda@v1
+      uses: conda-incubator/setup-miniconda@v2.0.1
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
