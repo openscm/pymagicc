@@ -944,9 +944,8 @@ def test_update_config_conflicting_keys_error(package):
         "The following configuration keys clash because configs are case "
         "insensitive: ['core_climatesensitivity', 'CORE_CLIMATESENSITIVITY']"
     )
-    with pytest.raises(ValueError):
-        package.update_config(
-            core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=3)
+    with pytest.raises(ValueError, match=error_msg):
+        package.update_config(core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=3)
 
 
 def test_set_config_conflicting_keys_error(package):
@@ -954,9 +953,8 @@ def test_set_config_conflicting_keys_error(package):
         "The following configuration keys clash because configs are case "
         "insensitive: ['core_climatesensitivity', 'CORE_CLIMATESENSITIVITY']"
     )
-    with pytest.raises(ValueError):
-        package.set_config(
-            core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=2)
+    with pytest.raises(ValueError, match=error_msg):
+        package.set_config(core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=2)
 
 
 def test_ascii_output(package):
