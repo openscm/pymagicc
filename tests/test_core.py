@@ -287,6 +287,22 @@ def test_run_success_update_config(package):
     assert len(package.config.keys()) != 0
 
 
+def test_run_ambiguous_config(package):
+    error_msg = re.escape(
+        "The following configuration keys clash because configs are case "
+        "insensitive: ['pf_apply', 'PF_APPLY'], "
+        "['OUT_TempERATURE', 'out_temperature']"
+    )
+    with pytest.raises(ValueError, match=error_msg):
+        package.run(
+            pf_apply=1,
+            PF_APPLY=0,
+            OUT_TempERATURE=0,
+            out_temperature=1,
+            out_forcing=1,
+        )
+
+
 def test_run_only(package):
     write_config(package)
     results = package.run(only=["Surface Temperature"])
