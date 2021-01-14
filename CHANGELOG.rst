@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#322 <https://github.com/openscm/pymagicc/pull/322>`_) Change to 3-Clause BSD License
 - (`#321 <https://github.com/openscm/pymagicc/pull/321>`_) Raise :obj:`ValueError` if we attempt to run MAGICC with conflicting config keys (which can occur because FORTRAN is not case sensitive)
 - (`#317 <https://github.com/openscm/pymagicc/pull/317>`_) Add support for more MAGICC7 output variables
 - (`#315 <https://github.com/openscm/pymagicc/pull/315>`_) Include links to AR6 region abbreviations if they are written in ``.MAG`` files
