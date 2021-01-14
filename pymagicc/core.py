@@ -1,6 +1,7 @@
 import shutil
 import subprocess  # nosec # have to use subprocess
 import warnings
+from collections import Counter
 from copy import deepcopy
 from os import listdir, makedirs
 from os.path import abspath, basename, dirname, exists, isfile, join
@@ -594,7 +595,7 @@ class MAGICCBase(object):
         ValueError
             An invalid value for ``conflict`` is supplied
         """
-        kwargs = self._format_config(kwargs)
+        kwargs = self._check_and_format_config(kwargs)
 
         fname = join(self.run_dir, filename)
         conf = {top_level_key: kwargs}
@@ -647,7 +648,7 @@ class MAGICCBase(object):
         ValueError
             An invalid value for ``conflict`` is supplied
         """
-        kwargs = self._format_config(kwargs)
+        kwargs = self._check_and_format_config(kwargs)
         fname = join(self.run_dir, filename)
 
         if exists(fname):
@@ -865,13 +866,38 @@ class MAGICCBase(object):
             fgas_files_conc=fgas_conc_files,
         )
 
-    def _format_config(self, config_dict):
-        # config_dict = self._fix_any_backwards_emissions_scen_key_in_config(config_dict)
+    def _check_and_format_config(self, config_dict):
+        self._check_for_duplicate_keys(config_dict)
+
         config_dict = self._convert_out_config_flags_to_integers(config_dict)
 
         return config_dict
 
-    def _convert_out_config_flags_to_integers(self, config_dict):
+    @staticmethod
+    def _check_for_duplicate_keys(config_dict):
+        keys_lower = [v.lower() for v in config_dict.keys()]
+        counts = Counter(keys_lower)
+        if any([v > 1 for v in counts.values()]):
+            duplicate_keys = [
+                [
+                    ck for ck in config_dict.keys()
+                    if ck.lower() == k.lower()
+                ]
+                for k, v in counts.items()
+                if v > 1
+            ]
+
+            error_msg = (
+                "The following configuration keys clash because configs are "
+                "case insensitive: {}".format(
+                    ", ".join([str(v) for v in duplicate_keys])
+                )
+            )
+
+            raise ValueError(error_msg)
+
+    @staticmethod
+    def _convert_out_config_flags_to_integers(config_dict):
         valid_out_flags = [
             "out_emissions",
             "out_gwpemissions",
