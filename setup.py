@@ -26,6 +26,8 @@ AUTHORS = [
     ("Robert Gieseke", "rob.g@web.de"),
     ("Zeb Nicholls", "zebedee.nicholls@climate-energy-college.org"),
     ("Jared Lewis", "jared.lewis@climate-energy-college.org"),
+    ("Sven Willner", "sven.willner@pik-potsdam.de"),
+    ("Matthias Mengel", "matthias.mengel@pik-potsdam.de"),
 ]
 URL = "https://github.com/openscm/pymagicc"
 PROJECT_URLS = {
@@ -33,11 +35,11 @@ PROJECT_URLS = {
     "Documentation": "https://pymagicc.readthedocs.io/en/latest",
     "Source": "https://github.com/openscm/pymagicc",
 }
-LICENSE = "GNU Affero General Public License v3"
+LICENSE = "3-Clause BSD License"
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",

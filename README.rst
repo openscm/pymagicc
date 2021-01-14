@@ -350,8 +350,7 @@ See also the `MAGICC website <http://magicc.org/>`_ and
 `Wiki <http://wiki.magicc.org/index.php?title=Main_Page>`_
 for further information.
 
-The ``pymagicc`` wrapper is free software under the GNU Affero General Public
-License v3, see `LICENSE <./LICENSE>`_.
+The ``pymagicc`` wrapper is free software. For license details, see `LICENSE <./LICENSE>`_.
 
 Citation
 --------
