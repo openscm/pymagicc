@@ -4,6 +4,7 @@ Changelog
 master
 ------
 
+- (`#321 <https://github.com/openscm/pymagicc/pull/321>`_) Raise :obj:`ValueError` if we attempt to run MAGICC with conflicting config keys (which can occur because FORTRAN is not case sensitive)
 - (`#317 <https://github.com/openscm/pymagicc/pull/317>`_) Add support for more MAGICC7 output variables
 - (`#315 <https://github.com/openscm/pymagicc/pull/315>`_) Include links to AR6 region abbreviations if they are written in ``.MAG`` files
 - (`#314 <https://github.com/openscm/pymagicc/pull/314>`_) Add AR6 regions to the list of known regions
