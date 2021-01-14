@@ -879,10 +879,7 @@ class MAGICCBase(object):
         counts = Counter(keys_lower)
         if any([v > 1 for v in counts.values()]):
             duplicate_keys = [
-                [
-                    ck for ck in config_dict.keys()
-                    if ck.lower() == k.lower()
-                ]
+                [ck for ck in config_dict.keys() if ck.lower() == k.lower()]
                 for k, v in counts.items()
                 if v > 1
             ]
