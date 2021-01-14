@@ -939,6 +939,26 @@ def test_updates_namelist_missing(package):
     assert "test_value" in updated_conf["nml_allcfgs"]
 
 
+def test_update_config_conflicting_keys_error(package):
+    error_msg = re.escape(
+        "The following configuration keys clash because configs are case "
+        "insensitive: ['core_climatesensitivity', 'CORE_CLIMATESENSITIVITY']"
+    )
+    with pytest.raises(ValueError):
+        package.update_config(
+            core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=3)
+
+
+def test_set_config_conflicting_keys_error(package):
+    error_msg = re.escape(
+        "The following configuration keys clash because configs are case "
+        "insensitive: ['core_climatesensitivity', 'CORE_CLIMATESENSITIVITY']"
+    )
+    with pytest.raises(ValueError):
+        package.set_config(
+            core_climatesensitivity=3, CORE_CLIMATESENSITIVITY=2)
+
+
 def test_ascii_output(package):
     fname = join(package.run_dir, "MAGTUNE_PYMAGICC.CFG")
 
