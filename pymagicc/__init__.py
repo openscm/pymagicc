@@ -1,6 +1,11 @@
 # Copyright (c) 2017 pymagicc authors:
-#   Robert Gieseke <robert.gieseke@pik-potsdam.de>
-# Free software under GNU Affero General Public License v3, see LICENSE
+#   - Robert Gieseke <robert.gieseke@pik-potsdam.de>
+#   - Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
+#   - Jared Lewis <jared.lewis@climate-energy-college.org>
+#   - Sven Willner <sven.willner@pik-potsdam.de>
+#   - Matthias Mengel <matthias.mengel@pik-potsdam.de>
+#
+# Free software. For license details, see LICENSE.
 #
 # The compiled MAGICC binary (http://www.magicc.org/download6) by Tom Wigley,
 # Sarah Raper, and Malte Meinshausen included in this package is licensed under
