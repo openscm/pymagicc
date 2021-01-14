@@ -295,11 +295,7 @@ def test_run_ambiguous_config(package):
     )
     with pytest.raises(ValueError, match=error_msg):
         package.run(
-            pf_apply=1,
-            PF_APPLY=0,
-            OUT_TempERATURE=0,
-            out_temperature=1,
-            out_forcing=1,
+            pf_apply=1, PF_APPLY=0, OUT_TempERATURE=0, out_temperature=1, out_forcing=1,
         )
 
 
