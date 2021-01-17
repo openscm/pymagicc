@@ -18,7 +18,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dev dependencies
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip wheel
         pip install -e .[dev] --use-feature=2020-resolver
     # TODO: add `pylint pymagicc`
     # TODO: add pydocstyle pymagicc
@@ -89,7 +89,7 @@ jobs:
 
     - name: Install test dependencies
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip wheel
         pip install -e .[tests] --use-feature=2020-resolver
 
 
@@ -160,7 +160,7 @@ jobs:
 
     - name: Install notebook dependencies
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip wheel
         pip install -e .[tests,notebooks] --use-feature=2020-resolver
     - name: Test notebooks with nbval
       if: startsWith(runner.os, 'Linux')
@@ -189,7 +189,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --upgrade pip
+        pip install --upgrade pip wheel
         pip install -e .[dev] --use-feature=2020-resolver
     - name: Create package
       run: python setup.py sdist bdist_wheel --universal
