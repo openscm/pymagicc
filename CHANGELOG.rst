@@ -3,7 +3,7 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
-The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_, and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
+The format is based on `Keep a Changelog`_, and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
 The changes listed in this file are categorised as follows:
 
@@ -72,6 +72,7 @@ Added
 Changed
 ~~~~~~~
 
+- (`#322 <https://github.com/openscm/pymagicc/pull/322>`_) Re-write CHANGELOG to follow `Keep a Changelog`_ style
 - (`#322 <https://github.com/openscm/pymagicc/pull/322>`_) Change to 3-Clause BSD License
 - (`#321 <https://github.com/openscm/pymagicc/pull/321>`_) Raise :obj:`ValueError` if we attempt to run MAGICC with conflicting config keys (which can occur because FORTRAN is not case sensitive)
 - (`#311 <https://github.com/openscm/pymagicc/pull/311>`_) Fix naming of ocean heat content and ocean heat uptake output variables to match RCMIP conventions
@@ -171,7 +172,7 @@ Fixed
   - removed ``pymagicc/MAGICC6/run/HISTRCP_HFC245ca_CONC.IN`` to avoid repeating this confusion
   - ensured that anyone who finds a file with "HFC-245ca" in it in future will get a warning, see ``tests/test_definitions.py``
 
-For versions before 2.0 we did not follow the `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_ format.
+For versions before 2.0 we did not follow the `Keep a Changelog`_ style.
 The notes made whilst developing versions <2.0 are included below for posterity.
 
 1.3.2
@@ -266,3 +267,6 @@ The notes made whilst developing versions <2.0 are included below for posterity.
 ---
 
 Initial release.
+
+
+.. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
