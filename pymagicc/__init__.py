@@ -1,16 +1,3 @@
-# Copyright (c) 2017 pymagicc authors:
-#   - Robert Gieseke <robert.gieseke@pik-potsdam.de>
-#   - Zeb Nicholls <zebedee.nicholls@climate-energy-college.org>
-#   - Jared Lewis <jared.lewis@climate-energy-college.org>
-#   - Sven Willner <sven.willner@pik-potsdam.de>
-#   - Matthias Mengel <matthias.mengel@pik-potsdam.de>
-#
-# Free software. For license details, see LICENSE.
-#
-# The compiled MAGICC binary (http://www.magicc.org/download6) by Tom Wigley,
-# Sarah Raper, and Malte Meinshausen included in this package is licensed under
-# a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported
-# License (https://creativecommons.org/licenses/by-nc-sa/3.0/)
 from ._version import get_versions
 from .core import MAGICC6, MAGICC7  # noqa
 from .io import MAGICCData  # noqa
