@@ -68,6 +68,7 @@ REQUIREMENTS_TESTS = [
     "codecov",
     "goodtables",
     "scipy",
+    "seaborn",
 ]
 REQUIREMENTS_DOCS = [
     "sphinx>2.1",
