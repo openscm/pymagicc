@@ -255,9 +255,7 @@ class _PrnWriter(_Writer):
         return unit
 
     def _get_data_block(self):
-        data_block = self.minput.timeseries(
-            meta=["variable", "todo", "unit", "region"]
-        ).T
+        data_block = self._get_timeseries_no_nans()
         self._check_data_block_column_names(data_block)
 
         regions = data_block.columns.get_level_values("region").unique()

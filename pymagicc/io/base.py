@@ -743,10 +743,19 @@ class _Writer(object):
         # no checks required except for certain cases
         return regions
 
-    def _get_data_block(self):
-        data_block = self.minput.timeseries(
+    def _get_timeseries_no_nans(self):
+        out = self.minput.timeseries(
             meta=["variable", "todo", "unit", "region"]
-        ).T
+        ).T.dropna(how="all")
+        if out.isnull().any().any():
+            raise AssertionError(
+                "Your timeseries contains nans, running MAGICC will fail"
+            )
+
+        return out
+
+    def _get_data_block(self):
+        data_block = self._get_timeseries_no_nans()
         self._check_data_block_column_names(data_block)
         self._check_data_filename_variable_consistency(data_block)
 
