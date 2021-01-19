@@ -23,7 +23,7 @@ def _get_readme_codeblocks():
                     if not line:
                         codeblock.append(os.linesep)
                     else:
-                        codeblock.append(line[4 : ])
+                        codeblock.append(line[4:])
 
     return codeblocks
 
@@ -33,7 +33,9 @@ def test_readme(codeblock):
     pathway_scen_file = "PATHWAY.SCEN"
     scen_required = pathway_scen_file in codeblock
     if scen_required:
-        shutil.copyfile(os.path.join("tests", "test_data", "WORLD_ONLY.SCEN"), pathway_scen_file)
+        shutil.copyfile(
+            os.path.join("tests", "test_data", "WORLD_ONLY.SCEN"), pathway_scen_file
+        )
 
     try:
         # https://stackoverflow.com/a/62851176/353337
