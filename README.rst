@@ -266,16 +266,16 @@ Use an included scenario
 
 .. code:: python
 
-    from pymagicc import rcp26
+    from pymagicc.scenarios import rcp26
 
-    rcp26.df.head()
+    rcp26.head()
 
 Read a MAGICC scenario file
 ***************************
 
 .. code:: python
 
-    from pymagicc import read_scen_file
+    from pymagicc.scenarios import read_scen_file
 
     scenario = read_scen_file("PATHWAY.SCEN")
 
@@ -284,18 +284,17 @@ Run MAGICC for a scenario
 
 .. code:: python
 
+    import pymagicc
+    from pymagicc.scenarios import read_scen_file
+
+    scenario = read_scen_file("PATHWAY.SCEN")
+
     results = pymagicc.run(scenario)
-    results_df = results.df
-    results_df.set_index("time", inplace=True)
 
-    global_temp_time_rows = (
-        (results_df.variable == "Surface Temperature")
-        & (results_df.region == "World")
-    )
-
-    temp = (
-        results_df.value[global_temp_time_rows].loc[1850:]
-        - results_df.value[global_temp_time_rows].loc[1850:1900].mean()
+    temperature_rel_to_1850_1900 = (
+        results
+        .filter(variable="Surface Temperature")
+        .relative_to_ref_period_mean(year=range(1850, 1900 + 1))
     )
 
 Using a different MAGICC version
