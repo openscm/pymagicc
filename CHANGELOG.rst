@@ -72,6 +72,7 @@ Added
 Changed
 ~~~~~~~
 
+- (`#323 <https://github.com/openscm/pymagicc/pull/323>`_) Writers raise an :obj:`AssertionError` if the user tries to write a MAGICC input file which has timesteps where some values are nan whilst others are not. Such input files would have nans in them hence would cause MAGICC's run to fail.
 - (`#322 <https://github.com/openscm/pymagicc/pull/322>`_) Re-write CHANGELOG to follow `Keep a Changelog`_ style
 - (`#322 <https://github.com/openscm/pymagicc/pull/322>`_) Change to 3-Clause BSD License
 - (`#321 <https://github.com/openscm/pymagicc/pull/321>`_) Raise :obj:`ValueError` if we attempt to run MAGICC with conflicting config keys (which can occur because FORTRAN is not case sensitive)
@@ -153,6 +154,8 @@ Removed
 Fixed
 ~~~~~
 
+- (`#323 <https://github.com/openscm/pymagicc/pull/323>`_) Writers now automatically drop all nan timesteps before writing MAGICC input files
+- (`#323 <https://github.com/openscm/pymagicc/pull/323>`_) ``pymagicc.scenarios.rcps`` now contains all the rcps rather than just rcp26
 - (`#310 <https://github.com/openscm/pymagicc/pull/310>`_) Rename ``pymagicc.io.prn`` to ``pymagicc.io.prn_files`` as PRN is a reserved filename on Windows
 - (`#300 <https://github.com/openscm/pymagicc/pull/300>`_) Fix name in docs (closes `#205 <https://github.com/openscm/pymagicc/issues/205>`_)
 - (`#298 <https://github.com/openscm/pymagicc/pull/298>`_) Make SCEN7 writing work with single variables
