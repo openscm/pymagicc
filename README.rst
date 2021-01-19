@@ -103,7 +103,7 @@ Basic Usage
 
     temperature_rel_to_1850_1900 = (
         results
-        .filter(variable="Surface Temperature")
+        .filter(variable="Surface Temperature", region="World")
         .relative_to_ref_period_mean(year=range(1850, 1900 + 1))
     )
 
