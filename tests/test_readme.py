@@ -1,4 +1,5 @@
 import os
+import shutil
 
 import pytest
 
@@ -29,9 +30,17 @@ def _get_readme_codeblocks():
 
 @pytest.mark.parametrize("codeblock", _get_readme_codeblocks())
 def test_readme(codeblock):
+    pathway_scen_file = "PATHWAY.SCEN"
+    scen_required = pathway_scen_file in codeblock
+    if scen_required:
+        shutil.copyfile(os.path.join("tests", "test_data", "WORLD_ONLY.SCEN"), pathway_scen_file)
+
     try:
         # https://stackoverflow.com/a/62851176/353337
         exec(codeblock, {"__MODULE__": "__main__"})
     except Exception:
         print("Codeblock failed:\n{}".format(codeblock))
         raise
+    finally:
+        if scen_required:
+            os.remove(pathway_scen_file)
