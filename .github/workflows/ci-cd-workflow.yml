@@ -119,7 +119,6 @@ jobs:
           pytest tests -r a
 
     - name: Test scripts (${{ runner.os }})
-      if: startsWith(runner.os, 'Windows')
       run: |
           python scripts/plot_example.py
 
