@@ -46,7 +46,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.8",
 ]
 REQUIREMENTS_INSTALL = [
-    "cftime==1.3.0",
+    "cftime",
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
