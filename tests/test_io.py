@@ -2907,7 +2907,7 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         assert conc_reader._get_variable_from_filepath() == expected_variable
 
 
-@pytest.mark.parametrize(
+ALL_FILE_TYPES = pytest.mark.parametrize(
     "magicc_version, starting_fpath, starting_fname, confusing_metadata, old_namelist",
     [
         (6, MAGICC6_DIR, "HISTRCP_CO2I_EMIS.IN", False, False),
@@ -2953,6 +2953,9 @@ def test_conc_in_reader_get_variable_from_filepath(test_filepath, expected_varia
         (7, TEST_DATA_DIR, "MAG_FORMAT_SAMPLE_TWO.MAG", False, False),
     ],
 )
+
+
+@ALL_FILE_TYPES
 def test_in_file_read_write_functionally_identical(
     magicc_version,
     starting_fpath,
@@ -2991,6 +2994,56 @@ def test_in_file_read_write_functionally_identical(
     pd.testing.assert_frame_equal(
         mi_written.timeseries().sort_index(), mi_initial.timeseries().sort_index()
     )
+
+
+@ALL_FILE_TYPES
+def test_nans_stripped_before_writing(
+    magicc_version,
+    starting_fpath,
+    starting_fname,
+    confusing_metadata,
+    old_namelist,
+    temp_dir,
+):
+    mi_writer = MAGICCData(join(starting_fpath, starting_fname))
+
+    nan_idx = mi_writer.shape[1] // 2
+    nan_timestep = mi_writer["time"].iloc[nan_idx]
+
+    assert nan_timestep in mi_writer["time"].values
+
+    mi_writer.values[:, nan_idx] = np.nan
+
+    mi_writer.write(join(temp_dir, starting_fname), magicc_version=magicc_version)
+
+    mi_written = MAGICCData(join(temp_dir, starting_fname))
+    assert nan_timestep not in mi_written["time"].values
+
+
+@ALL_FILE_TYPES
+def test_raises_if_nans_not_uniform(
+    magicc_version,
+    starting_fpath,
+    starting_fname,
+    confusing_metadata,
+    old_namelist,
+    temp_dir,
+):
+    mi_writer = MAGICCData(join(starting_fpath, starting_fname))
+
+    if mi_writer.shape[0] == 1:
+        pytest.skip("Only one timeseries so can't create mismatch")
+
+    nan_row = mi_writer.shape[0] // 2
+    nan_col = mi_writer.shape[1] // 2
+    mi_writer.values[nan_row, nan_col] = np.nan
+
+    error_msg = re.escape(
+        "Your data contains timesteps where some values are nan whilst others "
+        "are not. This will not work in MAGICC."
+    )
+    with pytest.raises(AssertionError, match=error_msg):
+        mi_writer.write(join(temp_dir, starting_fname), magicc_version=magicc_version)
 
 
 emissions_valid = [

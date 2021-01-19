@@ -749,7 +749,8 @@ class _Writer(object):
         ).T.dropna(how="all")
         if out.isnull().any().any():
             raise AssertionError(
-                "Your timeseries contains nans, running MAGICC will fail"
+                "Your data contains timesteps where some values are nan whilst others "
+                "are not. This will not work in MAGICC."
             )
 
         return out
