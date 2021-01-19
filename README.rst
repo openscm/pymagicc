@@ -91,28 +91,25 @@ Basic Usage
     import matplotlib.pyplot as plt
 
     import pymagicc
-    from pymagicc import scenarios
+    import scmdata
+    from pymagicc import rcps
 
-    for name, scen in scenarios.items():
-        results = pymagicc.run(scen)
-        results_df = results.df
-        results_df.set_index("time", inplace=True)
+    results = []
+    for scen in rcps.groupby("scenario"):
+        results_scen = pymagicc.run(scen)
+        results.append(results_scen)
 
-        global_temp_time_rows = (
-            (results_df.variable == "Surface Temperature")
-            & (results_df.region == "World")
-        )
+    results = scmdata.run_append(results)
 
-        temp = (
-            results_df.value[global_temp_time_rows].loc[1850:]
-            - results_df.value[global_temp_time_rows].loc[1850:1900].mean()
-        )
-        temp.plot(label=name)
+    temperature_rel_to_1850_1900 = (
+        results
+        .filter(variable="Surface Temperature")
+        .relative_to_ref_period_mean(year=range(1850, 1900 + 1))
+    )
 
-    plt.legend()
+    temperature_rel_to_1850_1900.lineplot()
     plt.title("Global Mean Temperature Projection")
     plt.ylabel("°C over pre-industrial (1850-1900 mean)");
-    plt.legend(loc="best")
     # Run `plt.show()` to display the plot when running this example
     # interactively or add `%matplotlib inline` on top when in a Jupyter Notebook.
 

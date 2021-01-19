@@ -62,7 +62,7 @@ rcp85 = read_scen_file(
 
 rcps = deepcopy(rcp26)
 for rcp in [rcp45, rcp60, rcp85]:
-    rcps.append(rcp)
+    rcps = rcps.append(rcp)
 
 zero_emissions = MAGICCData(
     join(dirname(abspath(__file__)), "RCP3PD_EMISSIONS.DAT"),
