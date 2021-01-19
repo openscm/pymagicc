@@ -118,6 +118,11 @@ jobs:
       run: |
           pytest tests -r a
 
+    - name: Test scripts (${{ runner.os }})
+      if: startsWith(runner.os, 'Windows')
+      run: |
+          python scripts/plot_example.py
+
 
     - name: Upload coverage to Codecov
       if: startsWith(runner.os, 'Linux') && ${{ matrix.python-version }} == 3.7
