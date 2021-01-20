@@ -127,7 +127,7 @@ test-pypi-install: $(VENV_DIR)  ## test installation from PyPI
 	$(eval TEMPVENV := $(shell mktemp -d))
 	python3 -m venv $(TEMPVENV)
 	$(TEMPVENV)/bin/pip install pip --upgrade
-	$(TEMPVENV)/bin/pip install pymagicc --pre --use-feature=2020-resolver
+	$(TEMPVENV)/bin/pip install pymagicc --pre
 	$(TEMPVENV)/bin/python scripts/test_install.py
 
 docs: $(VENV_DIR) docs/*.rst $(shell find ./pymagicc/ -type f -name '*.py')  ## make the docs
