@@ -1636,7 +1636,7 @@ def test_stderr_warning_raises_warning(mocker, level, raises):
 def test_empty_output(package):
     package.strict = False
     package.set_output_variables()
-    
+
     if package.version == 7:
         res = package.run(out_dynamic_vars=[""])
     else:
