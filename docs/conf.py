@@ -196,3 +196,9 @@ intersphinx_mapping = {
 napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 set_type_checking_flag = False
+
+# -- Misc configuration -------------------------------------------------
+
+rst_epilog = """
+.. |CO2| replace:: CO\ :sub:`2`\
+"""
