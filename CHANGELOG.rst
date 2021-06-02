@@ -17,6 +17,11 @@ The changes listed in this file are categorised as follows:
 master
 ------
 
+Added
+~~~~~
+
+- (`#317 <https://github.com/openscm/pymagicc/pull/317>`_) Support for ozone (effective) radiative forcing output
+
 v2.0.0 - 2021-01-20
 -------------------
 
