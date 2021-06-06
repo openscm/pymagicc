@@ -175,10 +175,10 @@ def test_ch4_co2_n2o(variable, prefix, suffix):
         ("EXTRA_RF", "Radiative Forcing|Extra"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
         ("CO2_EMIS", "Emissions|CO2"),
-        ("CH4_EMIS", "Emissions|CH4"),
-        ("N2O_EMIS", "Emissions|N2O"),
         ("CO2T_EMIS", "Emissions|CO2"),
+        ("CH4_EMIS", "Emissions|CH4"),
         ("CH4T_EMIS", "Emissions|CH4"),
+        ("N2O_EMIS", "Emissions|N2O"),
         ("N2OT_EMIS", "Emissions|N2O"),
         (
             "CO2PF_EMIS",
@@ -284,9 +284,10 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CO2I_EMIS", "Emissions|CO2|MAGICC Fossil and Industrial"),
         ("CH3CCL3_EMIS", "Emissions|CH3CCl3"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
-        ("CO2_EMIS", "Emissions|CO2"),
-        ("CH4_EMIS", "Emissions|CH4"),
-        ("N2O_EMIS", "Emissions|N2O"),
+        # in reverse, get back *T_EMIS so MAGICC doesn't explode
+        ("CO2T_EMIS", "Emissions|CO2"),
+        ("CH4T_EMIS", "Emissions|CH4"),
+        ("N2OT_EMIS", "Emissions|N2O"),
         (
             "CO2PF_EMIS",
             "Net Land to Atmosphere Flux|CO2|Earth System Feedbacks|Permafrost",
