@@ -73,6 +73,7 @@ def get_special_scen_code(regions, emissions):
     ----------
     region : list_like
         Regions to get code for.
+
     emissions : list-like
         Emissions to get code for.
 
@@ -261,7 +262,7 @@ class _ScenWriter(_Writer):
 
         variables = self._get_df_header_row("variable")
         variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
-        variables = [v.replace("_EMIS", "") for v in variables]
+        variables = [v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables]
 
         regions = self._get_df_header_row("region")
         regions = convert_magicc_to_openscm_regions(regions, inverse=True)
@@ -345,7 +346,7 @@ class _ScenWriter(_Writer):
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        variables = [v.replace("_EMIS", "") for v in variables]
+        variables = [v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables]
 
         special_scen_code = get_special_scen_code(
             regions=region_order_magicc, emissions=variables
@@ -366,7 +367,10 @@ class _ScenWriter(_Writer):
             variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
-                levels=[v.replace("_EMIS", "") for v in variables], level="variable",
+                levels=[
+                    v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables
+                ],
+                level="variable",
             )
 
             region_block = region_block.reindex(
