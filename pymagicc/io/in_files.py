@@ -109,4 +109,4 @@ class _HistEmisInWriter(_Writer):
 
     def _get_df_header_row(self, col_name):
         hr = super()._get_df_header_row(col_name)
-        return [v.replace("_EMIS", "") for v in hr]
+        return [v.replace("T_EMIS", "").replace("_EMIS", "") for v in hr]
