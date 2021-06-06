@@ -521,7 +521,6 @@ def get_magicc7_to_openscm_variable_mapping(inverse=False):
             if toks[0] in total_emissions_variables and toks[1] == "EMIS":
                 one_way_replacements[k] = "{}T_{}".format(toks[0], "EMIS")
 
-
     else:
         # these come from MAGICC's output
         one_way_replacements = {
