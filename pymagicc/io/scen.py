@@ -13,7 +13,7 @@ from pymagicc.definitions import (
 )
 
 from .base import _EmisInReader, _Writer
-from .utils import get_region_order
+from .utils import _strip_emis_variables, get_region_order
 
 
 class _NonStandardEmisInReader(_EmisInReader):
@@ -262,7 +262,7 @@ class _ScenWriter(_Writer):
 
         variables = self._get_df_header_row("variable")
         variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
-        variables = [v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables]
+        variables = _strip_emis_variables(variables)
 
         regions = self._get_df_header_row("region")
         regions = convert_magicc_to_openscm_regions(regions, inverse=True)
@@ -346,7 +346,7 @@ class _ScenWriter(_Writer):
         variables = convert_magicc7_to_openscm_variables(
             self._get_df_header_row("variable"), inverse=True
         )
-        variables = [v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables]
+        variables = _strip_emis_variables(variables)
 
         special_scen_code = get_special_scen_code(
             regions=region_order_magicc, emissions=variables
@@ -367,9 +367,7 @@ class _ScenWriter(_Writer):
             variables = region_block.columns.levels[0]
             variables = convert_magicc7_to_openscm_variables(variables, inverse=True)
             region_block.columns = region_block.columns.set_levels(
-                levels=[
-                    v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables
-                ],
+                levels=_strip_emis_variables(variables),
                 level="variable",
             )
 

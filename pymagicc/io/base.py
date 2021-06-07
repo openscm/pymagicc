@@ -23,6 +23,7 @@ from pymagicc.utils import apply_string_substitutions
 
 from .utils import (
     _get_openscm_var_from_filepath,
+    _strip_emis_variables,
     get_dattype_regionmode,
     get_region_order,
 )
@@ -685,7 +686,7 @@ class _Writer(object):
             data_block.columns.get_level_values("variable").tolist(), inverse=True
         )
         # trailing EMIS is incompatible, for now
-        variables = [v.replace("T_EMIS", "").replace("_EMIS", "") for v in variables]
+        variables = _strip_emis_variables(variables)
         units = convert_pint_to_fortran_safe_units(
             data_block.columns.get_level_values("unit").tolist()
         )

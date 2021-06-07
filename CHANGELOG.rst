@@ -22,6 +22,11 @@ Added
 
 - (`#317 <https://github.com/openscm/pymagicc/pull/317>`_) Support for ozone (effective) radiative forcing output
 
+Changed
+~~~~~~~
+
+- (`#317 <https://github.com/openscm/pymagicc/pull/317>`_) :func:`convert_magicc7_to_openscm_variables` such that inverse mapping for e.g. "Emissions|CO2" is now "CO2T_EMIS" rather than "CO2_EMIS" (similarly for CH4 and N2O). This change ensures that the correct MAGICC output file is requested if "Emissions|CO2" are requested as output.
+
 v2.0.0 - 2021-01-20
 -------------------
 

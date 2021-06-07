@@ -6,6 +6,7 @@ from pymagicc.definitions import (
 )
 
 from .base import _EmisInReader, _FourBoxReader, _Writer
+from .utils import _strip_emis_variables
 
 
 class _ConcInReader(_FourBoxReader):
@@ -109,4 +110,4 @@ class _HistEmisInWriter(_Writer):
 
     def _get_df_header_row(self, col_name):
         hr = super()._get_df_header_row(col_name)
-        return [v.replace("T_EMIS", "").replace("_EMIS", "") for v in hr]
+        return _strip_emis_variables(hr)
