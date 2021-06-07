@@ -127,3 +127,7 @@ def _get_openscm_var_from_filepath(filepath):
 def _check_file_exists(file_to_read):
     if not exists(file_to_read):
         raise FileNotFoundError("Cannot find {}".format(file_to_read))
+
+
+def _strip_emis_variables(in_vars):
+    return [v.replace("T_EMIS", "").replace("_EMIS", "") for v in in_vars]
