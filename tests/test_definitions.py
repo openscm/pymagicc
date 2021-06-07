@@ -284,7 +284,8 @@ def test_convert_magicc7_to_openscm_variables(magicc7, openscm):
         ("CO2I_EMIS", "Emissions|CO2|MAGICC Fossil and Industrial"),
         ("CH3CCL3_EMIS", "Emissions|CH3CCl3"),
         ("CCL4_INVERSE_EMIS", "Inverse Emissions|CCl4"),
-        # in reverse, get back *T_EMIS so MAGICC doesn't explode
+        # in reverse, get back *T_EMIS so that putting e.g. "Emissions|CO2" in
+        # output variables when running actually works
         ("CO2T_EMIS", "Emissions|CO2"),
         ("CH4T_EMIS", "Emissions|CH4"),
         ("N2OT_EMIS", "Emissions|N2O"),
