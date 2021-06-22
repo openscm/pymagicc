@@ -6,3 +6,7 @@ python:
   pip_install: true
   extra_requirements:
     - docs
+
+# turn off pdf for now, failing for some reason
+formats:
+  - epub
