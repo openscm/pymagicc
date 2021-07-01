@@ -17,6 +17,10 @@ The changes listed in this file are categorised as follows:
 master
 ------
 
+
+v2.1.0 - 2021-07-01
+-------------------
+
 Added
 ~~~~~
 
