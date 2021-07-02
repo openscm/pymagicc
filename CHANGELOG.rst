@@ -18,6 +18,15 @@ master
 ------
 
 
+v2.1.1 - 2021-07-02
+-------------------
+
+Fixed
+~~~~~~~
+
+- (`#327 <https://github.com/openscm/pymagicc/pull/327>`_) Reran notebook to include updated documentation from scmdata
+
+
 v2.1.0 - 2021-07-01
 -------------------
 
