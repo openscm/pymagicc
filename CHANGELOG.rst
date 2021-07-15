@@ -20,7 +20,7 @@ master
 Added
 ~~~~~
 
-- (`#328 <https://github.com/openscm/pymagicc/pull/328>`_) Adds additional spelling options for YEARS header
+- (`#328 <https://github.com/openscm/pymagicc/pull/328>`_) Adds additional spelling options for YEARS header in `.SCEN` files
 
 v2.1.1 - 2021-07-02
 -------------------
