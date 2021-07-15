@@ -182,7 +182,7 @@ class _ScenReader(_NonStandardEmisInReader):
             region = convert_magicc_to_openscm_regions(self._stream.readline().strip())
 
             try:
-                variables = self._read_data_header_line(self._stream, ["YEARS", "YEAR"])
+                variables = self._read_data_header_line(self._stream, ["Years", "Year", "YEARS", "YEAR"])
             except IndexError:  # tried to get variables from empty string
                 break
             except AssertionError:  # tried to get variables from a notes line
