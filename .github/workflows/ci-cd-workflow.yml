@@ -1,5 +1,11 @@
 name: pymagicc CI-CD
-on: push
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
 
 jobs:
   linting-and-docs:

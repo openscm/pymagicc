@@ -848,6 +848,7 @@ def test_load_scen():
         todo="SET",
     )
 
+
 def test_load_remind_scen():
     mdata = MAGICCData(join(TEST_DATA_DIR, "REMIND_testOneRegi.SCEN"))
 
@@ -856,7 +857,7 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         6.735,
-        variable='Emissions|CO2|MAGICC Fossil and Industrial',
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
         region="World",
         year=2000,
         unit="Gt C / yr",
@@ -865,7 +866,7 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         1.4845,
-        variable='Emissions|CO2|MAGICC Fossil and Industrial',
+        variable="Emissions|CO2|MAGICC Fossil and Industrial",
         region="World",
         year=2500,
         unit="Gt C / yr",
@@ -874,7 +875,7 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         5.5382,
-        variable='Emissions|SF6',
+        variable="Emissions|SF6",
         region="World",
         year=2500,
         unit="kt SF6 / yr",
@@ -883,7 +884,7 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         9.4971,
-        variable='Emissions|SF6',
+        variable="Emissions|SF6",
         region="World",
         year=2100,
         unit="kt SF6 / yr",
@@ -892,7 +893,7 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         0.000,
-        variable='Emissions|SF6',
+        variable="Emissions|SF6",
         region="World",
         year=2150,
         unit="kt SF6 / yr",
@@ -901,13 +902,12 @@ def test_load_remind_scen():
     assert_mdata_value(
         mdata,
         0.0138,
-        variable='Emissions|OC',
+        variable="Emissions|OC",
         region="World|Bunkers",
         year=2150,
         unit="Mt OC / yr",
         todo="SET",
     )
-
 
 
 def test_load_scen_specify_metadata():
