@@ -2,7 +2,7 @@ cff-version: 1.1.0
 message: |
   If you make any use of MAGICC, its license requires citing of
 
-    M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part I "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456. https://doi.org/10.5194/acp-11-1417-2011
+    M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1 "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456. https://doi.org/10.5194/acp-11-1417-2011
 
   If you use Pymagicc in your research, please additionally cite
 
@@ -37,3 +37,30 @@ repository-code: https://github.com/openclimatedata/pymagicc
 license: other-open
 # Fallback URL as different licenses used for code and included binary
 license-url: https://github.com/openscm/pymagicc
+keywords:
+  - climate model
+  - climate science
+  - Python
+references:
+  - type: article
+    authors:
+      - family-names: Meinshausen
+        given-names: M.
+      - family-names: Raper
+        given-names: S. C. B.
+      - family-names: Wigley
+        given-names: T. M. L.
+    title: "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1: Model Description and Calibration"
+    date-published: 2011-02-16
+    doi: 10.5194/acp-11-1417-2011
+  - type: article
+    authors:
+      - family-names: Gieseke
+        given-names: R.
+      - family-names: Willner
+        given-names: S. N.
+      - family-names: Mengel
+        given-names: M.
+    title: "Pymagicc: A Python wrapper for the simple climate model MAGICC"
+    date-published: 2018-02-04
+    doi: 10.21105/joss.00516
