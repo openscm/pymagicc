@@ -138,6 +138,12 @@ class _CompactOutReader(_Reader):
         id_cols = set(out.columns) - set(years)
         out = out.melt(value_vars=years, var_name="year", id_vars=id_cols)
         new_index = list(set(out.columns) - {"value"})
+
+        for c in new_index:
+            if isinstance(out[c].values[0], list):
+                # ensure can be put in index
+                out[c] = out[c].apply(tuple)
+
         out = out.set_index(new_index)["value"].unstack("year")
         out = out.T
 
