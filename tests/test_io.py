@@ -2863,7 +2863,9 @@ def test_filter():
         (mdata.meta["variable"] == tvariable) & (mdata.meta["region"] == tregion)
     )
     expected = mdata.timeseries()[mask]
-    pd.testing.assert_frame_equal(result, expected, check_names=False, check_like=True)
+    pd.testing.assert_frame_equal(
+        result, expected, check_names=False, check_like=True, check_column_type=False
+    )
 
 
 def test_incomplete_filepath():
@@ -3053,7 +3055,9 @@ def test_in_file_read_write_functionally_identical(
                 assert value_written == mi_initial.metadata[key_written]
 
     pd.testing.assert_frame_equal(
-        mi_written.timeseries().sort_index(), mi_initial.timeseries().sort_index()
+        mi_written.timeseries().sort_index(),
+        mi_initial.timeseries().sort_index(),
+        check_column_type=False,
     )
 
 
@@ -3311,7 +3315,9 @@ def test_magicc_data_append(mock_read_metadata_and_df, inplace):
     else:
         original = deepcopy(mdata)
         res = mdata.append(tfilepath, inplace=inplace)
-        pd.testing.assert_frame_equal(original.timeseries(), mdata.timeseries())
+        pd.testing.assert_frame_equal(
+            original.timeseries(), mdata.timeseries(), check_column_type=False
+        )
         assert original.metadata == mdata.metadata
 
     mock_read_metadata_and_df.assert_called_with(tfilepath)
@@ -3331,6 +3337,7 @@ def test_magicc_data_append(mock_read_metadata_and_df, inplace):
         res.timeseries(),
         expected.sort_index().reorder_levels(mdata.timeseries().index.names),
         check_like=True,
+        check_column_type=False,
     )
 
 
@@ -4414,7 +4421,9 @@ def test_binary_reader_different_versions():
     assert res_legacy.get_unique_meta("unit", True) == "unknown"
     meta_columns = res_v2.meta.columns.drop("unit")
     pd.testing.assert_frame_equal(
-        res_v2.timeseries(meta_columns), res_legacy.timeseries(meta_columns)
+        res_v2.timeseries(meta_columns),
+        res_legacy.timeseries(meta_columns),
+        check_column_type=False,
     )
 
 
@@ -4428,5 +4437,7 @@ def test_binary_reader_different_versions_global_only():
     assert res_legacy.get_unique_meta("unit", True) == "unknown"
     meta_columns = res_v2.meta.columns.drop("unit")
     pd.testing.assert_frame_equal(
-        res_v2.timeseries(meta_columns), res_legacy.timeseries(meta_columns)
+        res_v2.timeseries(meta_columns),
+        res_legacy.timeseries(meta_columns),
+        check_column_type=False,
     )
