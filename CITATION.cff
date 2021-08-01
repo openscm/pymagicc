@@ -51,6 +51,7 @@ references:
       - family-names: Wigley
         given-names: T. M. L.
     title: "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1: Model Description and Calibration"
+    journal: Atmospheric Chemistry and Physics
     date-published: 2011-02-16
     doi: 10.5194/acp-11-1417-2011
   - type: article
@@ -62,5 +63,6 @@ references:
       - family-names: Mengel
         given-names: M.
     title: "Pymagicc: A Python wrapper for the simple climate model MAGICC"
+    journal: Journal of Open Source Software
     date-published: 2018-02-04
     doi: 10.21105/joss.00516
