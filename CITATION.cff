@@ -1,80 +1,56 @@
 ---
-cff-version: "1.1.0"
-authors:
-  -
-    family-names: Nicholls
-    given-names: Zeb
-    orcid: "https://orcid.org/0000-0002-4767-2723"
-  -
-    family-names: Gieseke
-    given-names: Robert
-    orcid: "https://orcid.org/0000-0002-1236-5109"
-  -
-    family-names: Lewis
-    given-names: Jared
-    orcid: "https://orcid.org/0000-0002-8155-8924"
-  -
-    family-names: Willner
-    given-names: Sven
-    orcid: "https://orcid.org/0000-0001-6798-6247"
-  -
-    family-names: Mengel
-    given-names: Matthias
-    orcid: "https://orcid.org/0000-0001-6724-9685"
+cff-version: 1.1.0
+title: Pymagicc - A Python wrapper for the reduced complexity climate model MAGICC
+message: "If you make any use of MAGICC, its license requires citing of Meinshausen et al. (2011), see README."
 doi: 10.5281/zenodo.1111815
-keywords:
-  - "climate model"
-  - "climate science"
-  - Python
+authors:
+  - given-names: Zeb
+    family-names: Nicholls
+    orcid: https://orcid.org/0000-0002-4767-2723
+  - given-names: Robert
+    family-names: Gieseke
+    orcid: https://orcid.org/0000-0002-1236-5109
+  - given-names: Jared
+    family-names: Lewis
+    orcid: https://orcid.org/0000-0002-8155-8924
+  - given-names: Sven
+    family-names: Willner
+    orcid: https://orcid.org/0000-0001-6798-6247
+  - given-names: Matthias
+    family-names: Mengel
+    orcid: https://orcid.org/0000-0001-6724-9685
+repository-code: https://github.com/openclimatedata/pymagicc
+# SPDX code
 license: other-open
-license-url: "https://github.com/openscm/pymagicc"
-message: |
-    If you make any use of MAGICC, its license requires citing of
-
-      M. Meinshausen, S. C. B. Raper and T. M. L. Wigley (2011). "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1 "Model Description and Calibration." Atmospheric Chemistry and Physics 11: 1417-1456. https://doi.org/10.5194/acp-11-1417-2011
-
-    If you use Pymagicc in your research, please additionally cite
-
-      R. Gieseke, S. N. Willner and M. Mengel, (2018). Pymagicc: A Python wrapper for the simple climate model MAGICC. Journal of Open Source Software, 3(22), 516, https://doi.org/10.21105/joss.00516
-
-    For proper reproducibility please reference the version of Pymagicc used. In Python it can be printed with
-
-      import pymagicc
-      print(pymagicc.__version__)
-
-    Pymagicc releases are archived at Zenodo and the version used should also be cited. See https://doi.org/10.5281/zenodo.1111815
+# Fallback URL as different licenses used for code and included binary
+license-url: https://github.com/openscm/pymagicc
+keywords:
+  - climate model
+  - climate science
+  - Python
 references:
-  -
+  - type: article
     authors:
-      -
-        family-names: Meinshausen
+      - family-names: Meinshausen
         given-names: M.
-      -
-        family-names: Raper
-        given-names: "S. C. B."
-      -
-        family-names: Wigley
-        given-names: "T. M. L."
+      - family-names: Raper
+        given-names: S. C. B.
+      - family-names: Wigley
+        given-names: T. M. L.
+    title: "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1: Model Description and Calibration"
+    journal: Atmospheric Chemistry and Physics
     date-published: 2011-02-16
     doi: 10.5194/acp-11-1417-2011
-    journal: "Atmospheric Chemistry and Physics"
-    title: "Emulating coupled atmosphere-ocean and carbon cycle models with a simpler model, MAGICC6: Part 1: Model Description and Calibration"
-    type: article
-  -
+  - type: article
     authors:
-      -
-        family-names: Gieseke
+      - family-names: Gieseke
         given-names: R.
-      -
-        family-names: Willner
-        given-names: "S. N."
-      -
-        family-names: Mengel
+      - family-names: Willner
+        given-names: S. N.
+      - family-names: Mengel
         given-names: M.
+    title: "Pymagicc: A Python wrapper for the simple climate model MAGICC"
+    journal: Journal of Open Source Software
     date-published: 2018-02-04
     doi: 10.21105/joss.00516
-    journal: "Journal of Open Source Software"
-    title: "Pymagicc: A Python wrapper for the simple climate model MAGICC"
-    type: article
-repository-code: "https://github.com/openclimatedata/pymagicc"
-title: "Pymagicc - A Python wrapper for the reduced complexity climate model MAGICC"
+...
