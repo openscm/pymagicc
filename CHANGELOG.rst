@@ -15,11 +15,12 @@ The changes listed in this file are categorised as follows:
     - Security: in case of vulnerabilities.
 
 master
-~~~~~~
+------
 
 Fixed
 ~~~~~
 
+- (`#332 <https://github.com/openscm/pymagicc/pull/332>`_) Fix check for whether MAGICC logged a warning/error
 - (`#331 <https://github.com/openscm/pymagicc/pull/331>`_) Hotfix CI to handle new pandas version
 
 v2.1.2 - 2021-07-17
