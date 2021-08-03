@@ -14,6 +14,14 @@ The changes listed in this file are categorised as follows:
     - Fixed: any bug fixes
     - Security: in case of vulnerabilities.
 
+master
+~~~~~~
+
+Fixed
+~~~~~
+
+- (`#331 <https://github.com/openscm/pymagicc/pull/331>`_) Hotfix CI to handle new pandas version
+
 v2.1.2 - 2021-07-17
 -------------------
 
