@@ -49,17 +49,18 @@ REQUIREMENTS_INSTALL = [
     "pandas-datapackage-reader",
     "f90nml",
     "PyYAML",
-    "scmdata>=0.7.5",
+    "scmdata>=0.16.1",
+    "pandas>=2"
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
     "expectexception",
     "seaborn",
-    "pyam-iamc>=0.3.0,<0.8.0",
+    "pyam-iamc>=0.3.0",
 ]
 REQUIREMENTS_TESTS = [
     "nbval",
-    "pytest>=4.0,<5",
+    "pytest>=7",
     "pytest-benchmark",
     "pytest-cov",
     "pytest-mock",
