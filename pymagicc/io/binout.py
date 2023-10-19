@@ -123,7 +123,7 @@ class _LegacyBinFormat:
 
         df = pd.DataFrame(data, index=index)
 
-        if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
+        if pd.api.types.is_float_dtype(df.index):
             df.index = df.index.to_series().round(3)
 
         df.index.name = "time"
@@ -175,7 +175,7 @@ class _V2BinFormat(_LegacyBinFormat):
 
         df = pd.DataFrame(np.asarray(data).T, index=index)
 
-        if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
+        if pd.api.types.is_float_dtype(df.index):
             df.index = df.index.to_series().round(3)
 
         df.index.name = "time"

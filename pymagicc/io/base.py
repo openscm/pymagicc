@@ -230,7 +230,7 @@ class _Reader(object):
             index_col=0,
         )
 
-        if isinstance(df.index, pd.core.indexes.numeric.Float64Index):
+        if pd.api.types.is_float_dtype(df.index):
             df.index = df.index.to_series().round(3)
 
         # reset the columns to be 0..n instead of starting at 1
