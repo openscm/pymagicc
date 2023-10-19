@@ -3751,6 +3751,7 @@ def test_writing_identical_rcpdat(
     if add_extra_data:
         tmp = writer.timeseries()
         tmp = pd.concat([tmp, tmp.iloc[0, :].to_frame().T], axis=0)
+        tmp.index = tmp.index.set_names(['climate_model', 'model', 'region', 'scenario', 'todo', 'unit', 'variable'])
         tmp.iloc[-1, :] = np.arange(tmp.shape[1]) / tmp.shape[1]
         tmp = tmp.reset_index()
         tmp["variable"].iloc[-1] = "Surface Temperature"
