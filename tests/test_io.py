@@ -3331,7 +3331,8 @@ def test_magicc_data_append(mock_read_metadata_and_df, inplace):
     assert res.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])
-    expected.columns = pd.Index([dt.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="object")
+    expected.columns = pd.Index([dt.datetime(tindex_yr, 1, 1, 0, 0, 0)],
+                                dtype="datetime64[ns]", name="time")
 
     pd.testing.assert_frame_equal(
         res.timeseries(),
