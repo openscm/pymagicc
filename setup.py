@@ -50,7 +50,8 @@ REQUIREMENTS_INSTALL = [
     "f90nml",
     "PyYAML",
     "scmdata>=0.16.1",
-    "pandas>=2"
+    "pandas>=2",
+    "versioneer"
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
