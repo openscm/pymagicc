@@ -44,13 +44,15 @@ def create_package(MAGICC_cls, **kwargs):
 
     if p.executable is None or not exists(p.original_dir):
         magicc_x_unavailable = "MAGICC {} is not available.".format(p.version)
-        env_text = "Pymagicc related variables in your current environment are: {}.".format(
-            ";".join(
-                [
-                    "{}: {}".format(k, v)
-                    for (k, v) in os.environ.items()
-                    if k.startswith("MAGICC_")
-                ]
+        env_text = (
+            "Pymagicc related variables in your current environment are: {}.".format(
+                ";".join(
+                    [
+                        "{}: {}".format(k, v)
+                        for (k, v) in os.environ.items()
+                        if k.startswith("MAGICC_")
+                    ]
+                )
             )
         )
         env_help = "If you set MAGICC_EXECUTABLE_X=/path/to/MAGICCX/binary then you will be able to run the tests with that binary for MAGICC_X."

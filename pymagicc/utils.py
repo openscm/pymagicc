@@ -16,7 +16,6 @@ from copy import deepcopy
 
 # Thank you https://stackoverflow.com/a/15448887/10473080
 def _compile_replacement_regexp(rep_dict, case_insensitive=False):
-
     if case_insensitive:
         flags = re.DOTALL | re.IGNORECASE
     else:

@@ -295,7 +295,11 @@ def test_run_ambiguous_config(package):
     )
     with pytest.raises(ValueError, match=error_msg):
         package.run(
-            pf_apply=1, PF_APPLY=0, OUT_TempERATURE=0, out_temperature=1, out_forcing=1,
+            pf_apply=1,
+            PF_APPLY=0,
+            OUT_TempERATURE=0,
+            out_temperature=1,
+            out_forcing=1,
         )
 
 
@@ -631,9 +635,10 @@ def test_get_tcr_tcre_from_diagnosis_results(
     ).values.sum() * unit_registry("GtC")
     expected_tcre = expected_tcr / expected_tcre_cumulative_co2
 
-    (actual_tcr, actual_tcre,) = magicc_base.get_tcr_tcre_from_diagnosis_results(
-        test_results_df
-    )
+    (
+        actual_tcr,
+        actual_tcre,
+    ) = magicc_base.get_tcr_tcre_from_diagnosis_results(test_results_df)
     assert actual_tcr == expected_tcr
     assert actual_tcre == expected_tcre
 
@@ -712,7 +717,8 @@ def test_check_ecs_total_RF(valid_ecs_diagnosis_results, magicc_base):
     test_results_df = valid_ecs_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_ecs_total_RF(
-        test_RF_data, valid_ecs_diagnosis_results["ecs_start_time"],
+        test_RF_data,
+        valid_ecs_diagnosis_results["ecs_start_time"],
     )
 
     _assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
@@ -727,7 +733,8 @@ def test_check_tcr_tcre_total_RF(valid_tcr_tcre_diagnosis_results, magicc_base):
     test_results_df = valid_tcr_tcre_diagnosis_results["mock_results"]
     test_RF_data = test_results_df.filter(variable="Radiative Forcing")
     magicc_base._check_tcr_tcre_total_RF(
-        test_RF_data, valid_tcr_tcre_diagnosis_results["tcr_time"],
+        test_RF_data,
+        valid_tcr_tcre_diagnosis_results["tcr_time"],
     )
 
     _assert_bad_tcr_ecs_tcre_diagnosis_values_caught(
@@ -1212,7 +1219,7 @@ def test_pymagicc_writing_has_an_effect(
         )
         expected = ttweak_factor * initial
 
-        abstol = np.max([result, expected]) * 10 ** -3
+        abstol = np.max([result, expected]) * 10**-3
         np.testing.assert_allclose(result, expected, rtol=1e-5, atol=abstol)
 
 
@@ -1431,10 +1438,10 @@ def test_co2_emms_other_rf_run(package, emms_co2_level):
 
     greater_equal_rows = ext_rf_output_vals >= forcing_external
     close_rows_denominator = forcing_external
-    close_rows_denominator[zero_rows] = 10 ** -10  # avoid divide by zero
+    close_rows_denominator[zero_rows] = 10**-10  # avoid divide by zero
     close_rows = (
         np.abs(ext_rf_output_vals - forcing_external) / close_rows_denominator
-        <= 10 ** -3
+        <= 10**-3
     )
     matching_rows = greater_equal_rows | close_rows
     assert matching_rows.all()
@@ -1605,7 +1612,6 @@ def test_stderr_accessible_on_failure(package):
     [("WARNING", True), ("ERROR", True), ("FATAL", True), ("INFO", False)],
 )
 def test_stderr_warning_raises_warning(mocker, level, raises):
-
     # Run magicc, but replaces the error message
     def run(*args, **kwargs):
         import subprocess

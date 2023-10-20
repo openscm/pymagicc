@@ -14,10 +14,9 @@ available with your package manager).
 Find usage instructions in the
 GitHub repository at https://github.com/openscm/pymagicc.
 """
+import versioneer
 from setuptools import find_packages, setup
 from setuptools.command.test import test as TestCommand
-
-import versioneer
 
 PACKAGE_NAME = "pymagicc"
 DESCRIPTION = "Python wrapper for the simple climate model MAGICC"
@@ -51,7 +50,7 @@ REQUIREMENTS_INSTALL = [
     "PyYAML",
     "scmdata",
     "pandas",
-    "versioneer"
+    "versioneer",
 ]
 REQUIREMENTS_NOTEBOOKS = [
     "notebook",
@@ -82,7 +81,6 @@ REQUIREMENTS_DEV = (
     [
         "bandit",
         "black",
-        "black-nb",
         "flake8",
         "isort>=5",
         "nbdime",

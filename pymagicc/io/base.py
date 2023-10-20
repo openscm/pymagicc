@@ -135,7 +135,6 @@ class _Reader(object):
         return line.strip().startswith("/")
 
     def _derive_metadata(self, nml_start, nml_end):
-
         nml_values = self.process_metadata(self.lines[nml_start : nml_end + 1])
 
         # ignore all nml_values except units

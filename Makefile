@@ -33,7 +33,7 @@ checks: $(VENV_DIR)  ## run all the checks
 		echo "\n\n=== isort ==="; $(VENV_DIR)/bin/isort --check-only --quiet pymagicc tests setup.py || echo "--- isort failed ---" >&2; \
 		echo "\n\n=== notebook tests ==="; $(VENV_DIR)/bin/pytest notebooks -r a --nbval --sanitize-with tests/notebook-tests.cfg || echo "--- notebook tests failed ---" >&2; \
 		echo "\n\n=== tests ==="; $(VENV_DIR)/bin/pytest tests --cov -r a -v --cov-report term-missing || echo "--- tests failed ---" >&2; \
-		echo "\n\n=== docs ==="; $(VENV_DIR)/bin/sphinx-build -M html docs docs/build -qW || echo "--- docs failed ---" >&2; \
+		echo "\n\n=== docs ==="; $(VENV_DIR)/bin/sphinx-build -M html docs docs/build || echo "--- docs failed ---" >&2; \
 		echo
 
 black: $(VENV_DIR)  ## reformat the code with black
@@ -66,18 +66,10 @@ test-parallel: $(VENV_DIR)  ## run the tests
 test-notebooks: $(VENV_DIR) notebooks/*.ipynb scripts/test_notebooks.sh  ## run the notebook tests
 	./scripts/test_notebooks.sh
 
-format-notebooks: $(VENV_DIR)  ## format the notebooks
-	@status=$$(git status --porcelain $(NOTEBOOKS_DIR)); \
-	if test "x$${status}" = x; then \
-		$(VENV_DIR)/bin/black-nb $(NOTEBOOKS_DIR); \
-	else \
-		echo Not trying any formatting. Working directory is dirty ... >&2; \
-	fi;
-
 $(VENV_DIR): setup.py
 	[ -d $(VENV_DIR) ] || python3 -m venv $(VENV_DIR)
 
-	$(VENV_DIR)/bin/pip install --upgrade pip wheel
+	$(VENV_DIR)/bin/pip install --upgrade pip wheel versioneer
 	$(VENV_DIR)/bin/pip install -e .[dev]
 
 

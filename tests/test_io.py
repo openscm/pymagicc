@@ -1472,7 +1472,14 @@ def test_load_rewrite_scen7_scen_loop(temp_dir):
         ["World"]
         + [
             "World|{}".format(v)
-            for v in ["R5ASIA", "R5MAF", "R5REF", "R5LAM", "R5OECD", "Bunkers",]
+            for v in [
+                "R5ASIA",
+                "R5MAF",
+                "R5REF",
+                "R5LAM",
+                "R5OECD",
+                "Bunkers",
+            ]
         ]
     )
 
@@ -2166,7 +2173,11 @@ def test_load_sample_dat_radiative_forcings():
     assert (mdata["unit"] == "W / m^2").all()
 
     assert_mdata_value(
-        mdata, 0.0, variable="Radiative Forcing", region="World", year=1765,
+        mdata,
+        0.0,
+        variable="Radiative Forcing",
+        region="World",
+        year=1765,
     )
 
     assert_mdata_value(
@@ -2198,7 +2209,11 @@ def test_load_sample_dat_effective_radiative_forcings():
     assert (mdata["unit"] == "W / m^2").all()
 
     assert_mdata_value(
-        mdata, 0.0, variable="Effective Radiative Forcing", region="World", year=1765,
+        mdata,
+        0.0,
+        variable="Effective Radiative Forcing",
+        region="World",
+        year=1765,
     )
 
     assert_mdata_value(
@@ -3331,8 +3346,9 @@ def test_magicc_data_append(mock_read_metadata_and_df, inplace):
     assert res.metadata == expected_metadata
 
     expected = pd.concat([tdf_init, tdf_append])
-    expected.columns = pd.Index([dt.datetime(tindex_yr, 1, 1, 0, 0, 0)],
-                                dtype="datetime64[ns]", name="time")
+    expected.columns = pd.Index(
+        [dt.datetime(tindex_yr, 1, 1, 0, 0, 0)], dtype="datetime64[ns]", name="time"
+    )
 
     pd.testing.assert_frame_equal(
         res.timeseries(),
@@ -3648,7 +3664,11 @@ def test_compact_binout_reader():
     mdata = MAGICCData(join(TEST_DATA_DIR, "COMPACT.BINOUT"))
 
     generic_mdata_tests(
-        mdata, extra_index_cols={"run_id": int, "core_climatesensitivity": float,},
+        mdata,
+        extra_index_cols={
+            "run_id": int,
+            "core_climatesensitivity": float,
+        },
     )
 
     assert (mdata["unit"] == "unknown").all()
@@ -3751,7 +3771,9 @@ def test_writing_identical_rcpdat(
     if add_extra_data:
         tmp = writer.timeseries()
         tmp = pd.concat([tmp, tmp.iloc[0, :].to_frame().T], axis=0)
-        tmp.index = tmp.index.set_names(['climate_model', 'model', 'region', 'scenario', 'todo', 'unit', 'variable'])
+        tmp.index = tmp.index.set_names(
+            ["climate_model", "model", "region", "scenario", "todo", "unit", "variable"]
+        )
         tmp.iloc[-1, :] = np.arange(tmp.shape[1]) / tmp.shape[1]
         tmp = tmp.reset_index()
         tmp["variable"].iloc[-1] = "Surface Temperature"
