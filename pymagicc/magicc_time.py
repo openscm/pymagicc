@@ -15,7 +15,7 @@ from functools import lru_cache
 
 import numpy as np
 
-_convert_to_decimal_required_precision = 4 * 10 ** -3
+_convert_to_decimal_required_precision = 4 * 10**-3
 """Maximum relative deviation between float times before they are considered unequal"""
 
 _startmonths_magicc = np.arange(0, 1, 1 / 12)

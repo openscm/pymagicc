@@ -524,7 +524,6 @@ class MAGICCData(ScmRun):
             self.filepath = None
             super().__init__(data, columns=columns, **kwargs)
         else:
-
             filepath = data  # assume filepath
             self.filepath = filepath
             metadata, data, read_columns = _read_metadata_and_df(filepath)

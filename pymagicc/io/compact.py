@@ -186,7 +186,6 @@ class _BinaryCompactOutReader(_CompactOutReader):
 
     def _read_lines(self, fh, headers):
         while True:
-
             items = self._read_item(fh)
             if items is None:
                 break
