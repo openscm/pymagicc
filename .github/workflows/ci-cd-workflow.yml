@@ -181,7 +181,7 @@ jobs:
         pytest notebooks -r a --nbval --sanitize-with tests/notebook-tests.cfg --no-cov
 
   test-install:
-    needs: linting-and-docs, build, test-notebooks
+    needs: [linting-and-docs, build, test-notebooks]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
