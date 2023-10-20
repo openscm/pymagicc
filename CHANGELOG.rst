@@ -14,6 +14,14 @@ The changes listed in this file are categorised as follows:
     - Fixed: any bug fixes
     - Security: in case of vulnerabilities.
 
+v2.1.4 - 2023-10-20
+-------------------
+
+Changed
+~~~~~~~
+
+- (`#344 <https://github.com/openscm/pymagicc/pull/344>`_) Loosen off dependencies
+
 v2.1.3 - 2021-09-07
 -------------------
 
