@@ -24,7 +24,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dev dependencies
       run: |
-        pip install --upgrade --user pip wheel
+        pip install --upgrade --user pip wheel versioneer
         pip install -e .[dev]
     # TODO: add `pylint pymagicc`
     # TODO: add pydocstyle pymagicc
