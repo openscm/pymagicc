@@ -1,8 +1,11 @@
+import atexit
 import datetime as dt
 import filecmp
+import importlib.resources
 import re
 import shutil
 import warnings
+from contextlib import ExitStack
 from copy import deepcopy
 from os import listdir
 from os.path import basename, dirname, isfile, join
@@ -11,7 +14,6 @@ from unittest.mock import patch
 import f90nml
 import numpy as np
 import pandas as pd
-import pkg_resources
 import pytest
 from numpy import testing as npt
 from openscm_units import unit_registry
@@ -36,7 +38,11 @@ from pymagicc.io.base import _Reader
 from pymagicc.io.compact import find_parameter_groups
 from pymagicc.io.scen import get_special_scen_code
 
-MAGICC6_DIR = pkg_resources.resource_filename("pymagicc", "MAGICC6/run")
+file_manager = ExitStack()
+atexit.register(file_manager.close)
+MAGICC6_DIR_REF = importlib.resources.files("pymagicc") / "MAGICC6" / "run"
+MAGICC6_DIR = file_manager.enter_context(importlib.resources.as_file(MAGICC6_DIR_REF))
+
 TEST_DATA_DIR = join(dirname(__file__), "test_data")
 TEST_OUT_DIR = join(TEST_DATA_DIR, "out_dir")
 
@@ -1291,8 +1297,9 @@ def test_load_rewritten_scen7(temp_dir):
     with warnings.catch_warnings(record=True) as warn_autorename_region:
         writer.write(write_file, magicc_version=7)
 
-    assert len(warn_autorename_region) == 1
-    assert warn_msg == str(warn_autorename_region[0].message)
+    # warning is emitted twice because data block is written twice
+    assert len(warn_autorename_region) == 2
+    assert all(warn_msg == str(w.message) for w in warn_autorename_region)
 
     mdata = MAGICCData(write_file, columns=cols)
 

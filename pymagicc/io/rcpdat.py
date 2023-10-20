@@ -494,8 +494,8 @@ class _RCPDatWriter(_Writer):
 
         number_col_headers = 3
 
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
-        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS".lower())
+        nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE".lower())
 
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split(self._newline_char))
