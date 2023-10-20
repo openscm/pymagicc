@@ -95,7 +95,7 @@ jobs:
 
     - name: Install test dependencies
       run: |
-        pip install --upgrade --user pip wheel
+        pip install --upgrade --user pip wheel versioneer
         pip install -e .[tests]
 
 
@@ -169,7 +169,7 @@ jobs:
 
     - name: Install notebook dependencies
       run: |
-        pip install --upgrade --user pip wheel
+        pip install --upgrade --user pip wheel versioneer
         pip install -e .[tests,notebooks]
     - name: Test notebooks with nbval
       if: startsWith(runner.os, 'Linux')
@@ -197,7 +197,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install (${{ runner.os }})
       run: |
-        pip install --upgrade pip wheel
+        pip install --upgrade pip wheel versioneer
         pip install .
     - name: Test installation
       run: |
