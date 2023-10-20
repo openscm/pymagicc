@@ -221,7 +221,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install --upgrade --user pip wheel
+        pip install --upgrade --user pip wheel versioneer
         pip install -e .[dev]
     - name: Create package
       run: python setup.py sdist bdist_wheel --universal
