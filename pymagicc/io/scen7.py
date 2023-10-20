@@ -34,6 +34,7 @@ class _Scen7Writer(_HistEmisInWriter):
         new_regions = [
             rcp_regions_mapping[r] if r in rcp_regions_mapping else r for r in regions
         ]
+
         warn_msg = (
             "MAGICC6 RCP region naming (R5*) is not compatible with "
             "MAGICC7, automatically renaming to MAGICC7 compatible regions "

@@ -633,8 +633,8 @@ class _Writer(object):
             number_col_headers = 1
 
         if self._magicc_version == 6:
-            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE")
-            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS")
+            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_REGIONMODE".lower())
+            nml["THISFILE_SPECIFICATIONS"].pop("THISFILE_DATAROWS".lower())
 
         nml["THISFILE_SPECIFICATIONS"]["THISFILE_FIRSTDATAROW"] = (
             len(output.getvalue().split(self._newline_char))

@@ -29,7 +29,7 @@ def _get_readme_codeblocks():
 
 
 @pytest.mark.parametrize("codeblock", _get_readme_codeblocks())
-def test_readme(codeblock):
+def test_readme(codeblock, package):
     pathway_scen_file = "PATHWAY.SCEN"
     scen_required = pathway_scen_file in codeblock
     if scen_required:

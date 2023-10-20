@@ -113,7 +113,7 @@ def test_parameters(package):
 
 
 @pytest.mark.slow
-def test_default_config():
+def test_default_config(package):
     results = run(rcp26, out_parameters=True)
     assert results.metadata["parameters"]["allcfgs"]["core_climatesensitivity"] == 3
     assert results.metadata["parameters"]["years"]["startyear"] == 1765
