@@ -20,7 +20,7 @@ master
 Fixed
 ~~~~~
 
-- (`#346 <https://github.com/openscm/pymagicc/pull/346>`_) Removed used of whitespace_delim with pandas, should be fewer warnings now
+- (`#347 <https://github.com/openscm/pymagicc/pull/347>`_) Removed used of whitespace_delim with pandas, should be fewer warnings now
 
 v2.1.4 - 2023-10-20
 -------------------
