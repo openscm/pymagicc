@@ -224,7 +224,7 @@ class _Reader(object):
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
-            delim_whitespace=True,
+            sep="\s+",
             header=None,
             index_col=0,
         )
@@ -438,8 +438,9 @@ class _Reader(object):
             try:
                 if not tokens[0] == exp_hd:
                     raise AssertionError(
-                        "Token '{}' does not match expected header "
-                        "'{}'".format(tokens[0], exp_hd)
+                        "Token '{}' does not match expected header " "'{}'".format(
+                            tokens[0], exp_hd
+                        )
                     )
 
                 return tokens[1:]
@@ -626,8 +627,9 @@ class _Writer(object):
         except AttributeError:
             if not isinstance(data_block.columns, pd.core.indexes.base.Index):
                 raise AssertionError(
-                    "Unexpected type of `data_block.columns`: "
-                    "{}".format(type(data_block.columns))
+                    "Unexpected type of `data_block.columns`: " "{}".format(
+                        type(data_block.columns)
+                    )
                 )
 
             number_col_headers = 1
