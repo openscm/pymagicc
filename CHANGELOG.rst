@@ -14,6 +14,14 @@ The changes listed in this file are categorised as follows:
     - Fixed: any bug fixes
     - Security: in case of vulnerabilities.
 
+master
+------
+
+Fixed
+~~~~~
+
+- (`#346 <https://github.com/openscm/pymagicc/pull/346>`_) Removed used of whitespace_delim with pandas, should be fewer warnings now
+
 v2.1.4 - 2023-10-20
 -------------------
 
