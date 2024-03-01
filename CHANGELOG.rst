@@ -14,8 +14,8 @@ The changes listed in this file are categorised as follows:
     - Fixed: any bug fixes
     - Security: in case of vulnerabilities.
 
-master
-------
+v2.1.5 - 2024-03-01
+-------------------
 
 Fixed
 ~~~~~
