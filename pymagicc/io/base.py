@@ -224,7 +224,7 @@ class _Reader(object):
         df = pd.read_csv(
             stream,
             skip_blank_lines=True,
-            sep="\s+",
+            sep="\s+",  # noqa: W605
             header=None,
             index_col=0,
         )
